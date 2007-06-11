@@ -1,0 +1,245 @@
+<!doctype html public "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<style type="text/css"><!--
+     h1 { color:#bbbbff; }
+     h2 { color:#bbbbff; font-size:200%; }
+     h3 { color:#bbbbff; font-size:180%; margin-top:40pt; margin-bottom=5pt; }
+     table { text-align:center; }
+     table table { background-color:black; width:100%; margin-left:0px; }
+     table table td { padding:18px; }
+     table table table { margin:15px; border-width:1; border-style:solid; border-color:#777777; border-collapse:collapse; width:90%; background-color:#333333; color:#ddddbb; text-align:left; border-spacing:40px; border-collapse:collapse; }
+     table table table tr td { padding:15px; padding-bottom:0px; border-width:0; border-top-width:1; border-style:solid; }
+     span { color:#cccccc; }
+  //--></style>
+<title>Guide to the JDecker Mission Scripting Language</title>
+</head>
+
+<body bgcolor=#000044 text=#aaaaff link=#ffdd99 alink=white vlink=#ffdd99>
+<table>
+	<tr>
+		<td><h1>Guide to the Decker Mission Scripting Language</h1></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>
+			<table><tr><td>
+				<h2>Introduction</h2>
+				JDecker comes with a mission scripting language. Every mission you'll see in the
+				game is created with this language. Let's have a look at a simple mission script to
+				give you an idea of what this guide is about.
+				( The line numbers are only there for this guide. A real mission script does not contain
+				line numbers. )
+				<table><tr><td><pre>
+<span> 1</span>  english
+<span> 2</span>     // this is a comment
+<span> 3</span>     RULESET.MISSION_LIST[] = MISSION
+<span> 4</span>        title = "Ice Run"
+<span> 5</span>        description = "Frozen Dreams, a local ice-cream producer is about to ship
+<span> 6</span>  a new flavour. Hack into their system and bring us the recipe."
+<span> 7</span>
+<span> 8</span>        target_system = SYSTEM
+<span> 9</span>           name = "Frozen Dreams"
+<span>10</span>           type = MANUFACTURING                          // this is another comment
+<span>11</span>           rating = 1
+<span>12</span>
+<span>13</span>        goal[] = DOWNLOAD_FILE
+<span>14</span>           name = "Product Information"
+<span>15</span>           description = "This file contains the recipe you are looking for."
+</pre></td></tr></table>
+				Scripts consist of a lot of assignments of values to variables, and a few comments ( optional ), commands ( not needed in this script ) and blocks
+				( parts of the script which are farther right than the lines above and below them ).
+				Here is a list of all blocks in the sript : lines <span>3-15</span>, lines <span>4-15</span>, lines <span>19-11</span>, lines <span>14-15</span>.
+				Lines <span>2</span>, <span>7</span> and <span>12</span> are ignored because they are empty.
+				Line <span>2</span> counts as empty because everything starting from the and including the // on a line is a comment is ignored by the parser, so to the parser line <span>2</span> is empty.
+				Every block belongs to the command or object definition that sits in the line preceeding it, block <span>14-15</span> for example belongs to the DOWNLOAD_FILE object in line <span>13</span> and defines it.
+				<p>
+				The script above creates a simple mission where the player has to download a file.
+				This script only has an English localization ( <span>1</span> ), the localized version is defined in its block ( <span>3-15</span> )
+				Line <span>3</span> adds a new mission to the list of missions and in the block below defines it ( <span>4-15</span> ).
+				Every mission has a title and description that will be displayed on the missions screen, so we have to define them ( <span>4-6</span> ).
+				The " marks the start and end of text values. Line breaks are ignored between the starting " and ending ", so defining the mission description across two lines is not a problem.
+				Next comes the target system ( <span>8-11</span> ). Every mission must have one, and it must have at least a name, a type and a rating.
+				Of course we also need a mission goal, so we add one to the formerly empty list of goals ( <span>13-15</span> ).
+				This mission script contains the minimal amount of data needed to define a mission. Everything else, like mission rating and payment, is optional.
+			</td></tr></table><p>&nbsp;<p>&nbsp;
+			<table><tr><td>
+			<h2>Basic elements of the scripting language</h2>
+			<h3>Variables</h3>
+			A variable is simply a place to store a number, boolean value, text, constant, function, structure or array in.
+			<h3>Numbers, boolean values, text and constants</h3>
+			Numbers are simply integers, like -15 or 3500.
+			<p>Boolean values are the two words true and false. They work much like constants, but can be the result of mathematical operations too ( a > b will result in either true or false )
+			<p>Text is a text enclosed in ", as explained in the example from the introduction. A text may contain line breaks. Those will be ignored when displaying it. Use \" or two single quotes ' instead of the double quote " if you want it to appear in the text.
+			<p>Constants are defined via the constant command. They are written in caps by convention, to set them apart from normal variables. The most common constant is UNDEFINED. Every newly created variable has the value UNDEFINED until it is assigned different value. UNDEFINED is also returned by functions unless the function explicitly sets its return value. UNDEFINED can be the result of mathematical expressions which don't make sense, but those usually just produce an error, to avoid unexpected results
+			<h3>Structures</h3>
+			A structure is a collection of variables (aka member variables). Each member variable has a name, and you can use the . operator to access it. Numbers cannot be used as member variable names.
+			<br><span>Let's say a structure is stored in a variable called current_node, and that structure has a member variable called name. Then current_node.name will give you the variable name from the structure stored in current_node.</span>
+			<p>Each structure has a structure type. The name of the structure type is stored as text in a member variable called structure_type.
+			<br><span>So if the current_node variable from the previous example has the structure type NODE, then current_node.structure_type will have the value "NODE".</span>
+			<p>Structures may have a member variable called expandable. If a structure has it, and it is set to true, then it is possible to add new variables to the structure by assigning values to them
+			<p>If you use the value of a variable that does not exist, or try to fetch a variable from something that isn't a structure, UNDEFINED will be used for the missing variable's value. The variable will not be created, even if the structure it's supposed to be in is expandable.
+			<br><span>So current_node.favorite_color will be UNDEFINED unless current_node contains a structure, and that structure has a member variable called favorite_color whose value is not UNDEFINED
+			<p>
+			</td></tr></table><p>&nbsp;<p>&nbsp;
+			<table><tr><td style="color:red">
+				<h2 style="color:red">How are mission scripts files created, tested and executed ?</h2>
+				Mission script files are plain text files. You can edit them with any text editor, as long as you save them as plain text (.txt extension).
+				It is recommended to format scripts like the examples from this guide, so others won't have a hardtime reading them.<p>
+				When decker is started, all scripts are loaded and executed in alphabetical order. They define the ruleset and the settings they make are stored in the RULESET object.
+				A mission script gets only turned into a mission if it has at least one of the localizations accepted by the player.
+				The mission is then created using the localization the player likes best.<p>
+				Every day the game goes through all missions and checks their triggers. It then goes through the missions
+				which are potentially available ( status == INVISIBLE &nbsp;and&nbsp; available == true )
+				and makes 0 to 2 of them available. Assigning a value to the status variable of a mission will change its
+				status accordingly in the game. The mission below uses a trigger to make itself available 5 days after the
+				game has started.
+				<table><tr><td><pre style="color:red">
+// this is the first mission from the ice campaign
+
+english
+{
+    available = false
+    title = "Ice Run"
+    description = "Arctic Dreams, a local ice-cream producer is about to ship
+    a new flavour. We'll pay you 200 &#x00A5; for it's recipe."
+
+    target_system =
+        SYSTEM
+        {
+            name = "Arctic Dreams"
+            type = MANUFACTURING
+            rating = 1
+        }
+
+        goal_1 =
+            DOWNLOAD_FILE
+            {
+                name = "Product Information"
+                description = "This file contains the recipe you are looking for."
+            }
+
+        trigger status == COMPLETED
+        {
+            player.money = player.money + 200
+
+            // this variable will be used to connect two missions to form
+            // a campaign. The second mission from the campaign is used as
+            // an example later in this guide
+            player.ice_campaign = 1
+        }
+
+        // this is the trigger that will make the mission available
+        trigger age == 5
+        {
+            status = AVAILABLE
+        }
+}</pre></td></tr></table>
+			</td></tr></table><p>&nbsp;<p>&nbsp;
+			<table><tr><td style="color:red">
+				<h2 style="color:red">What do mission scripts do ?</h2>
+				Every mission is initialized with a basic set of variables. Then the mission script is executed and the
+				mission is modified by the commands encountered. These will be assignment commands most of the time.
+				The other commands are trigger, if, while and popup. trigger, if and while are followed by a mathematical
+				expression and a block.<p>
+				An assignment command consists of a variable, followed by a =, which in turn is followed by either a mathematical expression or a
+				structure definition ( &nbsp;a_variable = a_mathematical_expression &nbsp;or&nbsp; a_variable&nbsp;=&nbsp;a_structure_definition&nbsp; ).
+				When an assignment command is executed, the mathematical expression on the right is evaluated or a
+				structure is created from the structure definition on the right and the result stored in the variable on
+				the left. There is one exception to this rule : It the variable on the left holds expressions instead of
+				values, the whole expression is stored in the variable. So far only the variable "available" from the
+				MISSION structure holds expressions instead of values.<p>
+				trigger adds a new trigger to the mission. As soon as its mathematical expression evaluates to true, the
+				block following the mathematical expression is executed and the trigger is removed from the mission.
+				Whenever the game state changes, triggers are tested. During a mission, only the triggers from that mission
+				are tested. Between missions the triggers from all missions are tested. Whenever a new trigger is added to a
+				mission, it is also added to the list of triggers which will be tested before the control is given back to
+				the player.<p>
+				When a script is executed and an if or a while command is encountered, the mathematical expression
+				following it is evaluated. If it evaluates to true, the block following it is executed. In the case of the
+				if command, the script execution continues behind the block after it has been executed,
+				but in the case of the while command the script execution goes back to the while command until its
+				mathemtical expression does not evaluate to true any more. It will then continue script execution behind
+				the block.<p>
+				The popup command is followed by a variable which must contain a POPUP structure. A popup is created from
+				that structure and the script execution halts until the player has closed the popup again.<p>
+				Scripts may contain comments in addition to commands. When the marker // is encountered in a script , the //
+				and everything following it on that line is interpreted as a comment. Comments are simply ignored.
+				so you can place them wherever you want, even in the middle of a mathematical expression that spans
+				several lines. Below is an example excerpt from a script.
+				<table><tr><td><pre style="color:red">
+a = 1  // the variable a is set to 1
+
+while a &lt; 6
+{
+    // this block is executed 3 times
+    a = a + 1
+    a = a + 1
+}
+
+if a &gt; 5
+{
+    // this block is executed since a now has the value 7
+
+    // structure defninition for a POPUP structure
+    b = POPUP
+        {
+            text = "a is "+a+"."
+            button_1 = "OK"
+        }
+
+    // this command displays a popup containing
+    // the text "a is 7." and a button labeled "OK"
+    display b
+}</pre></td></tr></table>
+			</td></tr></table><p>&nbsp;<p>&nbsp;
+			<table><tr><td style="color:red">
+			<h2 style="color:red">What is a structure ?</h2>
+			Structures represent everything within the program which has more than one attribute.
+			Every structure has a type and contains a preset list of variables which represent the attributes.
+			The CRASH_SYSTEM structure for example represents the mission goal "crash the system" and contains
+			the three variables status, incomplete and completed. You can assign strutures to variables and
+			access variables contained within a structure using the . operator.<p>
+			A new structure is defined by assigning a structure definition to a variable. A structure definition
+			consists of the type name of the structure to be defined, followed by a block. If a variable occurs
+			within a block, the program will try to grab any variable used from a structure from a surrounding
+			structure definition, starting with the innermost structure definition. The whole script defines a
+			MISSION structure, and if a variable is not found anywhere else, it is seen as a variable from the
+			MISSION structure.<p>
+			You can add new variables to MISSION and PLAYER structures.<p>
+			Variables contained in MISSION structures
+			are not visible for other missions and cease to exist when the mission is over. Variables contained in the
+			PLAYER structure are visible for all missions and continue to exist even after the missions which had created
+			them are over.
+				<table><tr><td><pre style="color:red">
+// if the variable a did not exist before it is newly created
+// in the MISSION structure defined by this script
+a = 1
+
+// this creates or sets the ice_feud_campaign variable within the
+// PLAYER structure contained in the MISSION variable player
+player.ice_feud_campaign = 1
+
+goal_1 = DOWNLOAD_FILE
+    {
+        incomplete = "Download the recipe"
+        completed = "You have downloaded the recipe"
+
+        target = FILE
+            {
+                name = "Product Information"
+
+                // The variable "incomplete" is taken from the DOWNLOAD_FILE
+                // structure whose structure definition surrounds this FILE
+                // structure definition
+                incomplete = "You have not downloaded the recipe yet"
+            }
+    }
+
+goal_1.target.description = "This file contains the recipe you are looking for"
+</pre></td></tr></table>
+			</td></tr></table>
+		</td>
+		<td></td>
+	</tr>
+</body>

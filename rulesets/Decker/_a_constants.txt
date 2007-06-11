@@ -1,0 +1,168 @@
+english
+	RULESET.LETHAL_DAMAGE = 20
+	RULESET.HEALTH_INCREMENT = 5
+	RULESET.MAX_LIFESTYLE = 4
+	
+	
+	RULESET.DECK_LOAD_MODIFIER = ARRAY
+		1
+		0
+		-2
+		
+		
+	RULESET.LIFESTYLE_COST = ARRAY
+		500
+		1000
+		2000
+		4000
+		10000
+	
+	RULESET.LIFESTYLE_UPGRADE_COST = ARRAY
+		3*1000
+		3*2000
+		3*4000
+		3*10000
+
+	RULESET.MIN = FUNCTION (a,b)
+		return_value = a < b ? a : b
+		
+	RULESET.MAX = FUNCTION (a,b)
+		return_value = a > b ? a : b
+
+	RULESET.ARRAY_INDEX = FUNCTION (array,entry)
+		if array.size != UNDEFINED
+			return_value = array.size - 1
+			while return_value >= 0 && array[return_value] != entry
+				return_value = return_value - 1
+			if i == -1
+				return_value = UNDEFINED
+			
+	RULESET.ROLL_DICE = FUNCTION (target_number)
+		x = random(1,20)
+		if x == 1
+			return_value = -1         // 5% critical failure
+		else if x == 20 && target_number > 20
+			return_value = 1          // 5% automatic success (smallest possible positive outcome)
+		else if x < target_number
+			return_value = 0
+		else
+			return_value = 1 + (x-target_number)/4
+			if return_value > 5
+				return_value = 5
+		
+	RULESET.REPUTATION_NAME = ARRAY
+		"Nobody"
+		"Wannabe"
+		"Cyber Surfer"
+		"Matrix Runner"
+		"Newbie Hacker"
+		"Journeyman Hacker"
+		"Competent Hacker"
+		"Experienced Hacker"
+		"Hacker Extraordinaire"
+		"Cyber Thief"
+		"Cyber Sleuth"
+		"Cyber Warrior"
+		"Cyber Wizard"
+		"Ice Crusher"
+		"Node Master"
+		"System Master"
+		"Ghost in the Machine"
+		"Digital Dream"
+		"Digital Nightmare"
+		"Master of the Matrix"
+		"Matrix God"
+		
+
+	constant
+		ACCEPTED          // mission and mission goal states
+		AVAILABLE
+		DESTROYED
+		COMPLETED
+		FAILED
+		INCOMPLETE
+
+		GREEN             // system states
+		YELLOW
+		RED
+		SHUTDOWN
+		
+		USELESS           // file types
+		VALUABLE
+		CLUE
+		PASSWORD
+		MISSION_TARGET
+	
+		PROGRAM           // thing types
+		PROGRAM_SOURCE
+		CHIP
+		CHIP_SOURCE
+		HARDWARE
+
+		INSTALLED         // program states
+		LOADED
+		RUNNING
+		
+		ANALYZE           // program types
+		AREA_ATTACK
+		ARMOR
+		ATTACK
+		ATTACK_BOOST
+		DECEIVE
+		DECOY
+		DECRYPT
+		DEFENSE_BOOST
+		HIDE
+		MEDIC
+		PIERCING_ATTACK
+		REFLECT
+		RELOCATE
+		SCANNER
+		SHIELD
+		SILENCE
+		SPECIAL
+		STEALTH_BOOST
+		SMOKE
+		VIRUS
+		
+		CPU_FIRMWARE      // chip types
+		COPROCESSOR_FIRMWARE
+		ATTACK_FIRMWARE
+		DEFENSE_FIRMWARE
+		STEALTH_FIRMWARE
+		ANALYSIS_FIRMWARE
+
+		CHIP_BURNER       // hardware types
+		SURGE_SUPPRESSOR
+		NEURAL_DAMPER
+		TRACE_MONITOR
+		BIO_MONITOR
+		HIGH_BANDWIDTH_BUS
+		PROXIMITY_MAPPER
+		DESIGN_ASSISTANT
+		ANTI_TRACE_PROXY
+		
+		CPU               // node types
+		SPU
+		DATASTORE
+		IO
+		JUNCTION
+		PORTAL_IN
+		PORTAL_OUT
+		COP_SECURITY
+		IO_ICE
+		IO_EXTERNAL_ALERT
+		IO_HIGH_SPEED_ACCESS
+
+		
+		
+		IDLE             // button states
+		PRESSED
+		DISABLED
+		HOVER
+		
+		CENTER           // alignments for view elements
+		LEFT
+		RIGHT
+		TOP
+		BOTTOM

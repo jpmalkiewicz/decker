@@ -1,0 +1,24 @@
+Completion Progress = 77%
+ NOT PLAYABLE
+
+2005-04-26
+  image names are no longer case sensitive
+  all images are loaded at program start
+  fixed insert() and added delete() hardcoded functions
+  added displayed screen history system
+  home button added
+  BORDER_BUTTON structure type added
+  all standard buttons turned into BORDER_BUTTONs and the button images changed accordingly
+  character screen finished
+
+2005-04-25
+  character screen almost complete
+  a = FUNCTION b operator replaced with @b operator
+  integers in font descriptions are now interpreted as font sizes (in points), so "Arial;13" now describes the same font as "Arial;13pt"
+  date_day_of_month() and date_days_in_month() hardcoded functions added
+
+2005-04-24
+  bug fixed : a = LINE would save the structure type LINE in a instead of a new LINE, if the type name wasn't followed by a definition body
+  SCREEN_BACKGROUND structure type added
+  finished replacing colors and fonts with functions that fetch the current values for them, for easy modding
+  background images of the new character screen and the home screen replaced with drawn backgrounds

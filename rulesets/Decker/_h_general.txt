@@ -1,0 +1,29 @@
+// general definitions and initializations
+// will never appear in the mission list
+
+
+english
+	RULESET.INITIALIZE_DECK = FUNCTION (deck,program_rating,hardware_rating)
+		if hardware_rating > 0
+			deck.cpu = harware_rating
+			deck.coprocessor = harware_rating
+			deck.attack = harware_rating
+			deck.defense = harware_rating
+			deck.stealth = harware_rating
+			deck.analysis = harware_rating
+		if program_rating > 0
+			deck.program = ARRAY
+//				CREATE_THING(
+// *********************************
+//			ATTACK,
+//			SILENCE,
+//			SMOKE,
+//			MEDIC,
+//			ARMOR,
+//			HIDE,
+//			DECEIVE,
+//			ANALYZE,
+//			SCAN,
+//			EVALUATE,
+//			DECRYPT
+				

@@ -1,0 +1,96 @@
+english
+
+
+	// creates a border with the given values
+	RULESET.create_border = FUNCTION (bx, by, bwidth, bheight, bbackground_color, binverted)
+		return_value = BORDER
+			x = bx
+			y = by
+			width = bwidth
+			height = bheight
+			background_color = @bbackground_color
+			inverted = binverted == true
+			
+	
+	// sets a line to the given values. this function purely exists to simplify scripts
+	RULESET.set_line = FUNCTION (line, x, y, x2, y2, color)
+		line.x = x
+		line.y = y
+		line.x2 = x2
+		line.y2 = y2
+		line.color = color
+		
+
+	// returns a new TEXT with the default settings as defined in the TEXT object stored in TEXT_STYLE
+	RULESET.create_text = FUNCTION (text, x, y, color, font)
+		return_value = copy(TEXT_STYLE)
+		// for all settings which are not defined, the default settings will be used
+		if text != UNDEFINED
+			return_value.text = @text
+		if x != UNDEFINED
+			return_value.x = @x
+		if y != UNDEFINED
+			return_value.y = @y
+		if color != UNDEFINED
+			return_value.color = @color
+		if font != UNDEFINED
+			return_value.font = @font
+			
+	
+	// returns a new TEXT with the default settings as defined in the TEXT object stored in TEXT_STYLE
+	RULESET.create_text_bold = FUNCTION (text, x, y, color, font)
+		return_value = copy(TEXT_STYLE_BOLD)
+		// for all settings which are not defined, the default settings will be used
+		if x != UNDEFINED
+			return_value.x = @x
+		if y != UNDEFINED
+			return_value.y = @y
+		if color != UNDEFINED
+			return_value.color = @color
+		if font != UNDEFINED
+			return_value.font = @font
+
+
+
+
+	RULESET.FETCH_BORDER_COLOR1 = FUNCTION
+		return_value = BORDER_COLOR1
+	
+	RULESET.FETCH_BORDER_COLOR2 = FUNCTION
+		return_value = BORDER_COLOR2
+
+	RULESET.FETCH_BACKGROUND_COLOR = FUNCTION
+		return_value = BACKGROUND_COLOR
+
+	RULESET.FETCH_BACKGROUND_COLOR2 = FUNCTION
+		return_value = BACKGROUND_COLOR2
+
+	RULESET.FETCH_NCS_SELECTED_SKILL_COLOR = FUNCTION
+		return_value = NCS_SELECTED_SKILL_COLOR
+
+	RULESET.FETCH_NCS_UNSELECTED_SKILL_COLOR = FUNCTION
+		return_value = NCS_UNSELECTED_SKILL_COLOR
+
+	RULESET.FETCH_NCS_PRESSED_SKILL_COLOR = FUNCTION
+		return_value = NCS_PRESSED_SKILL_COLOR
+
+	RULESET.FETCH_NCS_OPTION_TEXT_COLOR = FUNCTION
+		return_value = NCS_OPTION_TEXT_COLOR
+
+	RULESET.FETCH_NCS_PRESSED_OPTION_TEXT_COLOR = FUNCTION
+		return_value = NCS_PRESSED_OPTION_TEXT_COLOR
+
+	RULESET.FETCH_NCS_ON_COLOR = FUNCTION
+		return_value = NCS_ON_COLOR
+
+	RULESET.FETCH_NCS_OFF_COLOR = FUNCTION
+		return_value = NCS_OFF_COLOR
+
+	RULESET.FETCH_NCS_USER_INPUT_COLOR = FUNCTION
+		return_value = NCS_USER_INPUT_COLOR
+
+	RULESET.FETCH_NCS_IMAGE_BACKGROUND_COLOR = FUNCTION
+		return_value = NCS_IMAGE_BACKGROUND_COLOR
+		
+	RULESET.FETCH_NCS_USER_INPUT_BACKGROUND_COLOR = FUNCTION
+		return_value = NCS_USER_INPUT_BACKGROUND_COLOR

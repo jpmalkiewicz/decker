@@ -1,0 +1,188 @@
+// defines standard system types
+// will never appear in the mission list
+// each system system type has lists of valuable files and possible mission goals assiciated with it
+//
+// default mission goal probabilities are given in percent
+// the actual probability may be slightly higher, if the goal also appears in the normal mission goal lists of that corporation
+
+
+
+english
+	RULESET.GENERIC = SYSTEM_TYPE
+		file = ARRAY
+			"personnel files"
+			"financial data"
+			"security files"
+			"security camera recordings"
+			"employee evaluation records"
+			"records of illegal activity"
+		deactivate_io_target = ARRAY
+			"electronic doorlocks"
+			"security cameras"
+			"alarm systems"
+		activate_io_target = ARRAY
+			"fire alarms"
+			"security alarms"
+		sabotage_io_target = deactivate_io_target + activate_io_target
+		useless_file = ARRAY
+			"Employee timesheets"
+			"Sales brochures"
+			"Employee mail"
+			"Someone's poetry attempts"
+			"A Christmas list"
+			"Office party supply list"
+			"Public service sign-up list"
+			"Recording of the big game"
+			"Garbage"
+			"To-do list"
+			"Outdated files"
+			"Wedding guest list"
+			"Bridal registry"
+			"Grocery list"
+			"Pictures of the family"
+			"Pictures from office party"
+			"Recordings from promotional event"
+			"Yesterday's news"
+			"Rejected ideas"
+			"Someone's budget"
+			"Garbled file"
+			"Country music recordings"
+			"Rock & Roll music recordings"
+			"Easy listening music recordings"
+			"Jazz music recordings"
+			"Recording of Superbowl LXXXII"
+			"Editorials"
+			"Company history"
+			"Educational media"
+			"Hardware manual"
+			"Software manual"
+			"Motivational video"
+			"A romance novel"
+			"A sci-fi novel"
+			"A mystery novel"
+			"A thriller novel"
+			"A romance holovid"
+			"A sci-fi holovid"
+			"A thriller holovid"
+			"An action holovid"
+			"A horror holovid"
+			"Pirate copy of Starcraft 7"
+			"A love letter"
+			"Hate mail"
+			"Joke of the day"
+			"Top 10 list"
+			"Letter to a relative"
+			"Phonebook"
+			"Travel brochures"
+			"Junk mail"
+			"Incomprehensible data"
+			"Ramblings of a lunatic"
+			"Recipe book"
+			"A family tree"
+
+
+	RULESET.MEGACORP = copy(GENERIC)
+		file = file + ARRAY
+			"valuable research data"
+			"chemical formulae"
+			"blueprints"
+			"product information"
+			"medical records"
+			"test results"
+			"inventory records"
+
+
+	RULESET.ELECTRONICS = copy(GENERIC)
+		file = file + ARRAY
+			"valuable research data"
+			"blueprints"
+			"product information"
+			"test results"
+			"inventory records"
+		activate_io_target = activate_io_target + ARRAY
+			"hazardous chemical alarms"
+		sabotage_io_target = deactivate_io_target + activate_io_target + ARRAY
+			"manufacturing controls"
+
+
+	RULESET.BANK = copy(GENERIC)
+		sabotage_io_target = deactivate_io_target + activate_io_target + ARRAY
+			"vault controls"
+
+
+	RULESET.LAB = copy(GENERIC)
+		file = file + ARRAY
+			"valuable research data"
+			"chemical formulae"
+			"product information"
+			"medical records"
+			"test results"
+			"inventory records"
+		activate_io_target = activate_io_target + ARRAY
+			"radiation leak alarms"
+			"biohazard alarms"
+			"hazardous chemical alarms"
+		sabotage_io_target = deactivate_io_target + activate_io_target + ARRAY
+			"chemical production"
+
+
+	RULESET.CONSUMER = copy(GENERIC)
+		file = file + ARRAY
+			"product information"
+			"inventory records"
+
+
+	RULESET.MEDICAL = copy(GENERIC)
+		file = file + ARRAY
+			"valuable research data"
+			"chemical formulae"
+			"medical records"
+			"test results"
+		activate_io_target = activate_io_target + ARRAY
+			"radiation leak alarms"
+			"biohazard alarms"
+		sabotage_io_target = deactivate_io_target + activate_io_target + ARRAY
+			"chemical production"
+
+
+	RULESET.OIL = copy(GENERIC)
+		file = file + ARRAY
+			"chemical formulae"
+			"test results"
+		activate_io_target = activate_io_target + ARRAY
+			"hazardous chemical alarms"
+		sabotage_io_target = deactivate_io_target + activate_io_target + ARRAY
+			"chemical production"
+
+
+	RULESET.MANUFACTURING = copy(GENERIC)
+		file = file + ARRAY
+			"blueprints"
+			"product information"
+			"inventory records"
+		sabotage_io_target = deactivate_io_target + activate_io_target + ARRAY
+			"manufacturing controls"
+
+
+	RULESET.SCHOOL = copy(GENERIC)
+		file = file + ARRAY
+			"valuable research data"
+			"chemical formulae"
+			"grade reports"
+			"blueprints"
+			"medical records"
+			"test results"
+		activate_io_target = activate_io_target + ARRAY
+			"radiation leak alarms"
+			"biohazard alarms"
+			"hazardous chemical alarms"
+		sabotage_io_target = deactivate_io_target + activate_io_target
+
+
+	RULESET.ENVIRONMENTAL = copy(GENERIC)
+		file = file + ARRAY
+			"test results"
+		activate_io_target = activate_io_target + ARRAY
+			"biohazard alarms"
+			"hazardous chemical alarms"
+		sabotage_io_target = deactivate_io_target + activate_io_target

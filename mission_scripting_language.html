@@ -1,0 +1,791 @@
+<html>
+<head>
+<style type="text/css"><!--
+     h1 { color:#bbbbff; margin-bottom:0pt; }
+     h2 { color:#bbbbff; margin-bottom:5pt; font-size:200%; }
+     h3 { color:#bbbbff; margin-bottom:5pt; font-size:150%; }
+     table table { text-align:center; }
+     table table table { border-width:1; border-style:solid; border-color:#777777; border-collapse:collapse; width:80%; background-color:#333333; color:#ddddbb; text-align:left; border-spacing:40px; border-collapse:collapse; }
+     table table table tr td { padding:5px; padding-left:15px; border-width:0; border-top-width:1; border-style:solid; }
+  //--></style>
+<title>Decker Mission Scripting Language</title>
+</head>
+<body bgcolor="black" text="#aaaaff" link="#ffdd99" alink="white" vlink="#ffdd99">
+<table width="100%" cellspacing="0" cellpadding="0" bgcolor="#000055">
+	<tr height="50">
+		<td align="middle" bgcolor="#000055"><h1>The Scripting Language for Decker Missions</h1>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<table width="100%" cellspacing="0" cellpadding="8" bgcolor="#000000" style="MARGIN-BOTTOM: 50px">
+				<tr>
+					<td>
+<br><p>The Java port of decker will support scripted
+            missions. This page is a documentation of the scripting language.
+            To get an idea of how it works have a
+            look at the example missions.<p>Mission scripts are written as plain text
+            and are saved in .txt files. You can use any text editor
+            to edit mission scripts, provided it supports the ANSI character encoding.<p>
+					</td>
+				</tr>
+			</table>
+			<table width="100%" cellspacing="0" cellpadding="8" bgcolor="#000000" style="MARGIN-BOTTOM: 50px">
+				<tr>
+					<td><a name="comments"></a>
+<br><h2>Comments</h2><p>Mission scripts may contain comments. If a line of text contains
+            a // outside of a string, the // and the text following it on the
+            same line is ignored. Below is an example.<p>
+						<table align="center">
+							<tr>
+								<td>// this is a comment within a mission script file
+								</td>
+							</tr>
+						</table><p>
+					</td>
+				</tr>
+			</table>
+			<table width="100%" cellspacing="0" cellpadding="8" bgcolor="#000000" style="MARGIN-BOTTOM: 50px">
+				<tr>
+					<td><a name="variables"></a>
+<br><h2>Variables</h2><p>In a mission script you mainly set, use
+            and change variables to describe the mission and how it affects the game world.
+            <p>Variable names are case sensitive. foo_name and Foo_Name are
+            regarded as different variables.
+            <p>There are four groups of variables : Predefined player variables
+            describe the person the player controls. Predefined mission variables
+            describe the mission and cease to exist once
+            the mission is over. Custom mission variables are created by a mission
+            script ( they cease to exist once that mission is over ).
+            Custom player variables are defined by a mission script ( they exist
+            as long as the player for which they have been defined does ).
+            <p>Variables may be assigned predefined values,
+            integer values, string values, boolean values or structures.
+            Some of the predefined values are UNDEFINED , INCOMPLETE
+            , COMPLETED , FAILED , MEGACORP , ELECTRONICS
+            , BANK , LAB , MEDICAL , MANUFACTURING , SCHOOL , OIL , GREEN , YELLOW , RED , SHUT_DOWN. true and false
+            are the boolean values, any whole number in the range from -2147483648 to
+            2147483647 is an integer value, anything that starts and
+            ends with a " is a string
+            value.
+            <p>Each variable has a value. A variable that has not been assigned
+            a value has the value UNDEFINED unless it has some other value by default.
+            <p>When assembling strings, variables containing predefined values
+            show up as "X" within the assembled string, where X is the name of
+            the predefined value ( the expression &nbsp; "a "+FAILED+" mission" &nbsp; would
+            create the string "a FAILED mission" ).
+            <p>The following examples assign the boolean value false, the integer value 5 and the string
+            value "something" to the custom mission variables a, b and
+            c, respectively.
+            <p>
+			<table align="center">
+				<tr>
+					<td>
+						a = true
+						<br>b = 5
+						<br>c = "something"
+					</td>
+				</tr>
+			</table>
+			<p>Custom variables are created when they are first used during the execution of a mission
+            script. Custom player variables have the prefix player. to their name (
+            this makes them member variables of the player structure ). Custom mission variables have
+            a normal name. Any name may be used for a custom variable, unless it has a predefined meaning or
+            is used for a predefined variable. Variable names may only consist of latin
+            characters ( a to z and A to Z ), digits and the character _ . Every variable
+            name must contain at least one non-digit character. Below are examples of valid and invalid custom variable names.
+            <p>
+			<table align="center">
+				<tr>
+					<td>
+						<p>// the commands below create valid custom mission variables
+						<br>a = true
+						<br>5blips = 5
+						<br>a_very_long_name = false
+						<br>
+						<br>// the commands below create valid custom player variables
+						<br>player.Duration = 7
+						<br>player.is_ill = true
+						<br>
+						<br>
+						<br>// the commands below don't work because the variable names are invalid
+						<br>
+						<br>// custom variable names may only contain a . if it is part of the player. prefix
+						<br>special.event =   true
+						<br>player.fun.item = "dildo"
+						<br>
+						<br>// custom variable names may not contain special characters like &auml;, &gt; and $ or spaces
+						<br>häscher = true
+						<br>lots_of_$ = 15000
+						<br>two words = "two  words"
+						<br>a&gt;b = 15<p>
+					</td>
+				</tr>
+			</table>
+			<p>
+		</td>
+	</tr>
+	</table>
+			<table width="100%" cellspacing="0" cellpadding="8" bgcolor="#000000" style="MARGIN-BOTTOM: 50px">
+				<tr>
+					<td><a name="predefined_variables"></a>
+<br><h2>Predefined variables</h2><p>The tables below list the predefined mission variables and player variables.<p><p>
+						<table align="center">
+							<tr>
+								<th colspan="2" align=middle>
+									<span style="FONT-SIZE: 175%">Mission variables</span>
+								</th>
+								<tr>
+									<td>available
+									</td>
+									<td>May be assigned an expression. This expression is not
+                  evaluated and the result assigned to the variable as would
+                  usually happen. Instead the expression is assigned to the
+                  variable without evaluating it. Whenever the program tries to
+                  add a mission to the list of available missions, the
+                  expression contained in this variable is evaluated to see
+                  whether the mission may currently be made available
+									</td>
+								</tr>
+								<tr>
+									<td>title
+									</td>
+									<td>Contains the mission title. It will be displayed in the
+                  list of available contracts.
+									</td>
+								</tr>
+								<tr>
+									<td>description
+									</td>
+									<td>Contains the detailed mission description. You can use HTML tags in the description
+									</td>
+								</tr>
+								<tr>
+									<td>target_system
+									</td>
+									<td>Contains the target system
+									</td>
+								</tr>
+								<tr>
+									<td>goal[x]
+									</td>
+									<td><p>x is an integer and must be in the
+                  range of 0 to 100. Every variable goal[x] may contain a
+                  mission goal. These will be used to determine whether a
+                  mission has been completed or failed. Valid mission goals are
+                  the structures of the types NO_RED_ALARM , TIME_RESTRICTION , CRASH_SYSTEM ,
+                  CREATE_BACKDOOR , DOWNLOAD_FILE , EDIT_FILE , ERASE_FILE and MANIPULATE_IO.
+									</td>
+								</tr>
+								<tr>
+									<td>rating
+									</td>
+									<td>May contain an integer value that describes the difficulty
+                  of the mission. If no value is assigned, the formula for
+                  calculating the difficulty of a random generated mission is
+                  used
+									</td>
+								</tr>
+								<tr><td>deadline</td><td><p>May contain an integer value. If it does it corresponds to a date. The expression below will set the deadline to the current day. The second expresion sets it to 5 days in the future<p>deadline = 0<p>deadline = 5</td></tr>
+								<tr>
+									<td>status
+									</td>
+									<td><p>Describes the current status of the mission. Must hold one
+                  of the predefined values INCOMPLETE, ACCEPTED, COMPLETED and
+                  FAILED ( a mission is failed if the player abandons it or the
+                  deadline has passed ). The default value INCOMPLETE marks the mission as not ( yet ) accepted. If this variable is changed from within
+                  the mission script the change will take effect in the game.
+                  You can force the player to accept a mission by putting the following following command in the mission script :<p>status = ACCEPTED
+									</td>
+								</tr>
+								<tr>
+									<td colspan=2 align=middle>
+										<span style="FONT-WEIGHT: bold; COLOR: #ff5555">The variables below are of no use for most mission
+                scripts</span>
+									</td>
+								</tr>
+								<tr>
+									<td>age
+									</td>
+									<td>The number of days the mission since the mission was created from the mission file available. Starts with the value 0</td></tr>
+								<tr><td>can_be_started</td><td>Contains an expression (like the variable "available") that determines whether a mission can be started. true by default</td></tr>
+								<tr><td>can_be_dropped</td><td>Either true or false. Determines whether a mission can be started. true by default</td></tr>
+								<tr><td>failed_attempts</td><td>The number of times the player has tried and failed to succeed in completing this mission. Set to 0 when the mission is created</td></tr>
+								<tr>
+									<td>destroy_when_over
+									</td>
+									<td>This variable determines whether the mission is destroyed
+                  when its status becomes or is COMPLETED or FAILED ( and any
+                  triggers triggered by that event have been executed ).
+                  destroy_when_over may only be assigned boolean values. It has
+                  the value true by default.
+									</td>
+								</tr>
+						</table><p>&nbsp;<p>
+						<table align="center">
+							<tr>
+								<th colspan="2" align=middle>
+									<span style="FONT-SIZE: 175%">Player variables</span>
+								</th>
+								<tr>
+									<td>player.name
+									</td>
+									<td>Contains the
+                  name of the player
+									</td>
+								</tr>
+								<tr>
+									<td>player.base_mission_rating
+									</td>
+									<td>The the rating of random generated
+                  missions is based on this value. If the player successfully
+                  finishes a mission of rating x, the base_mission_rating is set
+                  to x. If the player fails a mission, the base_mission_rating
+                  is decreased by one. The base_mission_rating always stays in
+                  an interval of 1 to 20.
+									</td>
+								</tr>
+								<tr>
+									<td>player.health
+									</td>
+									<td>Contains the current health of the
+                  player on a scale of 0 to 20
+									</td>
+								</tr>
+								<tr>
+									<td>player.mental_health
+									</td>
+									<td><p>Contains the current mental health of
+                  the player on a scale of 0 to 20
+									</td>
+								</tr>
+								<tr>
+									<td>player.lifestyle
+									</td>
+									<td>Contains
+                  the player's current lifestyle on a scale of 0 to 4.
+                  The lifestyle determines the level of the available shop
+                  items.
+									</td>
+								</tr>
+								<tr>
+									<td>player.reputation_level
+									</td>
+									<td>Determined by the player's
+                  reputation. The reputation level is a value in the range of 0
+                  to 20. It determines the title in the reputation field of the character
+                  data dialog.
+									</td>
+								</tr>
+								<tr>
+									<td colspan=2 align=middle>
+										<span style="FONT-WEIGHT: bold; COLOR: #ff5555">The variable below is of no use for most mission
+                scripts</span>
+									</td>
+								</tr>
+								<tr>
+									<td>player.reputation
+									</td>
+									<td><p>The reputation is modified by
+                  successfully finishing missions and by failing missions. It
+                  determines the reputation_level. It holds an integer value and
+                  must be at least 0.
+									</td>
+								</tr>
+						</table><p>
+					</td>
+				</tr>
+			</table>
+			<table width="100%" cellspacing="0" cellpadding="8" bgcolor="#000000" style="MARGIN-BOTTOM: 50px">
+				<tr>
+					<td><a name="structures"></a>
+<br><h2>Structures</h2><p>A structure is basically a collection of variables. Each
+            structure has a type, and the member variables of a structure are specific for its type.
+            A new structure is created when its type name occurs on the right side of the = command in the script.
+            The type name must be followed by a block. Inside that block variables of the structure may be
+            assigned values. Valid types are SYSTEM , FILE , POPUP
+            , NO_RED_ALARM , TIME_RESTRICTION , CRASH_SYSTEM
+            , CREATE_BACKDOOR , DOWNLOAD_FILE , EDIT_FILE , DELETE_FILE and MANIPULATE_IO.<p>If you want to access a
+            member variable of a structure, you give the name of the variable that
+            holds the structure, followed by a dot and the name of the member
+            variable within the structure.<p>Below is an example of how an EDIT_FILE and a FILE structure is
+            used in a script. If encountered in a script, this code will create
+            a file and add the goal to edit that file to the mission. It will
+            then change the goal's status to COMPLETED and change the name of
+            the target file to "Product information".<p>
+						<table align="center">
+							<tr>
+								<td><p>goal[0] =
+<br>&nbsp; &nbsp; EDIT_FILE
+<br>&nbsp;&nbsp;&nbsp; {
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  target =
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  FILE
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  {
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  name = "( the file name will later
+                  be  changed )"
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  description = "Contains the product information you are
+                  looking for"
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  }
+<br>&nbsp;&nbsp;&nbsp; }<p>goal[0].status = COMPLETED
+<br>goal[0].target.name = "Product
+                  information"
+								</td>
+							</tr>
+						</table><p>
+					</td>
+				</tr>
+			</table>
+			<table width="100%" cellspacing="0" cellpadding="8" bgcolor="#000000" style="MARGIN-BOTTOM: 50px">
+				<tr>
+					<td><a name="structure_types"></a>
+<br><h2>Structure Types</h2><p>Structure types fall into three categories,
+            mission goals, objects from the game world and special structures. All structure types are
+            described in detail below, starting with the special structures. The tables
+            contain the member variables of each type.<p>&nbsp;<h3>POPUP</h3><p>A POPUP describes a popup window. Popup
+            windows may contain text and / or buttons. These are represented by the member variables
+            of the POPUP structure. Every POPUP must have at least one button
+            to be displayable.
+						<table align="center">
+							<tr>
+								<td>text
+								</td>
+								<td>Contains the text that is displayed in
+                  the popup window
+								</td>
+							</tr>
+							<tr>
+								<td>choice
+								</td>
+								<td>When the player presses one of the
+                  popup window's buttons, choice is assigned the value displayed
+                  on the button.
+								</td>
+							</tr>
+							<tr>
+								<td>button[x]
+								</td>
+								<td>x may be any integer value from 0 to
+                  100. Each variable button[x] may be assigned a value. For
+                  every button[x] that is not UNDEFINED a button is created and
+                  displayed in the popup window.
+								</td>
+							</tr>
+						</table><p><p>&nbsp;<h3>EDIT_FILE , DOWNLOAD_FILE and ERASE_FILE</h3><p>These structure types describe mission goals that target a file.
+            The names of the types state what has to be done with the file to
+            fulfill the goal. They all have the same member variables.
+						<table align="center">
+							<tr>
+								<td>target
+								</td>
+								<td>Contains a FILE structure that describes the target file
+								</td>
+							</tr>
+							<tr>
+								<td>status
+								</td>
+								<td>Contains the current status of the goal, which may either be INCOMPLETE , COMPLETED or FAILED
+								</td>
+							</tr>
+							<tr>
+								<td>incomplete
+								</td>
+								<td>May contain a string that describes the status of the goal
+                  during a mission if the goal has not been completed or failed
+                  yet
+								</td>
+							</tr>
+							<tr>
+								<td>completed
+								</td>
+								<td>May contain a string that describes the status of the goal
+                  during a mission if the goal has been completed
+								</td>
+							</tr>
+							<tr>
+								<td>failed
+								</td>
+								<td>May contain a string that describes the status
+                  of the goal during a mission if the goal
+                  has been failed
+								</td>
+							</tr>
+						</table><p><p>&nbsp;<h3>NO_RED_ALARM, CRASH_SYSTEM and CREATE_BACKDOOR</h3><p>These structure types describe mission goals. They all have the
+            same member variables.<p>NO_RED_ALARM has the status COMPLETED until the player triggers a
+            red alert. Triggering a red alert will change the status to
+            FAILED.<p>CRASH_SYSTEM has the status INCOMPLETE until the player crashes
+            the system. Crashing the target system will change the status to
+            COMPLETED.<p>CREATE_BACKDOOR has the status INCOMPLETE if the player doesn't
+            have a backdoor to the target system. It has the status COMLETED if
+            he does.
+						<table align="center">
+							<tr>
+								<td>status
+								</td>
+								<td>Contains the current status of the goal, which may either be INCOMPLETE,
+                  COMPLETED or FAILED
+								</td>
+							</tr>
+							<tr>
+								<td>incomplete
+								</td>
+								<td>May contain a string that describes the status of the goal
+                  during a mission if the goal has not been completed or failed
+                  yet
+								</td>
+							</tr>
+							<tr>
+								<td>completed
+								</td>
+								<td>May contain a string that describes the status of the goal
+                  during a mission if the goal has been completed
+								</td>
+							</tr>
+							<tr>
+								<td>failed
+								</td>
+								<td>May contain a string that describes the status
+                  of the goal during a mission if the goal
+                  has been failed
+								</td>
+							</tr>
+						</table>
+<p>&nbsp;<h3>TIME_RESTRICTION</h3><p>A TIME_RESTRICTION structure
+            describes a mission goal that sets a time restriction. It has
+            the status INCOMPLETE if the start_time hasn't been reached yet, COMPLETED
+            if the start_time has been reached or is undefined and the end_time hasn't
+            been passed or is undefined, FAILED if any mission target
+            is completed before the start_time is reached (if&nbsp;the start_time is defined)
+            or any mission targed is INCOMPLETE or FAILED after the end_time has
+            passed (if the end_time is defined).
+						<table align="center">
+							<tr>
+								<td>start_time
+								</td>
+								<td>Holds an integer giving the mission
+                  time (in seconds) at which the first mission goal may be completed, if it is
+              defined.
+								</td>
+							</tr>
+							<tr>
+								<td>end_time
+								</td>
+								<td>Holds an integer giving the mission time (in seconds)
+                  until which all mission goals must be completed, if it is
+                  defined.
+								</td>
+							</tr>
+							<tr>
+								<td>status
+								</td>
+								<td>Contains the current status of the goal, which may either be INCOMPLETE,
+                  COMPLETED or FAILED
+								</td>
+							</tr>
+							<tr>
+								<td>incomplete
+								</td>
+								<td>May contain a string that describes the status of the goal
+                  during a mission if the goal has not been completed or failed
+                  yet
+								</td>
+							</tr>
+							<tr>
+								<td>completed
+								</td>
+								<td>May contain a string that describes the status of the goal
+                  during a mission if the goal has been completed
+								</td>
+							</tr>
+							<tr>
+								<td>failed
+								</td>
+								<td>May contain a string that describes the status
+                  of the goal during a mission if the goal
+                  has been failed
+								</td>
+							</tr>
+						</table>
+						<p>&nbsp;
+						<h3>MANIPULATE_IO</h3>
+						<p>A MANIPULATE_IO structure describes a mission goal where the player has to manipulate an
+						IO node. The goal has the status INCOMPLETE until the player manipulates the target IO node.
+
+						<table align="center">
+							<tr>
+								<td>target
+								</td>
+								<td>Contains a NODE structure that contains the target IO node
+								</td>
+							</tr>
+							<tr>
+							</tr>
+							<tr>
+								<td>status
+								</td>
+								<td>
+									Contains the current status of the goal, which may either be INCOMPLETE,
+									COMPLETED or FAILED
+								</td>
+							</tr>
+							<tr>
+								<td>incomplete
+								</td>
+								<td>May contain a string that describes the status of the goal
+                  during a mission if the goal has not been completed or failed
+                  yet
+								</td>
+							</tr>
+							<tr>
+								<td>completed
+								</td>
+								<td>May contain a string that describes the status of the goal
+                  during a mission if the goal has been completed
+								</td>
+							</tr>
+							<tr>
+								<td>failed
+								</td>
+								<td>May contain a string that describes the status
+                  of the goal during a mission if the goal
+                  has been failed
+								</td>
+							</tr>
+						</table><p>&nbsp;<h3>SYSTEM</h3><p>Describes a system, the target_system for
+            example. For a system to be valid, at least its name, rating and type must be defined.
+						<table align="center">
+							<tr>
+								<td>name
+								</td>
+								<td>Holds the system's
+              name
+								</td>
+							</tr>
+							<tr>
+								<td>rating
+								</td>
+								<td>Holds the system's rating. This
+                  must be an integer value and it must be at least
+                  1.
+								</td>
+							</tr>
+							<tr>
+								<td>type
+								</td>
+								<td><p>Holds the system's type. The system's type coresponds to the type of the
+                  corporation or facility it represents. It determines the types random
+                  files and random generated mission targets may have. Here's
+                  a detailed list of available predefined values for the system
+                  type&nbsp;:<p>MEGACORP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  a meg corp
+<br>ELECTRONICS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  electronics design / production
+<br>BANK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  banking
+<br>LAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;laboratories
+<br>MEDICAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  any medical
+<br>MANUFACTURING
+<br>SCHOOL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  a college or university
+<br>OIL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  a petrol company
+								</td>
+							</tr>
+							<tr>
+								<td>status
+								</td>
+								<td>Holds the system's status. May be either GREEN, YELLOW,
+                  RED or SHUT_DOWN. The default value is GREEN.
+								</td>
+							</tr>
+						</table><p>&nbsp;<h3>FILE</h3><p>Describes a single file.When a file is
+            assigned to a mission goal and the file does not exist within the
+            target_system yet, the file is added to a datastore in the target system.
+						<table align="center">
+							<tr>
+								<td>name
+								</td>
+								<td>Holds the file
+              name
+								</td>
+							</tr>
+							<tr>
+								<td>description
+								</td>
+								<td>Holds a detailed description of the file
+								</td>
+							</tr>
+							<tr>
+								<td>size
+								</td>
+								<td>May be assigned
+                  a positive integer value. Has a random positive integer value by
+                  default.
+								</td>
+							</tr>
+						</table><p>
+					</td>
+				</tr>
+			</table>
+			<table width="100%" cellspacing="0" cellpadding="8" bgcolor="#000000" style="MARGIN-BOTTOM: 50px">
+				<tr>
+					<td><a name="expressions"></a>
+<br><h2>Expressions</h2><p>You can use mathematical expressions
+            to calculate values as you would in normal maths. The expression syntax is based on JavaScript
+            ( almost identical to the C expression syntax ). The following
+            table contains the operators which may be used within an
+            expression, in order of precedence :<p>
+						<table align="center">
+							<tr><td>a . b</td><td><p>The result of a.b is the member variable b of the structure contained in a.
+								If the structure a doesn't have a variable b and is expandable, the variable is added to a.
+								In all other cases the result is <span style="color:#cc6677">UNDEFINED</span>.
+								The result returned by the . operator is a variable and can be assigned a new value
+								<br><font color=#ff0000>The a.b and a[b] operator take precedence over all other operators</font></td></tr>
+							<tr><td><nobr>a [ b ]</nobr></td><td>returns the variable that represents slot b of the ARRAY a. Since the result is a variable you can assign a value to <span style="color:#cc6677">a[b]</span>.
+								If b is omitted a new array entry is added at the end of the array. So <span style="color:#cc6677">goal[] = CREATE_BACKDOOR</span> would add a new mission goal at the end of the list of goals
+							    <br><font color=#ff0000>The a.b and a[b] operator have the same priority</font></td></tr>
+							<tr><td>( a )</td><td>The value of the expression a is used for the value of the whole brackets expression</td></tr>
+							<tr><td>a * b</td><td>Multiply the two integers a and b</td></tr>
+							<tr><td>a / b</td><td>Divide a by b, dropping the fraction, so the result is another integer
+								<br><span style="color:red">/ and * have the same priority</span></td></tr>
+							<tr><td>! a</td><td>If a is <span style="color:#cc6677">true</span>, the result is <span style="color:#cc6677">false</span> and vice versa</td></tr>
+							<tr><td>a + b</td><td>If a and b are both integers, add them. If a and b are both ARRAY structures, create a new ARRAY that contains the entries from a followed by the entries from b. Otherwise turn a and b into strings and append the b string to the a string</td></tr>
+							<tr><td>a - b</td><td>Substract integer b from integer a</td></tr>
+							<tr><td>&nbsp; - b</td><td>same result as <span style="color:#cc6677">0 - b</span> &nbsp; (the 0 is a zero)
+								<br><font color=#ff0000>The a+b, a-b and -b operators have the same priority</font></td></tr>
+							<tr><td>&gt;</td><td>Results in <span style="color:#cc6677">true</span> if both operands are integers and the left one is higher than the right one, or if both operands are strings and the left one comes after the right one in alphabetical order. In all other cases the result is <span style="color:#cc6677">false</span>
+								<p>Below is an example where <span style="color:#cc6677">&gt;</span> is used to determine whether a variable contains an integer
+								<br><span style="color:#cc6677">if &nbsp; ! (x &gt; 0) &nbsp; && &nbsp; ! (1 &gt; x)
+								<br>&nbsp; &nbsp; return_operand = "x does not contain an integer"</span></td></tr>
+							<tr><td>&lt;</td><td>Checks whether the left operand is lower than the right operand.
+								<br><span style="color:#cc6677">a &lt; b</span> &nbsp; has the same result as &nbsp; <span style="color:#cc6677">b &gt; a</span></td></tr>
+							<tr><td>&gt;=</td><td>Checks whether the left operand is equal to or higher than the right operand
+								<br><span style="color:#cc6677">a &gt;= b</span> &nbsp; has the same result as &nbsp; <span style="color:#cc6677">(a == b) ? true : a &gt; b</span></td></tr></td></tr>
+							<tr><td>&lt;=</td><td>Checks whether the left operand is equal to or lower than the right operand
+								<br><span style="color:#cc6677">a &lt;= b</span> &nbsp; has the same result as &nbsp; <span style="color:#cc6677">(a == b) ? true : a &lt; b</span></td></tr></td></tr>
+							<tr><td>!=<br>&lt;&gt;</td><td><p>Checks whether the left operand is different from the right operand.
+								This operator is written either as <span style="color:#cc6677">!=</span> or as <span style="color:#cc6677">&lt;&gt;</span>.
+								<br><span style="color:#cc6677">a <> b</span> &nbsp; has the same result as &nbsp; <span style="color:#cc6677">! (a == b)</span></td></tr>
+							<tr><td>==</td><td>Results in <span style="color:#cc6677">true</span> if the left operand is equal to the right one, <span style="color:#cc6677">false</span> otherwise.
+                  				This symbol consists of two = .
+                  				If the operands have different types, the result will be <span style="color:#cc6677">false</span>. The result will only be <span style="color:#cc6677">true</span> for a structure if it is compared to itself. When comparing it to another structure, the result will always be <span style="color:#cc6677">false</span>, even if they are of the same structure type and all their member variables have equal operands</td></tr>
+							<tr><td>&amp;&amp;</td><td><span style="color:#cc6677">true</span> if both operands have the boolean value true, <span style="color:#cc6677">false</span> in all other cases.
+								If the left operand is <span style="color:#cc6677">false</span>, the right operand is not evaluated
+								This means in the line below myfunction won't be called unless x is <span style="color:#cc6677">true</span>
+                  				<br><span style="color:#cc6677">if &nbsp; x &nbsp; &amp;&amp; &nbsp; myfunction( ) &gt; 6</span></td></tr>
+							<tr><td>||</td><td><span style="color:#cc6677">true</span> if one of the operands has the boolean value true, <span style="color:#cc6677">false</span> in all other cases.
+								Non-boolean operands are treated as <span style="color:#cc6677">false</span>.
+								If the left operand is true, the right operand is not evaluated</td></tr>
+							<tr><td><nobr>a?b:c</nobr></td><td>If the operand a is <span style="color:#cc6677">true</span>, operand b is evaluated and the expression assumes its value. If the operand a is <span style="color:#cc6677">false</span>, operand c is evaluated and the expression assumes its value. The operand whose value is not used will not be evaluated
+								<br><font color=#ff0000>All other operators take precedence over the ?: operator. Note that the = of the assignment command is not an operator.</font></td></tr>
+						</table>
+						<p><p>Below are a few valid expressions. The = command assigns the value of the
+            expression on the right to the variable on the left. After executing the
+            commands in the given order, a will have the value 5 and b
+            will have the value true ( if c is UNDEFINED ).<p>
+						<table align="center">
+							<tr>
+								<td><p>a = (2+1)*10/6
+<br>b = a+" and "+c == "5 and UNDEFINED"
+								</td>
+							</tr>
+						</table><p>
+					</td>
+				</tr>
+			</table>
+			<table width="100%" cellspacing="0" cellpadding="8" bgcolor="#000000" style="MARGIN-BOTTOM: 50px">
+				<tr>
+					<td><a name="commands"></a>
+<br><h2>Commands</h2><p>There are five commands. <font color=#ffffff>=</font> and <font color=#ffffff>trigger</font> will
+            be used in every script, <font color=#ffffff>if</font> , <font color=#ffffff>while</font> and <font color=#ffffff>display</font>
+            are only needed in special situations.
+            <p><font color=#ffffff>=</font> assigns the value of the right side to the variable on the left.
+            On the right may either be a mathematical expression or a structure definition.
+            <p><font color=#ffffff>trigger</font> creates an event trigger. The command is followed by an expression
+            which is evaluated every time something changes in the
+            game, until the trigger ceases to exist. If it evaluates to the boolean value true, the trigger is
+            destroyed and the block following the trigger command is executed.
+            <p><font color=#ffffff>if</font> evaluates an expression and executes the following block if
+            the expression has the boolean value true.<p><font color=#ffffff>while</font> evaluates an expression and
+            executes the following block if the expression has the boolean value
+            true. After executing the block, the script execution continues at the while expression, evaluating
+            it again. This way the script execution loops through the
+            block until the expression does not have the boolean
+            value true anymore.<p><font color=#ffffff>display</font> is followed by a variable that
+            contains a POPUP or by a POPUP definition. That POPUP is displayed
+            in a popup window and the
+            script execution halts until the popup window is closed. When the popup window
+            is closed, the POPUP member variable choice is assigned the
+            text on the button that was used to close the
+            popup.<p>
+					</td>
+				</tr>
+			</table>
+			<table width="100%" cellspacing="0" cellpadding="8" bgcolor="#000000" style="MARGIN-BOTTOM: 50px">
+				<tr>
+					<td><a name="hardcoded_functions"></a>
+<br><h2>Hardcoded Functions</h2><p>
+						<table align="center">
+							<tr><td>filelist (folder)</td><td><p>returns an ARRAY listing all the files in the given folder, in alphabetical order. If "folder" is not a valid folder, an empty ARRAY is returned instead<p>The folder path must not contain ~, .. and :</td></tr>
+							<tr><td>size (x)</td><td><p>If x is not a structure, it is turned into a string and the length of the string in characters is returned. If it's an array the number of array entries is returned. For all other structure types the return value is UNDEFINED</td></tr>
+							<tr><td><nobr>substring (s,start,end)</nobr></td><td><p>if called without any arguments, the return value is UNDEFINED. Otherwise s is turned into a string and the substring from letter "start" (inclusive) to letter "end" (exclusive) is returned. If the value for "start" is not a number or there is no value for "start", 0 is used instead. If the value for "end" is not a number or there is no value for "end", the string's length is used instead.</td></tr>
+						</table>
+						<p>
+					</td>
+				</tr>
+			</table>
+		</td>
+		<td align="middle" valign="top" bgcolor="#000055" style="PADDING-RIGHT: 10px; PADDING-LEFT: 10px">
+<p><span style="FONT-WEIGHT: bold; COLOR: #aaaaff">Contents</span>
+<br>
+<br><a href="#comments">Comments</a>
+<br>
+<br><a href="#variables">Variables</a>
+<br>
+<br><a href="#predefined_variables">Predefined Variables</a>
+<br>
+<br><a href="#structures">Structures</a>
+<br>
+<br><a href="#structure_types">Structure Types</a>
+<br>
+<br><a href="#expressions">Expressions</a>
+<br>
+<br><a href="#commands">Commands</a><p>
+<br>
+<br><a href="#hardcoded_functions">Hardcoded Functions</a><p>
+<br>
+			<span style="FONT-WEIGHT: bold; COLOR: #aaaaff">Related Links</span>
+<br>
+<br><a href="http://sourceforge.net/projects/decker/">Decker Project Page</a>
+<br>
+<br><a href="http://www.caro.net/dsi/decker/">Official Decker Site</a>
+<br>
+<br><a href="http://www.the-underdogs.org/game.php?name=Decker">A Decker Review</a>
+<br>
+<br><a href="decker.html">Decker Development Page</a>
+<br>
+<br>
+<br>
+			<span style="FONT-WEIGHT: bold; COLOR: #aaaaff">Unrelated Links</span>
+<br>
+<br><a href="http://jcolorexpansion.sourceforge.net/tube_blazer.html">Tube Blazer</a>
+<br>
+<br><a href="http://jcolorexpansion.sourceforge.net/index.html">Java Color Expansion</a>
+<br>
+<br><a href="http://jcolorexpansion.sourceforge.net/asteroid_field.html">Asteroid Field</a>
+<br>
+<br><a href="http://bloodbowlleague.sourceforge.net/index.html">Blood Bowl League</a>
+<br>
+<br>
+		</td>
+	</tr>
+</table>
+</body>
+</html>
