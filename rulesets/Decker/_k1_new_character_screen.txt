@@ -1,0 +1,202 @@
+english
+	RULESET.new_character_screen = VIEW
+		title = "Decker - New Character"
+		object = ARRAY
+		//**************************** data for the character image selector *****************************
+		char_images = filelist("artwork/character_image/")   // this variable stores the list of available character images, the screen display class doesn't recognize it
+		char_image_index = 0
+		char_image = VIEW                            // the player icon
+			x = 29
+			y = 2
+			object = ARRAY
+				RECTANGLE
+					x = -3
+					y = 0
+					width = 30
+					height = 24
+					color = @FETCH_NCS_IMAGE_BACKGROUND_COLOR
+				"character_image/"+char_images[char_image_index]
+		//********************************* data for the bonus selector ***********************************
+		LOCAL.bonus_text = ARRAY
+			"Hardware"
+			"Software"
+			"Skills"
+			"Money"
+			"Nothing"
+		selected_bonus = 0
+		bonus_name = ARRAY
+			"hardware"
+			"software"
+			"skills"
+			"money"
+			"nothing"
+		bonus_button_group = ARRAY
+		adjust_button = FUNCTION (button, is_selected)
+			if is_selected == true
+				// it is selected, mark it
+				button.idle.font = TEXT_STYLE_BOLD.font
+				button.idle.color = @FETCH_NCS_SELECTED_SKILL_COLOR
+				button.pressed.font = button.idle.font
+				button.pressed.color = button.idle.color
+			else
+				// it is not selected, unmark it
+				button.idle.font = TEXT_STYLE.font
+				button.idle.color = @FETCH_NCS_UNSELECTED_SKILL_COLOR
+				button.pressed.font = TEXT_STYLE_BOLD.font
+				button.pressed.color = @FETCH_NCS_PRESSED_SKILL_COLOR
+		LOCAL.bonus_button_function = FUNCTION
+			// mark this button and unmark the old selected button unless it's the same button
+			if selected_bonus != id
+				adjust_button(bonus_button_group[selected_bonus],false)
+				adjust_button(bonus_button_group[id],true)
+				selected_bonus = id
+		//********************************* data for the toggle buttons **********************************
+		ironman = false
+		tooltips = true
+		adjust_on_off_text = FUNCTION (string,is_on)
+			if is_on
+				string.text = "on"
+				string.color = @FETCH_NCS_ON_COLOR
+			else
+				string.text = "off"
+				string.color = @FETCH_NCS_OFF_COLOR
+		//********************************* data for the character name **********************************
+		char_name = TEXTFIELD
+			x = 59
+			y = 49
+			width = 179
+			height = 20
+			user_input.color = @FETCH_NCS_USER_INPUT_COLOR
+			user_input.text = "Hacker X"
+			user_input.font = TEXT_STYLE_BOLD.font
+			user_input.y = 3
+			cursor = VIEW
+				y = 3
+				object = ARRAY
+					"new_character/cursor"
+		//************************************************************************************************
+		object = ARRAY
+			SCREEN_BACKGROUND
+				width = 260
+				height = 260
+			BORDER
+				x = 29
+				y =  121
+				width = 82
+				height = 28
+				inverted = true
+				object = ARRAY
+					char_image					
+					BORDER_BUTTON
+						x = 2
+						y = 2
+						idle = "arrow_w0"    // image for the idle state of the button. the pressed button image will be "home/char1" if that image exists
+						on_mouse_up = FUNCTION
+							if char_image_index == 0
+								char_image_index = char_images.size - 1
+							else
+								char_image_index = char_image_index - 1
+							char_image.object[1] = "character_image/"+char_images[char_image_index]
+					UNDEFINED
+					BORDER_BUTTON
+						x = 56
+						y = 2
+						idle = "arrow_e0"
+						on_mouse_up = FUNCTION
+							if char_image_index == char_images.size - 1
+								char_image_index = 0
+							else
+								char_image_index = char_image_index + 1
+							char_image.object[1] = "character_image/"+char_images[char_image_index]
+			create_border(55, 47, 187, 24, @FETCH_NCS_USER_INPUT_BACKGROUND_COLOR, true)
+			char_name
+			create_text("New Decker Character", CENTER, 18)
+			create_text("Name", 17, 51)
+			VIEW
+				x = 145
+				y = 83
+				width = 67
+				object = ARRAY
+					create_text("Starting Bonus", CENTER, 0)
+			VIEW
+				x = 70
+				y = 83
+				width = 0
+				object = ARRAY
+					create_text("Character", CENTER, 0)
+					create_text("Image", CENTER, 16)
+			BUTTON
+				x = CENTER
+				y = 207
+				width = 105
+				height = 15
+				idle = create_text("Ironman Mode", 0, 0, @FETCH_NCS_OPTION_TEXT_COLOR)
+				pressed = create_text("Ironman Mode", 0, 0, @FETCH_NCS_PRESSED_OPTION_TEXT_COLOR)
+				hover = pressed
+				on_off_text = create_text_bold(UNDEFINED, RIGHT, 0)
+				object = ARRAY
+					on_off_text
+				on_mouse_up = FUNCTION
+					ironman = !ironman
+					adjust_on_off_text(on_off_text,ironman)
+				adjust_on_off_text(on_off_text,ironman)        // sets the initial text and color for the on/off text
+			BUTTON
+				x = CENTER
+				y = 227
+				width = 105
+				height = 15
+				idle = create_text("Tooltips", 0, 0, @FETCH_NCS_OPTION_TEXT_COLOR)
+				pressed = create_text("Tooltips", 0, 0, @FETCH_NCS_PRESSED_OPTION_TEXT_COLOR)
+				hover = pressed
+				on_off_text = create_text_bold(UNDEFINED, RIGHT, 0)
+				object = ARRAY
+					on_off_text
+				on_mouse_up = FUNCTION
+					tooltips = !tooltips
+					adjust_on_off_text(on_off_text,tooltips)
+				adjust_on_off_text(on_off_text,tooltips)      // sets the initial text and color for the on/off text
+			BORDER_BUTTON
+				x = 219
+				y = 219
+				idle = "ok0"
+				on_mouse_up = FUNCTION
+// create the new character START
+					GLOBAL.tooltips = tooltips
+					GLOBAL.ironman = ironman
+					GLOBAL.player = HUMAN
+						name = char_name.user_input.text
+						image = char_image.object[0]
+						LOCAL.slvl = bonus_name[selected_bonus] == "software" ? 2 : 1
+						LOCAL.hlvl = bonus_name[selected_bonus] == "hardware" ? 2 : 1
+						if bonus_name[selected_bonus] == "skills"
+							attack = 2
+							defense = 2
+							stealth = 2
+							analysis = 2
+							programming = 2
+							chip_design = 2
+						money = bonus_name[selected_bonus] == "money" ? 2000 : 100
+						money = money + 10000
+						skill_points = 8
+// create the new character END
+					display_screen(home_screen)
+			BORDER_BUTTON
+				x = 17
+				y = 219
+				idle = "cancel0"
+				on_mouse_up = @exit_program
+		LOCAL.i = 0
+		while i < bonus_name.size
+			bonus_button_group[] = BUTTON
+				x = 145
+				y = 105+i*18
+				width = 67
+				height = 15
+				id = i
+				idle = create_text(bonus_text[i], CENTER, CENTER)
+				pressed = create_text(bonus_text[i], CENTER, CENTER)
+				hover = pressed	
+				on_mouse_up = @bonus_button_function
+			object[] = bonus_button_group[i]
+			adjust_button(bonus_button_group[i], i==0)
+			LOCAL.i = i + 1

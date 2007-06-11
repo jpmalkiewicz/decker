@@ -1,0 +1,220 @@
+english
+	RULESET.character_screen = VIEW
+		title = "Decker - Character"
+		
+		lifestyle_text = ARRAY
+			"Poverty"
+			"Lower Class"
+			"Middle Class"
+			"Upper Class"
+			"Elite"
+		
+		char_name = create_text("",       130,  15, object)
+		char_reputation = create_text("", 130,  35, object)
+		char_money = create_text("",      130,  55, object)
+		char_health = create_text("",     130,  75, object)
+		date = create_text("",              0,  15, object)
+
+		attack_points = create_text("",      RIGHT,   0)
+		defense_points = create_text("",     RIGHT,  20)
+		stealth_points = create_text("",     RIGHT,  40)
+		analysis_points = create_text("",    RIGHT,  60)
+		programming_points = create_text("", RIGHT,  80)
+		chip_design_points = create_text("", RIGHT, 100)
+		skill_points = create_text("",       RIGHT, 130)
+		skill_panel = VIEW
+			x = 28
+			y = 129
+			width = 156
+			height = 142
+			object = ARRAY
+				create_text("Attack",              0,   0)
+				create_text("Defense",             0,  20)
+				create_text("Stealth",             0,  40)
+				create_text("Analysis",            0,  60)
+				create_text("Programming",         0,  80)
+				create_text("Chip Design",         0, 100)
+				create_text("Unused Skill Points", 0, 130)
+				attack_points
+				defense_points
+				stealth_points
+				analysis_points
+				programming_points
+				chip_design_points
+				skill_points
+			
+		lifestyle         = create_text("", RIGHT,   0)
+		monthly_cost      = create_text("", RIGHT,  20)
+		monthly_cost_due  = create_text("", RIGHT,  40)
+		lifestyle_upgrade = create_text("", RIGHT,  60)
+		lifestyle_upgrade_button = BORDER_BUTTON
+			idle = create_text("Upgrade")
+			x = CENTER
+			y = 0
+			on_mouse_up = FUNCTION
+				player.money = player.money - LIFESTYLE_UPGRADE_COST[player.lifestyle]
+				player.lifestyle = player.lifestyle + 1
+		lifestyle_upgrade_text = create_text("", 0, 60)
+		lifestyle_panel = COLLECTION
+			x = skill_panel.x + skill_panel.width + 30
+			y = skill_panel.y
+			width = 430-x-28
+			height = 100
+			object = ARRAY
+				create_text("Current Lifestyle",  0,  0)
+				create_text("Monthly Cost",       0, 20)
+				create_text("Due in",             0, 40)
+				lifestyle_upgrade_text
+				lifestyle
+				monthly_cost
+				monthly_cost_due
+				lifestyle_upgrade
+				COLLECTION  // the upgrade button will sit in here
+					x = CENTER
+					y = 80
+					width = 0
+					height = 20
+					object = ARRAY
+						UNDEFINED
+					on_draw = FUNCTION
+						if player.lifestyle + 1 < LIFESTYLE_COST.size && player.money >= LIFESTYLE_UPGRADE_COST[player.lifestyle]
+							object[0] = lifestyle_upgrade_button
+						else
+							object[0] = UNDEFINED				
+		lifestyle_panel_border = create_border(lifestyle_panel.x-10, lifestyle_panel.y-9, lifestyle_panel.width+20, lifestyle_panel.height+20, UNDEFINED, true)
+		back_button = BORDER_BUTTON
+			x = 430 - 18 - 24
+			y = 300 - 18 - 24
+			idle = "home/home"
+			on_mouse_up = FUNCTION
+				display_previous_screen()
+			
+		object = ARRAY
+			SCREEN_BACKGROUND
+				width = 430
+				height = 300
+			create_border(skill_panel.x-10, skill_panel.y-9, skill_panel.width+20, skill_panel.height+20, UNDEFINED, true)
+			skill_panel
+			lifestyle_panel_border
+			lifestyle_panel
+			create_text("Name",            20, 15)
+			create_text("Reputation",      20, 35)
+			create_text("Money",           20, 55)
+			create_text("Physical Health", 20, 75)
+			char_name
+			char_reputation
+			char_money
+			char_health
+			date
+			back_button
+			BORDER_BUTTON
+				x = back_button.x - 10 - 24
+				y = back_button.y
+				idle = "home/deck"
+				on_mouse_up = FUNCTION
+// ******************************************** go to deck screen
+
+		attack_button = BORDER_BUTTON
+			x = 0
+			y = -2
+			idle = "home/plus"
+			on_mouse_up = FUNCTION
+				if player.skill_points >= player.attack
+					player.skill_points = player.skill_points - player.attack
+					player.attack = player.attack + 1
+		defense_button = BORDER_BUTTON
+			x = 0
+			y = 18
+			idle = "home/plus"
+			on_mouse_up = FUNCTION
+				if player.skill_points >= player.defense
+					player.skill_points = player.skill_points - player.defense
+					player.defense = player.defense + 1
+		stealth_button = BORDER_BUTTON
+			x = 0
+			y = 38
+			idle = "home/plus"
+			on_mouse_up = FUNCTION
+				if player.skill_points >= player.stealth
+					player.skill_points = player.skill_points - player.stealth
+					player.stealth = player.stealth + 1
+		analysis_button = BORDER_BUTTON
+			x = 0
+			y = 58
+			idle = "home/plus"
+			on_mouse_up = FUNCTION
+				if player.skill_points >= player.analysis
+					player.skill_points = player.skill_points - player.analysis
+					player.analysis = player.analysis + 1
+		programming_button = BORDER_BUTTON
+			x = 0
+			y = 78
+			idle = "home/plus"
+			on_mouse_up = FUNCTION
+				if player.skill_points >= player.programming
+					player.skill_points = player.skill_points - player.programming
+					player.programming = player.programming + 1
+		chip_design_button = BORDER_BUTTON
+			x = 0
+			y = 98
+			idle = "home/plus"
+			on_mouse_up = FUNCTION
+				if player.skill_points >= player.chip_design
+					player.skill_points = player.skill_points - player.chip_design
+					player.chip_design = player.chip_design + 1
+			
+		skill_panel.object[] = VIEW
+			x = skill_panel.width-pixelwidth(create_text("20"))*3/2 - 18
+			y = 0
+			width = 0
+			height = 0
+			object = ARRAY
+				UNDEFINED  // placeholders for the skill raiser buttons
+				UNDEFINED
+				UNDEFINED
+				UNDEFINED
+				UNDEFINED
+				UNDEFINED
+			on_draw = FUNCTION
+				object[0] = player.skill_points >= player.attack      ? attack_button      : UNDEFINED
+				object[1] = player.skill_points >= player.defense     ? defense_button     : UNDEFINED
+				object[2] = player.skill_points >= player.stealth     ? stealth_button     : UNDEFINED
+				object[3] = player.skill_points >= player.analysis    ? analysis_button    : UNDEFINED
+				object[4] = player.skill_points >= player.programming ? programming_button : UNDEFINED
+				object[5] = player.skill_points >= player.chip_design ? chip_design_button : UNDEFINED
+
+		on_draw = FUNCTION
+			char_name.text          = player.name
+			char_reputation.text    = ( player.reputation_level < 0 ? REPUTATION_NAME[0] : player.reputation_level >= REPUTATION_NAME.size ? REPUTATION_NAME[REPUTATION_NAME.size-1] : REPUTATION_NAME[player.reputation_level] ) + " / " + player.reputation_level
+			char_money.text         = player.money
+			char_health.text        = HEALTH_INCREMENT * (LETHAL_DAMAGE - player.physical_damage) + "%"
+			date.text               = date_text(2132,0,player.age)
+			date.x                  = pixelwidth(character_screen) - pixelwidth(date) - 18
+
+			attack_points.text      = player.attack
+			defense_points.text     = player.defense
+			stealth_points.text     = player.stealth
+			analysis_points.text    = player.analysis
+			programming_points.text = player.programming
+			chip_design_points.text = player.chip_design
+			skill_points.text       = player.skill_points
+			
+			lifestyle.text         = lifestyle_text[player.lifestyle]
+			monthly_cost.text      = LIFESTYLE_COST[player.lifestyle]
+			LOCAL.d = date_days_in_month(2132,0,player.age) - date_day_of_month(2132,0,player.age) + 1
+			monthly_cost_due.text  = d + " " + ( d == 1 ? "day" : "days" )
+			if player.lifestyle + 1 < LIFESTYLE_COST.size
+				lifestyle_upgrade_text.text = "Cost To Upgrade"
+				lifestyle_upgrade.text = LIFESTYLE_UPGRADE_COST[player.lifestyle]
+				if player.money >= LIFESTYLE_UPGRADE_COST[player.lifestyle]
+					lifestyle_panel_border.height = lifestyle_panel.height+20
+				else
+					lifestyle_panel_border.height = lifestyle_panel.height-8
+			else
+				lifestyle_upgrade_text.text = ""
+				lifestyle_upgrade.text = ""
+				lifestyle_panel_border.height = lifestyle_panel.height-28
+
+//		monthly_cost_due  = create_text("", RIGHT,  40)
+//		lifestyle_upgrade = create_text("", RIGHT,  60)
+			
