@@ -141,7 +141,15 @@ english
 				component[] = _down_arrow
 // initialize the button functionality **************************************************************************
 	
-	
+	RULESET.createThing = FUNCTION(_thingtype, _rating)
+		return_value = THING
+		_thingtype = thingtype
+		_rating = rating
+		return_value.thingtype = _thingtype
+		if rating = UNDEFINED
+			return_value.rating = 0
+		else
+			return.value.rating = rating
 
 	RULESET.getBorderColor1 = FUNCTION
 		return_value = BORDER_COLOR1
@@ -164,7 +172,7 @@ english
 	RULESET.getNCSPressedSkillColor = FUNCTION
 		return_value = NCS_PRESSED_SKILL_COLOR
 
-	RULESET.GetNCSOptionTextColor = FUNCTION
+	RULESET.getNCSOptionTextColor = FUNCTION
 		return_value = NCS_OPTION_TEXT_COLOR
 
 	RULESET.getNCSPressedOptionTextColor = FUNCTION
@@ -173,7 +181,7 @@ english
 	RULESET.getNCSOnColor = FUNCTION
 		return_value = NCS_ON_COLOR
 
-	RULESET.GetNCSOffColor = FUNCTION
+	RULESET.getNCSOffColor = FUNCTION
 		return_value = NCS_OFF_COLOR
 
 	RULESET.getNCSUserInputColor = FUNCTION

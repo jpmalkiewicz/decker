@@ -47,7 +47,8 @@ english
 	RULESET.PROGRAM_TYPES = ARRAY
 		THING_TYPE
 			type_name = "Attack"
-			value = FUNCTION (thing)
+			rating = 1
+			cost = FUNCTION (thing)
 				return_value = 2 * thing.level * thing.level * 25
 			size = FUNCTION (thing)
 				return_value = 2 * thing.level
@@ -86,7 +87,8 @@ english
 					actionHumanAttackICE(ice,thing,target_number)
 		THING_TYPE
 			type_name = "Area Attack"
-			value = FUNCTION (thing)
+			rating = 1
+			cost = FUNCTION (thing)
 				return_value = 3 * thing.level * thing.level * 25
 			size = FUNCTION (thing)
 				return_value = 3 * thing.level
@@ -118,11 +120,12 @@ english
 				"Nuke"
 		THING_TYPE
 			type_name = "Piercing Attack"
+			rating = 1
 			category = ARRAY
 				PROGRAM
 				ATTACK_PROGRAM
 				PIERCING_ATTACK_PROGRAM
-			value = FUNCTION (thing)
+			cost = FUNCTION (thing)
 				return_value = 3 * thing.level * thing.level * 25
 			size = FUNCTION (thing)
 				return_value = 3 * thing.level
