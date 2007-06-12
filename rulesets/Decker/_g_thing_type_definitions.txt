@@ -1,27 +1,24 @@
 // creates all the thing types. things are pieces of hardware, chips, programs and source codes
 // every thing in the game has a thing type
 
-
-
 english
-	GLOBAL.player = HUMAN
+	GLOBAL.PLAYER = HUMAN	
 	
-	
-	RULESET.HUMAN_ACTION_MODIFIER = FUNCTION (human,stealth_action)        // is stealth_action is false it can be omitted
+	RULESET.humanActionModifier = FUNCTION (human,stealth_action)        // is stealth_action is false it can be omitted
 		return_value = DECK_LOAD_MODIFIER[human.deck] - human.deck.damage/8 - MIN(human.physical_damage,human.mental_damage)/4
 		if human.current_node.smoke_level > 0
 			return_value = return_value + ( stealth_action ? 4 : -4 )
 		
 	
-	RULESET.HUMAN_RATING_ATTACK = FUNCTION (human)
-		return_value = HUMAN_ACTION_MODIFIER(human) + MIN(human.deck.attack,human.deck.cpu) + human.attack
+	RULESET.humanRatingAttack = FUNCTION (human)
+		return_value = humanActionModifier(human) + MIN(human.deck.attack,human.deck.cpu) + human.attack
 		i = human.deck.program.size-1
 		while i >= 0
 			if human.deck.program[i].attack_modifier != UNDEFINED
 				return_value = return_value + human.deck.program[i].attack_modifier
 
 
-	RULESET.ACTION_HUMAN_ATTACKS_ICE = FUNCTION (ice,program,target_number)
+	RULESET.actionHumanAttackICE = FUNCTION (ice,program,target_number)
 		successes = ROLL_DICE(target_number)
 		if successes < 0
 			print program.name + " program missed"
@@ -29,15 +26,15 @@ english
 			print program.name + " program does " + successes*successes*HEALTH_INCREMENT + "% damage to " + ice.name
 			ice.damage = ice.damage + successes*successes
 			if ice.damage >= LETHAL_DAMAGE
-				ACTION_CRASH_ICE(human,ice)
+				actionCrashICE(human,ice)
 		human.time = human.time + 1       // an action has been taken, advance the time
 
 	
-	RULESET.ACTION_CRASH_ICE = FUNCTION (ice)
-		if ice.node == player.node
+	RULESET.actionCrashICE = FUNCTION (ice)
+		if ice.node == PLAYER.node
 			print "<#success>" + ice.name + " has crashed"
-			if player.current_target == ice
-				player.current_target = UNDEFINED
+			if PLAYER.current_target == ice
+				PLAYER.current_target = UNDEFINED
 			delete(ice.node.objects,ARRAY_INDEX(ice.node.objects,ice))
 			// if the ice is a tapeworm it dies never to come back. otherwise it goes to the ice respawn list
 			if ice.guards != UNDEFINED && ice.guards.structure_type == "FILE"
@@ -83,10 +80,10 @@ english
 				if human.current_target.structure_type != "ICE"
 					print "<#error>Select some ICE before attacking with "+thing.name
 				else
-					target_number = 10  +  2 * human.target_system.rating  + ICE_RATING_COMBAT(human.current_target) - HUMAN_RATING_ATTACK(human) - thing.rating
+					target_number = 10  +  2 * human.target_system.rating  + ICE_RATING_COMBAT(human.current_target) - humanRatingAttack(human) - thing.rating
 					if human.current_target.hardened || human.current_target.phasing
 						target_number = target_number + 3
-					ACTION_HUMAN_ATTACKS_ICE(ice,thing,target_number)
+					actionHumanAttackICE(ice,thing,target_number)
 		THING_TYPE
 			type_name = "Area Attack"
 			value = FUNCTION (thing)

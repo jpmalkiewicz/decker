@@ -4,7 +4,7 @@
 
 english
 	// returns the current sensor rating for an ice. the value can be negative
-	RULESET.ICE_RATING_SENSOR = FUNCTION (ice, include_analyzed)
+	RULESET.iceRatingSensor = FUNCTION (ice, include_analyzed)
 		if ice.structure_type == "ICE"
 			return_value = ice.rating - ice.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
 			if ice.weaken > 0
@@ -16,7 +16,7 @@ english
 
 
 	// returns the current combat rating for an ice. the value can be negative
-	RULESET.ICE_RATING_COMBAT = FUNCTION (ice, include_analyzed)
+	RULESET.iceRatingCombat = FUNCTION (ice, include_analyzed)
 		if ice.structure_type == "ICE"
 			return_value = ice.rating - ice.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
 			if ice.weaken > 0
