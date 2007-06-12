@@ -13,17 +13,14 @@ english
 			deck.analysis = harware_rating
 		if program_rating > 0
 			deck.program = ARRAY
-//				CREATE_THING(
-// *********************************
-//			ATTACK,
-//			SILENCE,
-//			SMOKE,
-//			MEDIC,
-//			ARMOR,
-//			HIDE,
-//			DECEIVE,
-//			ANALYZE,
-//			SCAN,
-//			EVALUATE,
-//			DECRYPT
-//				
+//				createThing(ATTACK)
+//				createThing(SILENCE)
+//				createThing(SMOKE)
+//				createThing(MEDIC)
+//				createThing(ARMOR)
+//				createThing(HIDE)
+//				createThing(DECEIVE)
+//				createThing(ANALYZE)
+//				createThing(SCAN)
+//				createThing(EVALUATE)
+//				createThing(DECRYPT)
