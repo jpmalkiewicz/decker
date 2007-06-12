@@ -1,8 +1,7 @@
 english
 
-
 	// creates a border with the given values
-	RULESET.create_border = FUNCTION (bx, by, bwidth, bheight, bbackground_color, binverted)
+	RULESET.createBorder = FUNCTION (bx, by, bwidth, bheight, bbackground_color, binverted)
 		return_value = BORDER
 			x = bx
 			y = by
@@ -13,7 +12,7 @@ english
 			
 	
 	// sets a line to the given values. this function purely exists to simplify scripts
-	RULESET.set_line = FUNCTION (line, x, y, x2, y2, color)
+	RULESET.setLine = FUNCTION (line, x, y, x2, y2, color)
 		line.x = x
 		line.y = y
 		line.x2 = x2
@@ -22,7 +21,7 @@ english
 		
 
 	// returns a new TEXT with the default settings as defined in the TEXT object stored in TEXT_STYLE
-	RULESET.create_text = FUNCTION (text, x, y, color, font)
+	RULESET.createText = FUNCTION (text, x, y, color, font)
 		return_value = copy(TEXT_STYLE)
 		// for all settings which are not defined, the default settings will be used
 		if text != UNDEFINED
@@ -38,7 +37,7 @@ english
 			
 	
 	// returns a new TEXT with the default settings as defined in the TEXT object stored in TEXT_STYLE
-	RULESET.create_text_bold = FUNCTION (text, x, y, color, font)
+	RULESET.createTextBold = FUNCTION (text, x, y, color, font)
 		return_value = copy(TEXT_STYLE_BOLD)
 		// for all settings which are not defined, the default settings will be used
 		if x != UNDEFINED
@@ -51,7 +50,7 @@ english
 			return_value.font = @font
 
 
-	RULESET.create_table = FUNCTION (_cell_height, _x, _y)
+	RULESET.createTable = FUNCTION (_cell_height, _x, _y)
 		return_value = TABLE
 			x = _x
 			y = _y
@@ -64,7 +63,7 @@ english
 				i = i + 1
 				
 				
-	RULESET.add_table_row = FUNCTION (table)
+	RULESET.addTableRow = FUNCTION (table)
 		// create the new table row
 		LOCAL.row = COLLECTION
 			component = ARRAY
@@ -89,7 +88,7 @@ english
 		table.height = table.cell_height * table.component.size
 		
 		
-	RULESET.set_table_cell = FUNCTION (table,row,column,content)
+	RULESET.setTableCell = FUNCTION (table,row,column,content)
 		table.component[row].component[column].component[0] = content
 		if content.x == UNDEFINED
 			if table.cell_x.structure_type == "ARRAY"
@@ -113,7 +112,7 @@ english
 				content.h_align = table.cell_h_align
 	
 	
-	RULESET.create_scrollbar = FUNCTION (_x, _y, _width, _height, _slider, _effect, _up_arrow, _down_arrow)
+	RULESET.createScrollbar = FUNCTION (_x, _y, _width, _height, _slider, _effect, _up_arrow, _down_arrow)
 		return_value = SCROLLBAR
 			x = _x
 			y = _y
@@ -144,44 +143,71 @@ english
 	
 	
 
-	RULESET.FETCH_BORDER_COLOR1 = FUNCTION
+	RULESET.getBorderColor1 = FUNCTION
 		return_value = BORDER_COLOR1
 	
-	RULESET.FETCH_BORDER_COLOR2 = FUNCTION
+	RULESET.getBorderColor2 = FUNCTION
 		return_value = BORDER_COLOR2
 
-	RULESET.FETCH_BACKGROUND_COLOR = FUNCTION
+	RULESET.getBackgroundColor1 = FUNCTION
 		return_value = BACKGROUND_COLOR
 
-	RULESET.FETCH_BACKGROUND_COLOR2 = FUNCTION
+	RULESET.getBackgroundColor2 = FUNCTION
 		return_value = BACKGROUND_COLOR2
 
-	RULESET.FETCH_NCS_SELECTED_SKILL_COLOR = FUNCTION
+	RULESET.getNCSSelectedSkillColor = FUNCTION
 		return_value = NCS_SELECTED_SKILL_COLOR
 
-	RULESET.FETCH_NCS_UNSELECTED_SKILL_COLOR = FUNCTION
+	RULESET.getNCSUnselectedSkillColor = FUNCTION
 		return_value = NCS_UNSELECTED_SKILL_COLOR
 
-	RULESET.FETCH_NCS_PRESSED_SKILL_COLOR = FUNCTION
+	RULESET.getNCSPressedSkillColor = FUNCTION
 		return_value = NCS_PRESSED_SKILL_COLOR
 
-	RULESET.FETCH_NCS_OPTION_TEXT_COLOR = FUNCTION
+	RULESET.GetNCSOptionTextColor = FUNCTION
 		return_value = NCS_OPTION_TEXT_COLOR
 
-	RULESET.FETCH_NCS_PRESSED_OPTION_TEXT_COLOR = FUNCTION
+	RULESET.getNCSPressedOptionTextColor = FUNCTION
 		return_value = NCS_PRESSED_OPTION_TEXT_COLOR
 
-	RULESET.FETCH_NCS_ON_COLOR = FUNCTION
+	RULESET.getNCSOnColor = FUNCTION
 		return_value = NCS_ON_COLOR
 
-	RULESET.FETCH_NCS_OFF_COLOR = FUNCTION
+	RULESET.GetNCSOffColor = FUNCTION
 		return_value = NCS_OFF_COLOR
 
-	RULESET.FETCH_NCS_USER_INPUT_COLOR = FUNCTION
+	RULESET.getNCSUserInputColor = FUNCTION
 		return_value = NCS_USER_INPUT_COLOR
 
-	RULESET.FETCH_NCS_IMAGE_BACKGROUND_COLOR = FUNCTION
+	RULESET.getNCSImageBackgroundColor = FUNCTION
 		return_value = NCS_IMAGE_BACKGROUND_COLOR
 		
-	RULESET.FETCH_NCS_USER_INPUT_BACKGROUND_COLOR = FUNCTION
+	RULESET.getNCSUserInputBackgroundColor = FUNCTION
 		return_value = NCS_USER_INPUT_BACKGROUND_COLOR
+
+	RULESET.min = FUNCTION (a,b)
+		return_value = a < b ? a : b
+		
+	RULESET.max = FUNCTION (a,b)
+		return_value = a > b ? a : b
+
+	RULESET.arrayIndex = FUNCTION (array,entry)
+		if array.size != UNDEFINED
+			return_value = array.size - 1
+			while return_value >= 0 && array[return_value] != entry
+				return_value = return_value - 1
+			if i == -1
+				return_value = UNDEFINED
+			
+	RULESET.rollDice = FUNCTION (target_number)
+		x = random(1,20)
+		if x == 1
+			return_value = -1         // 5% critical failure
+		else if x == 20 && target_number > 20
+			return_value = 1          // 5% automatic success (smallest possible positive outcome)
+		else if x < target_number
+			return_value = 0
+		else
+			return_value = 1 + (x-target_number)/4
+			if return_value > 5
+				return_value = 5

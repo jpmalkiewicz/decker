@@ -15,7 +15,7 @@ import java.util.Random;
 public final class Global
 {
 	final static Random random = new Random();
-	final static String COMMANDS = " if while trigger global_trigger print copy display STRUCTURE_TYPE constant "; // the string must start and end with spaces
+	final static String COMMANDS = " if while trigger global_trigger print copy display structure constant "; // the string must start and end with spaces
 	final static String BLOCK_INDENT = "   ";
 	final static int PARSER_EXPRESSION_STACK_SIZE = 100;
 
