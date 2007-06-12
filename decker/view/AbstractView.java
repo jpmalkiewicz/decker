@@ -196,69 +196,8 @@ new Throwable().printStackTrace();
 			return buffered;
 		}
 		return null;
-
-/*
-
-
-
-
-		Image image = (Image) IMAGES.get(name);
-		if (image == null) {
-			// try to load it from the default location
-			image = getImage(name, transparent_color, "rulesets/"+Global.getCurrentRuleset().getName()+"/artwork/");
-			if (image != null)
-				IMAGES.put(name, image);
-		}
-		if (image != null && buffered_image && !(image instanceof BufferedImage))  {
-			// create a transparent BufferedImage and then draw the image onto it
-			final int w = image.getWidth(null), h = image.getHeight(null);
-			BufferedImage i = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-			for (int x = 0; x < w; x++)
-				for (int y = 0; y < h; y++)
-					i.setRGB(x,y,0);
-			i.getGraphics().drawImage(image, 0, 0, null);
-			image = i;
-			IMAGES.put(name, image);
-		}
-		return image;
-*/
 	}
 
-/*
-	private final static Image getImage (final String name, final int transparent_color, final String path)  {
-		// if there is no suffix, try finding a .png, .gif, .bmp, .jpg or .jpeg
-		int suffix = name.lastIndexOf('.');
-		if (suffix == -1 ||( suffix != name.length()-4 && !name.toLowerCase().endsWith(".jpeg") )) {
-			final String[] type = { ".png", ".gif", ".bmp", ".jpg", ".jpeg" };
-			Image ret;
-			for (int i = 0; i < type.length; i++)
-				if ((ret=getImage(name+type[i], transparent_color, path)) != null)
-					return ret;
-			return null;
-		}
-
-		// load it with the BMPReader if it's a .bmp, otherwise use the system Toolkit
-		InputStream stream = AbstractView.class.getClassLoader().getResourceAsStream(path+name);
-		if (stream != null) {
-			final Component c = Global.getViewWrapper();
-			if (name.toLowerCase().endsWith(".bmp"))
-				return BMPReader.readBMP(stream, c, transparent_color);
-			else {
-				final MediaTracker mt = new MediaTracker(c);
-				Image ret;
-				mt.addImage(ret = c.getToolkit().getImage(AbstractView.class.getClassLoader().getResource( path+name )), 0);
-				try {
-					mt.waitForAll();
-				} catch (InterruptedException e) {
-					System.err.println("interrupted while loading an image");
-					System.exit(1);
-				}
-				return ret;
-			}
-		}
-		return null;
-	}
-*/
 
 	/** reloads the list of all available images and sounds */
 	public static void reloadArtwork (final boolean prefetchImages)  {

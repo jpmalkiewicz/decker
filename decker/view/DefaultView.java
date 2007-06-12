@@ -12,6 +12,7 @@ public class DefaultView extends AbstractView
 	private String old_title = "";
 	private int old_width = NONE, old_height = NONE, dx, dy;
 	private Graphics g;
+	private final static Shape NO_CLIP_CHANGE = new java.awt.geom.Line2D.Double();
 
 
 boolean dummy;
@@ -44,11 +45,11 @@ dummy = true;
 			final Structure d = display_this.structure();
 			ScriptNode.addStackItem(d);
 			Value v = null, v2 = null;
+			Shape clip = NO_CLIP_CHANGE;
 			// if the structure has an on_draw function, execute it
 			if ((v=d.get("on_draw")) != null && v.typeDirect() == Value.FUNCTION) {
 				FunctionCall.executeFunctionCall(v.function(), null, ScriptNode.KEEP_STACK);
 			}
-			// draw the structure
 			final int x = x(d,parent), y = y(d,parent);
 			final int w = width(d), h = height(d);
 			// adjust the Frame if this is the top level view
@@ -65,10 +66,11 @@ dummy = true;
 					setScreenSize(w, h);
 				}
 			}
-			else { // only change the coordinate offset if this is not the top level view
+			else { // only change the coordinate offset if this is not the top level screen element
 				dx += x;
 				dy += y;
 			}
+			// draw the structure
 			if (d.get("structure_type").equals("TEXT")) {
 				// set the font
 				if ((v2=d.get("font")) != null && v2.type() == Value.STRING)
@@ -85,6 +87,10 @@ dummy = true;
 				// draw the string
 				g.drawString(s, dx, dy+fm.getAscent());
 			}
+			else if (d.get("structure_type").equals("DRAWING_BOUNDARY")) {
+				clip = g.getClip();
+				g.setClip(dx, dy, w, h);
+			}
 			else if (d.get("structure_type").equals("LINE") && d.get("x2").type() == Value.INTEGER && d.get("y2").type() == Value.INTEGER) {
 				if ((v=d.get("color")) != null)
 					g.setColor(getColor(v.toString()));
@@ -99,7 +105,15 @@ dummy = true;
 			v = d.get("component");
 			final int count2 = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
 			for (int i = 0; i < count2; i++)
+{
+if (ScriptNode.getStackEntry(4).get("structure_type").equals("TABLE")) {
+System.err.println("drawing component "+v);
+if (v.type() == Value.STRUCTURE)
+v.structure().print(System.err, "   ", true);
+ScriptNode.printStack(System.err, "");
+}
 				drawContent(v.get(i+""), d);
+}
 			// draw the child views
 			v = d.get("object");
 			final int count = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
@@ -111,6 +125,9 @@ dummy = true;
 				dx -= x;
 				dy -= y;
 			}
+			// restore the clipping area if the currently displayed element has changed it, e.g. a DRAWING_BOUNDARY structure
+			if (clip != NO_CLIP_CHANGE)
+				g.setClip(clip);
 		}
 	}
 
@@ -361,16 +378,46 @@ dummy = true;
 			if (visible_object instanceof Value)
 				visible_object = ((Value)visible_object).structure();
 			final Value v = ((Structure)visible_object).get("x");
+			final Value a = ((Structure)visible_object).get("h_align");
 			if (v != null) {
 				if (v.type() == Value.INTEGER)
 					ret = v.integer();
+				else if (v.type() == Value.REAL) {
+					if (a == null || a.type() != Value.REAL)
+						ret = (int) (v.real() + 0.5);
+					else
+						ret = (int) (v.real() + a.real() + 0.5); // to avoid rounding errors adding up
+				}
 				else if (v.type() == Value.CONSTANT) {
-					if (v.equalsConstant("RIGHT"))
-						ret = width(parent)-width(visible_object);
-					else if (v.equalsConstant("CENTER"))
-						ret = (width(parent)-width(visible_object))/2;
-//					else if (v.equalsConstant("LEFT"))
+					if (v.equalsConstant("RIGHT")) {
+						if (a == null || a.equals("UNDEFINED")) // if the visible_object has no explicit horizontal alignment, treat it as LEFT aligned, i.e. sitting left of (x,y)
+							ret = width(parent)-width(visible_object);
+						else
+							ret = width(parent);
+					}
+					else if (v.equalsConstant("CENTER")) {
+						if (a == null || a.equals("UNDEFINED")) // if the visible_object has no explicit horizontal alignment, treat it as CENTER aligned, i.e. sitting centered on (x,y)
+							ret = (width(parent)-width(visible_object))/2;
+						else
+							ret = width(parent)/2;
+					}
+//					else if (v.equalsConstant("LEFT"))  // this case has no effect as x is already assumed to be 0
 //						ret = 0;
+				}
+			}
+			if (a != null) {
+				final int atype = a.type();
+				if (atype == Value.INTEGER)
+					ret += a.integer();
+				else if (atype == Value.REAL && v.type() != Value.REAL)
+					ret += (int) (a.real()+0.5);
+				else if (atype == Value.CONSTANT) {
+					if (a.equalsConstant("CENTER"))
+						ret -= width(visible_object)/2;
+					else if (a.equalsConstant("LEFT"))
+						ret -= width(visible_object);
+//					else if (a.equalsConstant("RIGHT"))  // this has no effect apart from keeping x=CENTER and x=RIGHT from assuming a h_align value that differs from RIGHT
+//						ret -= 0;
 				}
 			}
 		}
@@ -385,16 +432,46 @@ dummy = true;
 			if (visible_object instanceof Value)
 				visible_object = ((Value)visible_object).structure();
 			final Value v = ((Structure)visible_object).get("y");
+			final Value a = ((Structure)visible_object).get("v_align");
 			if (v != null) {
 				if (v.type() == Value.INTEGER)
 					ret = v.integer();
+				else if (v.type() == Value.REAL) {
+					if (a == null || a.type() != Value.REAL)
+						ret = (int) (v.real() + 0.5);
+					else
+						ret = (int) (v.real() + a.real() + 0.5); // to avoid rounding errors adding up
+				}
 				else if (v.type() == Value.CONSTANT) {
-					if (v.equalsConstant("BOTTOM"))
-						ret = height(parent)-height(visible_object);
-					else if (v.equalsConstant("CENTER"))
-						ret = (height(parent)-height(visible_object))/2;
-//					else if (v.equalsConstant("TOP"))
+					if (v.equalsConstant("BOTTOM")) {
+						if (a == null || a.equals("UNDEFINED")) // if the visible_object has no explicit vertical alignment, treat it as TOP aligned, i.e. sitting above (x,y)
+							ret = height(parent)-height(visible_object);
+						else
+							ret = height(parent);
+					}
+					else if (v.equalsConstant("CENTER")) {
+						if (a == null || a.equals("UNDEFINED")) // if the visible_object has no explicit vertical alignment, treat it as CENTER aligned, i.e. sitting centered on (x,y)
+							ret = (height(parent)-height(visible_object))/2;
+						else
+							ret = height(parent)/2;
+					}
+//					else if (v.equalsConstant("TOP"))  // this case has no effect as y is already assumed to be 0
 //						ret = 0;
+				}
+			}
+			if (a != null) {
+				final int atype = a.type();
+				if (atype == Value.INTEGER)
+					ret += a.integer();
+				else if (atype == Value.REAL && v.type() != Value.REAL)
+					ret += (int) (a.real()+0.5);
+				else if (atype == Value.CONSTANT) {
+					if (a.equalsConstant("CENTER"))
+						ret -= height(visible_object)/2;
+					else if (a.equalsConstant("TOP"))
+						ret -= height(visible_object);
+//					else if (a.equalsConstant("BOTTOM"))  // this has no effect apart from keeping y=CENTER and y=BOTTOM from assuming a v_align value that differs from BOTTOM
+//						ret -= 0;
 				}
 			}
 		}

@@ -23,4 +23,4 @@ english
 		add_entry("home/matrix",   "Enter the Matrix",      character_screen, object, 6)
 		add_entry("home/options",  "Options",               character_screen, object, 7)
 		
-	RULESET.initial_screen = new_character_screen
+	RULESET.initial_screen = deck_screen

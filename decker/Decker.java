@@ -46,6 +46,7 @@ Frame f = new Frame();
 Global.setDisplayedComponent(f);
 f.setLayout(new BorderLayout());
 f.add(decker.model.Global.getViewWrapper());
+new decker.view.FPSThread(decker.model.Global.getViewWrapper());
 f.setBounds(Global.getEngineData().get("display_center_x").integer()-100/2, Global.getEngineData().get("display_center_y").integer()-70/2, 100, 70);
 f.setVisible(true);
 f.addWindowListener(	new WindowAdapter() { public void windowClosing (WindowEvent event) { System.exit(0); }} );

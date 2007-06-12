@@ -15,18 +15,6 @@ final class ScriptParser extends ScriptReader
 // public static void main(final String[] args)  { new ParserWindow(); }
 
 
-	/** checks whether a given string contains an integer value */
-	final static boolean isInteger (final Object s)  {
-		if (s != null && s instanceof String) {
-			try {
-				Integer.parseInt((String)s);
-				return true;
-			} catch (NumberFormatException ex) {}
-		}
-		return false;
-	}
-
-
 	static Script parse (final String file_name, final Reader in)  {
 		return new ScriptParser(file_name, in).parseScript();
 	}

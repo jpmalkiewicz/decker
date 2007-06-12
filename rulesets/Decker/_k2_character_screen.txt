@@ -214,7 +214,3 @@ english
 				lifestyle_upgrade_text.text = ""
 				lifestyle_upgrade.text = ""
 				lifestyle_panel_border.height = lifestyle_panel.height-28
-
-//		monthly_cost_due  = create_text("", RIGHT,  40)
-//		lifestyle_upgrade = create_text("", RIGHT,  60)
-			
