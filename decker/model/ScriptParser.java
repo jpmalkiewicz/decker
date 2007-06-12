@@ -172,7 +172,7 @@ System.out.println(" parsed");
 					block.addScriptNode(parsePrintCommand());
 				else if(s.equals("constant"))
 					block.addScriptNode(parseConstantDefinitionCommand(getLine(), column));
-				else if(s.equals("STRUCTURE_TYPE"))
+				else if(s.equals("structure"))
 					block.addScriptNode(parseTypeDefinitionCommand(getLine(), column));
 				else if(s.equals("else") || s.equals("elseif"))
 					throwException(s+" without if found");

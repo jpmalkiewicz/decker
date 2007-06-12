@@ -141,15 +141,15 @@ english
 				component[] = _down_arrow
 // initialize the button functionality **************************************************************************
 	
-	RULESET.createThing = FUNCTION(_thingtype, _rating)
-		return_value = THING
-		_thingtype = thingtype
-		_rating = rating
-		return_value.thingtype = _thingtype
-		if rating = UNDEFINED
-			return_value.rating = 0
-		else
-			return.value.rating = rating
+//	RULESET.createThing = FUNCTION(_thingtype, _rating)
+//		return_value = THING
+//		_thingtype = thingtype
+//		_rating = rating
+//		return_value.thingtype = _thingtype
+//		if rating = UNDEFINED
+//			return_value.rating = 0
+//		else
+//			return.value.rating = rating
 
 	RULESET.getBorderColor1 = FUNCTION
 		return_value = BORDER_COLOR1

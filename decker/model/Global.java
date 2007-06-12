@@ -115,7 +115,7 @@ System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").t
 			final File[] dir_list = rulsets_dir.listFiles();
 			bubblesort(dir_list);
 			for (int d = 0; d < dir_list.length; d++) {
-				if (dir_list[d].isDirectory()) {
+				if (dir_list[d].isDirectory() && !dir_list[d].getName().toLowerCase().endsWith(".svn")) {
 					System.out.println("loading Ruleset "+dir_list[d].getName());
 					final Ruleset r = new Ruleset(dir_list[d].getName());
 					final File[] script_list = dir_list[d].listFiles();
