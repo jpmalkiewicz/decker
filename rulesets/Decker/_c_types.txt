@@ -5,14 +5,14 @@ english
 
 
 	// this function makes a mission available if it has a target system with a rating or it has a mission rating the rating is within +/-2 or +/-20% of the player's preferred mission rating
-	RULESET.DEFAULT_MISSION_AVAILABLE = FUNCTION
+	RULESET.defaultMissionAvailable = FUNCTION
 		if rating != UNDEFINED
 			return_value = ( rating >= player.mission_base_rating-2 || rating >= player.mission_base_rating*4/5 ) && ( rating <= player.mission_base_rating+2 || rating <= player.mission_base_rating*6/5 )
 		else if target_system.rating != UNDEFINED
 			return_value = ( target_system.rating >= player.mission_base_rating-2 || target_system.rating >= player.mission_base_rating*4/5 ) && ( target_system.rating <= player.mission_base_rating+2 || target_system.rating <= player.mission_base_rating*6/5 )
 
 	// calculates the mission rating for missions which have a target system
-	RULESET.DEFAULT_MISSION_RATING = FUNCTION
+	RULESET.defaultMissionRating = FUNCTION
 		if target_system.structure_type == "SYSTEM"
 			special_condition = 0
 			target_count = 0
@@ -30,7 +30,7 @@ english
 			return_value = target_system.rating + target_count / 2 + special_condition
 
 	// returns the name of the image to be displayed, deducing it from the state "0" image. e.g. DEDUCE_IMAGE_NAME("my_button0", "1") will return "my_button1" if an image "my_button1.*" exists, otherwise it returns "my_button0"
-	RULESET.DEDUCE_IMAGE_NAME = FUNCTION (base_name, new_suffix)
+	RULESET.deduceImageName = FUNCTION (base_name, new_suffix)
 		return_value = base_name
 		// make sure it's not a structure. if it's a structure, just return it
 		if base_name.structure_type == UNDEFINED
@@ -50,13 +50,12 @@ english
 						if image_exists(substring(base_name,0,k) + new_suffix)
 							return_value = substring(base_name,0,k) + new_suffix
 							
-	
 // ****************************************************************************************************************************************************
 // structure types ************************************************************************************************************************************
 // ****************************************************************************************************************************************************
 
 
-	STRUCTURE_TYPE
+	structure
 		COLLECTION
 			expandable = true
 		

@@ -22,33 +22,6 @@ english
 		3*2000
 		3*4000
 		3*10000
-
-	RULESET.MIN = FUNCTION (a,b)
-		return_value = a < b ? a : b
-		
-	RULESET.MAX = FUNCTION (a,b)
-		return_value = a > b ? a : b
-
-	RULESET.ARRAY_INDEX = FUNCTION (array,entry)
-		if array.size != UNDEFINED
-			return_value = array.size - 1
-			while return_value >= 0 && array[return_value] != entry
-				return_value = return_value - 1
-			if i == -1
-				return_value = UNDEFINED
-			
-	RULESET.ROLL_DICE = FUNCTION (target_number)
-		x = random(1,20)
-		if x == 1
-			return_value = -1         // 5% critical failure
-		else if x == 20 && target_number > 20
-			return_value = 1          // 5% automatic success (smallest possible positive outcome)
-		else if x < target_number
-			return_value = 0
-		else
-			return_value = 1 + (x-target_number)/4
-			if return_value > 5
-				return_value = 5
 		
 	RULESET.REPUTATION_NAME = ARRAY
 		"Nobody"
