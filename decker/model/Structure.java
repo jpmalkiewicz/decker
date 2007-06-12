@@ -150,19 +150,19 @@ public final class Structure
 
 	public boolean print (final PrintStream out, final String indentation, boolean line_start)  {
 		final String ind = indentation+Global.BLOCK_INDENT;
-		out.println((line_start?indentation:"") + get("structure_type"));
+		out.print((line_start?indentation:"") + get("structure_type"));
 		// make sure we're not going too deep into recurions
 		if (ind.length() == 10*Global.BLOCK_INDENT.length()) {
 			if (members.size() > 0)
 				out.println(ind+"...");
 		}
 		else {
-			// print everything except for ARRAY entries
-			final StringTreeMap.Iterator i = members.getIterator();
-			final boolean no_array = !get("structure_type").equals("ARRAY");
-			while (i.hasNext()) {
-				final StringTreeMap.TreeNode n = i.nextNode();
-				if (no_array || !Global.isInteger(n.getKey())) {
+			// print everything except for ARRAYs
+			if (!get("structure_type").equals("ARRAY")) {
+				out.println(); // gotta add a line feed behind the structure type
+				final StringTreeMap.Iterator i = members.getIterator();
+				while (i.hasNext()) {
+					final StringTreeMap.TreeNode n = i.nextNode();
 					out.print(ind + n.getKey() + " = ");
 					final Value v = (Value) n.getValue();
 					if (v.typeDirect() == Value.STRUCTURE)
@@ -173,9 +173,11 @@ public final class Structure
 						out.println(v.toString());
 				}
 			}
-			// now print the ARRAY entries
-			if (!no_array) {
+			else {
+				// it's an array. display it
+				// display the arraysize behind the ARRAY tag
 				final int count = get("size").integer();
+				out.println(" ("+count+")");
 				for (int j = 0; j < count; j++) {
 					final Value v = get(j+"");
 					if (v.type() == Value.STRUCTURE)

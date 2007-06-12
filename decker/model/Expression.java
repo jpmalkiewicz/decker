@@ -57,7 +57,7 @@ public class Expression extends ScriptNode
 			return CONSTANT;
 
 		try{
-			Integer.parseInt(operator);
+			Double.parseDouble(operator);
 			return CONSTANT;
 		} catch(NumberFormatException ex) {}
 
@@ -100,8 +100,14 @@ public class Expression extends ScriptNode
 				operator_element.set(_operator_element.substring(1, _operator_element.length()-1));
 			else if (_operator_element.equals("true") || _operator_element.equals("false"))
 				operator_element.set(_operator_element.equals("true"));
-			else
-				operator_element.set(Integer.parseInt(_operator_element));
+			else {
+				// determine whether it's an integer or a real number
+				double d = Double.parseDouble(_operator_element);
+				if (d == (int) d)
+					operator_element.set((int)d);
+				else
+					operator_element.set(d);
+			}
 		}
 		else
 			operator_element.set(_operator_element);
@@ -191,10 +197,12 @@ try {
 					b = new Value();
 			}
 		}
+		final int at = (a!=null)?a.typeDirect():-1;
+		final int bt = (b!=null)?b.typeDirect():-1;
 
 		switch(operator) {
 			case VARIABLE :
-				final Value r = getVariable(operator_element.string());
+				final Value r = getVar(operator_element.string());
 				final Value r2 = stack[RULESET_STACK_SLOT].get("STRUCTURE_TYPES").get(operator_element.string());
 				return ( r != r2 ) ? r : new Value().set(new Structure(r.structure())); // return a new Variable if the returned value is the structure type
 			case CONSTANT :
@@ -203,7 +211,7 @@ try {
 			case BRACKET :
 				return a;
 			case ARRAY_INDEX :
-					if(a.type() != Value.STRUCTURE)
+					if(at != Value.STRUCTURE)
 						throwException("The array index operator [] requires a variable containing a structure in front of the brackets");
 					Value ret = b.toString().equals("") ? a.structure().add("") : a.get(b.toString());
 					if (ret != null)
@@ -238,24 +246,30 @@ try {
 					final Value val = a.get(variable_name);
 				return (val!=null) ? val : new Value();
 			case MULTIPLY :
-					if(a.type() != Value.INTEGER || b.type() != Value.INTEGER)
-						throwException("The * operator requires two integers as operands.");
-					return_value.set(a.integer() * b.integer());
+					if(at == Value.INTEGER && bt == Value.INTEGER)
+						return_value.set(a.integer() * b.integer());
+					else if (( at == Value.REAL || at == Value.INTEGER )&&( bt == Value.REAL || bt == Value.INTEGER ))
+						return_value.set(((at==Value.REAL)?a.real():a.integer()) * ((bt==Value.REAL)?b.real():b.integer()));
+					else
+						throwException("The * operator requires two integers or real numbers as operands.");
 				break;
 			case DIVIDE :
-					if(a.type() != Value.INTEGER || b.type() != Value.INTEGER)
-						throwException("The / operator requires two integers as operands.");
-					if(b.integer() == 0)
+					if(b.equals(0))
 						throwException("The second operand of the / operator must not be zero.");
-					return_value.set(a.integer() / b.integer());
+					if(at == Value.INTEGER && bt == Value.INTEGER)
+						return_value.set(a.integer() / b.integer());
+					else if (( at == Value.REAL || at == Value.INTEGER )&&( bt == Value.REAL || bt == Value.INTEGER ))
+						return_value.set(((at==Value.REAL)?a.real():a.integer()) / ((bt==Value.REAL)?b.real():b.integer()));
+					else
+						throwException("The / operator requires two integers or real numbers as operands.");
 				break;
 			case NOT :
-					if(a.type() != Value.BOOLEAN)
+					if(at != Value.BOOLEAN)
 						throwException("The ! operator requires a boolean as its operand.");
 					return_value.set(!a.bool());
 				break;
 			case ADD :
-					if(a.type() == Value.STRUCTURE && b.type() == Value.STRUCTURE && a.get("structure_type").equals("ARRAY") && b.get("structure_type").equals("ARRAY")) {
+					if(at == Value.STRUCTURE && bt == Value.STRUCTURE && a.get("structure_type").equals("ARRAY") && b.get("structure_type").equals("ARRAY")) {
 						// create the new array from the old ones
 						final Structure array = new Structure("ARRAY");
 						return_value.set(a);
@@ -266,40 +280,44 @@ try {
 						for (int i = 0; i < size_b; i++)
 							array.add("").set(b.get(i+""));
 					}
-					else if(a.type() == Value.INTEGER && b.type() == Value.INTEGER)
+					else if (at == Value.INTEGER && bt == Value.INTEGER)
 						return_value.set(a.integer() + b.integer());
+					else if (( at == Value.REAL || at == Value.INTEGER )&&( bt == Value.REAL || bt == Value.INTEGER ))
+						return_value.set(((at==Value.REAL)?a.real():a.integer()) / ((bt==Value.REAL)?b.real():b.integer()));
 					else
 						return_value.set(a.toString() + b.toString());
 				break;
 			case SUBSTRACT :
-					if(a.type() != Value.INTEGER || b.type() != Value.INTEGER)
-						throwException("The - operator requires two integers as operands, "+a+" - "+b+" doesn't  work");
-					return_value.set(a.integer() - b.integer());
+					if(at == Value.INTEGER && bt == Value.INTEGER)
+						return_value.set(a.integer() - b.integer());
+					else if (( at == Value.REAL || at == Value.INTEGER )&&( bt == Value.REAL || bt == Value.INTEGER ))
+						return_value.set(((at==Value.REAL)?a.real():a.integer()) - ((bt==Value.REAL)?b.real():b.integer()));
+					else
+						throwException("The - operator requires two integers or real numbers as operands, "+a+"["+a.typeName()+"] - "+b+"["+a.typeName()+"] doesn't  work");
 				break;
 			case NEGATIVE :
-					if(a.type() != Value.INTEGER)
-						throwException("The - prefix requires an integer as its operand.");
-					return_value.set(-a.integer());
+					if(at == Value.INTEGER)
+						return_value.set(-a.integer());
+					else if (at == Value.REAL)
+						return_value.set(-a.real());
+					else
+						throwException("The - prefix requires an integer or a real number as its operand.");
 				break;
 			case GREATER :
-					if (a.type() != b.type())
+					if (( at == Value.INTEGER || at == Value.REAL )&&( bt == Value.INTEGER || bt == Value.REAL ))
+						return_value.set(((at==Value.REAL)?a.real():a.integer()) > ((bt==Value.REAL)?b.real():b.integer()));
+					else if (at != bt || at != Value.STRING)
 						return_value.set(false);
-					else if (a.type() == Value.INTEGER)
-						return_value.set(a.integer() > b.integer());
-					else if (a.type() == Value.STRING)
+					else // it's two strings
 						return_value.set(a.string().compareTo(b.string()) > 0);
-					else
-						return_value.set(false);
 				break;
 			case LESS :
-					if (a.type() != b.type())
+					if (( at == Value.INTEGER || at == Value.REAL )&&( bt == Value.INTEGER || bt == Value.REAL ))
+						return_value.set(((at==Value.REAL)?a.real():a.integer()) < ((bt==Value.REAL)?b.real():b.integer()));
+					else if (at != bt || at != Value.STRING)
 						return_value.set(false);
-					else if (a.type() == Value.INTEGER)
-						return_value.set(a.integer() < b.integer());
-					else if (a.type() == Value.STRING)
+					else // it's two strings
 						return_value.set(a.string().compareTo(b.string()) < 0);
-					else
-						return_value.set(false);
 				break;
 			case EQUAL :
 					return_value.set(a.equals(b));
@@ -308,27 +326,27 @@ try {
 					return_value.set(!a.equals(b));
 				break;
 			case GREATER_OR_EQUAL :
-					final boolean equal = a.equals(b);
-					return_value.set(equal);
-					if (!equal && a.type() == b.type()) {
-						if (a.type() == Value.INTEGER)
-							return_value.set(a.integer() > b.integer());
-						else if (a.type() == Value.STRING)
-							return_value.set(a.string().compareTo(b.string()) >= 0);
-					}
+					if (a.equals(b))
+						return_value.set(true);
+					else if (( at == Value.INTEGER || at == Value.REAL )&&( bt == Value.INTEGER || bt == Value.REAL ))
+						return_value.set(((at==Value.REAL)?a.real():a.integer()) > ((bt==Value.REAL)?b.real():b.integer()));
+					else if (at == Value.STRING && bt == Value.STRING)
+						return_value.set(a.string().compareTo(b.string()) >= 0);
+					else
+						return_value.set(false);
 				break;
 			case LESS_OR_EQUAL :
-					final boolean eq = a.equals(b);
-					return_value.set(eq);
-					if (!eq && a.type() == b.type()) {
-						if (a.type() == Value.INTEGER)
-							return_value.set(a.integer() < b.integer());
-						else if (a.type() == Value.STRING)
-							return_value.set(a.string().compareTo(b.string()) <= 0);
-					}
+					if (a.equals(b))
+						return_value.set(true);
+					else if (( at == Value.INTEGER || at == Value.REAL )&&( bt == Value.INTEGER || bt == Value.REAL ))
+						return_value.set(((at==Value.REAL)?a.real():a.integer()) < ((bt==Value.REAL)?b.real():b.integer()));
+					else if (at == Value.STRING && bt == Value.STRING)
+						return_value.set(a.string().compareTo(b.string()) <= 0);
+					else
+						return_value.set(false);
 				break;
 			case AND :
-					if(a.type() != Value.BOOLEAN || !a.bool())
+					if(at != Value.BOOLEAN || !a.bool())
 						return_value.set(false);
 					else {
 						b = second_operand.execute();
@@ -336,7 +354,7 @@ try {
 					}
 				break;
 			case OR :
-					if(a.type() == Value.BOOLEAN && a.bool())
+					if(at == Value.BOOLEAN && a.bool())
 						return_value.set(true);
 					else {
 						b = second_operand.execute();
@@ -346,7 +364,7 @@ try {
 			case CONDITIONAL_COLON : // the : of the a?b:c operator. it's first operand is an expression with the ? operator that belongs to this :
 				return (a!=null) ? a : second_operand.execute();
 			case CONDITIONAL : // the : of the a?b:c operator. it's first operand is an expression with ? operator
-					if (a.type() != Value.BOOLEAN)
+					if (at != Value.BOOLEAN)
 						throwException("a?b:c requires a boolean value in a");
 				return a.bool() ? second_operand.execute() : null; // returning null will lead to an error if the parent operator is not the : operator
 		}
@@ -361,7 +379,7 @@ try {
 	Expression getSecondOperand ()  { return second_operand; }
 
 
-	public Value getVariable (final String name) {
+	private Value getVar (final String name) {
 		final Value ret = super.getVariable(name);
 		return (ret!=null) ? ret : new Value();
 	}

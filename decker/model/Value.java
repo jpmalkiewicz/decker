@@ -5,14 +5,15 @@ package decker.model;
 *   Value objects can hold any type of value. */
 public final class Value
 {
-	public final static int CONSTANT = 0, BOOLEAN = 1, INTEGER = 2, STRING = 3, STRUCTURE = 4, FUNCTION = 5;
-	private final static String[] TYPE_NAME = {"CONSTANT", "BOOLEAN", "INTEGER", "STRING", "STRUCTURE", "FUNCTION"};
+	public final static int CONSTANT = 0, BOOLEAN = 1, INTEGER = 2, STRING = 3, STRUCTURE = 4, FUNCTION = 5, REAL = 6;
+	private final static String[] TYPE_NAME = {"CONSTANT", "BOOLEAN", "INTEGER", "STRING", "STRUCTURE", "FUNCTION", "REAL" };
 
 
 
 	private int type;
 	private boolean bool;
 	private int integer;
+	private double real;
 	private Object object;
 
 	private Structure visible_structure;
@@ -54,6 +55,7 @@ public final class Value
 			type = value.type;
 			bool = value.bool;
 			integer = value.integer;
+			real = value.real;
 			object = value.object;
 			if(visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
 				Global.testTriggers();
@@ -78,6 +80,18 @@ public final class Value
 		if (type != INTEGER || integer != i) {
 			type = INTEGER;
 			integer = i;
+			object = null; // this is done to get rid off references to obsolete objects
+			if (visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
+				Global.testTriggers();
+		}
+		return this;
+	}
+
+
+	public Value set (final double r)  {
+		if (type != REAL || !equals(r)) {
+			type = REAL;
+			real = r;
 			object = null; // this is done to get rid off references to obsolete objects
 			if (visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
 				Global.testTriggers();
@@ -136,6 +150,7 @@ public final class Value
 			type = value.type;
 			bool = value.bool;
 			integer = value.integer;
+			real = value.real;
 			object = value.object;
 			if (test_triggers && visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
 				Global.testTriggers();
@@ -167,13 +182,22 @@ public final class Value
 
 
 	public boolean equalsAbsolute (final Value value)  {
-		if(type != value.type)
+		if(type != value.type || type == REAL || value.type == REAL) {
+			if (( type == INTEGER || type == REAL )&&( value.type == INTEGER || value.type == REAL)) {
+				final Value v = ScriptNode.getValue("REAL_EQUAL_RANGE");
+				final double range = (v==null||v.type!=REAL) ? 0.000000001 : v.real;
+				final double a = (type==INTEGER) ? integer : real;
+				final double b = (value.type==INTEGER) ? value.integer : value.real;
+				return (a-b<range) && (b-a<range);
+			}
 			return false;
+		}
 		switch(type) {
 			case BOOLEAN :
 				return bool == value.bool;
 			case INTEGER :
 				return integer == value.integer;
+		// case REAL : // REAL is handled in the if clause above
 			case CONSTANT :
 			case STRING :
 				return ((String)object).equals((String)value.object);
@@ -188,13 +212,14 @@ public final class Value
 		final Value v = (type==FUNCTION) ? executeExpression() : this;
 		if (value.type == FUNCTION)
 			value = value.executeExpression();
-		if(v.type != value.type)
-			return false;
+		if(v.type != value.type || v.type == REAL)
+			return v.equalsAbsolute(value);
 		switch(type) {
 			case BOOLEAN :
 				return v.bool == value.bool;
 			case INTEGER :
 				return v.integer == value.integer;
+		// case REAL : // this case is handled above by calling equalsAbsolute for REAL values
 			case CONSTANT :
 			case STRING :
 				return ((String)v.object).equals((String)value.object);
@@ -214,11 +239,25 @@ public final class Value
 
 
 	public boolean equals (final int i)  {
-		if (type == FUNCTION) {
-			final Value v = executeExpression();
-			return v.type == INTEGER && v.integer == i;
+		final Value v = (type == FUNCTION) ? executeExpression() : this;
+		if (v.type == REAL) {
+			final Value rer = ScriptNode.getValue("REAL_EQUAL_RANGE");
+			final double range = (rer==null||rer.type!=REAL) ? 0.000000001 : rer.real;
+			final double difference = v.real-i;
+			return difference < range && -difference < range;
 		}
-		return type == INTEGER && integer == i;
+		return v.type == INTEGER && v.integer == i;
+	}
+
+
+	public boolean equals (final double r)  {
+		final Value v = (type == FUNCTION) ? executeExpression() : this;
+		if (v.type != REAL && v.type != INTEGER)
+			return false;
+		final Value rer = ScriptNode.getValue("REAL_EQUAL_RANGE");
+		final double range = (rer==null||rer.type!=REAL) ? 0.000000001 : rer.real;
+		final double difference = r - ((v.type==REAL)?v.real:v.integer);
+		return difference < range && -difference < range;
 	}
 
 
@@ -297,6 +336,17 @@ public final class Value
 	}
 
 
+	public double real ()  {
+		final Value v = (type!=FUNCTION) ? this : executeExpression();
+		if (v.type != REAL)
+			if (v.type == INTEGER)
+				return v.integer;
+			else
+				throw new RuntimeException("Cannot convert "+TYPE_NAME[v.type]+" to INTEGER");
+		return v.real;
+	}
+
+
 	public String string ()  {
 		final Value v = (type!=FUNCTION) ? this : executeExpression();
 		if (v.type != STRING)
@@ -328,5 +378,5 @@ public final class Value
 	}
 
 
-	public String toString ()  { return (type==BOOLEAN) ? (bool+"") : ((type==INTEGER) ? (integer+"") : object.toString()); }
+	public String toString ()  { return (type==INTEGER) ? (integer+"") : ( (type==BOOLEAN) ? (bool+"") : ( (type==REAL) ? (real+"") : object.toString() )); }
 }

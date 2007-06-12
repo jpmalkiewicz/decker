@@ -51,7 +51,98 @@ english
 			return_value.font = @font
 
 
-
+	RULESET.create_table = FUNCTION (_cell_height, _x, _y)
+		return_value = TABLE
+			x = _x
+			y = _y
+			cell_height = _cell_height
+			cell_width = ARRAY
+			LOCAL.i = 3
+			while i < argument.size
+				width = width + argument[i]
+				cell_width[] = argument[i]
+				i = i + 1
+				
+				
+	RULESET.add_table_row = FUNCTION (table)
+		// create the new table row
+		LOCAL.row = COLLECTION
+			component = ARRAY
+		table.component[] = row
+		LOCAL.i = 0
+		LOCAL.x_offset = 0
+		while i < table.cell_width.size
+			// create the container for the component of the next cell
+			row.component[] = COLLECTION
+				x = x_offset
+				y = table.height
+				width = table.cell_width[i]
+				height = table.cell_height
+				LOCAL.a = ARRAY
+				component = a
+				// if the function caller has supplied an object for this cell, put it in the cell
+				if argument[i+1] != UNDEFINED
+					a[] = argument[i+1]
+			i = i + 1
+			x_offset = x_offset + table.cell_width[i]
+		// calculate the new table height
+		table.height = table.cell_height * table.component.size
+		
+		
+	RULESET.set_table_cell = FUNCTION (table,row,column,content)
+		table.component[row].component[column].component[0] = content
+		if content.x == UNDEFINED
+			if table.cell_x.structure_type == "ARRAY"
+				content.x = table.cell_x[column]
+			else
+				content.x = table.cell_x
+		if content.y == UNDEFINED
+			if table.cell_y.structure_type == "ARRAY"
+				content.y = table.cell_y[column]
+			else
+				content.y = table.cell_y
+		if content.v_align == UNDEFINED
+			if table.cell_v_align.structure_type == "ARRAY"
+				content.v_align = table.cell_v_align[column]
+			else
+				content.v_align = table.cell_v_align
+		if content.h_align == UNDEFINED
+			if table.cell_h_align.structure_type == "ARRAY"
+				content.h_align = table.cell_h_align[column]
+			else
+				content.h_align = table.cell_h_align
+	
+	
+	RULESET.create_scrollbar = FUNCTION (_x, _y, _width, _height, _slider, _effect, _up_arrow, _down_arrow)
+		return_value = SCROLLBAR
+			x = _x
+			y = _y
+			width = _width
+			height = _height
+			if value_type(_slider) == "STRING"      // it's the name of an image
+				_slider = COLLECTION
+					object = ARRAY
+						_slider
+			_slider.x = CENTER
+			_slider.y = pixelheight(_up_arrow)
+			component = ARRAY
+				_slider
+				COLLECTION
+					x = -1000000
+					y = -1000000
+					width = -2 * x
+					height = -2 * y
+					on_mouse_dragged = FUNCTION
+						debug("mouse dragged")
+// finish up the huge pane that captures mouse drag events here **************************************************************************
+			if _up_arrow != UNDEFINED
+				component[] = _up_arrow
+// initialize the button functionality **************************************************************************
+			if _down_arrow != UNDEFINED
+				component[] = _down_arrow
+// initialize the button functionality **************************************************************************
+	
+	
 
 	RULESET.FETCH_BORDER_COLOR1 = FUNCTION
 		return_value = BORDER_COLOR1

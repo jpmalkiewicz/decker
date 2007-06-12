@@ -1,0 +1,45 @@
+english
+	RULESET.deck_screen = VIEW
+		title = "Decker - Deck"
+		
+// test code START ******************************
+		player = HUMAN
+		player.deck = DECK
+			
+// test code END ********************************
+		
+		LOCAL.test_table = create_table (20, 0,0, 30,30,30,30)
+		add_table_row (test_table, "home/char", "home/deck", "home/options","home/char")
+		add_table_row (test_table, "home/deck", "home/deck", "home/deck")
+		LOCAL.k = COLLECTION
+//			x = CENTER
+			y = 0
+			v_align = CENTER
+//			h_align = LEFT
+			object = ARRAY
+				"home/home"
+		set_table_cell (test_table,0,2,k)
+				
+		object = ARRAY
+			SCREEN_BACKGROUND
+				width = 430
+				height = 300
+			DRAWING_BOUNDARY
+				x = 50
+				y = 50
+				width = 70
+				height = 30
+				object[] = test_table
+				
+				
+		debug ("")
+		debug (create_scrollbar(10, 10, 20, 100, "scroller0"))
+		LOCAL.a = ARRAY
+			1
+			2
+			3
+			4
+			COLLECTION
+				fun = "yes"
+				boring = true
+		debug(a)

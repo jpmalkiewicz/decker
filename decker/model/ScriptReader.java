@@ -8,6 +8,7 @@ abstract class ScriptReader
 	private final static String WHITESPACE = " \t\r\n";
 	private final static String SINGLE_CHARACTER_ELEMENTS = "*/+-(){}[],?:@";
 	final static String VARIABLE_NAME_CHARACTERS = "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	final static String VARIABLE_NAME_CHARACTERS_AND_DOT = VARIABLE_NAME_CHARACTERS + ".";
 	static int TABULATOR_SIZE = 4;
 
 
@@ -134,17 +135,28 @@ abstract class ScriptReader
 			return ((char)c)+""+((char)c);
 		}
 
-		// the current element is a variable name or an integer value
+		// the current element is a variable name or an integer value or a real value
 		if(VARIABLE_NAME_CHARACTERS.indexOf(c) == -1)
 			throwException("illegal variable name character or number digit encountered : "+(char)c+" ("+c+")");
 		final StringBuffer ret = new StringBuffer();
 		ret.append((char)c);
 		int d = preview();
-		while (d != -1 && VARIABLE_NAME_CHARACTERS.indexOf(d) > -1)  {
+		boolean is_real = true, dot_found = false;
+		while (d != -1 && VARIABLE_NAME_CHARACTERS_AND_DOT.indexOf(d) > -1)  {
+			if (d == '.') {
+				if (!is_real || dot_found) // stop reading characters if we've encountered a . and it's a variable name or if the real number would otherwise contain two .
+					break;
+				else
+					dot_found = true;
+			}
+			else
+				is_real &= (d>='0' && d<='9');
 			ret.append((char)d);
 			read();
 			d = preview();
 		}
+		if (is_real && dot_found && ret.charAt(ret.length()-1) == '.')
+			throwException("real number "+ret.toString()+" must end with a digit, not with a .");
 		skipWhitespace();
 		return ret.toString();
 	}

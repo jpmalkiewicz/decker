@@ -1,7 +1,20 @@
-Completion Progress = 77%
- NOT PLAYABLE
+78%
+2007-05-09
+  DRAWING_BOUNDARY and a clipping mechanism added
+2007-05-08
+  v_align and h_align added for easier placement of screen elements
+  TABLE type added. so far it displays a table. dragging rows doesn't work yet
+2007-05-07
+  fps setting and mechanism added
+2007-05-04
+  you can set REAL_EQUAL_RANGE to some value between 0.0 and 1.0 to set the maximum difference between two real numbers which are treated as equal. If no value is set or it is not a real number, 0.000000001 is used instead
+  the parser now recognizes real numbers. it rejects numbers like .5 and 5. there has to be at least one digit before and after the . like in 5.5
+  expressions work with real numbers
+2007-05-01
+  variables can now store real numbers
 
-2005-04-26
+77%
+2007-04-26
   image names are no longer case sensitive
   all images are loaded at program start
   fixed insert() and added delete() hardcoded functions
@@ -10,14 +23,12 @@ Completion Progress = 77%
   BORDER_BUTTON structure type added
   all standard buttons turned into BORDER_BUTTONs and the button images changed accordingly
   character screen finished
-
-2005-04-25
+2007-04-25
   character screen almost complete
   a = FUNCTION b operator replaced with @b operator
   integers in font descriptions are now interpreted as font sizes (in points), so "Arial;13" now describes the same font as "Arial;13pt"
   date_day_of_month() and date_days_in_month() hardcoded functions added
-
-2005-04-24
+2007-04-24
   bug fixed : a = LINE would save the structure type LINE in a instead of a new LINE, if the type name wasn't followed by a definition body
   SCREEN_BACKGROUND structure type added
   finished replacing colors and fonts with functions that fetch the current values for them, for easy modding
