@@ -15,7 +15,7 @@ english
 					display_screen(target_screen,true)
 			object_array[] = create_text(button_text, 41, 14 + index * 27)
 		add_entry("home/char",     "View Character",        character_screen, object, 0)
-		add_entry("home/deck",     "View Cyberdeck",        character_screen, object, 1)
+		add_entry("home/deck",     "View Cyberdeck",        deck_screen, object, 1)
 		add_entry("home/contract", "View Contracts",        character_screen, object, 2)
 		add_entry("home/shop",     "Buy Hardware/Software", character_screen, object, 3)
 		add_entry("home/project",  "Projects",              character_screen, object, 4)
