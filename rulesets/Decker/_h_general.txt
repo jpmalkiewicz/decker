@@ -3,7 +3,9 @@
 
 
 english
-	RULESET.initializeDeck = FUNCTION (deck,program_rating,hardware_rating)
+//	RULESET.hardware_rating = 1
+	
+	RULESET.initializeDeck = FUNCTION (deck,program_rating, hardware_rating)
 		if hardware_rating > 0
 			deck.cpu = harware_rating
 			deck.coprocessor = harware_rating
@@ -13,14 +15,14 @@ english
 			deck.analysis = harware_rating
 		if program_rating > 0
 			deck.program = ARRAY
-//				createThing(ATTACK)
-//				createThing(SILENCE)
-//				createThing(SMOKE)
-//				createThing(MEDIC)
-//				createThing(ARMOR)
-//				createThing(HIDE)
-//				createThing(DECEIVE)
-//				createThing(ANALYZE)
-//				createThing(SCAN)
-//				createThing(EVALUATE)
-//				createThing(DECRYPT)
+				createThing(ATTACK_PROGRAM, program_rating)
+				createThing(SILENCE_PROGRAM, program_rating)
+				createThing(SMOKE_PROGRAM, program_rating)
+				createThing(MEDIC_PROGRAM, program_rating)
+				createThing(ARMOR_PROGRAM, program_rating)
+				createThing(HIDE_PROGRAM, program_rating)
+				createThing(DECEIVE_PROGRAM, program_rating)
+				createThing(ANALYZE_PROGRAM, program_rating)
+				createThing(SCAN_PROGRAM, program_rating)
+				createThing(EVALUATE_PROGRAM, program_rating)
+				createThing(DECRYPT_PROGRAM, program_rating)
