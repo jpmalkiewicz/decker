@@ -40,12 +40,12 @@ final class TypeDefinitionCommand extends ScriptNode
 		if (!line_start)
 			out.println();
 		if (type.length == 1) {
-			out.println(indentation + "STRUCTURE_TYPE ");
+			out.println(indentation + "structure ");
 			if (!type[0].print(out, indentation, true))
 				out.println();
 		}
 		else {
-			out.println(indentation + "STRUCTURE_TYPE");
+			out.println(indentation + "structure");
 			final String ind = indentation + Global.BLOCK_INDENT;
 			for (int i = 0; i < type.length; i++)
 				if (!type[i].print(out, ind, true))

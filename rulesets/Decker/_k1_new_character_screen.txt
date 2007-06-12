@@ -108,32 +108,32 @@ english
 							else
 								char_image_index = char_image_index + 1
 							char_image.object[1] = "character_image/"+char_images[char_image_index]
-			create_border(55, 47, 187, 24, @FETCH_NCS_USER_INPUT_BACKGROUND_COLOR, true)
+			createBorder(55, 47, 187, 24, @FETCH_NCS_USER_INPUT_BACKGROUND_COLOR, true)
 			char_name
-			create_text("New Decker Character", CENTER, 18)
-			create_text("Name", 17, 51)
+			createText("New Decker Character", CENTER, 18)
+			createText("Name", 17, 51)
 			VIEW
 				x = 145
 				y = 83
 				width = 67
 				object = ARRAY
-					create_text("Starting Bonus", CENTER, 0)
+					createText("Starting Bonus", CENTER, 0)
 			VIEW
 				x = 70
 				y = 83
 				width = 0
 				object = ARRAY
-					create_text("Character", CENTER, 0)
-					create_text("Image", CENTER, 16)
+					createText("Character", CENTER, 0)
+					createText("Image", CENTER, 16)
 			BUTTON
 				x = CENTER
 				y = 207
 				width = 105
 				height = 15
-				idle = create_text("Ironman Mode", 0, 0, @FETCH_NCS_OPTION_TEXT_COLOR)
-				pressed = create_text("Ironman Mode", 0, 0, @FETCH_NCS_PRESSED_OPTION_TEXT_COLOR)
+				idle = createText("Ironman Mode", 0, 0, @FETCH_NCS_OPTION_TEXT_COLOR)
+				pressed = createText("Ironman Mode", 0, 0, @FETCH_NCS_PRESSED_OPTION_TEXT_COLOR)
 				hover = pressed
-				on_off_text = create_text_bold(UNDEFINED, RIGHT, 0)
+				on_off_text = createText_bold(UNDEFINED, RIGHT, 0)
 				object = ARRAY
 					on_off_text
 				on_mouse_up = FUNCTION
@@ -145,10 +145,10 @@ english
 				y = 227
 				width = 105
 				height = 15
-				idle = create_text("Tooltips", 0, 0, @FETCH_NCS_OPTION_TEXT_COLOR)
-				pressed = create_text("Tooltips", 0, 0, @FETCH_NCS_PRESSED_OPTION_TEXT_COLOR)
+				idle = createText("Tooltips", 0, 0, @FETCH_NCS_OPTION_TEXT_COLOR)
+				pressed = createText("Tooltips", 0, 0, @FETCH_NCS_PRESSED_OPTION_TEXT_COLOR)
 				hover = pressed
-				on_off_text = create_text_bold(UNDEFINED, RIGHT, 0)
+				on_off_text = createText_bold(UNDEFINED, RIGHT, 0)
 				object = ARRAY
 					on_off_text
 				on_mouse_up = FUNCTION
@@ -193,8 +193,8 @@ english
 				width = 67
 				height = 15
 				id = i
-				idle = create_text(bonus_text[i], CENTER, CENTER)
-				pressed = create_text(bonus_text[i], CENTER, CENTER)
+				idle = createText(bonus_text[i], CENTER, CENTER)
+				pressed = createText(bonus_text[i], CENTER, CENTER)
 				hover = pressed	
 				on_mouse_up = @bonus_button_function
 			object[] = bonus_button_group[i]
