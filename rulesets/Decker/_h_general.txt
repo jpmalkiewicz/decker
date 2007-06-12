@@ -3,7 +3,7 @@
 
 
 english
-	RULESET.INITIALIZE_DECK = FUNCTION (deck,program_rating,hardware_rating)
+	RULESET.initializeDeck = FUNCTION (deck,program_rating,hardware_rating)
 		if hardware_rating > 0
 			deck.cpu = harware_rating
 			deck.coprocessor = harware_rating
@@ -26,4 +26,4 @@ english
 //			SCAN,
 //			EVALUATE,
 //			DECRYPT
-				
+//				
