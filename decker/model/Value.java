@@ -371,12 +371,11 @@ public final class Value
 	}
 
 
-	public Function function ()  {
-		if(type != FUNCTION)
-			throw new RuntimeException("Cannot convert "+TYPE_NAME[type]+" to FUNCTION");
-		return (Function) object;
-	}
-
+     public Function function ()  { 
+          if(type != FUNCTION) 
+               throw new RuntimeException("Cannot convert the "+TYPE_NAME[type]+" \""+toString()+"\" to FUNCTION"); 
+          return (Function) object; 
+     } 
 
 	public String toString ()  { return (type==INTEGER) ? (integer+"") : ( (type==BOOLEAN) ? (bool+"") : ( (type==REAL) ? (real+"") : object.toString() )); }
 }
