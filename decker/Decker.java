@@ -32,7 +32,7 @@ System.out.println();
 			System.exit(1);
 		}
 		// load the rulesets
-		SplashScreen ss = new SplashScreen();
+		decker.view.SplashScreen ss = new decker.view.SplashScreen();
 		Global.setDisplayedComponent(ss);
 		Global.initializeDataModel();
 		Global.loadRulesets();

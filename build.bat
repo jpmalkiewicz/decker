@@ -1,3 +1,3 @@
 @echo off
-javac -verbose decker/*.java
+javac decker/*.java
 pause
