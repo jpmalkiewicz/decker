@@ -1,4 +1,8 @@
 78%
+2007-08-03
+  FunctionCall.java now produces a helpful error message if it gets called for a value that is not a function
+  fixed a number of places where script function calls didn't use the new function names
+  moved the static functions from FunctionCall.java to their own class StaticScriptFunctions.java
 2007-05-09
   DRAWING_BOUNDARY and a clipping mechanism added
 2007-05-08

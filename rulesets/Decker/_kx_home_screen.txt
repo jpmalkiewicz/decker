@@ -5,7 +5,7 @@ english
 			SCREEN_BACKGROUND
 				width = 215
 				height = 233
-		LOCAL.add_entry = FUNCTION (button_image, button_text, the_target_screen, object_array, index)
+		LOCAL.addEntry = FUNCTION (button_image, button_text, the_target_screen, object_array, index)
 			object_array[] = BORDER_BUTTON
 				idle = button_image
 				x = 10
@@ -13,14 +13,14 @@ english
 				target_screen = the_target_screen
 				on_mouse_up = FUNCTION
 					display_screen(target_screen,true)
-			object_array[] = create_text(button_text, 41, 14 + index * 27)
-		add_entry("home/char",     "View Character",        character_screen, object, 0)
-		add_entry("home/deck",     "View Cyberdeck",        deck_screen, object, 1)
-		add_entry("home/contract", "View Contracts",        character_screen, object, 2)
-		add_entry("home/shop",     "Buy Hardware/Software", character_screen, object, 3)
-		add_entry("home/project",  "Projects",              character_screen, object, 4)
-		add_entry("home/rest",     "Rest and Recuperate",   character_screen, object, 5)
-		add_entry("home/matrix",   "Enter the Matrix",      character_screen, object, 6)
-		add_entry("home/options",  "Options",               character_screen, object, 7)
+			object_array[] = createText(button_text, 41, 14 + index * 27)
+		addEntry("home/char",     "View Character",        character_screen, object, 0)
+		addEntry("home/deck",     "View Cyberdeck",        deck_screen, object, 1)
+		addEntry("home/contract", "View Contracts",        character_screen, object, 2)
+		addEntry("home/shop",     "Buy Hardware/Software", character_screen, object, 3)
+		addEntry("home/project",  "Projects",              character_screen, object, 4)
+		addEntry("home/rest",     "Rest and Recuperate",   character_screen, object, 5)
+		addEntry("home/matrix",   "Enter the Matrix",      character_screen, object, 6)
+		addEntry("home/options",  "Options",               character_screen, object, 7)
 		
-	RULESET.initial_screen = deck_screen
+	RULESET.initial_screen = new_character_screen

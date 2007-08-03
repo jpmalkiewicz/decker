@@ -29,7 +29,7 @@ english
 					i = i + 1
 			return_value = target_system.rating + target_count / 2 + special_condition
 
-	// returns the name of the image to be displayed, deducing it from the state "0" image. e.g. DEDUCE_IMAGE_NAME("my_button0", "1") will return "my_button1" if an image "my_button1.*" exists, otherwise it returns "my_button0"
+	// returns the name of the image to be displayed, deducing it from the state "0" image. e.g. deduceImageName("my_button0", "1") will return "my_button1" if an image "my_button1.*" exists, otherwise it returns "my_button0"
 	RULESET.deduceImageName = FUNCTION (base_name, new_suffix)
 		return_value = base_name
 		// make sure it's not a structure. if it's a structure, just return it
@@ -277,19 +277,19 @@ english
 				if state == PRESSED
 					LOCAL.p = BUTTON.pressed  // using "BUTTON." to make sure we're not using the "pressed" variable from some other structure
 					if p == UNDEFINED
-						p = DEDUCE_IMAGE_NAME(BUTTON.idle, "1")    // deduces the name of the image for the pressed state from the name of the idle state image
+						p = deduceImageName(BUTTON.idle, "1")    // deduces the name of the image for the pressed state from the name of the idle state image
 					if component[0] != p
 						component[0] = p
 				if state == DISABLED
 					LOCAL.p = BUTTON.disabled
 					if p == UNDEFINED
-						p = DEDUCE_IMAGE_NAME(BUTTON.idle, "2")
+						p = deduceImageName(BUTTON.idle, "2")
 					if component[0] != p
 						component[0] = p
 				if state == HOVER
 					LOCAL.p = BUTTON.hover
 					if p == UNDEFINED
-						p = DEDUCE_IMAGE_NAME(BUTTON.idle, "3")
+						p = deduceImageName(BUTTON.idle, "3")
 					if component[0] != p
 						component[0] = p
 
@@ -380,14 +380,14 @@ english
 				LOCAL.c2 = inverted ? color1 : color2
 				LOCAL.corner_modifier = inverted ? 1 : 0
 				if component[0].x2 != width-1 || component[2].y2 != height-1 || c1 != component[0].color || c2 != component[7].color
-					set_line(component[0], 0, 0, width-1, 0, c1)    // the top border
-					set_line(component[1], 1, 1, width-2, 1, c1)
-					set_line(component[2], 0, 1, 0, height-1, c1)   // the left border
-					set_line(component[3], 1, 2, 1, height-2, c1)
-					set_line(component[4], width-1, 1-corner_modifier, width-1, height-1, c2)          // the right border
-					set_line(component[5], width-2, 2-corner_modifier, width-2, height-2+corner_modifier, c2)
-					set_line(component[6], 1-corner_modifier, height-1, width-2+corner_modifier, height-1, c2)    // the bottom border
-					set_line(component[7], 2-corner_modifier, height-2, width-3+corner_modifier, height-2, c2)
+					setLine(component[0], 0, 0, width-1, 0, c1)    // the top border
+					setLine(component[1], 1, 1, width-2, 1, c1)
+					setLine(component[2], 0, 1, 0, height-1, c1)   // the left border
+					setLine(component[3], 1, 2, 1, height-2, c1)
+					setLine(component[4], width-1, 1-corner_modifier, width-1, height-1, c2)          // the right border
+					setLine(component[5], width-2, 2-corner_modifier, width-2, height-2+corner_modifier, c2)
+					setLine(component[6], 1-corner_modifier, height-1, width-2+corner_modifier, height-1, c2)    // the bottom border
+					setLine(component[7], 2-corner_modifier, height-2, width-3+corner_modifier, height-2, c2)
 				if background_color == UNDEFINED
 					component[8] = UNDEFINED
 				else if component[8].color != background_color
@@ -408,7 +408,7 @@ english
 			component
 			initializer = FUNCTION
 				component = ARRAY
-					create_border(0,0)
+					createBorder(0,0)
 			on_draw = FUNCTION
 				component[0].width = width
 				component[0].height = height
@@ -418,7 +418,7 @@ english
 						component[1] = UNDEFINED
 				else
 					if component[1] == UNDEFINED
-						component[1] = create_border(5, 5, 0, 0)
+						component[1] = createBorder(5, 5, 0, 0)
 					component[1].width = width-10
 					component[1].height = height-10
 					component[1].background_color = @FETCH_BACKGROUND_COLOR
@@ -438,7 +438,7 @@ english
 			// on_mouse_up    // put the function with the button effect here, for a standard button
 			initializer = FUNCTION
 				BORDER_BUTTON.object = ARRAY
-					create_border(0,0)
+					createBorder(0,0)
 			on_draw = FUNCTION
 				LOCAL.c = UNDEFINED
 				if state == IDLE
@@ -446,15 +446,15 @@ english
 				if state == PRESSED
 					c = BUTTON.pressed  // using "BUTTON." to make sure we're not using the "pressed" variable from some other structure
 					if c == UNDEFINED
-						c = DEDUCE_IMAGE_NAME(idle, "1")    // deduces the name of the image for the pressed state from the name of the idle state image
+						c = deduceImageName(idle, "1")    // deduces the name of the image for the pressed state from the name of the idle state image
 				if state == DISABLED
 					LOCAL.c = BUTTON.disabled
 					if c == UNDEFINED
-						c = DEDUCE_IMAGE_NAME(idle, "2")
+						c = deduceImageName(idle, "2")
 				if state == HOVER
 					LOCAL.c = BUTTON.hover
 					if c == UNDEFINED
-						c = DEDUCE_IMAGE_NAME(idle, "3")
+						c = deduceImageName(idle, "3")
 				// if it's the name of an image, put a wrapper around it so we can position it within the button area
 				if value_type(c) != "STRING"
 					object[1] = c

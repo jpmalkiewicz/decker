@@ -8,9 +8,9 @@ english
 			
 // test code END ********************************
 		
-		LOCAL.test_table = create_table (20, 0,0, 30,30,30,30)
-		add_table_row (test_table, "home/char", "home/deck", "home/options","home/char")
-		add_table_row (test_table, "home/deck", "home/deck", "home/deck")
+		LOCAL.test_table = createTable (20, 0,0, 30,30,30,30)
+		addTableRow (test_table, "home/char", "home/deck", "home/options","home/char")
+		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
 		LOCAL.k = COLLECTION
 //			x = CENTER
 			y = 0
@@ -18,7 +18,7 @@ english
 //			h_align = LEFT
 			object = ARRAY
 				"home/home"
-		set_table_cell (test_table,0,2,k)
+		setTableCell (test_table,0,2,k)
 				
 		object = ARRAY
 			SCREEN_BACKGROUND
@@ -33,7 +33,7 @@ english
 				
 				
 		debug ("")
-		debug (create_scrollbar(10, 10, 20, 100, "scroller0"))
+		debug (createScrollbar(10, 10, 20, 100, "scroller0"))
 		LOCAL.a = ARRAY
 			1
 			2

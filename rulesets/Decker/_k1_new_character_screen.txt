@@ -133,7 +133,7 @@ english
 				idle = createText("Ironman Mode", 0, 0, @FETCH_NCS_OPTION_TEXT_COLOR)
 				pressed = createText("Ironman Mode", 0, 0, @FETCH_NCS_PRESSED_OPTION_TEXT_COLOR)
 				hover = pressed
-				on_off_text = createText_bold(UNDEFINED, RIGHT, 0)
+				on_off_text = createTextBold(UNDEFINED, RIGHT, 0)
 				object = ARRAY
 					on_off_text
 				on_mouse_up = FUNCTION
@@ -148,7 +148,7 @@ english
 				idle = createText("Tooltips", 0, 0, @FETCH_NCS_OPTION_TEXT_COLOR)
 				pressed = createText("Tooltips", 0, 0, @FETCH_NCS_PRESSED_OPTION_TEXT_COLOR)
 				hover = pressed
-				on_off_text = createText_bold(UNDEFINED, RIGHT, 0)
+				on_off_text = createTextBold(UNDEFINED, RIGHT, 0)
 				object = ARRAY
 					on_off_text
 				on_mouse_up = FUNCTION
