@@ -9,32 +9,32 @@ english
 			"Upper Class"
 			"Elite"
 		
-		char_name = create_text("",       130,  15, object)
-		char_reputation = create_text("", 130,  35, object)
-		char_money = create_text("",      130,  55, object)
-		char_health = create_text("",     130,  75, object)
-		date = create_text("",              0,  15, object)
+		char_name = createText("",       130,  15, object)
+		char_reputation = createText("", 130,  35, object)
+		char_money = createText("",      130,  55, object)
+		char_health = createText("",     130,  75, object)
+		date = createText("",              0,  15, object)
 
-		attack_points = create_text("",      RIGHT,   0)
-		defense_points = create_text("",     RIGHT,  20)
-		stealth_points = create_text("",     RIGHT,  40)
-		analysis_points = create_text("",    RIGHT,  60)
-		programming_points = create_text("", RIGHT,  80)
-		chip_design_points = create_text("", RIGHT, 100)
-		skill_points = create_text("",       RIGHT, 130)
+		attack_points = createText("",      RIGHT,   0)
+		defense_points = createText("",     RIGHT,  20)
+		stealth_points = createText("",     RIGHT,  40)
+		analysis_points = createText("",    RIGHT,  60)
+		programming_points = createText("", RIGHT,  80)
+		chip_design_points = createText("", RIGHT, 100)
+		skill_points = createText("",       RIGHT, 130)
 		skill_panel = VIEW
 			x = 28
 			y = 129
 			width = 156
 			height = 142
 			object = ARRAY
-				create_text("Attack",              0,   0)
-				create_text("Defense",             0,  20)
-				create_text("Stealth",             0,  40)
-				create_text("Analysis",            0,  60)
-				create_text("Programming",         0,  80)
-				create_text("Chip Design",         0, 100)
-				create_text("Unused Skill Points", 0, 130)
+				createText("Attack",              0,   0)
+				createText("Defense",             0,  20)
+				createText("Stealth",             0,  40)
+				createText("Analysis",            0,  60)
+				createText("Programming",         0,  80)
+				createText("Chip Design",         0, 100)
+				createText("Unused Skill Points", 0, 130)
 				attack_points
 				defense_points
 				stealth_points
@@ -43,27 +43,27 @@ english
 				chip_design_points
 				skill_points
 			
-		lifestyle         = create_text("", RIGHT,   0)
-		monthly_cost      = create_text("", RIGHT,  20)
-		monthly_cost_due  = create_text("", RIGHT,  40)
-		lifestyle_upgrade = create_text("", RIGHT,  60)
+		lifestyle         = createText("", RIGHT,   0)
+		monthly_cost      = createText("", RIGHT,  20)
+		monthly_cost_due  = createText("", RIGHT,  40)
+		lifestyle_upgrade = createText("", RIGHT,  60)
 		lifestyle_upgrade_button = BORDER_BUTTON
-			idle = create_text("Upgrade")
+			idle = createText("Upgrade")
 			x = CENTER
 			y = 0
 			on_mouse_up = FUNCTION
 				player.money = player.money - LIFESTYLE_UPGRADE_COST[player.lifestyle]
 				player.lifestyle = player.lifestyle + 1
-		lifestyle_upgrade_text = create_text("", 0, 60)
+		lifestyle_upgrade_text = createText("", 0, 60)
 		lifestyle_panel = COLLECTION
 			x = skill_panel.x + skill_panel.width + 30
 			y = skill_panel.y
 			width = 430-x-28
 			height = 100
 			object = ARRAY
-				create_text("Current Lifestyle",  0,  0)
-				create_text("Monthly Cost",       0, 20)
-				create_text("Due in",             0, 40)
+				createText("Current Lifestyle",  0,  0)
+				createText("Monthly Cost",       0, 20)
+				createText("Due in",             0, 40)
 				lifestyle_upgrade_text
 				lifestyle
 				monthly_cost
@@ -81,7 +81,7 @@ english
 							object[0] = lifestyle_upgrade_button
 						else
 							object[0] = UNDEFINED				
-		lifestyle_panel_border = create_border(lifestyle_panel.x-10, lifestyle_panel.y-9, lifestyle_panel.width+20, lifestyle_panel.height+20, UNDEFINED, true)
+		lifestyle_panel_border = createBorder(lifestyle_panel.x-10, lifestyle_panel.y-9, lifestyle_panel.width+20, lifestyle_panel.height+20, UNDEFINED, true)
 		back_button = BORDER_BUTTON
 			x = 430 - 18 - 24
 			y = 300 - 18 - 24
@@ -93,14 +93,14 @@ english
 			SCREEN_BACKGROUND
 				width = 430
 				height = 300
-			create_border(skill_panel.x-10, skill_panel.y-9, skill_panel.width+20, skill_panel.height+20, UNDEFINED, true)
+			createBorder(skill_panel.x-10, skill_panel.y-9, skill_panel.width+20, skill_panel.height+20, UNDEFINED, true)
 			skill_panel
 			lifestyle_panel_border
 			lifestyle_panel
-			create_text("Name",            20, 15)
-			create_text("Reputation",      20, 35)
-			create_text("Money",           20, 55)
-			create_text("Physical Health", 20, 75)
+			createText("Name",            20, 15)
+			createText("Reputation",      20, 35)
+			createText("Money",           20, 55)
+			createText("Physical Health", 20, 75)
 			char_name
 			char_reputation
 			char_money
@@ -164,7 +164,7 @@ english
 					player.chip_design = player.chip_design + 1
 			
 		skill_panel.object[] = VIEW
-			x = skill_panel.width-pixelwidth(create_text("20"))*3/2 - 18
+			x = skill_panel.width-pixelwidth(createText("20"))*3/2 - 18
 			y = 0
 			width = 0
 			height = 0
