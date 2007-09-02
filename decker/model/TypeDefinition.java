@@ -52,7 +52,7 @@ final class TypeDefinition extends ScriptNode
 					Object o = ((Object[])definition_body[i])[1];
 					if (o instanceof Expression) {
 						final Expression e = (Expression)((Object[])definition_body[i])[1];
-						if (e.getOperator() == Expression.ORIGINAL_VALUE)
+						if (e.getOperator() == Expression.FETCH_VALUE)
 							v.setDirectly(e.execute(), false);
 						else
 							v.set(e.execute());

@@ -167,7 +167,9 @@ public final class Structure
 					final Value v = (Value) n.getValue();
 					if (v.typeDirect() == Value.STRUCTURE)
 						v.structure().print(out, ind, false);
-					else if (v.typeDirect() == Value.FUNCTION)
+					else if (v.isExpression())
+						v.expression().print(out, ind, false);
+					else if (v.isFunction())
 						v.function().print(out, ind, false);
 					else
 						out.println(v.toString());
@@ -182,6 +184,8 @@ public final class Structure
 					final Value v = get(j+"");
 					if (v.type() == Value.STRUCTURE)
 						v.structure().print(out, ind, true);
+					else if (v.isExpression())
+						v.expression().print(out, ind, false);
 					else if (v.type() == Value.FUNCTION)
 						v.function().print(out, ind, true);
 					else

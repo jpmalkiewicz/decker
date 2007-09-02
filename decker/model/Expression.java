@@ -5,11 +5,11 @@ import java.io.PrintStream;
 
 public class Expression extends ScriptNode
 {
-	final static int STRUCTURE_DEFINITION = 1, ARRAY_DEFINITION = 3, NOT_AN_OPERATOR = 4, VARIABLE = 5, CONSTANT = 6, BRACKET = 7, MEMBER = 8, ARRAY_INDEX = 9, FUNCTION_CALL = 10, ORIGINAL_VALUE = 11, MULTIPLY = 12, DIVIDE = 13, NOT = 14, ADD = 15, SUBSTRACT = 16, NEGATIVE = 17, GREATER = 18, LESS = 19, GREATER_OR_EQUAL = 20, LESS_OR_EQUAL = 21, NOT_EQUAL = 22, EQUAL = 23, AND = 24, OR = 25, CONDITIONAL_COLON = 26, CONDITIONAL = 27;
+	final static int STRUCTURE_DEFINITION = 1, ARRAY_DEFINITION = 3, NOT_AN_OPERATOR = 4, VARIABLE = 5, CONSTANT = 6, BRACKET = 7, MEMBER = 8, ARRAY_INDEX = 9, FUNCTION_CALL = 10, FETCH_VALUE = 11, MULTIPLY = 12, DIVIDE = 13, NOT = 14, ADD = 15, SUBSTRACT = 16, NEGATIVE = 17, GREATER = 18, LESS = 19, GREATER_OR_EQUAL = 20, LESS_OR_EQUAL = 21, NOT_EQUAL = 22, EQUAL = 23, AND = 24, OR = 25, CONDITIONAL_COLON = 26, CONDITIONAL = 27;
 	final static int[] OPERATOR_PRIORITY = new int[28];
 	// the string below contains all the one character operators, with OPERATOR_STRING.charAt(x) having the operator id x
 	final static String OPERATOR_STRING = "(.[*/!+-><:?@";
-	final static int[] OPERATOR_STRING_ID = { BRACKET, MEMBER, ARRAY_INDEX, MULTIPLY, DIVIDE, NOT, ADD, SUBSTRACT, GREATER, LESS, CONDITIONAL_COLON, CONDITIONAL, ORIGINAL_VALUE };
+	final static int[] OPERATOR_STRING_ID = { BRACKET, MEMBER, ARRAY_INDEX, MULTIPLY, DIVIDE, NOT, ADD, SUBSTRACT, GREATER, LESS, CONDITIONAL_COLON, CONDITIONAL, FETCH_VALUE };
 	final static String OPERATOR_STRING_2 = "==!=<>>=<=&&||";
 	final static int[] OPERATOR_STRING_2_ID = { EQUAL, NOT_EQUAL, NOT_EQUAL, GREATER_OR_EQUAL, LESS_OR_EQUAL, AND, OR };
 
@@ -168,7 +168,11 @@ try {
 
 
 	void addExpression (final Expression expression)  {
-		if (first_operand != null && operator != NEGATIVE && operator != NOT && operator != BRACKET && operator != ORIGINAL_VALUE)
+		// if this expression is the FETCH_VALUE operator @, make sure that the added expression describes a variable
+		if (operator == FETCH_VALUE && expression.operator != VARIABLE && expression.operator != MEMBER && expression.operator != ARRAY_INDEX)
+			throwException("the @ operator requires a variable as its operand");
+		// add the expression to this expression as the first or second operand
+		if (first_operand != null && operator != NEGATIVE && operator != NOT && operator != BRACKET && operator != FETCH_VALUE)
 			second_operand = expression;
 		else
 			first_operand = expression;
@@ -183,15 +187,16 @@ try {
 
 		// most operators use the value of their two operands. fetch them unless they won't be used
 		Value a = null, b = null;
-		if (operator != MEMBER) {
+		if (operator != MEMBER && operator != FETCH_VALUE) {
 			if(first_operand != null) {
-				a = first_operand.execute();
+				a = (first_operand.operator!=FETCH_VALUE) ? first_operand.execute() : first_operand.executeFetchValue();  // otherwise a would contain the pointer, and not the value first_operand points at
 				if (a == null && operator != CONDITIONAL_COLON)
 					a = new Value();
 			}
 			else if (operator != VARIABLE && operator != CONSTANT)
-				throwException("first operator missing");
+				throwException("first operand missing");
 			if(second_operand != null && operator != AND && operator != OR && operator != CONDITIONAL_COLON && operator != CONDITIONAL) {
+				b = (second_operand.operator!=FETCH_VALUE) ? second_operand.execute() : second_operand.executeFetchValue(); // otherwise b would contain the pointer, and not the value second_operand points at
 				b = second_operand.execute();
 				if (b == null)
 					b = new Value();
@@ -200,10 +205,11 @@ try {
 		final int at = (a!=null)?a.typeDirect():-1;
 		final int bt = (b!=null)?b.typeDirect():-1;
 
+		// now execute the operator
 		switch(operator) {
 			case VARIABLE :
-				final Value r = getVar(operator_element.string());
-				final Value r2 = stack[RULESET_STACK_SLOT].get("STRUCTURE_TYPES").get(operator_element.string());
+					final Value r = getVar(operator_element.string());
+					final Value r2 = stack[RULESET_STACK_SLOT].get("STRUCTURE_TYPES").get(operator_element.string());
 				return ( r != r2 ) ? r : new Value().set(new Structure(r.structure())); // return a new Variable if the returned value is the structure type
 			case CONSTANT :
 					return_value.set(operator_element);
@@ -217,9 +223,10 @@ try {
 					if (ret != null)
 						return ret;
 					// if the array/structure entry doesn't exist, return UNDEFINED
-					break;
-			case ORIGINAL_VALUE :
-				return a;
+				break;
+			case FETCH_VALUE :
+					return_value.setFetchValue(this);
+				break;
 			case MEMBER :
 					if (second_operand.operator != VARIABLE)
 						throwException("The . operator requires a variable name as the right operand.");
@@ -373,6 +380,16 @@ try {
 	}
 
 
+	/** returns the value a FETCH_VALUE operator @ points at */
+	Value executeFetchValue ()  {
+		if (operator != FETCH_VALUE)
+			throwException("trying to fetch the value from an @ operator, but operator "+operator_element.toString()+" found");
+		if (first_operand == null)
+			throwException("the operand of the @ operator is missing");
+		return first_operand.execute();
+	}
+
+
 	Expression getFirstOperand ()  { return first_operand; }
 	int getOperator ()  { return operator; }
 	Value getOperatorElement ()  { return operator_element; }
@@ -417,7 +434,7 @@ try {
 				break;
 			case NOT :
 			case NEGATIVE :
-			case ORIGINAL_VALUE :
+			case FETCH_VALUE :
 					out.print((line_start?indentation:"") + operator_element.toString());
 					ret = print(out, indentation, false, first_operand);
 				break;
