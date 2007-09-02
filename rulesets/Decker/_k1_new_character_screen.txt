@@ -14,7 +14,7 @@ english
 					y = 0
 					width = 30
 					height = 24
-					color = @FETCH_NCS_IMAGE_BACKGROUND_COLOR
+					color = @NCS_IMAGE_BACKGROUND_COLOR
 				"character_image/"+char_images[char_image_index]
 		//********************************* data for the bonus selector ***********************************
 		LOCAL.bonus_text = ARRAY
@@ -35,15 +35,15 @@ english
 			if is_selected == true
 				// it is selected, mark it
 				button.idle.font = TEXT_STYLE_BOLD.font
-				button.idle.color = @FETCH_NCS_SELECTED_SKILL_COLOR
+				button.idle.color = @NCS_SELECTED_SKILL_COLOR
 				button.pressed.font = button.idle.font
 				button.pressed.color = button.idle.color
 			else
 				// it is not selected, unmark it
 				button.idle.font = TEXT_STYLE.font
-				button.idle.color = @FETCH_NCS_UNSELECTED_SKILL_COLOR
+				button.idle.color = @NCS_UNSELECTED_SKILL_COLOR
 				button.pressed.font = TEXT_STYLE_BOLD.font
-				button.pressed.color = @FETCH_NCS_PRESSED_SKILL_COLOR
+				button.pressed.color = @NCS_PRESSED_SKILL_COLOR
 		LOCAL.bonus_button_function = FUNCTION
 			// mark this button and unmark the old selected button unless it's the same button
 			if selected_bonus != id
@@ -56,17 +56,17 @@ english
 		adjust_on_off_text = FUNCTION (string,is_on)
 			if is_on
 				string.text = "on"
-				string.color = @FETCH_NCS_ON_COLOR
+				string.color = @NCS_ON_COLOR
 			else
 				string.text = "off"
-				string.color = @FETCH_NCS_OFF_COLOR
+				string.color = @NCS_OFF_COLOR
 		//********************************* data for the character name **********************************
 		char_name = TEXTFIELD
 			x = 59
 			y = 49
 			width = 179
 			height = 20
-			user_input.color = @FETCH_NCS_USER_INPUT_COLOR
+			user_input.color = @NCS_USER_INPUT_COLOR
 			user_input.text = "Hacker X"
 			user_input.font = TEXT_STYLE_BOLD.font
 			user_input.y = 3
@@ -108,7 +108,7 @@ english
 							else
 								char_image_index = char_image_index + 1
 							char_image.object[1] = "character_image/"+char_images[char_image_index]
-			createBorder(55, 47, 187, 24, @FETCH_NCS_USER_INPUT_BACKGROUND_COLOR, true)
+			createBorder(55, 47, 187, 24, @NCS_USER_INPUT_BACKGROUND_COLOR, true)
 			char_name
 			createText("New Decker Character", CENTER, 18)
 			createText("Name", 17, 51)
@@ -130,8 +130,8 @@ english
 				y = 207
 				width = 105
 				height = 15
-				idle = createText("Ironman Mode", 0, 0, @FETCH_NCS_OPTION_TEXT_COLOR)
-				pressed = createText("Ironman Mode", 0, 0, @FETCH_NCS_PRESSED_OPTION_TEXT_COLOR)
+				idle = createText("Ironman Mode", 0, 0, @NCS_OPTION_TEXT_COLOR)
+				pressed = createText("Ironman Mode", 0, 0, @NCS_PRESSED_OPTION_TEXT_COLOR)
 				hover = pressed
 				on_off_text = createTextBold(UNDEFINED, RIGHT, 0)
 				object = ARRAY
@@ -145,8 +145,8 @@ english
 				y = 227
 				width = 105
 				height = 15
-				idle = createText("Tooltips", 0, 0, @FETCH_NCS_OPTION_TEXT_COLOR)
-				pressed = createText("Tooltips", 0, 0, @FETCH_NCS_PRESSED_OPTION_TEXT_COLOR)
+				idle = createText("Tooltips", 0, 0, @NCS_OPTION_TEXT_COLOR)
+				pressed = createText("Tooltips", 0, 0, @NCS_PRESSED_OPTION_TEXT_COLOR)
 				hover = pressed
 				on_off_text = createTextBold(UNDEFINED, RIGHT, 0)
 				object = ARRAY
@@ -185,6 +185,7 @@ english
 				y = 219
 				idle = "cancel0"
 				on_mouse_up = @exit_program
+		debug(object[0])
 		LOCAL.i = 0
 		while i < bonus_name.size
 			bonus_button_group[] = BUTTON

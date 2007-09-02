@@ -6,7 +6,7 @@ package decker.model;
 public final class Value
 {
 	public final static int CONSTANT = 0, BOOLEAN = 1, INTEGER = 2, STRING = 3, STRUCTURE = 4, FUNCTION = 5, REAL = 6;
-	private final static String[] TYPE_NAME = {"CONSTANT", "BOOLEAN", "INTEGER", "STRING", "STRUCTURE", "FUNCTION", "REAL" };
+	private final static String[] TYPE_NAME = { "CONSTANT", "BOOLEAN", "INTEGER", "STRING", "STRUCTURE", "FUNCTION", "REAL" };
 
 
 
@@ -40,6 +40,9 @@ public final class Value
 
 
 	private Value executeExpression ()  {
+		// this if will only happen if the function stored in this variable is really an @ expression
+		if (object instanceof Expression)
+			return ((Expression)object).executeFetchValue();
 		return FunctionCall.executeFunctionCall(object, null, (visible_structure==null||!visible_structure.variablesSeeEachOther()) ? null : visible_structure);
 	}
 
@@ -153,6 +156,19 @@ public final class Value
 			real = value.real;
 			object = value.object;
 			if (test_triggers && visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
+				Global.testTriggers();
+		}
+		return this;
+	}
+
+
+	public Value setFetchValue (final Expression e)  {
+		if (object != e) { // no need to check whether type is not FUNCTION here
+			if (e.getOperator() != Expression.FETCH_VALUE)
+				throw new RuntimeException("this method only works for the @ operator, not for "+e.getOperatorElement().toString());
+			type = FUNCTION;
+			object = e;
+			if (visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
 				Global.testTriggers();
 		}
 		return this;
@@ -291,6 +307,9 @@ public final class Value
 // "get"    *************************************************************************************************************
 
 
+	public Value evaluate ()  { return (type != FUNCTION) ? this : executeExpression(); }
+
+
 	public Value get (final String name)  {
 		final Value v = (type!=FUNCTION) ? this : executeExpression();
 		if(v.type != STRUCTURE)
@@ -303,6 +322,9 @@ public final class Value
 
 
 	public Value getValue ()  { return (type != FUNCTION) ? this : executeExpression(); }
+
+
+	public boolean isExpression () { return type == FUNCTION && object instanceof Expression; }
 
 
 	public boolean isFunction () { return type == FUNCTION; }
@@ -371,11 +393,19 @@ public final class Value
 	}
 
 
-     public Function function ()  { 
-          if(type != FUNCTION) 
-               throw new RuntimeException("Cannot convert the "+TYPE_NAME[type]+" \""+toString()+"\" to FUNCTION"); 
-          return (Function) object; 
-     } 
+	public Function function ()  {
+		if(type != FUNCTION)
+			throw new RuntimeException("Cannot convert the "+TYPE_NAME[type]+" \""+toString()+"\" to FUNCTION");
+		return (Function) object;
+	}
+
+
+	public Expression expression ()  {
+		if(type != FUNCTION)
+			throw new RuntimeException("Cannot convert the "+TYPE_NAME[type]+" \""+toString()+"\" to FUNCTION");
+		return (Expression) object;
+	}
+
 
 	public String toString ()  { return (type==INTEGER) ? (integer+"") : ( (type==BOOLEAN) ? (bool+"") : ( (type==REAL) ? (real+"") : object.toString() )); }
 }

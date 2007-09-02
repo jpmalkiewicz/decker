@@ -32,8 +32,8 @@ english
 				object[] = test_table
 				
 				
-		debug ("")
-		debug (createScrollbar(10, 10, 20, 100, "scroller0"))
+//		debug ("")
+//		debug (createScrollbar(10, 10, 20, 100, "scroller0"))
 		LOCAL.a = ARRAY
 			1
 			2

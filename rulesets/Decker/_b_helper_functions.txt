@@ -1,5 +1,36 @@
 english
 
+	RULESET.min = FUNCTION (a,b)
+		return_value = a < b ? a : b
+		
+	RULESET.max = FUNCTION (a,b)
+		return_value = a > b ? a : b
+
+	RULESET.arrayIndex = FUNCTION (array,entry)
+		if array.size != UNDEFINED
+			return_value = array.size - 1
+			while return_value >= 0 && array[return_value] != entry
+				return_value = return_value - 1
+			if i == -1
+				return_value = UNDEFINED
+			
+	RULESET.rollDice = FUNCTION (target_number)
+		x = random(1,20)
+		if x == 1
+			return_value = -1         // 5% critical failure
+		else if x == 20 && target_number > 20
+			return_value = 1          // 5% automatic success (smallest possible positive outcome)
+		else if x < target_number
+			return_value = 0
+		else
+			return_value = 1 + (x-target_number)/4
+			if return_value > 5
+				return_value = 5
+
+
+// interface related functions ************************************************************************************************************************
+
+
 	// creates a border with the given values
 	RULESET.createBorder = FUNCTION (bx, by, bwidth, bheight, bbackground_color, binverted)
 		return_value = BORDER
@@ -7,7 +38,7 @@ english
 			y = by
 			width = bwidth
 			height = bheight
-			background_color = @bbackground_color
+			background_color = bbackground_color
 			inverted = binverted == true
 			
 	
@@ -25,15 +56,15 @@ english
 		return_value = copy(TEXT_STYLE)
 		// for all settings which are not defined, the default settings will be used
 		if text != UNDEFINED
-			return_value.text = @text
+			return_value.text = text
 		if x != UNDEFINED
-			return_value.x = @x
+			return_value.x = x
 		if y != UNDEFINED
-			return_value.y = @y
+			return_value.y = y
 		if color != UNDEFINED
-			return_value.color = @color
+			return_value.color = color
 		if font != UNDEFINED
-			return_value.font = @font
+			return_value.font = font
 			
 	
 	// returns a new TEXT with the default settings as defined in the TEXT object stored in TEXT_STYLE
@@ -41,13 +72,13 @@ english
 		return_value = copy(TEXT_STYLE_BOLD)
 		// for all settings which are not defined, the default settings will be used
 		if x != UNDEFINED
-			return_value.x = @x
+			return_value.x = x
 		if y != UNDEFINED
-			return_value.y = @y
+			return_value.y = y
 		if color != UNDEFINED
-			return_value.color = @color
+			return_value.color = color
 		if font != UNDEFINED
-			return_value.font = @font
+			return_value.font = font
 
 
 	RULESET.createTable = FUNCTION (_cell_height, _x, _y)
@@ -150,72 +181,3 @@ english
 //			return_value.rating = 0
 //		else
 //			return.value.rating = rating
-
-	RULESET.getBorderColor1 = FUNCTION
-		return_value = BORDER_COLOR1
-	
-	RULESET.getBorderColor2 = FUNCTION
-		return_value = BORDER_COLOR2
-
-	RULESET.getBackgroundColor1 = FUNCTION
-		return_value = BACKGROUND_COLOR
-
-	RULESET.getBackgroundColor2 = FUNCTION
-		return_value = BACKGROUND_COLOR2
-
-	RULESET.getNCSSelectedSkillColor = FUNCTION
-		return_value = NCS_SELECTED_SKILL_COLOR
-
-	RULESET.getNCSUnselectedSkillColor = FUNCTION
-		return_value = NCS_UNSELECTED_SKILL_COLOR
-
-	RULESET.getNCSPressedSkillColor = FUNCTION
-		return_value = NCS_PRESSED_SKILL_COLOR
-
-	RULESET.getNCSOptionTextColor = FUNCTION
-		return_value = NCS_OPTION_TEXT_COLOR
-
-	RULESET.getNCSPressedOptionTextColor = FUNCTION
-		return_value = NCS_PRESSED_OPTION_TEXT_COLOR
-
-	RULESET.getNCSOnColor = FUNCTION
-		return_value = NCS_ON_COLOR
-
-	RULESET.getNCSOffColor = FUNCTION
-		return_value = NCS_OFF_COLOR
-
-	RULESET.getNCSUserInputColor = FUNCTION
-		return_value = NCS_USER_INPUT_COLOR
-
-	RULESET.getNCSImageBackgroundColor = FUNCTION
-		return_value = NCS_IMAGE_BACKGROUND_COLOR
-		
-	RULESET.getNCSUserInputBackgroundColor = FUNCTION
-		return_value = NCS_USER_INPUT_BACKGROUND_COLOR
-
-	RULESET.min = FUNCTION (a,b)
-		return_value = a < b ? a : b
-		
-	RULESET.max = FUNCTION (a,b)
-		return_value = a > b ? a : b
-
-	RULESET.arrayIndex = FUNCTION (array,entry)
-		if array.size != UNDEFINED
-			return_value = array.size - 1
-			while return_value >= 0 && array[return_value] != entry
-				return_value = return_value - 1
-			if i == -1
-				return_value = UNDEFINED
-			
-	RULESET.rollDice = FUNCTION (target_number)
-		x = random(1,20)
-		if x == 1
-			return_value = -1         // 5% critical failure
-		else if x == 20 && target_number > 20
-			return_value = 1          // 5% automatic success (smallest possible positive outcome)
-		else if x < target_number
-			return_value = 0
-		else
-			return_value = 1 + (x-target_number)/4
-			if return_value > 5
-				return_value = 5

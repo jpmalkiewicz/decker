@@ -98,8 +98,10 @@ final class AssignmentCommand extends ScriptNode
 		}
 		if (value_definition instanceof Function)
 			return ret.set((Function)value_definition);
-		else if (value_definition instanceof Expression && ((Expression)value_definition).getOperator() == Expression.ORIGINAL_VALUE)
-			return ret.setDirectly(value_definition.execute(), true);
+		else if (value_definition instanceof Expression && ((Expression)value_definition).getOperator() == Expression.FETCH_VALUE)
+// this is wrong, @ should be executed when the variable is used, not before
+//			return ret.setDirectly(value_definition.execute(), true);
+			return ret.setFetchValue((Expression)value_definition);
 		return ret.set(value_definition.execute());
 	}
 

@@ -76,7 +76,7 @@ dummy = true;
 				if ((v2=d.get("font")) != null && v2.type() == Value.STRING)
 					g.setFont(getFont(d.get("font").string(), true));
 				// set the text color
-				if ((v2=d.get("color")) != null && v2.type() == Value.STRING) {
+				if ((v2=d.get("color").evaluate()) != null && v2.type() == Value.STRING) {
 					final Color c = getColor(v2.string());
 					if (c != null)
 						g.setColor(c);
@@ -92,12 +92,15 @@ dummy = true;
 				g.setClip(dx, dy, w, h);
 			}
 			else if (d.get("structure_type").equals("LINE") && d.get("x2").type() == Value.INTEGER && d.get("y2").type() == Value.INTEGER) {
-				if ((v=d.get("color")) != null)
+				if ((v=d.get("color").evaluate()) != null)
+{
+System.err.println("drawing line with color "+v+" "+d.get("color"));
 					g.setColor(getColor(v.toString()));
+}
 				g.drawLine(dx, dy, dx+d.get("x2").integer()-x, dy+d.get("y2").integer()-y);
 			}
 			else if (d.get("structure_type").equals("RECTANGLE")) {
-				if ((v=d.get("color")) != null)
+				if ((v=d.get("color").evaluate()) != null)
 					g.setColor(getColor(v.toString()));
 				g.fillRect(dx, dy, w, h);
 			}
