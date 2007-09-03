@@ -185,7 +185,6 @@ english
 				y = 219
 				idle = "cancel0"
 				on_mouse_up = @exit_program
-		debug(object[0])
 		LOCAL.i = 0
 		while i < bonus_name.size
 			bonus_button_group[] = BUTTON
@@ -197,7 +196,7 @@ english
 				idle = createText(bonus_text[i], CENTER, CENTER)
 				pressed = createText(bonus_text[i], CENTER, CENTER)
 				hover = pressed	
-				on_mouse_up = @bonus_button_function
+				on_mouse_up = &bonus_button_function
 			object[] = bonus_button_group[i]
 			adjust_button(bonus_button_group[i], i==0)
 			LOCAL.i = i + 1

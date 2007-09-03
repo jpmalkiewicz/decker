@@ -374,11 +374,6 @@ english
 					LINE
 					LINE
 					UNDEFINED  // placeholder for the rectangle that draws the background, if it has a color
-// ugly workaround ************************************************************************************************************************************
-//				color1 = @BORDER_COLOR1
-//				color2 = @BORDER_COLOR2
-// ugly workaround END ********************************************************************************************************************************
-
 			on_draw = FUNCTION
 				// adjust the lines if the border has changed
 				LOCAL.c1 = inverted ? color2 : color1
@@ -403,6 +398,7 @@ english
 					component[8].width = BORDER.width-4
 					component[8].height = BORDER.height-4
 					component[8].color = background_color
+
 
 		SCREEN_BACKGROUND
 			x = 0

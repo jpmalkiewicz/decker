@@ -42,4 +42,4 @@ english
 			COLLECTION
 				fun = "yes"
 				boring = true
-		debug(a)
+//		debug(a)

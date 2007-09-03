@@ -5,8 +5,8 @@ import java.io.PrintStream;
 
 public class Expression extends ScriptNode
 {
-	final static int STRUCTURE_DEFINITION = 1, ARRAY_DEFINITION = 3, NOT_AN_OPERATOR = 4, VARIABLE = 5, CONSTANT = 6, BRACKET = 7, MEMBER = 8, ARRAY_INDEX = 9, FUNCTION_CALL = 10, FETCH_VALUE = 11, MULTIPLY = 12, DIVIDE = 13, NOT = 14, ADD = 15, SUBSTRACT = 16, NEGATIVE = 17, GREATER = 18, LESS = 19, GREATER_OR_EQUAL = 20, LESS_OR_EQUAL = 21, NOT_EQUAL = 22, EQUAL = 23, AND = 24, OR = 25, CONDITIONAL_COLON = 26, CONDITIONAL = 27;
-	final static int[] OPERATOR_PRIORITY = new int[28];
+	final static int STRUCTURE_DEFINITION = 1, ARRAY_DEFINITION = 3, NOT_AN_OPERATOR = 4, VARIABLE = 5, CONSTANT = 6, BRACKET = 7, MEMBER = 8, ARRAY_INDEX = 9, FUNCTION_CALL = 10, FETCH_VALUE = 11, RAW_VALUE = 12, MULTIPLY = 13, DIVIDE = 14, NOT = 15, ADD = 16, SUBSTRACT = 17, NEGATIVE = 18, GREATER = 19, LESS = 20, GREATER_OR_EQUAL = 21, LESS_OR_EQUAL = 22, NOT_EQUAL = 23, EQUAL = 24, AND = 25, OR = 26, CONDITIONAL_COLON = 27, CONDITIONAL = 28;
+	final static int[] OPERATOR_PRIORITY = new int[29];
 	// the string below contains all the one character operators, with OPERATOR_STRING.charAt(x) having the operator id x
 	final static String OPERATOR_STRING = "(.[*/!+-><:?@";
 	final static int[] OPERATOR_STRING_ID = { BRACKET, MEMBER, ARRAY_INDEX, MULTIPLY, DIVIDE, NOT, ADD, SUBSTRACT, GREATER, LESS, CONDITIONAL_COLON, CONDITIONAL, FETCH_VALUE };
@@ -40,7 +40,7 @@ public class Expression extends ScriptNode
 	/** returns the id of the operator contained in the string
 	*   assumes that the "operator" parameter contains a single script element */
 	static int operatorID (final String operator)  {
-		if(operator == null || "]){}=".indexOf(operator) > -1 || Global.COMMANDS.indexOf(" "+operator+" ") > -1 || operator.equals(".."))
+		if(operator == null || "]){}=".indexOf(operator) > -1 || Global.COMMANDS.indexOf(" "+operator+" ") > -1)
 			return NOT_AN_OPERATOR;
 
 		// check whether it's a one character operator
@@ -52,6 +52,10 @@ public class Expression extends ScriptNode
 		index = OPERATOR_STRING_2.indexOf(operator);
 		if(index > -1 && (index&1) == 0 && operator.length() == 2)
 			return OPERATOR_STRING_2_ID[index/2];
+
+		// check whether it's the & operator
+		if(operator.equals("&"))
+			return RAW_VALUE;
 
 		if(operator.startsWith("\""))
 			return CONSTANT;
@@ -169,10 +173,10 @@ try {
 
 	void addExpression (final Expression expression)  {
 		// if this expression is the FETCH_VALUE operator @, make sure that the added expression describes a variable
-		if (operator == FETCH_VALUE && expression.operator != VARIABLE && expression.operator != MEMBER && expression.operator != ARRAY_INDEX)
-			throwException("the @ operator requires a variable as its operand");
+		if (( operator == FETCH_VALUE || operator == RAW_VALUE )&& expression.operator != VARIABLE && expression.operator != MEMBER && expression.operator != ARRAY_INDEX)
+			throwException("the "+operator_element.toString()+" operator requires a variable as its operand");
 		// add the expression to this expression as the first or second operand
-		if (first_operand != null && operator != NEGATIVE && operator != NOT && operator != BRACKET && operator != FETCH_VALUE)
+		if (first_operand != null && operator != NEGATIVE && operator != NOT && operator != BRACKET && operator != FETCH_VALUE && operator != RAW_VALUE)
 			second_operand = expression;
 		else
 			first_operand = expression;
@@ -189,14 +193,13 @@ try {
 		Value a = null, b = null;
 		if (operator != MEMBER && operator != FETCH_VALUE) {
 			if(first_operand != null) {
-				a = (first_operand.operator!=FETCH_VALUE) ? first_operand.execute() : first_operand.executeFetchValue();  // otherwise a would contain the pointer, and not the value first_operand points at
+				a = first_operand.execute();
 				if (a == null && operator != CONDITIONAL_COLON)
 					a = new Value();
 			}
 			else if (operator != VARIABLE && operator != CONSTANT)
 				throwException("first operand missing");
 			if(second_operand != null && operator != AND && operator != OR && operator != CONDITIONAL_COLON && operator != CONDITIONAL) {
-				b = (second_operand.operator!=FETCH_VALUE) ? second_operand.execute() : second_operand.executeFetchValue(); // otherwise b would contain the pointer, and not the value second_operand points at
 				b = second_operand.execute();
 				if (b == null)
 					b = new Value();
@@ -226,6 +229,9 @@ try {
 				break;
 			case FETCH_VALUE :
 					return_value.setFetchValue(this);
+				break;
+			case RAW_VALUE :
+					return_value.setDirectly(a, false);
 				break;
 			case MEMBER :
 					if (second_operand.operator != VARIABLE)
@@ -436,6 +442,10 @@ try {
 			case NEGATIVE :
 			case FETCH_VALUE :
 					out.print((line_start?indentation:"") + operator_element.toString());
+					ret = print(out, indentation, false, first_operand);
+				break;
+			case RAW_VALUE :
+					out.print((line_start?indentation:""));
 					ret = print(out, indentation, false, first_operand);
 				break;
 			default :
