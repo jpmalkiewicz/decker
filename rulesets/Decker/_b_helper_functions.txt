@@ -36,7 +36,7 @@ english
 		return_value = BORDER
 			x = bx
 			y = by
-			width = bwidth
+			width = &bwidth
 			height = bheight
 			background_color = bbackground_color
 			inverted = binverted == true

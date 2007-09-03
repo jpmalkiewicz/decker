@@ -93,10 +93,7 @@ dummy = true;
 			}
 			else if (d.get("structure_type").equals("LINE") && d.get("x2").type() == Value.INTEGER && d.get("y2").type() == Value.INTEGER) {
 				if ((v=d.get("color").evaluate()) != null)
-{
-System.err.println("drawing line with color "+v+" "+d.get("color"));
 					g.setColor(getColor(v.toString()));
-}
 				g.drawLine(dx, dy, dx+d.get("x2").integer()-x, dy+d.get("y2").integer()-y);
 			}
 			else if (d.get("structure_type").equals("RECTANGLE")) {

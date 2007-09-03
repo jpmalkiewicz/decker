@@ -22,5 +22,6 @@ english
 		addEntry("home/rest",     "Rest and Recuperate",   character_screen, object, 5)
 		addEntry("home/matrix",   "Enter the Matrix",      character_screen, object, 6)
 		addEntry("home/options",  "Options",               character_screen, object, 7)
-//		debug(object[1])
+
+
 	RULESET.initial_screen = new_character_screen

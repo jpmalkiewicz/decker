@@ -6,7 +6,7 @@ import java.io.*;
 abstract class ScriptReader
 {
 	private final static String WHITESPACE = " \t\r\n";
-	private final static String SINGLE_CHARACTER_ELEMENTS = "*/+-(){}[],?:@";
+	private final static String SINGLE_CHARACTER_ELEMENTS = ".*/+-(){}[],?:@";
 	final static String VARIABLE_NAME_CHARACTERS = "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	final static String VARIABLE_NAME_CHARACTERS_AND_DOT = VARIABLE_NAME_CHARACTERS + ".";
 	static int TABULATOR_SIZE = 4;
@@ -95,21 +95,21 @@ abstract class ScriptReader
 		if(c == '"')
 			return readString();
 
-		// catch  *  /  +  -  (  )  {  }  [  ] ,
+		// catch  . *  /  +  -  (  )  {  }  [  ] ,
 		if(SINGLE_CHARACTER_ELEMENTS.indexOf(c) > -1)  {
 			skipWhitespace();
 			return ((char)c)+"";
 		}
 
-		// catch  .  ..
-		if(c == '.') {
-			if(c2 == '.')  {
+		// catch  &   &&
+		if(c == '&') {
+			if(c2 == '&')  {
 				read();
 				skipWhitespace();
-				return "..";
+				return "&&";
 			}
 			skipWhitespace();
-			return ".";
+			return "&";
 		}
 
 		// catch  =  <  >  ==  >=  <=  !=
@@ -128,11 +128,11 @@ abstract class ScriptReader
 			return ((char)c)+"";
 		}
 
-		// catch &&  ||
-		if(( c == '&' || c == '|' )&& c2 == c)  {
+		// catch ||
+		if( c == '|' && c2 == '|')  {
 			read();
 			skipWhitespace();
-			return ((char)c)+""+((char)c);
+			return "||";
 		}
 
 		// the current element is a variable name or an integer value or a real value
