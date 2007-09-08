@@ -206,19 +206,64 @@ ScriptNode.printStack(System.err, "");
 	}
 
 
-	public void eventMouseDragged (final int x, final int y)  { final Value v = Global.getDisplayedScreen(); if (v != null && v.type() == Value.STRUCTURE) eventMouseDragged (x, y, v.structure(), null); }
+	public void eventMouseDragged (final int x, final int y, final int dx, final int dy)  { final Value v = Global.getDisplayedScreen(); if (v != null && v.type() == Value.STRUCTURE) eventMouseDragged (x, y, dx, dy, v.structure(), null); }
 	public void eventMouseMoved (final int x, final int y)  { final Value v = Global.getDisplayedScreen(); if (v != null && v.type() == Value.STRUCTURE) eventMouseMoved (x, y, v.structure(), null); }
 	public void eventMousePressed (final int x, final int y)  { final Value v = Global.getDisplayedScreen(); if (v != null && v.type() == Value.STRUCTURE) eventMousePressed (x, y, v.structure(), null); }
 	public void eventMouseReleased (final int x, final int y)  { final Value v = Global.getDisplayedScreen(); if (v != null && v.type() == Value.STRUCTURE) eventMouseReleased (x, y, v.structure(), null); }
 
 
 	/** returns true iff the event has been consumed */
-	private boolean eventMouseDragged (final int x, final int y, final Structure d, final Structure parent)  { return eventMousePressed(x,y,d,parent); }
+	private boolean eventMouseDragged (int x, int y, final int dx, final int dy, final Structure d, final Structure parent)  {
+		Value v, v2;
+		// put the current data object on the stack, in case there are function calls for nested objects
+		ScriptNode.addStackItem(d);
+		// we have to adjust the event coordinates if d is not the top level view object
+		x -= x(d,parent);
+		y -= y(d,parent);
+		// if the current structure is a button that is not disabled, it may have changed its state
+		if (( d.get("structure_type").equals("BUTTON") || d.get("structure_type").equals("BORDER_BUTTON") )&& !d.get("state").equalsConstant("DISABLED")) {
+			if (inside(x, y, d)) {
+				if (!d.get("state").equalsConstant("PRESSED")) {
+					d.get("state").setConstant("PRESSED");
+					repaint();
+				}
+			}
+			else {
+				if (!d.get("state").equalsConstant("IDLE")) {
+					d.get("state").setConstant("IDLE");
+					repaint();
+				}
+			}
+		}
+		// if the component has an on_mouse_dragged function, call it
+		if ((v=d.get("on_mouse_dragged")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, d)) {
+			FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y), new Value().set(dx), new Value().set(dy) }, ScriptNode.KEEP_STACK);
+		}
+		// then hand the event on to the components of this view element
+		v = d.get("component");
+		final int count2 = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
+		for (int i = 0; i < count2; i++)
+			if ((v2=v.get(i+"")).type() == Value.STRUCTURE)
+				if (eventMouseDragged(x, y, dx, dy, v2.structure(), d))
+					return true;
+		// finally hand the event on to the child view objects
+		v = d.get("object");
+		final int count = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
+		for (int i = 0; i < count; i++)
+			if ((v2=v.get(i+"")).type() == Value.STRUCTURE)
+				if (eventMouseDragged(x, y, dx, dy, v2.structure(), d))
+					return true;
+		// clean up
+		ScriptNode.removeStackItem(d);
+		return false;
+	}
 
 
 	/** returns true iff the event has been consumed */
 	private boolean eventMouseMoved (int x, int y, final Structure d, final Structure parent)  {
 		Value v, v2;
+		// put the current data object on the stack, in case there are function calls for nested objects
+		ScriptNode.addStackItem(d);
 		// we have to adjust the event coordinates if d is not the top level view object
 		x -= x(d,parent);
 		y -= y(d,parent);
@@ -249,6 +294,8 @@ ScriptNode.printStack(System.err, "");
 			if ((v2=v.get(i+"")).type() == Value.STRUCTURE)
 				if (eventMouseMoved(x, y, v2.structure(), d))
 					return true;
+		// clean up
+		ScriptNode.removeStackItem(d);
 		return false;
 	}
 
@@ -256,6 +303,8 @@ ScriptNode.printStack(System.err, "");
 	/** returns true iff the event has been consumed */
 	private boolean eventMousePressed (int x, int y, final Structure d, final Structure parent)  {
 		Value v, v2;
+		// put the current data object on the stack, in case there are function calls for nested objects
+		ScriptNode.addStackItem(d);
 		// we have to adjust the event coordinates if d is not the top level view object
 		x -= x(d,parent);
 		y -= y(d,parent);
@@ -274,6 +323,10 @@ ScriptNode.printStack(System.err, "");
 				}
 			}
 		}
+		// if the component has an on_mouse_down function, call it
+		if ((v=d.get("on_mouse_down")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, d)) {
+			FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y) }, ScriptNode.KEEP_STACK);
+		}
 		// then hand the event on to the components of this view element
 		v = d.get("component");
 		final int count2 = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
@@ -288,6 +341,8 @@ ScriptNode.printStack(System.err, "");
 			if ((v2=v.get(i+"")).type() == Value.STRUCTURE)
 				if (eventMousePressed(x, y, v2.structure(), d))
 					return true;
+		// clean up
+		ScriptNode.removeStackItem(d);
 		return false;
 	}
 
@@ -306,7 +361,7 @@ ScriptNode.printStack(System.err, "");
 			if (!d.get("state").equalsConstant("DISABLED")) {
 				if (inside(x, y, d)) {
 					if ((v=d.get("on_mouse_up")) != null && v.typeDirect() == Value.FUNCTION) {
-						FunctionCall.executeFunctionCall(v.function(), null, ScriptNode.KEEP_STACK);
+						FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y) }, ScriptNode.KEEP_STACK);
 						repaint();
 					}
 					if (!d.get("state").equalsConstant("HOVER")) {
@@ -321,7 +376,7 @@ ScriptNode.printStack(System.err, "");
 			}
 		}
 		else if ((v=d.get("on_mouse_up")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, d)) {
-			FunctionCall.executeFunctionCall(v.function(), null, ScriptNode.KEEP_STACK);
+			FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y) }, ScriptNode.KEEP_STACK);
 		}
 		// then hand the event on to the components of this view element
 		v = d.get("component");

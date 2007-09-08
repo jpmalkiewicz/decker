@@ -21,7 +21,7 @@ public final class FunctionCall extends Expression
 		final Structure function_data = new Structure(arguments, function.getArgumentNames());
 		// unless the "enclosing_structure" is KEEP_STACK, remove all local stack items from the stack, then put the optional structure the function's variable is stored in, the FUNCTION_CALL and a new LOCAL structure on it
 		Structure[] old_stack = null;
-		if (enclosing_structure != KEEP_STACK) {
+		if (enclosing_structure != KEEP_STACK && function.getFunctionBody() != null) {
 			old_stack = removeLocalStackItems();
 			if (enclosing_structure != null)
 				addStackItem(enclosing_structure);
@@ -35,7 +35,7 @@ public final class FunctionCall extends Expression
 		else
 			StaticScriptFunctions.execute(function.getFunctionID(), function_data, args);
 		// restore the original local stack and return the function's return value
-		if (enclosing_structure != KEEP_STACK)
+		if (enclosing_structure != KEEP_STACK && function.getFunctionBody() != null)
 			restoreLocalStack(old_stack);
 		else
 			removeStackItem(function_data);

@@ -264,7 +264,7 @@ try {
 					else if (( at == Value.REAL || at == Value.INTEGER )&&( bt == Value.REAL || bt == Value.INTEGER ))
 						return_value.set(((at==Value.REAL)?a.real():a.integer()) * ((bt==Value.REAL)?b.real():b.integer()));
 					else
-						throwException("The * operator requires two integers or real numbers as operands.");
+						throwException("The * operator requires two integers or real numbers as operands, not "+Value.typeName(at)+" ("+a+") and "+Value.typeName(bt)+" ("+b+")");
 				break;
 			case DIVIDE :
 					if(b.equals(0))

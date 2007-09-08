@@ -404,38 +404,37 @@ System.out.println(" parsed");
 
 	private ScriptNode parseFunctionDefinition (final int command_line, final int command_column, final int enclosing_line, final int enclosing_column)  {
 		readElement(); // discard the FUNCTION tag
-		// check whether it's the definition of a new function or the "a = FUNCTION b" command
-		String s = previewElement();
-		// it's a function definition
 		final Function f = new Function(script_name, command_line, command_column);
-		if(s == null)
-			throwException("function body or list of arguments expected but end of script found");
-		// parse the list of argument names, if there is one
-		if (getLine() == enclosing_line) {
-			if (!s.equals("("))
-				throwException("the only thing you can put behind a FUNCTION tag is the list of argument names, enclosed in ( ) brackets.\nThe function body must start on the next line, if there is one");
-			readElement(); // remove the ( from the stream
-			s = readElement();
-			while (s == null || !s.equals(")")) {
-				if (s == null)
-					throwException("variable name or ) expected but end of script found");
-				if (getLine() != enclosing_line)
-					throwException(s+" must sit on the same line as the FUNCTION tag, since it's part of the argument name list");
-				f.addArgumentName(s);
+		String s = previewElement();
+		// if it's a function without function body and argument list at the end of the script, s will be null and we're done parsing the function
+		if(s != null) {
+			// parse the list of argument names, if there is one
+			if (getLine() == enclosing_line) {
+				if (!s.equals("("))
+					throwException("the only thing you can put behind a FUNCTION tag is the list of argument names, enclosed in ( ) brackets.\nThe function body must start on the next line, if there is one");
+				readElement(); // remove the ( from the stream
 				s = readElement();
-				if (s == null ||( !s.equals(")") && !s.equals(",") ))
-					throwException(") or , expected but "+((s==null)?"end of script":s)+" found");
+				while (s == null || !s.equals(")")) {
+					if (s == null)
+						throwException("variable name or ) expected but end of script found");
+					if (getLine() != enclosing_line)
+						throwException(s+" must sit on the same line as the FUNCTION tag, since it's part of the argument name list");
+					f.addArgumentName(s);
+					s = readElement();
+					if (s == null ||( !s.equals(")") && !s.equals(",") ))
+						throwException(") or , expected but "+((s==null)?"end of script":s)+" found");
+					if (getLine() != enclosing_line)
+						throwException(s+" must sit on the same line as the FUNCTION tag, since it's part of the argument name list");
+					if (!s.equals(")"))
+						s = readElement();
+				}
+				// s contains the ) of the argument name list, make sure it sits on the same line as the FUNCTION tag
 				if (getLine() != enclosing_line)
 					throwException(s+" must sit on the same line as the FUNCTION tag, since it's part of the argument name list");
-				if (!s.equals(")"))
-					s = readElement();
 			}
-			// s contains the ) of the argument name list, make sure it sits on the same line as the FUNCTION tag
-			if (getLine() != enclosing_line)
-				throwException(s+" must sit on the same line as the FUNCTION tag, since it's part of the argument name list");
+			// parse the function body
+			parseBlock(f.getFunctionBody(), enclosing_line, enclosing_column);
 		}
-		// parse the function body
-		parseBlock(f.getFunctionBody(), enclosing_line, enclosing_column);
 		return f;
 	}
 

@@ -112,7 +112,7 @@ english
 				y = back_button.y
 				idle = "home/deck"
 				on_mouse_up = FUNCTION
-// ******************************************** go to deck screen
+					display_screen(@deck_screen, false)
 
 		attack_button = BORDER_BUTTON
 			x = 0

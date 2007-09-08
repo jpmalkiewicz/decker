@@ -18,6 +18,7 @@ final class StaticScriptFunctions extends ScriptNode
 			case Global.F_DELETE : execute_delete(function_data); break;
 			case Global.F_EXIT_PROGRAM : System.exit(0); break;
 			case Global.F_FILELIST : execute_filelist(function_data); break;
+			case Global.F_GET_STRUCTURE_STACK : execute_get_structure_stack(function_data); break;
 			case Global.F_IMAGE_EXISTS : execute_image_exists(function_data); break;
 			case Global.F_INDEXOF : execute_indexof(function_data); break;
 			case Global.F_INSERT : execute_insert(function_data); break;
@@ -133,6 +134,16 @@ final class StaticScriptFunctions extends ScriptNode
 			} catch (Throwable t) { t.printStackTrace(); }
 		}
 		function_data.get("return_value").set(new Structure("ARRAY"));
+	}
+
+
+	/** executes the hard coded script function getStructureStack(year,month,day) */
+	private final static void execute_get_structure_stack (final Structure function_data)  {
+		Structure stack = new Structure("ARRAY");
+		for (int i = 0; i < ScriptNode.stack_size-1; i++) { // -1 because otherwise it would add its own LOCAL data object to the returned array
+			stack.add("").set(new Value().set(ScriptNode.stack[i].get("structure_type")));
+		}
+		function_data.get("return_value").set(stack);
 	}
 
 

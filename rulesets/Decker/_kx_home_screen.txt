@@ -12,7 +12,7 @@ english
 				y = 10 + index * 27
 				target_screen = the_target_screen
 				on_mouse_up = FUNCTION
-					display_screen(target_screen,true)
+					display_screen(target_screen, true)
 			object_array[] = createText(button_text, 41, 14 + index * 27)
 		addEntry("home/char",     "View Character",        character_screen, object, 0)
 		addEntry("home/deck",     "View Cyberdeck",        deck_screen, object, 1)
