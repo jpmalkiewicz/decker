@@ -40,6 +40,7 @@ public final class ViewWrapper extends Canvas
 	private AbstractView view;
 	private AWTEvent lastEvent;
 	private final Queue events = new Queue();
+	private int mouse_x, mouse_y;
 
 
 	private void handleUserInput () {
@@ -49,27 +50,37 @@ public final class ViewWrapper extends Canvas
 			lastEvent = e;
 			final AbstractView v = view;
 			boolean discardEvent = true;
+			int mx = 0, my = 0;
 			if (v != null) {
 				discardEvent = false;
 				try {
+					// if it is a mouse event, remember the old mouse position
+					if (e instanceof MouseEvent) {
+						mx = mouse_x;
+						my = mouse_y;
+						mouse_x = ((MouseEvent)e).getX();
+						mouse_y = ((MouseEvent)e).getY();
+					}
 					switch (e.getID()) {
 						case ComponentEvent.COMPONENT_RESIZED :
 							break;
 						case MouseEvent.MOUSE_DRAGGED :
-							v.eventMouseDragged(((MouseEvent)e).getX(), ((MouseEvent)e).getY());
+							v.eventMouseDragged(mouse_x, mouse_y, mouse_x-mx, mouse_y-my);
 							break;
 						case MouseEvent.MOUSE_ENTERED :
 						case MouseEvent.MOUSE_MOVED :
-							v.eventMouseMoved(((MouseEvent)e).getX(), ((MouseEvent)e).getY());
+							v.eventMouseMoved(mouse_x, mouse_y);
 							break;
 						case MouseEvent.MOUSE_EXITED :
-							v.eventMouseMoved(-100000, -100000);
+							mouse_x = -100000;
+							mouse_y = -100000;
+							v.eventMouseMoved(mouse_x, mouse_y);
 							break;
 						case MouseEvent.MOUSE_PRESSED :
-							v.eventMousePressed(((MouseEvent)e).getX(), ((MouseEvent)e).getY());
+							v.eventMousePressed(mouse_x, mouse_y);
 							break;
 						case MouseEvent.MOUSE_RELEASED :
-							v.eventMouseReleased(((MouseEvent)e).getX(), ((MouseEvent)e).getY());
+							v.eventMouseReleased(mouse_x, mouse_y);
 							break;
 						case KeyEvent.KEY_PRESSED :
 							v.eventKeyPressed(((KeyEvent)e).getKeyChar(), ((KeyEvent)e).getKeyCode(), ((KeyEvent)e).isAltDown());

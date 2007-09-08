@@ -523,10 +523,39 @@ english
 			height
 			v_align
 			h_align
-			component  // component[0] = scroller, component[1] is the pane that (hopefully) spans the whole screen and captures on_mouse_dragged events. the other components are optional (up and down arrow)
+			component  // component[0] = scroller, [1] = up arrow (optional), [2] = down arrow (optional), [3] is an invisible rectangle that spans the whole screen to capture on_mouse_dragged events
 			object
-			slider_position = 0
-			effect    // put a function here. it gets called whenever the slider_position changes
+			on_draw
+			slider_position = 0  // logical position
+			slider_max           // you HAVE to set this to a positive number or the slider won't work
+			slider_stepping = 20 // this is the amount by which slider_position will change each time you press one of the arrow buttons
+			effect               // put a function here. it gets called whenever the slider_position changes
+			slider_dragging      // the scrollbar automatically sets this variable when the user starts / stops dragging the slider
 			initializer = FUNCTION
+				on_draw = FUNCTION
+					scrollbarDrawFunction(SCROLLBAR.this)
 				component = ARRAY
-
+					UNDEFINED  // slider
+					UNDEFINED  // up arrow, optional
+					UNDEFINED  // down arrow, optional
+					COLLECTION // this is an invisible rectangle that spans the whole screen to capture on_mouse_dragged events
+						variables_see_each_other = true
+						x = -1000000
+						y = x
+						width = -2*x
+						height = width
+						on_mouse_dragged = FUNCTION (mouse_x, mouse_y, dx, dy)
+							if slider_dragging != UNDEFINED
+								// calculate the coordinates of the mouse relative to the scrollbar
+								LOCAL.my = mouse_y+y-slider_dragging
+								LOCAL.miny = pixelheight(SCROLLBAR.component[1])  // the height of the up arrow
+								// adjust the logical slider position to its new physical position
+								LOCAL.logical_y = ((my-miny) * slider_max) / (SCROLLBAR.height - miny - pixelheight(component[0]) - pixelheight(component[2]))
+								if logical_y < 0
+									logical_y = 0
+								if logical_y > slider_max
+									logical_y = slider_max
+								if slider_position != logical_y
+									slider_position = logical_y
+						on_mouse_up = FUNCTION
+							slider_dragging = UNDEFINED    // capture on_mouse_up events here, to stop dragging the slider

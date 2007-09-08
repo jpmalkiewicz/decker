@@ -1,4 +1,12 @@
 78%
+2007-09-04
+  minor script fixes
+  working on the SCROLLBAR
+  fixed : a FUNCTION definition can now stand at the end of a script, even if it has no function body and no argument list
+2007-09-03
+  added the & operator
+  changed the @ behaviour to execute implicitly again, unless the & operator is used
+  removed some clutter that had accumulated in the game scripts while I was trying out different implementations of the @ operator
 2007-09-02
   fixed the @ operator. it now works at least for colors
   if A contains an @ operator, then B = A will put the @ operator in B too. the operator won't be evaluated

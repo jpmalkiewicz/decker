@@ -34,21 +34,21 @@ english
 	// creates a border with the given values
 	RULESET.createBorder = FUNCTION (bx, by, bwidth, bheight, bbackground_color, binverted)
 		return_value = BORDER
-			x = bx
-			y = by
-			width = &bwidth
-			height = bheight
-			background_color = bbackground_color
+			x        = &bx
+			y        = &by
+			width    = &bwidth
+			height   = &bheight
+			background_color = &bbackground_color
 			inverted = binverted == true
 			
 	
 	// sets a line to the given values. this function purely exists to simplify scripts
 	RULESET.setLine = FUNCTION (line, x, y, x2, y2, color)
-		line.x = x
-		line.y = y
-		line.x2 = x2
-		line.y2 = y2
-		line.color = color
+		line.x     = &x
+		line.y     = &y
+		line.x2    = &x2
+		line.y2    = &y2
+		line.color = &color
 		
 
 	// returns a new TEXT with the default settings as defined in the TEXT object stored in TEXT_STYLE
@@ -56,15 +56,15 @@ english
 		return_value = copy(TEXT_STYLE)
 		// for all settings which are not defined, the default settings will be used
 		if text != UNDEFINED
-			return_value.text = text
+			return_value.text = &text
 		if x != UNDEFINED
-			return_value.x = x
+			return_value.x = &x
 		if y != UNDEFINED
-			return_value.y = y
+			return_value.y = &y
 		if color != UNDEFINED
-			return_value.color = color
+			return_value.color = &color
 		if font != UNDEFINED
-			return_value.font = font
+			return_value.font = &font
 			
 	
 	// returns a new TEXT with the default settings as defined in the TEXT object stored in TEXT_STYLE
@@ -72,28 +72,28 @@ english
 		return_value = copy(TEXT_STYLE_BOLD)
 		// for all settings which are not defined, the default settings will be used
 		if x != UNDEFINED
-			return_value.x = x
+			return_value.x = &x
 		if y != UNDEFINED
-			return_value.y = y
+			return_value.y = &y
 		if color != UNDEFINED
-			return_value.color = color
+			return_value.color = &color
 		if font != UNDEFINED
-			return_value.font = font
+			return_value.font = &font
 
 
-	RULESET.createTable = FUNCTION (_cell_height, _x, _y)
+	RULESET.createTable = FUNCTION (pcell_height, px, py)
 		return_value = TABLE
-			x = _x
-			y = _y
-			cell_height = _cell_height
+			x = &px
+			y = &py
+			cell_height = &pcell_height
 			cell_width = ARRAY
 			LOCAL.i = 3
 			while i < argument.size
 				width = width + argument[i]
-				cell_width[] = argument[i]
+				cell_width[] = &argument[i]
 				i = i + 1
-				
-				
+
+
 	RULESET.addTableRow = FUNCTION (table)
 		// create the new table row
 		LOCAL.row = COLLECTION
@@ -141,43 +141,72 @@ english
 				content.h_align = table.cell_h_align[column]
 			else
 				content.h_align = table.cell_h_align
+				
+				
+	RULESET.scrollbarDrawFunction = FUNCTION (_scrollbar)
+		LOCAL.physical_range = _scrollbar.height - pixelheight(_scrollbar.component[0]) - pixelheight(_scrollbar.component[1]) - pixelheight(_scrollbar.component[2])
+		_scrollbar.component[0].y = pixelheight(_scrollbar.component[1]) + (physical_range * _scrollbar.slider_position + _scrollbar.slider_max/2) / _scrollbar.slider_max
 	
 	
-	RULESET.createScrollbar = FUNCTION (_x, _y, _width, _height, _slider, _effect, _up_arrow, _down_arrow)
+	RULESET.createScrollbar = FUNCTION (_x, _y, _width, _height, _slider, _slider_max, _up_arrow, _down_arrow, _slider_stepping, _slider_position)
 		return_value = SCROLLBAR
 			x = _x
 			y = _y
 			width = _width
 			height = _height
-			if value_type(_slider) == "STRING"      // it's the name of an image
-				_slider = COLLECTION
-					object = ARRAY
-						_slider
+			if _slider_stepping != UNDEFINED
+				slider_stepping = _slider_stepping
+			if _slider_max != UNDEFINED
+				slider_max = _slider_max
+			// add the slider and the optional arrow buttons
+			if value_type(_slider) == "STRING"      // it's the name of an image. we need to turn it into a button
+				_slider = BUTTON
+					idle = _slider
 			_slider.x = CENTER
-			_slider.y = pixelheight(_up_arrow)
-			component = ARRAY
-				_slider
-				COLLECTION
-					x = -1000000
-					y = -1000000
-					width = -2 * x
-					height = -2 * y
-					on_mouse_dragged = FUNCTION
-						debug("mouse dragged")
-// finish up the huge pane that captures mouse drag events here **************************************************************************
+			_slider.y = 0   // the y position is adjusted every time the SCROLLBAR is drawn. this way it can adjust to mods with different sized buttons
+			_slider.on_mouse_down = FUNCTION (mouse_x, mouse_y)
+				SCROLLBAR.slider_dragging = mouse_y
+			component[0] = _slider
 			if _up_arrow != UNDEFINED
-				component[] = _up_arrow
-// initialize the button functionality **************************************************************************
+				if value_type(_up_arrow) == "STRING"      // it's the name of an image. we need to turn it into a button
+					_up_arrow = BUTTON
+						idle = _up_arrow
+				_up_arrow.x = CENTER
+				_up_arrow.y = 0
+				_up_arrow.on_mouse_down = FUNCTION
+					setSliderPosition(SCROLLBAR.this, slider_position - slider_stepping)
+				component[1] = _up_arrow
+				_slider.y = pixelheight(_up_arrow)
+				debug("pixelheight up arrow "+_up_arrow+" : "+pixelheight(_up_arrow))
 			if _down_arrow != UNDEFINED
-				component[] = _down_arrow
-// initialize the button functionality **************************************************************************
+				if value_type(_down_arrow) == "STRING"      // it's the name of an image. we need to turn it into a button
+					_down_arrow = BUTTON
+						idle = _down_arrow
+				_down_arrow.x = CENTER
+				_down_arrow.y = BOTTOM
+				_down_arrow.on_mouse_down = FUNCTION
+					setSliderPosition(SCROLLBAR.this, slider_position + slider_stepping)
+				component[2] = _down_arrow
+
+
+	// moves the slider of a scrollbar to a new logical position
+	RULESET.setSliderPosition = FUNCTION (_scrollbar, _slider_position)
+		// the logical slider position cannot be negative
+		if _slider_position < 0
+			_slider_position = 0
+		// make sure it really is a scrollbar
+		if _scrollbar.slider_position != UNDEFINED && _scrollbar.slider_position != _slider_position
+			// the logical slider position cannot exceed the slider_max setting for the scrollbar
+			if _slider_position > _scrollbar.slider_max
+				_slider_position = _scrollbar.slider_max
+			// make sure the slider position isn't the same as before, before you change it
+			if _slider_position != _scrollbar.slider_position
+				_scrollbar.slider_position = _slider_position
+			if _scrollbar.effect != UNDEFINED
+				_scrollbar.effect(_scrollbar, _scrollbar.slider_position)
+				
 	
 //	RULESET.createThing = FUNCTION(_thingtype, _rating)
 //		return_value = THING
-//		_thingtype = thingtype
-//		_rating = rating
-//		return_value.thingtype = _thingtype
-//		if rating = UNDEFINED
-//			return_value.rating = 0
-//		else
-//			return.value.rating = rating
+//			thingtype = _thingtype
+//			rating = _rating == UNDEFINED ? 0 : _rating

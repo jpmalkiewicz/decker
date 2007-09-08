@@ -307,7 +307,7 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 
 	public void eventKeyPressed (final char c, final int code, final boolean isAltDown)  {}
 	public void eventKeyReleased (final char c, final int code, final boolean isAltDown)  {}
-	public void eventMouseDragged (final int x, final int y)  {}
+	public void eventMouseDragged (final int x, final int y, final int dx, final int dy)  {}
 	public void eventMouseMoved (final int x, final int y)  {}
 	public void eventMousePressed (final int x, final int y)  {}
 	public void eventMouseReleased (final int x, final int y)  {}

@@ -20,7 +20,7 @@ public final class Global
 	final static int PARSER_EXPRESSION_STACK_SIZE = 100;
 
 	// id codes for hard coded functions. used by FunctionCall.executeFunctionCall() and Global.initializedataModel()
-	final static int F_SIZE = 0, F_FILELIST = 1, F_SUBSTRING = 2, F_PIXELWIDTH = 3, F_PIXELHEIGHT = 4, F_EXIT_PROGRAM = 5, F_REPAINT = 6, F_INDEXOF = 7, F_IMAGE_EXISTS = 8, F_TO_LOWER_CASE = 9, F_TO_UPPER_CASE = 10, F_DATE_TEXT = 11, F_DEBUG = 12, F_INSERT = 13, F_RANDOM = 14, F_VALUE_TYPE = 15, F_DATE_DAY_OF_MONTH = 16, F_DATE_DAYS_IN_MONTH = 17, F_DELETE = 18;
+	final static int F_SIZE = 0, F_FILELIST = 1, F_SUBSTRING = 2, F_PIXELWIDTH = 3, F_PIXELHEIGHT = 4, F_EXIT_PROGRAM = 5, F_REPAINT = 6, F_INDEXOF = 7, F_IMAGE_EXISTS = 8, F_TO_LOWER_CASE = 9, F_TO_UPPER_CASE = 10, F_DATE_TEXT = 11, F_DEBUG = 12, F_INSERT = 13, F_RANDOM = 14, F_VALUE_TYPE = 15, F_DATE_DAY_OF_MONTH = 16, F_DATE_DAYS_IN_MONTH = 17, F_DELETE = 18, F_GET_STRUCTURE_STACK = 19;
 	final static String[] FUNCTION_NAME = { "size", "filelist", "substring", "pixelwidth", "pixelheight", "exit_program", "repaint", "indexof", "image_exists", "to_lower_case", "to_upper_case", "date_text", "debug", "insert", "random", "value_type", "date_day_of_month", "date_days_in_month", "delete" };
 
 	public static Locale[] accepted_locales = { Locale.getDefault(), new Locale("en") };
@@ -50,6 +50,7 @@ public static Ruleset getCurrentRuleset ()  { return current_ruleset; }
 		engine.addDirectly("debug").set(new Function(F_DEBUG, new String[]{ "print_this", "to_console" }));
 		engine.addDirectly("delete").set(new Function(F_DELETE, new String[]{ "array", "index" }));
 		engine.addDirectly("filelist").set(new Function(F_FILELIST, new String[]{ "directory" }));
+		engine.addDirectly("getStructureStack").set(new Function(F_GET_STRUCTURE_STACK, new String[0]));
 		engine.addDirectly("image_exists").set(new Function(F_IMAGE_EXISTS, new String[]{ "name" }));
 		engine.addDirectly("indexof").set(new Function(F_INDEXOF, new String[]{ "what", "where", "direction", "start_at" }));
 		engine.addDirectly("insert").set(new Function(F_INSERT, new String[]{ "array", "index" }));

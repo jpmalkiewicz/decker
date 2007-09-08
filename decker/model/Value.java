@@ -339,6 +339,9 @@ public final class Value
 	public String typeName ()  { return TYPE_NAME[type()]; }
 
 
+	public final static String typeName (final int type)  { return TYPE_NAME[type]; }
+
+
 	public String typeNameDirect ()  { return TYPE_NAME[type]; }
 
 
