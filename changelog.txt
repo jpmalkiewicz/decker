@@ -1,6 +1,7 @@
 78%
 2007-09-10
   separated the interface code from the decker scripts and made it global
+  scrollbars can now be horizontal
 2007-09-09
   SCROLLBAR works
   getStackTrace() hardcoded function added
