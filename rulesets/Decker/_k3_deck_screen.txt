@@ -30,7 +30,8 @@ english
 				width = 70
 				height = 30
 				object[] = test_table
-			createScrollbar(10, 10, 20, 150, "scroller0", 500, "scroller_up0", "scroller_down0")
+			createScrollbar(10, 10, 20, 150, true, "scroller_vertical0", 500, "scroller_up0", "scroller_down0")
+			createScrollbar(35, 165, 150, 20, false, "scroller_horizontal0", 500, "scroller_left0", "scroller_right0")
 				
 				
 //		debug ("")

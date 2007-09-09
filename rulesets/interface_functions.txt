@@ -1,0 +1,215 @@
+english
+	ENGINE.addTableRow = FUNCTION (table)
+		// create the new table row
+		LOCAL.row = COLLECTION
+			component = ARRAY
+		table.component[] = row
+		LOCAL.i = 0
+		LOCAL.x_offset = 0
+		while i < table.cell_width.size
+			// create the container for the component of the next cell
+			row.component[] = COLLECTION
+				x = x_offset
+				y = table.height
+				width = table.cell_width[i]
+				height = table.cell_height
+				LOCAL.a = ARRAY
+				component = a
+				// if the function caller has supplied an object for this cell, put it in the cell
+				if argument[i+1] != UNDEFINED
+					a[] = argument[i+1]
+			i = i + 1
+			x_offset = x_offset + table.cell_width[i]
+		// calculate the new table height
+		table.height = table.cell_height * table.component.size
+		
+		
+	// creates a border with the given values
+	ENGINE.createBorder = FUNCTION (bx, by, bwidth, bheight, bbackground_color, binverted, bcolor1, bcolor2)
+		return_value = BORDER
+			x        = &bx
+			y        = &by
+			width    = &bwidth
+			height   = &bheight
+			background_color = &bbackground_color
+			inverted = binverted == true
+			if &bcolor1 != UNDEFINED
+				color1 = &bcolor1
+			if &bcolor2 != UNDEFINED
+				color2 = &bcolor2
+			
+	
+	ENGINE.createScrollbar = FUNCTION (_x, _y, _width, _height, _vertical, _slider, _slider_max, _up_left_arrow, _down_right_arrow, _slider_stepping, _slider_position)
+		return_value = SCROLLBAR
+			x = _x
+			y = _y
+			width = _width
+			height = _height
+			vertical = _vertical != false
+			if _slider_stepping != UNDEFINED
+				slider_stepping = _slider_stepping
+			if _slider_max != UNDEFINED
+				slider_max = _slider_max
+			// add the slider and the optional arrow buttons
+			if value_type(_slider) == "STRING"      // it's the name of an image. we need to turn it into a button
+				_slider = BUTTON
+					idle = _slider
+			if vertical
+				_slider.x = CENTER
+				_slider.y = 0   // the y position is adjusted every time the SCROLLBAR is drawn. this way it can adjust to mods with different sized buttons
+			else
+				_slider.x = 0
+				_slider.y = CENTER  // the x position is adjusted every time the SCROLLBAR is drawn. this way it can adjust to mods with different sized buttons
+			_slider.on_mouse_down = FUNCTION (mouse_x, mouse_y)
+				SCROLLBAR.slider_dragging = vertical ? mouse_y : mouse_x
+			component[0] = _slider
+			if _up_left_arrow != UNDEFINED
+				if value_type(_up_left_arrow) == "STRING"      // it's the name of an image. we need to turn it into a button
+					_up_left_arrow = BUTTON
+						idle = _up_left_arrow
+				if vertical
+					_up_left_arrow.x = CENTER
+					_up_left_arrow.y = 0
+				else
+					_up_left_arrow.x = 0
+					_up_left_arrow.y = CENTER
+				_up_left_arrow.on_mouse_down = FUNCTION
+					setSliderPosition(SCROLLBAR.this, slider_position - slider_stepping)
+				component[1] = _up_left_arrow
+			if _down_right_arrow != UNDEFINED
+				if value_type(_down_right_arrow) == "STRING"      // it's the name of an image. we need to turn it into a button
+					_down_right_arrow = BUTTON
+						idle = _down_right_arrow
+				if vertical
+					_down_right_arrow.x = CENTER
+					_down_right_arrow.y = BOTTOM
+				else
+					_down_right_arrow.x = RIGHT
+					_down_right_arrow.y = CENTER
+				_down_right_arrow.on_mouse_down = FUNCTION
+					setSliderPosition(SCROLLBAR.this, slider_position + slider_stepping)
+				component[2] = _down_right_arrow
+
+
+	// returns a new TEXT with the default settings as defined in the TEXT object stored in TEXT_STYLE
+	ENGINE.createText = FUNCTION (text, x, y, color, font)
+		return_value = copy(TEXT_STYLE)
+		// for all settings which are not defined, the default settings will be used
+		if text != UNDEFINED
+			return_value.text = &text
+		if x != UNDEFINED
+			return_value.x = &x
+		if y != UNDEFINED
+			return_value.y = &y
+		if color != UNDEFINED
+			return_value.color = &color
+		if font != UNDEFINED
+			return_value.font = &font
+			
+	
+	// returns a new TEXT with the default settings as defined in the TEXT object stored in TEXT_STYLE
+	ENGINE.createTextBold = FUNCTION (text, x, y, color, font)
+		return_value = copy(TEXT_STYLE_BOLD)
+		// for all settings which are not defined, the default settings will be used
+		if x != UNDEFINED
+			return_value.x = &x
+		if y != UNDEFINED
+			return_value.y = &y
+		if color != UNDEFINED
+			return_value.color = &color
+		if font != UNDEFINED
+			return_value.font = &font
+
+
+	ENGINE.createTable = FUNCTION (pcell_height, px, py)
+		return_value = TABLE
+			x = &px
+			y = &py
+			cell_height = &pcell_height
+			cell_width = ARRAY
+			LOCAL.i = 3
+			while i < argument.size
+				width = width + argument[i]
+				cell_width[] = &argument[i]
+				i = i + 1
+
+
+	// returns the name of the image to be displayed, deducing it from the state "0" image. e.g. deduceImageName("my_button0", "1") will return "my_button1" if an image "my_button1.*" exists, otherwise it returns "my_button0"
+	ENGINE.deduceImageName = FUNCTION (base_name, new_suffix)
+		return_value = base_name
+		// make sure it's not a structure. if it's a structure, just return it
+		if base_name.structure_type == UNDEFINED
+			base_name = base_name + ""    // turns it into a string
+			LOCAL.k = indexof("0", base_name, false)
+			return_value = base_name
+			// check whether there's a "0" suffix, possibly followed by a supported image file type extension
+			if k != UNDEFINED
+				if k == size(base_name)-1
+					// the "0" sits at the end of the string
+					if image_exists(substring(base_name,0,k) + new_suffix)
+						return_value = substring(base_name,0,k) + new_suffix
+				else
+					// check whether there's a file type extension after the "0", otherwise the "0" is not a suffix and we'll just return the base_name
+					LOCAL.file_type = to_lower_case(base_name.substring(k+1))
+					if file_type == ".gif" || file_type == ".png" || file_type == ".bmp" ||file_type == ".jpg" || file_type == ".jpeg"
+						if image_exists(substring(base_name,0,k) + new_suffix)
+							return_value = substring(base_name,0,k) + new_suffix
+
+
+	ENGINE.scrollbarDrawFunction = FUNCTION (_scrollbar)
+		if _scrollbar.vertical
+			LOCAL.physical_range = _scrollbar.height - pixelheight(_scrollbar.component[0]) - pixelheight(_scrollbar.component[1]) - pixelheight(_scrollbar.component[2])
+			_scrollbar.component[0].y = pixelheight(_scrollbar.component[1]) + (physical_range * _scrollbar.slider_position + _scrollbar.slider_max/2) / _scrollbar.slider_max
+		else
+			LOCAL.physical_range = _scrollbar.width - pixelwidth(_scrollbar.component[0]) - pixelwidth(_scrollbar.component[1]) - pixelwidth(_scrollbar.component[2])
+			_scrollbar.component[0].x = pixelwidth(_scrollbar.component[1]) + (physical_range * _scrollbar.slider_position + _scrollbar.slider_max/2) / _scrollbar.slider_max
+	
+	
+	// sets a line to the given values. this function purely exists to simplify scripts
+	ENGINE.setLine = FUNCTION (line, x, y, x2, y2, color)
+		line.x     = &x
+		line.y     = &y
+		line.x2    = &x2
+		line.y2    = &y2
+		line.color = &color
+
+
+	// moves the slider of a scrollbar to a new logical position
+	ENGINE.setSliderPosition = FUNCTION (_scrollbar, _slider_position)
+		// the logical slider position cannot be negative
+		if _slider_position < 0
+			_slider_position = 0
+		// make sure it really is a scrollbar
+		if _scrollbar.slider_position != UNDEFINED && _scrollbar.slider_position != _slider_position
+			// the logical slider position cannot exceed the slider_max setting for the scrollbar
+			if _slider_position > _scrollbar.slider_max
+				_slider_position = _scrollbar.slider_max
+			// make sure the slider position isn't the same as before, before you change it
+			if _slider_position != _scrollbar.slider_position
+				_scrollbar.slider_position = _slider_position
+			if _scrollbar.effect != UNDEFINED
+				_scrollbar.effect(_scrollbar, _scrollbar.slider_position)
+
+
+	ENGINE.setTableCell = FUNCTION (table,row,column,content)
+		table.component[row].component[column].component[0] = content
+		if content.x == UNDEFINED
+			if table.cell_x.structure_type == "ARRAY"
+				content.x = table.cell_x[column]
+			else
+				content.x = table.cell_x
+		if content.y == UNDEFINED
+			if table.cell_y.structure_type == "ARRAY"
+				content.y = table.cell_y[column]
+			else
+				content.y = table.cell_y
+		if content.v_align == UNDEFINED
+			if table.cell_v_align.structure_type == "ARRAY"
+				content.v_align = table.cell_v_align[column]
+			else
+				content.v_align = table.cell_v_align
+		if content.h_align == UNDEFINED
+			if table.cell_h_align.structure_type == "ARRAY"
+				content.h_align = table.cell_h_align[column]
+			else
+				content.h_align = table.cell_h_align

@@ -1,0 +1,12 @@
+english
+	constant
+		IDLE             // button states
+		PRESSED
+		DISABLED
+		HOVER
+		
+		CENTER           // alignments for view elements
+		LEFT
+		RIGHT
+		TOP
+		BOTTOM

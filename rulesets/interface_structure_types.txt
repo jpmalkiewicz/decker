@@ -1,0 +1,332 @@
+english
+
+	structure
+		COLLECTION
+			expandable = true
+
+
+		GLOBAL
+			expandable = true
+
+
+// interface element types ****************************************************************************************************************************
+
+
+		DRAWING_BOUNDARY // limits the area where things can be drawn to the given rectangle. all drawings which are in the object array of the DRAWING_BOUNDARY get cut off at the edge of the rectangle and only display inside
+			x
+			y
+			width
+			height
+			object
+			initializer = FUNCTION
+				object = ARRAY
+
+
+		VIEW                  // all variables in each view definition are optional
+			expandable = true
+			x
+			y
+			// width
+			// height
+			// title
+			// background_image
+			// object         // must contain an array which contains the interface elements of this view, e.g. buttons and lists
+
+
+		BUTTON
+			expandable = true
+			x
+			y
+			state = IDLE
+			idle              // the image for the idle state of the button. if the image name ends with a 0 and no pressed or disabled images are defined, the program will look for images of the same name but ending in a 1 and 2 for them
+			component
+			// pressed
+			// disabled
+			// hover
+			// on_mouse_up    // put the function with the button effect here, for a standard button
+			initializer = FUNCTION
+				BUTTON.component = ARRAY
+			on_draw = FUNCTION
+				if state == IDLE
+					if component[0] != idle
+						component[0] = idle
+				if state == PRESSED
+					LOCAL.p = BUTTON.pressed  // using "BUTTON." to make sure we're not using the "pressed" variable from some other structure
+					if p == UNDEFINED
+						p = deduceImageName(BUTTON.idle, "1")    // deduces the name of the image for the pressed state from the name of the idle state image
+					if component[0] != p
+						component[0] = p
+				if state == DISABLED
+					LOCAL.p = BUTTON.disabled
+					if p == UNDEFINED
+						p = deduceImageName(BUTTON.idle, "2")
+					if component[0] != p
+						component[0] = p
+				if state == HOVER
+					LOCAL.p = BUTTON.hover
+					if p == UNDEFINED
+						p = deduceImageName(BUTTON.idle, "3")
+					if component[0] != p
+						component[0] = p
+
+
+		TEXT
+			expandable = true
+			x
+			y
+			text
+			// font           // a string, may contain several ; separated font settings (in arbitrary order, but later settings override earlier ones) : font face (Arial), font size (10pt) and font style (plain, bold, italic), e.g. "Arial;10pt;plain" or "bold;italic;Courier New;12pt". if style is omitted, plain is used. if font face or font size is omitted, the current settings are used, not the settings from the parent view element
+			// color          // a color, using the html color format #rrggbb
+			
+
+		TEXTFIELD
+			expandable = true
+			x
+			y
+			width
+			height
+			user_input
+			cursor                      // this is the cursor behind the text
+			component
+			// char_limit               // the maximum number of characters in the user input
+			initializer = FUNCTION
+				user_input = TEXT
+					x = 1
+					y = CENTER
+					text = ""
+				cursor = TEXT           // this is the cursor behind the text
+					y = CENTER
+					text = "_"
+				component = ARRAY
+					user_input
+					cursor
+			on_draw = FUNCTION
+				if component[0] != user_input
+					component[0] = user_input
+				if component[1] != cursor
+					component[1] = cursor
+				cursor.x = user_input.x + pixelwidth(user_input)
+			on_key_down = FUNCTION (key)
+				if size(key) == 1 &&( char_limit == UNDEFINED || size(user_input.text) < char_limit )
+					user_input.text = user_input.text + key
+					if (TEXTFIELD.width != UNDEFINED) && (user_input.x + pixelwidth(user_input) + pixelwidth(cursor) > width)
+						user_input.text = substring(user_input.text, 0, size(user_input.text)-1)    // the typed character doesn't fit into the field, discard it
+				else if key == "BACKSPACE" && size(user_input.text) > 0
+					user_input.text = substring(user_input.text, 0, size(user_input.text)-1)
+
+
+		LINE
+			x
+			y
+			x2
+			y2
+			color
+
+
+		RECTANGLE
+			x
+			y
+			width
+			height
+			color
+
+
+		BORDER
+			x
+			y
+			width
+			height
+			inverted = false
+			color1 = @BORDER_COLOR1
+			color2 = @BORDER_COLOR2
+			object
+			background_color
+			component
+			initializer = FUNCTION
+				component = ARRAY
+					LINE
+					LINE
+					LINE
+					LINE
+					LINE
+					LINE
+					LINE
+					LINE
+					UNDEFINED  // placeholder for the rectangle that draws the background, if it has a color
+			on_draw = FUNCTION
+				// adjust the lines if the border has changed
+				LOCAL.c1 = inverted ? color2 : color1
+				LOCAL.c2 = inverted ? color1 : color2
+				LOCAL.corner_modifier = inverted ? 1 : 0
+				if component[0].x2 != width-1 || component[2].y2 != height-1 || c1 != component[0].color || c2 != component[7].color
+					setLine(component[0], 0, 0, width-1, 0, c1)    // the top border
+					setLine(component[1], 1, 1, width-2, 1, c1)
+					setLine(component[2], 0, 1, 0, height-1, c1)   // the left border
+					setLine(component[3], 1, 2, 1, height-2, c1)
+					setLine(component[4], width-1, 1-corner_modifier, width-1, height-1, c2)          // the right border
+					setLine(component[5], width-2, 2-corner_modifier, width-2, height-2+corner_modifier, c2)
+					setLine(component[6], 1-corner_modifier, height-1, width-2+corner_modifier, height-1, c2)    // the bottom border
+					setLine(component[7], 2-corner_modifier, height-2, width-3+corner_modifier, height-2, c2)
+				if background_color == UNDEFINED
+					component[8] = UNDEFINED
+				else if component[8].color != background_color
+					if component[8] == UNDEFINED
+						component[8] = RECTANGLE
+					component[8].x = 2
+					component[8].y = 2
+					component[8].width = BORDER.width-4
+					component[8].height = BORDER.height-4
+					component[8].color = background_color
+
+
+		SCREEN_BACKGROUND
+			x = 0
+			y = 0
+			width
+			height
+			object
+			component
+			initializer = FUNCTION
+				component = ARRAY
+					createBorder(0,0)
+			on_draw = FUNCTION
+				component[0].width = width
+				component[0].height = height
+				if BACKGROUND_COLOR2 == UNDEFINED
+					component[0].background_color = @BACKGROUND_COLOR
+					if component[1] != UNDEFINED
+						component[1] = UNDEFINED
+				else
+					if component[1] == UNDEFINED
+						component[1] = createBorder(5, 5, 0, 0)
+					component[1].width = width-10
+					component[1].height = height-10
+					component[1].background_color = @BACKGROUND_COLOR
+					component[0].background_color = @BACKGROUND_COLOR2
+
+
+		BORDER_BUTTON
+			expandable = true
+			x
+			y
+			state = IDLE
+			idle              // the image for the idle state of the button. if the image name ends with a 0 and no pressed, hover or disabled images are defined, the program will look for images of the same name but ending in a 1, 2 and 3 for them
+			object
+			// pressed
+			// disabled
+			// hover
+			// on_mouse_up    // put the function with the button effect here, for a standard button
+			initializer = FUNCTION
+				BORDER_BUTTON.object = ARRAY
+					createBorder(0,0)
+			on_draw = FUNCTION
+				LOCAL.c = UNDEFINED
+				if state == IDLE
+					c = idle
+				if state == PRESSED
+					c = BUTTON.pressed  // using "BUTTON." to make sure we're not using the "pressed" variable from some other structure
+					if c == UNDEFINED
+						c = deduceImageName(idle, "1")    // deduces the name of the image for the pressed state from the name of the idle state image
+				if state == DISABLED
+					LOCAL.c = BUTTON.disabled
+					if c == UNDEFINED
+						c = deduceImageName(idle, "2")
+				if state == HOVER
+					LOCAL.c = BUTTON.hover
+					if c == UNDEFINED
+						c = deduceImageName(idle, "3")
+				// if it's the name of an image, put a wrapper around it so we can position it within the button area
+				if value_type(c) != "STRING"
+					object[1] = c
+				else if object[1].structure_type == COLLECTION
+					object[1].object[0] = c
+				else
+					object[1] = COLLECTION
+						object = ARRAY
+							c
+				object[0].inverted = state == PRESSED
+				LOCAL.offset = (object[1].structure_type == "TEXT" ? 4 : 0)
+				// if the button has an explicitly defined width, set the border width to the same value and center the button image / text horizontally
+				if BORDER_BUTTON.width != UNDEFINED
+					object[0].width = width
+					object[1].x = CENTER
+				else
+					object[0].width = pixelwidth(object[1]) + 4 + 2*offset
+					object[1].x = 2 + offset
+				// if the button has an explicitly defined height, set the border height to the same value and center the button image / text vertically
+				if BORDER_BUTTON.width != UNDEFINED
+					object[0].height = height
+					object[1].y = CENTER
+				else     // otherwise, wrap a border around the content
+					object[0].height = pixelheight(object[1]) + 4 + 2*offset
+					object[1].y = 2 + offset/2
+
+
+		TABLE
+			x = 0
+			y = 0
+			v_align
+			h_align
+			cell_height   // all rows have the same height
+			cell_width    // array containing the width for each column
+			cell_h_align // default horizontal alignment of cell content. if it's defined in an ARRAY it's entries are used as the default horizontal alignment of cell content for each column. this value will only be used if the cell content doesn't have a valid value for v_align. watch out, the alginment setting gets set for the cell content. if the same thing is displayed in different cells (even from different tables), the cell that gets displayed first determines its alignment, if cell_alignment_x is set
+			cell_v_align // default vertical alignment of cell content, works like cell_h_align
+			cell_x // x value of cell content. works like cell_h_align
+			cell_y // y value of cell content. works like cell_h_align
+			width = 0
+			height = 0
+			component
+			initializer = FUNCTION
+				component = ARRAY
+
+
+		SCROLLBAR  // a vertical scrollbar
+			x
+			y
+			width
+			height
+			v_align
+			h_align
+			component  // component[0] = scroller, [1] = up arrow (optional), [2] = down arrow (optional), [3] is an invisible rectangle that spans the whole screen to capture on_mouse_dragged events
+			object
+			on_draw
+			slider_position = 0  // logical position
+			slider_max           // you HAVE to set this to a positive number or the slider won't work
+			slider_stepping = 20 // this is the amount by which slider_position will change each time you press one of the arrow buttons
+			effect               // put a function here. it gets called whenever the slider_position changes
+			slider_dragging      // the scrollbar automatically sets this variable when the user starts / stops dragging the slider
+			vertical = true      // false -> the scrollbar is horizontal
+			initializer = FUNCTION
+				on_draw = FUNCTION
+					scrollbarDrawFunction(SCROLLBAR.this)
+				component = ARRAY
+					UNDEFINED  // slider
+					UNDEFINED  // up/left arrow, optional
+					UNDEFINED  // down/right arrow, optional
+					COLLECTION // this is an invisible rectangle that spans the whole screen to capture on_mouse_dragged events
+						x = -1000000
+						y = x
+						width = -2*x
+						height = width
+						on_mouse_dragged = FUNCTION (mouse_x, mouse_y, dx, dy)
+							if slider_dragging != UNDEFINED
+								// calculate the coordinates of the mouse relative to the scrollbar
+								LOCAL.dm = ( vertical ? mouse_y+y : mouse_x+x ) - slider_dragging
+								LOCAL.pmin = vertical ? pixelheight(SCROLLBAR.component[1]) : pixelwidth(SCROLLBAR.component[1]) // physical minimum of the slider position, determined by the height/width of the up/left arrow
+								// adjust the logical slider position to its new physical position
+								if vertical
+									LOCAL.logical = ((dm-pmin) * slider_max) / (SCROLLBAR.height - pmin - pixelheight(component[0]) - pixelheight(component[2]))
+								else
+									LOCAL.logical = ((dm-pmin) * slider_max) / (SCROLLBAR.width - pmin - pixelwidth(component[0]) - pixelwidth(component[2]))
+								if logical < 0
+									logical = 0
+								if logical > slider_max
+									logical = slider_max
+								if slider_position != logical
+									slider_position = logical
+									debug(SCROLLBAR.this)
+									debug(dm + " " + pmin + " " + logical + " " + slider_max)
+								if effect != UNDEFINED
+									effect(SCROLLBAR.this, slider_position)
+						on_mouse_up = FUNCTION
+							slider_dragging = UNDEFINED    // capture on_mouse_up events here, to stop dragging the slider
