@@ -14,18 +14,23 @@ public final class Ruleset
 
 
 	Ruleset (final String ruleset_name)  {
+		if (ruleset_name.equals("")) { // if this is the engine ruleset, add the only standard constant, UNDEFINED
+			data.get("structure_type").set("ENGINE");
+		}
 		data.add("RULESET_NAME").set(ruleset_name);
-		// add the only standard constant, UNDEFINED
 		final Structure constants = new Structure("SET");
-		constants.add("UNDEFINED");
+		if (ruleset_name.equals("")) { // if this is the engine ruleset, add the only standard constant, UNDEFINED
+			constants.add("UNDEFINED");
+		}
 		data.add("CONSTANTS").set(constants);
 		// add the set of structure types
 		final Structure structure_types = new Structure("SET");
 		data.add("STRUCTURE_TYPES").set(structure_types);
-		// add the standard structure type ARRAY
-		final Structure array = new Structure("ARRAY");
-		array.addDirectly("size").set(0);
-		structure_types.addDirectly("ARRAY").set(array);
+		if (ruleset_name.equals("")) { // if this is the engine ruleset, add the standard structure type ARRAY
+			final Structure array = new Structure("ARRAY");
+			array.addDirectly("size").set(0);
+			structure_types.addDirectly("ARRAY").set(array);
+		}
 	}
 
 

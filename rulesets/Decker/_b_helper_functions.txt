@@ -1,10 +1,11 @@
 english
-
 	RULESET.min = FUNCTION (a,b)
 		return_value = a < b ? a : b
+
 		
 	RULESET.max = FUNCTION (a,b)
 		return_value = a > b ? a : b
+
 
 	RULESET.arrayIndex = FUNCTION (array,entry)
 		if array.size != UNDEFINED
@@ -13,6 +14,7 @@ english
 				return_value = return_value - 1
 			if i == -1
 				return_value = UNDEFINED
+
 			
 	RULESET.rollDice = FUNCTION (target_number)
 		x = random(1,20)
@@ -28,183 +30,32 @@ english
 				return_value = 5
 
 
-// interface related functions ************************************************************************************************************************
+	// this function makes a mission available if it has a target system with a rating or it has a mission rating the rating is within +/-2 or +/-20% of the player's preferred mission rating
+	RULESET.defaultMissionAvailable = FUNCTION
+		if rating != UNDEFINED
+			return_value = ( rating >= player.mission_base_rating-2 || rating >= player.mission_base_rating*4/5 ) && ( rating <= player.mission_base_rating+2 || rating <= player.mission_base_rating*6/5 )
+		else if target_system.rating != UNDEFINED
+			return_value = ( target_system.rating >= player.mission_base_rating-2 || target_system.rating >= player.mission_base_rating*4/5 ) && ( target_system.rating <= player.mission_base_rating+2 || target_system.rating <= player.mission_base_rating*6/5 )
 
 
-	// creates a border with the given values
-	RULESET.createBorder = FUNCTION (bx, by, bwidth, bheight, bbackground_color, binverted)
-		return_value = BORDER
-			x        = &bx
-			y        = &by
-			width    = &bwidth
-			height   = &bheight
-			background_color = &bbackground_color
-			inverted = binverted == true
-			
-	
-	// sets a line to the given values. this function purely exists to simplify scripts
-	RULESET.setLine = FUNCTION (line, x, y, x2, y2, color)
-		line.x     = &x
-		line.y     = &y
-		line.x2    = &x2
-		line.y2    = &y2
-		line.color = &color
-		
+	// calculates the mission rating for missions which have a target system
+	RULESET.defaultMissionRating = FUNCTION
+		if target_system.structure_type == "SYSTEM"
+			special_condition = 0
+			target_count = 0
+			// there's either one goal or an array of goals
+			if goal.structure_type != "ARRAY" &&( goal.structure_type == "NO_RED_ALARM" || goal.structure_type == "CREATE_BACKDOOR" || goal.structure_type == "CRASH_SYSTEM" || goal.structure_type == "TIME_RESTRICTION" )	
+				special_condition = goal.structure_type == "TIME_RESTRICTION" ? 2 : 1
+			if goal.structure_type == "ARRAY"
+				target_count = goal.size
+				i = 0
+				while i < goal.size
+					if goal[i].structure_type == "NO_RED_ALARM" || goal[i].structure_type == "CREATE_BACKDOOR" || goal[i].structure_type == "CRASH_SYSTEM" || goal[i].structure_type == "TIME_RESTRICTION"
+						special_condition = special_condition + ( goal.structure_type == "TIME_RESTRICTION" ? 2 : 1 )
+						target_count = target_count - 1
+					i = i + 1
+			return_value = target_system.rating + target_count / 2 + special_condition
 
-	// returns a new TEXT with the default settings as defined in the TEXT object stored in TEXT_STYLE
-	RULESET.createText = FUNCTION (text, x, y, color, font)
-		return_value = copy(TEXT_STYLE)
-		// for all settings which are not defined, the default settings will be used
-		if text != UNDEFINED
-			return_value.text = &text
-		if x != UNDEFINED
-			return_value.x = &x
-		if y != UNDEFINED
-			return_value.y = &y
-		if color != UNDEFINED
-			return_value.color = &color
-		if font != UNDEFINED
-			return_value.font = &font
-			
-	
-	// returns a new TEXT with the default settings as defined in the TEXT object stored in TEXT_STYLE
-	RULESET.createTextBold = FUNCTION (text, x, y, color, font)
-		return_value = copy(TEXT_STYLE_BOLD)
-		// for all settings which are not defined, the default settings will be used
-		if x != UNDEFINED
-			return_value.x = &x
-		if y != UNDEFINED
-			return_value.y = &y
-		if color != UNDEFINED
-			return_value.color = &color
-		if font != UNDEFINED
-			return_value.font = &font
-
-
-	RULESET.createTable = FUNCTION (pcell_height, px, py)
-		return_value = TABLE
-			x = &px
-			y = &py
-			cell_height = &pcell_height
-			cell_width = ARRAY
-			LOCAL.i = 3
-			while i < argument.size
-				width = width + argument[i]
-				cell_width[] = &argument[i]
-				i = i + 1
-
-
-	RULESET.addTableRow = FUNCTION (table)
-		// create the new table row
-		LOCAL.row = COLLECTION
-			component = ARRAY
-		table.component[] = row
-		LOCAL.i = 0
-		LOCAL.x_offset = 0
-		while i < table.cell_width.size
-			// create the container for the component of the next cell
-			row.component[] = COLLECTION
-				x = x_offset
-				y = table.height
-				width = table.cell_width[i]
-				height = table.cell_height
-				LOCAL.a = ARRAY
-				component = a
-				// if the function caller has supplied an object for this cell, put it in the cell
-				if argument[i+1] != UNDEFINED
-					a[] = argument[i+1]
-			i = i + 1
-			x_offset = x_offset + table.cell_width[i]
-		// calculate the new table height
-		table.height = table.cell_height * table.component.size
-		
-		
-	RULESET.setTableCell = FUNCTION (table,row,column,content)
-		table.component[row].component[column].component[0] = content
-		if content.x == UNDEFINED
-			if table.cell_x.structure_type == "ARRAY"
-				content.x = table.cell_x[column]
-			else
-				content.x = table.cell_x
-		if content.y == UNDEFINED
-			if table.cell_y.structure_type == "ARRAY"
-				content.y = table.cell_y[column]
-			else
-				content.y = table.cell_y
-		if content.v_align == UNDEFINED
-			if table.cell_v_align.structure_type == "ARRAY"
-				content.v_align = table.cell_v_align[column]
-			else
-				content.v_align = table.cell_v_align
-		if content.h_align == UNDEFINED
-			if table.cell_h_align.structure_type == "ARRAY"
-				content.h_align = table.cell_h_align[column]
-			else
-				content.h_align = table.cell_h_align
-				
-				
-	RULESET.scrollbarDrawFunction = FUNCTION (_scrollbar)
-		LOCAL.physical_range = _scrollbar.height - pixelheight(_scrollbar.component[0]) - pixelheight(_scrollbar.component[1]) - pixelheight(_scrollbar.component[2])
-		_scrollbar.component[0].y = pixelheight(_scrollbar.component[1]) + (physical_range * _scrollbar.slider_position + _scrollbar.slider_max/2) / _scrollbar.slider_max
-	
-	
-	RULESET.createScrollbar = FUNCTION (_x, _y, _width, _height, _slider, _slider_max, _up_arrow, _down_arrow, _slider_stepping, _slider_position)
-		return_value = SCROLLBAR
-			x = _x
-			y = _y
-			width = _width
-			height = _height
-			if _slider_stepping != UNDEFINED
-				slider_stepping = _slider_stepping
-			if _slider_max != UNDEFINED
-				slider_max = _slider_max
-			// add the slider and the optional arrow buttons
-			if value_type(_slider) == "STRING"      // it's the name of an image. we need to turn it into a button
-				_slider = BUTTON
-					idle = _slider
-			_slider.x = CENTER
-			_slider.y = 0   // the y position is adjusted every time the SCROLLBAR is drawn. this way it can adjust to mods with different sized buttons
-			_slider.on_mouse_down = FUNCTION (mouse_x, mouse_y)
-				SCROLLBAR.slider_dragging = mouse_y
-			component[0] = _slider
-			if _up_arrow != UNDEFINED
-				if value_type(_up_arrow) == "STRING"      // it's the name of an image. we need to turn it into a button
-					_up_arrow = BUTTON
-						idle = _up_arrow
-				_up_arrow.x = CENTER
-				_up_arrow.y = 0
-				_up_arrow.on_mouse_down = FUNCTION
-					setSliderPosition(SCROLLBAR.this, slider_position - slider_stepping)
-				component[1] = _up_arrow
-				_slider.y = pixelheight(_up_arrow)
-				debug("pixelheight up arrow "+_up_arrow+" : "+pixelheight(_up_arrow))
-			if _down_arrow != UNDEFINED
-				if value_type(_down_arrow) == "STRING"      // it's the name of an image. we need to turn it into a button
-					_down_arrow = BUTTON
-						idle = _down_arrow
-				_down_arrow.x = CENTER
-				_down_arrow.y = BOTTOM
-				_down_arrow.on_mouse_down = FUNCTION
-					setSliderPosition(SCROLLBAR.this, slider_position + slider_stepping)
-				component[2] = _down_arrow
-
-
-	// moves the slider of a scrollbar to a new logical position
-	RULESET.setSliderPosition = FUNCTION (_scrollbar, _slider_position)
-		// the logical slider position cannot be negative
-		if _slider_position < 0
-			_slider_position = 0
-		// make sure it really is a scrollbar
-		if _scrollbar.slider_position != UNDEFINED && _scrollbar.slider_position != _slider_position
-			// the logical slider position cannot exceed the slider_max setting for the scrollbar
-			if _slider_position > _scrollbar.slider_max
-				_slider_position = _scrollbar.slider_max
-			// make sure the slider position isn't the same as before, before you change it
-			if _slider_position != _scrollbar.slider_position
-				_scrollbar.slider_position = _slider_position
-			if _scrollbar.effect != UNDEFINED
-				_scrollbar.effect(_scrollbar, _scrollbar.slider_position)
-				
 	
 //	RULESET.createThing = FUNCTION(_thingtype, _rating)
 //		return_value = THING

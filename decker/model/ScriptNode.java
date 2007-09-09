@@ -139,6 +139,10 @@ public abstract class ScriptNode
 			return ret;
 		if ((ret=stack[RULESET_STACK_SLOT].get("STRUCTURE_TYPES").get(name)) != null)
 			return ret;
+		if ((ret=stack[ENGINE_STACK_SLOT].get("CONSTANTS").get(name)) != null)
+			return ret;
+		if ((ret=stack[ENGINE_STACK_SLOT].get("STRUCTURE_TYPES").get(name)) != null)
+			return ret;
 //		if ((ret=stack[ENGINE_STACK_SLOT].get("STRUCTURE_TYPES").get(name)) != null)
 //			return ret;
 		// try to fetch the variable from one of the Structures in the global structures stack

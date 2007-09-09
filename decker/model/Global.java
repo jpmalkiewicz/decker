@@ -25,7 +25,7 @@ public final class Global
 
 	public static Locale[] accepted_locales = { Locale.getDefault(), new Locale("en") };
 	public static Ruleset[] ruleset = new Ruleset[0];
-	private final static Ruleset global_triggers = new Ruleset("");
+	private final static Ruleset engine = new Ruleset("");
 	private static Ruleset current_ruleset = new Ruleset("(dummy)");
 
 	static boolean test_triggers = true;
@@ -34,7 +34,7 @@ public final class Global
 
 
 	final static void addStructureType (final StructureDefinition sd)  { current_ruleset.addStructureType(sd); }
-	final static void addTrigger (final TriggerCommand tc)  { if (tc.isGlobal()) global_triggers.addTrigger(tc); else current_ruleset.addTrigger(tc); }
+	final static void addTrigger (final TriggerCommand tc)  { if (tc.isGlobal()) engine.addTrigger(tc); else current_ruleset.addTrigger(tc); }
 public static Ruleset getCurrentRuleset ()  { return current_ruleset; }
 	public static Structure getEngineData ()  { return ScriptNode.stack[ScriptNode.ENGINE_STACK_SLOT]; }
 
@@ -43,29 +43,28 @@ public static Ruleset getCurrentRuleset ()  { return current_ruleset; }
 	/** sets things up for the game to launch and load the rulesets */
 	public final static void initializeDataModel ()  {
 		// set up the data stack
-		final Structure engine = new Structure("ENGINE", true);
-		engine.addDirectly("date_day_of_month").set(new Function(F_DATE_DAY_OF_MONTH, new String[]{ "year", "month", "day" }));
-		engine.addDirectly("date_days_in_month").set(new Function(F_DATE_DAYS_IN_MONTH, new String[]{ "year", "month", "day" }));
-		engine.addDirectly("date_text").set(new Function(F_DATE_TEXT, new String[]{ "year", "month", "day" }));
-		engine.addDirectly("debug").set(new Function(F_DEBUG, new String[]{ "print_this", "to_console" }));
-		engine.addDirectly("delete").set(new Function(F_DELETE, new String[]{ "array", "index" }));
-		engine.addDirectly("filelist").set(new Function(F_FILELIST, new String[]{ "directory" }));
-		engine.addDirectly("getStructureStack").set(new Function(F_GET_STRUCTURE_STACK, new String[0]));
-		engine.addDirectly("image_exists").set(new Function(F_IMAGE_EXISTS, new String[]{ "name" }));
-		engine.addDirectly("indexof").set(new Function(F_INDEXOF, new String[]{ "what", "where", "direction", "start_at" }));
-		engine.addDirectly("insert").set(new Function(F_INSERT, new String[]{ "array", "index" }));
-		engine.addDirectly("pixelheight").set(new Function(F_PIXELHEIGHT, new String[]{ "object" }));
-		engine.addDirectly("pixelwidth").set(new Function(F_PIXELWIDTH, new String[]{ "object" }));
-		engine.addDirectly("random").set(new Function(F_RANDOM, new String[]{ "range_start", "range_end" }));
-		engine.addDirectly("size").set(new Function(F_SIZE, new String[]{ "thing" }));
-		engine.addDirectly("substring").set(new Function(F_SUBSTRING, new String[]{ "string" , "from", "to" }));
-		engine.addDirectly("exit_program").set(new Function(F_EXIT_PROGRAM, new String[0]));
-		engine.addDirectly("repaint").set(new Function(F_REPAINT, new String[0]));
-		engine.addDirectly("to_lower_case").set(new Function(F_TO_LOWER_CASE, new String[]{ "text" }));
-		engine.addDirectly("to_upper_case").set(new Function(F_TO_UPPER_CASE, new String[]{ "text" }));
-		engine.addDirectly("value_type").set(new Function(F_VALUE_TYPE, new String[]{ "value" }));
-		engine.addDirectly("displayed_screen").set(new Structure("VIEW")); // initialized with a dummy screen to avoid errors
-		ScriptNode.stack[ScriptNode.ENGINE_STACK_SLOT] = engine;
+		engine.data.addDirectly("date_day_of_month").set(new Function(F_DATE_DAY_OF_MONTH, new String[]{ "year", "month", "day" }));
+		engine.data.addDirectly("date_days_in_month").set(new Function(F_DATE_DAYS_IN_MONTH, new String[]{ "year", "month", "day" }));
+		engine.data.addDirectly("date_text").set(new Function(F_DATE_TEXT, new String[]{ "year", "month", "day" }));
+		engine.data.addDirectly("debug").set(new Function(F_DEBUG, new String[]{ "print_this", "to_console" }));
+		engine.data.addDirectly("delete").set(new Function(F_DELETE, new String[]{ "array", "index" }));
+		engine.data.addDirectly("filelist").set(new Function(F_FILELIST, new String[]{ "directory" }));
+		engine.data.addDirectly("getStructureStack").set(new Function(F_GET_STRUCTURE_STACK, new String[0]));
+		engine.data.addDirectly("image_exists").set(new Function(F_IMAGE_EXISTS, new String[]{ "name" }));
+		engine.data.addDirectly("indexof").set(new Function(F_INDEXOF, new String[]{ "what", "where", "direction", "start_at" }));
+		engine.data.addDirectly("insert").set(new Function(F_INSERT, new String[]{ "array", "index" }));
+		engine.data.addDirectly("pixelheight").set(new Function(F_PIXELHEIGHT, new String[]{ "object" }));
+		engine.data.addDirectly("pixelwidth").set(new Function(F_PIXELWIDTH, new String[]{ "object" }));
+		engine.data.addDirectly("random").set(new Function(F_RANDOM, new String[]{ "range_start", "range_end" }));
+		engine.data.addDirectly("size").set(new Function(F_SIZE, new String[]{ "thing" }));
+		engine.data.addDirectly("substring").set(new Function(F_SUBSTRING, new String[]{ "string" , "from", "to" }));
+		engine.data.addDirectly("exit_program").set(new Function(F_EXIT_PROGRAM, new String[0]));
+		engine.data.addDirectly("repaint").set(new Function(F_REPAINT, new String[0]));
+		engine.data.addDirectly("to_lower_case").set(new Function(F_TO_LOWER_CASE, new String[]{ "text" }));
+		engine.data.addDirectly("to_upper_case").set(new Function(F_TO_UPPER_CASE, new String[]{ "text" }));
+		engine.data.addDirectly("value_type").set(new Function(F_VALUE_TYPE, new String[]{ "value" }));
+		engine.data.addDirectly("displayed_screen").set(new Structure("VIEW")); // initialized with a dummy screen to avoid errors
+		ScriptNode.stack[ScriptNode.ENGINE_STACK_SLOT] = engine.data;
 		ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] = current_ruleset.data;
 		ScriptNode.stack[ScriptNode.GLOBAL_STACK_SLOT] = new Structure("GLOBAL", true);
 		ScriptNode.stack_size = ScriptNode.DEFAULT_GLOBAL_STACK_SIZE;
@@ -79,7 +78,7 @@ System.out.println(ruleset.length+" rulesets");
 		final Ruleset r = current_ruleset;
 		// first run the global scripts
 System.out.println("running global scripts");
-		current_ruleset = global_triggers;
+		current_ruleset = engine;
 		ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] = current_ruleset.data;
 		current_ruleset.initialize(accepted_locales);
 		// then run the scripts of each ruleset
@@ -138,7 +137,7 @@ System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").t
 			System.out.println("loading global scripts");
 			for (int i = 0; i < dir_list.length; i++)
 				if (dir_list[i].getName().toLowerCase().endsWith(".txt"))
-					global_triggers.addScript(ScriptParser.parse(dir_list[i]));
+					engine.addScript(ScriptParser.parse(dir_list[i]));
 		}
 		// switch trigger checking back on
 		test_triggers = true;
@@ -166,7 +165,7 @@ testTriggers();
 				test_triggers_again = false;
 				// test the global triggers first
 				final Ruleset crs = current_ruleset;
-				global_triggers.testTriggers();
+				engine.testTriggers();
 				// if the current ruleset hasn't changed, tell it that one of its values has changed
 				if (current_ruleset == crs)
 					crs.testTriggers();

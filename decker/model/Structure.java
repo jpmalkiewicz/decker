@@ -28,7 +28,9 @@ public final class Structure
 		addDirectly("structure_type").set(type_name);
 		// if there exists a template structure for this type, copy it
 		if (ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] != null)  {
-			final Value template_value = ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT].get("STRUCTURE_TYPES").get(type_name);
+			Value template_value = ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT].get("STRUCTURE_TYPES").get(type_name);
+			if (template_value == null)
+				template_value = ScriptNode.stack[ScriptNode.ENGINE_STACK_SLOT].get("STRUCTURE_TYPES").get(type_name);
 			// copy the predefined STRUCTURE_TYPE. instead of copying the optional initializer function of the STRUCTURE_TYPE,
 			// that function gets executed for this new Structure
 			if (template_value != null) {
