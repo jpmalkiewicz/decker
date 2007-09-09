@@ -1,4 +1,10 @@
 78%
+2007-09-10
+  separated the interface code from the decker scripts and made it global
+2007-09-09
+  SCROLLBAR works
+  getStackTrace() hardcoded function added
+  function calls in all mouse events can now see all enclosing displayed structures
 2007-09-04
   minor script fixes
   working on the SCROLLBAR

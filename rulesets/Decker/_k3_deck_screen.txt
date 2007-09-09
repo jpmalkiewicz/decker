@@ -33,5 +33,5 @@ english
 			createScrollbar(10, 10, 20, 150, "scroller0", 500, "scroller_up0", "scroller_down0")
 				
 				
-		debug ("")
-		debug (object[2])
+//		debug ("")
+//		debug (object[2])

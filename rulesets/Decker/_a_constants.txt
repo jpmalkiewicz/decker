@@ -126,16 +126,3 @@ english
 		IO_ICE
 		IO_EXTERNAL_ALERT
 		IO_HIGH_SPEED_ACCESS
-
-		
-		
-		IDLE             // button states
-		PRESSED
-		DISABLED
-		HOVER
-		
-		CENTER           // alignments for view elements
-		LEFT
-		RIGHT
-		TOP
-		BOTTOM
