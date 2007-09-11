@@ -8,7 +8,7 @@ import decker.util.*;
 
 
 /** override drawContent() and the event messages relevant to your View class */
-public class AbstractView implements ComponentListener
+public class AbstractView
 {
 //*******************************************************************************************************************************************************
 // static view related data and methods *****************************************************************************************************************
@@ -272,33 +272,6 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 //*******************************************************************************************************************************************************
 
 
-	private int frame_x, frame_y;
-
-
-	public AbstractView ()  {
-		if (Global.getDisplayedComponent() instanceof Frame)
-			Global.getDisplayedComponent().addComponentListener(this);
-	}
-
-
-	public void componentHidden (ComponentEvent e)  {}
-
-
-	public void componentMoved (ComponentEvent e)  {
-		final Component c = e.getComponent();
-		if (e.getComponent().getX() != frame_x)
-			Global.getEngineData().get("display_center_x").set(c.getX()+c.getWidth()/2);
-		if (e.getComponent().getY() != frame_y)
-			Global.getEngineData().get("display_center_y").set(c.getY()+c.getHeight()/2);
-	}
-
-
-	public void componentResized (ComponentEvent e)  {}
-
-
-	public void componentShown (ComponentEvent e)  {}
-
-
 	public void displayTickerMessage (final String message)  {}
 
 
@@ -372,39 +345,6 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 
 	public void repaint()  {
 		Global.getViewWrapper().repaint();
-	}
-
-
-	/** adjusts the Bounds of the Frame when the top level view's bounds settings change */
-	public void setScreenSize (int new_width, int new_height)  {
-		if (new_width <= 10)
-			new_width = 11;
-		if (new_height <= 11)
-			new_height = 11;
-		// the Frame should be the top-most parent object of the ViewWrapper
-		Component parent = Global.getViewWrapper().getParent();
-		while (parent.getParent() != null)
-			parent = parent.getParent();
-		if (parent != null && parent instanceof Frame)  {
-			// we need to add the size of the Frame's border to the bounds
-			final Insets i = ((Frame)parent).getInsets();
-			new_width  += i.left + i.right;
-			new_height += i.top  + i.bottom;
-			// adjust x and y
-			frame_x = Global.getEngineData().get("display_center_x").integer() - new_width/2;
-			frame_y = Global.getEngineData().get("display_center_y").integer() - new_height/2;
-			if (frame_x+new_width > parent.getToolkit().getScreenSize().width)
-				frame_x = parent.getToolkit().getScreenSize().width - new_width;
-			if (frame_y+new_height > parent.getToolkit().getScreenSize().height)
-				frame_y = parent.getToolkit().getScreenSize().height - new_height;
-			if (frame_x < 0)
-				frame_x = 0;
-			if (frame_y < 0)
-				frame_y = 0;
-			// set the Frame bounds to the new values
-			((Frame)parent).setBounds(frame_x, frame_y, new_width, new_height);
-			((Frame)parent).doLayout();
-		}
 	}
 
 

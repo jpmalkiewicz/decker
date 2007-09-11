@@ -6,7 +6,7 @@ import decker.util.*;
 
 
 
-public final class ViewWrapper extends Canvas
+public final class ViewWrapper extends Canvas implements ComponentListener
 {
 // methods other parts of this program will call ************************************************************************
 
@@ -15,6 +15,8 @@ public final class ViewWrapper extends Canvas
 		enableEvents(AWTEvent.COMPONENT_EVENT_MASK | AWTEvent.KEY_EVENT_MASK | AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
 		// add a dummy AbstractView to avoid NullPointerExceptions
 		view = new AbstractView();
+		if (Global.getDisplayedComponent() instanceof Frame)
+			Global.getDisplayedComponent().addComponentListener(this);
 	}
 
 
@@ -41,6 +43,26 @@ public final class ViewWrapper extends Canvas
 	private AWTEvent lastEvent;
 	private final Queue events = new Queue();
 	private int mouse_x, mouse_y;
+	private int frame_x, frame_y;
+	private int old_width = -1, old_height = -1;
+
+
+	public void componentHidden (ComponentEvent e)  {}
+
+
+	public void componentMoved (ComponentEvent e)  {
+		final Component c = e.getComponent();
+		if (e.getComponent().getX() != frame_x)
+			Global.getEngineData().get("display_center_x").set(c.getX()+c.getWidth()/2);
+		if (e.getComponent().getY() != frame_y)
+			Global.getEngineData().get("display_center_y").set(c.getY()+c.getHeight()/2);
+	}
+
+
+	public void componentResized (ComponentEvent e)  {}
+
+
+	public void componentShown (ComponentEvent e)  {}
 
 
 	private void handleUserInput () {
@@ -115,6 +137,39 @@ public final class ViewWrapper extends Canvas
 	}
 
 
+	/** adjusts the Bounds of the Frame when the top level view's bounds settings change */
+	private void setScreenSize (int new_width, int new_height)  {
+		if (new_width <= 10)
+			new_width = 11;
+		if (new_height <= 11)
+			new_height = 11;
+		// the Frame should be the top-most parent object of the ViewWrapper
+		Component parent = getParent();
+		while (parent.getParent() != null)
+			parent = parent.getParent();
+		if (parent != null && parent instanceof Frame)  {
+			// we need to add the size of the Frame's border to the bounds
+			final Insets i = ((Frame)parent).getInsets();
+			new_width  += i.left + i.right;
+			new_height += i.top  + i.bottom;
+			// adjust x and y
+			frame_x = Global.getEngineData().get("display_center_x").integer() - new_width/2;
+			frame_y = Global.getEngineData().get("display_center_y").integer() - new_height/2;
+			if (frame_x+new_width > parent.getToolkit().getScreenSize().width)
+				frame_x = parent.getToolkit().getScreenSize().width - new_width;
+			if (frame_y+new_height > parent.getToolkit().getScreenSize().height)
+				frame_y = parent.getToolkit().getScreenSize().height - new_height;
+			if (frame_x < 0)
+				frame_x = 0;
+			if (frame_y < 0)
+				frame_y = 0;
+			// set the Frame bounds to the new values
+			((Frame)parent).setBounds(frame_x, frame_y, new_width, new_height);
+			((Frame)parent).doLayout();
+		}
+	}
+
+
 	private void synchronizedUpdate (final Graphics g) {
 		if (!isVisible()) {
 			return;
@@ -126,30 +181,48 @@ public final class ViewWrapper extends Canvas
 
 				handleUserInput();
 
-				final int w = getSize().width, h = getSize().height;
-				if (w > 0 && h > 0) {
-					// draw the next frame
-					if (buffer == null || buffer.getWidth(this) != w || buffer.getHeight(this) != h) {
-						try {
-							buffer = createImage(w, h);
-						} catch (Throwable t) {
-							// this ought to be extremely rare
-							repaint = true;
-							painting = false;
-							repaint();
-							return;
+				if (view != null) {
+					final Value scr = Global.getDisplayedScreen();
+					if (scr != null) {
+						final int w = view.width(scr), h = view.height(scr);
+
+						if (w > 0 && h > 0) {
+							// draw the next frame
+							if (buffer == null || buffer.getWidth(this) != w || buffer.getHeight(this) != h) {
+								try {
+									buffer = createImage(w, h);
+								} catch (Throwable t) {
+									// this ought to be extremely rare
+									repaint = true;
+									painting = false;
+									repaint();
+									return;
+								}
+							}
+
+							final Graphics bg = buffer.getGraphics();
+							bg.setFont(getFont());
+
+							// fetch the background color
+							final Value bgcolor_string = ScriptNode.getValue("BACKGROUND_COLOR");
+							if (bgcolor_string != null && bgcolor_string.type() == Value.STRING) {
+								final Color bgcolor = AbstractView.getColor(bgcolor_string.string());
+								if (bgcolor != null) {
+									setBackground(bgcolor);
+									bg.setColor(bgcolor);
+									bg.fillRect(0, 0, w, h);
+								}
+							}
+							bg.setColor(getForeground());
+							view.drawContent(bg); // call drawContent() instead of paint(), because the coordinate system already sits where it should
+							g.drawImage(buffer, 0, 0, this);
+							if (w != old_width || h != old_height) {
+								old_width = w;
+								old_height = h;
+								setScreenSize(w, h);
+							}
 						}
 					}
-
-					final Graphics bg = buffer.getGraphics();
-					bg.setFont(getFont());
-					bg.setColor(getBackground());
-					bg.fillRect(0, 0, w, h);
-					bg.setColor(getForeground());
-					if (view != null) {
-						view.drawContent(bg); // call drawContent() instead of paint(), because the coordinate system already sits where it should
-					}
-					g.drawImage(buffer, 0, 0, this);
 				}
 			} catch (Throwable t) {
 				t.printStackTrace();
