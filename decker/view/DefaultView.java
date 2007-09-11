@@ -10,7 +10,7 @@ import java.awt.image.*;
 public class DefaultView extends AbstractView
 {
 	private String old_title = "";
-	private int old_width = NONE, old_height = NONE, dx, dy;
+	private int dx, dy;
 	private Graphics g;
 	private final static Shape NO_CLIP_CHANGE = new java.awt.geom.Line2D.Double();
 
@@ -58,12 +58,6 @@ dummy = true;
 				if ( (v=d.get("title")) != null && !v.equalsConstant("UNDEFINED") && !v.equals(old_title))  {
 					old_title = v.toString();
 					setTitle(old_title);
-				}
-				// adjust the Frame bounds if the view's bounds have changed
-				if (w != old_width || h != old_height) {
-					old_width = w;
-					old_height = h;
-					setScreenSize(w, h);
 				}
 			}
 			else { // only change the coordinate offset if this is not the top level screen element
@@ -402,7 +396,6 @@ ScriptNode.printStack(System.err, "");
 
 
 	public int getDrawOffsetY ()  { return dy; }
-
 
 
 // private methods **************************************************************************************************************************************
