@@ -126,6 +126,16 @@ public abstract class ScriptNode
 	String getScriptName () { return script_name; }
 
 
+	public final static Value getStructureType (final String name)  {
+		Value ret;
+		if ((ret=stack[RULESET_STACK_SLOT].get("STRUCTURE_TYPES").get(name)) != null)
+			return ret;
+		if ((ret=stack[ENGINE_STACK_SLOT].get("STRUCTURE_TYPES").get(name)) != null)
+			return ret;
+		return null;
+	}
+
+
 	final public static Value getValue (final String name)  {
 		final Value ret = getVariable(name);
 		return (ret == null) ? null : ret.getValue();
@@ -143,8 +153,6 @@ public abstract class ScriptNode
 			return ret;
 		if ((ret=stack[ENGINE_STACK_SLOT].get("STRUCTURE_TYPES").get(name)) != null)
 			return ret;
-//		if ((ret=stack[ENGINE_STACK_SLOT].get("STRUCTURE_TYPES").get(name)) != null)
-//			return ret;
 		// try to fetch the variable from one of the Structures in the global structures stack
 		for (int i = stack_size; --i >= 0; )
 			if ((ret=stack[i].get(name)) != null)

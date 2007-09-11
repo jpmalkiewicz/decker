@@ -1,7 +1,12 @@
 78%
+2007-09-11
+  added optional structure type variables which do not get copied into each instantiated structure :
+    pixelwidth, pixelheight   <- if these contain functions and the width / height isn't explicitly defined, they get called
+    expandable   <- got copied into each structure instance in the past
 2007-09-10
   separated the interface code from the decker scripts and made it global
   scrollbars can now be horizontal
+  removed the remaining occurences of variablesSeeEachOther and variables_see_each_other
 2007-09-09
   SCROLLBAR works
   getStackTrace() hardcoded function added

@@ -18,12 +18,11 @@ final class Script
 			final Object ls = getLocalization(accepted_localizations[i].getDisplayLanguage(accepted_localizations[i]));
 			if (ls != null) {
 				// we need a LOCAL object on the stack for the script execution
-System.out.print("   running script from file : "+filename);
-				final Structure local = new Structure("LOCAL", true);
+System.out.println("   running script from file : "+filename);
+				final Structure local = new Structure("LOCAL");
 				ScriptNode.addStackItem(local);
 				((Block)ls).execute();
 				ScriptNode.removeStackItem(local, (Block)ls);
-System.out.println("   DONE");
 				return;
 			}
 		}

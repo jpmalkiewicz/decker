@@ -8,6 +8,7 @@ english
 	RULESET.BORDER_COLOR2 = "#000080"
 	RULESET.BACKGROUND_COLOR = "#0000ff"    // default color for the screen background
 	RULESET.BACKGROUND_COLOR2 = "#333399"   // set this to UNDEFINED to give screens only 1 border
+	RULESET.TABLE_BACKGROUND_COLOR = "#ffffff"
 	RULESET.TEXT_STYLE = TEXT
 		font = "Arial;13pt"
 		color = "#ffffff"

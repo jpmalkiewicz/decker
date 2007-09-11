@@ -66,7 +66,7 @@ public static Ruleset getCurrentRuleset ()  { return current_ruleset; }
 		engine.data.addDirectly("displayed_screen").set(new Structure("VIEW")); // initialized with a dummy screen to avoid errors
 		ScriptNode.stack[ScriptNode.ENGINE_STACK_SLOT] = engine.data;
 		ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] = current_ruleset.data;
-		ScriptNode.stack[ScriptNode.GLOBAL_STACK_SLOT] = new Structure("GLOBAL", true);
+		ScriptNode.stack[ScriptNode.GLOBAL_STACK_SLOT] = new Structure("GLOBAL");
 		ScriptNode.stack_size = ScriptNode.DEFAULT_GLOBAL_STACK_SIZE;
 		ScriptNode.global_stack_size = ScriptNode.DEFAULT_GLOBAL_STACK_SIZE;
 	}
@@ -91,6 +91,8 @@ System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").t
 		current_ruleset = r;
 		ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] = r.data;
 		test_triggers = true;
+// print all ENGINE level structure types
+// engine.data.get("STRUCTURE_TYPES").structure().print(System.err, "", true);
 	}
 
 

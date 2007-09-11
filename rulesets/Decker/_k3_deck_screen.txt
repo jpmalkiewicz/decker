@@ -9,7 +9,7 @@ english
 // test code END ********************************
 		
 		LOCAL.test_table = createTable (20, 0,0, 30,30,30,30)
-		addTableRow (test_table, "home/char", "home/deck", "home/options","home/char")
+		addTableRow (test_table, "home/char", "home/deck", "home/options", "home/char")
 		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
 		LOCAL.k = COLLECTION
 //			x = CENTER
@@ -19,20 +19,25 @@ english
 			object = ARRAY
 				"home/home"
 		setTableCell (test_table,0,2,k)
-				
+		
+		LOCAL.scrollpane = SCROLLPANE
+			x = 20
+			y = 100
+			width = 300
+			height = pixelheight(VIEW.this) - y - 50    // make the height relative to the screenheight
+			vertical_scrollbar = createScrollbar(RIGHT, 0, 10, SCROLLPANE.height, true, "scroller_vertical0", 500, "scroller_up0", "scroller_down0")
 		object = ARRAY
 			SCREEN_BACKGROUND
 				width = 430
 				height = 300
+			scrollpane
+			createBorder(scrollpane.x-2, scrollpane.y-2, scrollpane.x+scrollpane.width+4, scrollpane.y+scrollpane.height+4, @TABLE_BACKGROUND_COLOR, true)
+				
 			DRAWING_BOUNDARY
 				x = 50
 				y = 50
 				width = 70
 				height = 30
 				object[] = test_table
-			createScrollbar(10, 10, 20, 150, true, "scroller_vertical0", 500, "scroller_up0", "scroller_down0")
-			createScrollbar(35, 165, 150, 20, false, "scroller_horizontal0", 500, "scroller_left0", "scroller_right0")
-				
-				
-//		debug ("")
-//		debug (object[2])
+			createScrollbar(10, 10, UNDEFINED, 150, true, "scroller_vertical0", 500, "scroller_up0", "scroller_down0")
+			createScrollbar(35, 165, 150, UNDEFINED, false, "scroller_horizontal0", 500, "scroller_left0", "scroller_right0")

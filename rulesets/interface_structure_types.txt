@@ -324,9 +324,38 @@ english
 									logical = slider_max
 								if slider_position != logical
 									slider_position = logical
-									debug(SCROLLBAR.this)
-									debug(dm + " " + pmin + " " + logical + " " + slider_max)
 								if effect != UNDEFINED
 									effect(SCROLLBAR.this, slider_position)
 						on_mouse_up = FUNCTION
 							slider_dragging = UNDEFINED    // capture on_mouse_up events here, to stop dragging the slider
+			pixelwidth = FUNCTION
+				return_value = width
+				// we can only guess the width if the scrollbar is vertical
+				if return_value == UNDEFINED && vertical
+					return_value = max( pixelwidth(SCROLLBAR.component[0]), pixelwidth(SCROLLBAR.component[1]), pixelwidth(SCROLLBAR.component[2]) )
+			pixelheight = FUNCTION
+				return_value = height
+				// we can only guess the height if the scrollbar is horizontal
+				if return_value == UNDEFINED && !vertical
+					return_value = max( pixelheight(SCROLLBAR.component[0]), pixelheight(SCROLLBAR.component[1]), pixelheight(SCROLLBAR.component[2]) )
+
+
+		SCROLLPANE
+			x
+			y
+			width
+			height
+			component                            // component[1] optional vertical scrollbar, component[2] optional horizontal scrollbar, component[0] a DRAWING_BOUNDARY with component[0].object[0] as the view element that is displayed in this scrollpane
+			displayed_object                     // the object that this SCROLLPANE displays
+			optional_scrollbars = true           // the scrollbars are optional by default and only get displayed when needed
+			vertical_scrollbar                   // either a scrollbar or an array containing the slider and buttons, or their names
+			horizontal_scrollbar                 // like vertical_scrollbar
+			on_draw = FUNCTION
+				LOCAL.vsize = 0         // width of the scrollpane area reserved for the vertical scrollbar
+				LOCAL.hsize = 0         // width of the scrollpane area reserved for the horizontal scrollbar
+				// determine whether there should be a vertical scrollbar
+				if vertical_scrollbar != UNDEFINED
+//					LOCAL.scrollbar = 
+					
+					
+// adjust the scrollpane and scrollbars here

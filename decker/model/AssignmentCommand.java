@@ -27,7 +27,7 @@ final class AssignmentCommand extends ScriptNode
 	public Value execute ()  {
 		// fetch the variable. if the topmost structure on the stack is expandable and not of type LOCAL (a sign that we're inside a function body), add the variable to it (if it doesn't exist yet)
 		Value ret = null, v;
-		if (variable.getOperator() == Expression.VARIABLE && (v=stack[stack_size-1].get("expandable")) != null && v.equals(true) && !stack[stack_size-1].get("structure_type").equals("LOCAL")) {
+		if (variable.getOperator() == Expression.VARIABLE && stack[stack_size-1].canHoldCustomVariables() && !stack[stack_size-1].get("structure_type").equals("LOCAL")) {
 			ret = stack[stack_size-1].get(variable.toString());
 			if (ret == null)
 				ret = stack[stack_size-1].add(variable.toString());
