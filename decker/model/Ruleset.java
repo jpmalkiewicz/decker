@@ -6,7 +6,7 @@ import java.util.Locale;
 
 public final class Ruleset
 {
-	public final Structure data = new Structure("RULESET", true);
+	public final Structure data = new Structure("RULESET");
 	final StringTreeMap structure_types = new StringTreeMap();
 	private TriggerCommand[] trigger = new TriggerCommand[100];
 	private int trigger_count;
@@ -14,7 +14,7 @@ public final class Ruleset
 
 
 	Ruleset (final String ruleset_name)  {
-		if (ruleset_name.equals("")) { // if this is the engine ruleset, add the only standard constant, UNDEFINED
+		if (ruleset_name.equals("")) { // if this is the engine ruleset, change its name to ENGINE
 			data.get("structure_type").set("ENGINE");
 		}
 		data.add("RULESET_NAME").set(ruleset_name);
@@ -30,6 +30,12 @@ public final class Ruleset
 			final Structure array = new Structure("ARRAY");
 			array.addDirectly("size").set(0);
 			structure_types.addDirectly("ARRAY").set(array);
+			final String[] expandable_structure_types = {"ENGINE", "LOCAL", "RULESET"};
+			for (int i = 0; i < expandable_structure_types.length; i++) {
+				final Structure s = new Structure(expandable_structure_types[i]);
+				s.addDirectly("expandable").set(true);
+				structure_types.add(expandable_structure_types[i]).set(s);
+			}
 		}
 	}
 

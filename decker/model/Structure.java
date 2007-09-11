@@ -3,28 +3,13 @@ import java.io.*;
 import decker.util.*;
 
 
-/** if variables_see_each_other is true the variables inside the structure see each other
-*   that is, when an expression stored in a variable is executed it can reference other variables from the structure */
+
 public final class Structure
 {
 	private final StringTreeMap members = new StringTreeMap();
 
 
 	public Structure (final String type_name)  {
-		this (type_name, false);
-	}
-
-
-	Structure (final Structure original)  {
-		StringTreeMap.Iterator i = original.members.getIterator();
-		while (i.hasNext()) {
-			final StringTreeMap.TreeNode n = i.nextNode();
-			addDirectly(n.getKey()).setDirectly((Value)n.getValue(), false);
-		}
-	}
-
-
-	Structure (final String type_name, final boolean explicitly_expandable)  {
 		addDirectly("structure_type").set(type_name);
 		// if there exists a template structure for this type, copy it
 		if (ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] != null)  {
@@ -39,18 +24,26 @@ public final class Structure
 				Value initializer = null;
 				while (i.hasNext()) {
 					final StringTreeMap.TreeNode n = i.nextNode();
-					if (n.getKey().equals("initializer"))
+					final String k = n.getKey();
+					if (k.equals("initializer"))
 						initializer = (Value) n.getValue();
-					else
-						addDirectly(n.getKey()).setDirectly((Value)n.getValue(), false);
+					else if (!k.equals("pixelwidth") && !k.equals("pixelheight") && !k.equals("expandable")) // pixelwidth and pixelheight stay with their structure type and aren't copied to the instantiated structures
+						addDirectly(k).setDirectly((Value)n.getValue(), false);
 				}
 				// execute the STRUCTURE_TYPE's initializer function if there is one
 				if (initializer != null && initializer.typeDirect() == Value.FUNCTION)
 					FunctionCall.executeFunctionCall(initializer, null, this);
 			}
 		}
-		if (explicitly_expandable)
-			add("expandable").set(true);
+	}
+
+
+	Structure (final Structure original)  {
+		StringTreeMap.Iterator i = original.members.getIterator();
+		while (i.hasNext()) {
+			final StringTreeMap.TreeNode n = i.nextNode();
+			addDirectly(n.getKey()).setDirectly((Value)n.getValue(), false);
+		}
 	}
 
 
@@ -62,7 +55,6 @@ public final class Structure
 		Structure ret = new Structure("FUNCTION_CALL");
 		add("argument").set(arguments);
 		add("return_value");
-		add("expandable").set(true);
 		// manually add all the named arguments to the structure - they contain the same variable as the arguments array, not just the same value
 		final int argument_count = arguments.get("size").integer();
 		for (int i = argument_names.length; --i >= 0; ) {
@@ -99,8 +91,10 @@ public final class Structure
 
 
 	boolean canHoldCustomVariables ()  {
-		final Object o = members.get("expandable");
-		return o != null && ((Value)o).equals(true);
+		final String typename = members.get("structure_type").toString();
+		Value type = ScriptNode.getStructureType(typename);
+		Value v;
+		return type != null && (v=type.get("expandable")) != null && v.equals(true);
 	}
 
 
@@ -216,7 +210,4 @@ public final class Structure
 
 
 	boolean staticStackEntry ()  { final Object o = members.get("static_stack_entry"); return o != null && ((Value)o).equals(true); }
-
-
-	public boolean variablesSeeEachOther ()  { final Object o = members.get("variables_see_each_other"); return o != null && ((Value)o).equals(true); }
 }

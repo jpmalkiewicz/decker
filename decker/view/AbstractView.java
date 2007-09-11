@@ -337,22 +337,32 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 		// is it a structure?
 		if (visible_object instanceof Structure) {
 			final Structure d = (Structure) visible_object;
+			final String type = d.get("structure_type").string();
 			// check whether the height is explicitly defined
 			v = d.get("height");
 			if (v != null && v.type() == Value.INTEGER)
 				return v.integer();
 			// if this is a BUTTON, use the definition for the idle state instead
-			if (d.get("structure_type").equals("BUTTON") && !d.get("idle").equalsConstant("UNDEFINED"))
+			if (type.equals("BUTTON") && !d.get("idle").equalsConstant("UNDEFINED"))
 				return height(d.get("idle"));
 			// if this is a STRING, determine its height
-			if (d.get("structure_type").equals("TEXT")) {
+			if (type.equals("TEXT")) {
 				if ((v=d.get("font")) != null && v.type() == Value.STRING)
 					return getFontMetrics(getFont(v.string())).getAscent();
 				else
 					return getFontMetrics(getFont("")).getHeight(); // use the last font that was used to draw a string
 			}
+			// if its structure type has a special pixelheight function, call it
+			final Value t = ScriptNode.getStructureType(type);
+			if (t != null) {
+				if ((v=t.get("pixelheight")) != null && v.typeDirect() == Value.FUNCTION) {
+					v = FunctionCall.executeFunctionCall(v, null, (Structure) visible_object);
+					if (v.type() == Value.INTEGER)
+						return v.integer();
+				}
+			}
 			// if not, use the height of the first entry in the object array
-			if (d.get("object") != null && d.get("object").get("size").integer() > 0)
+			if ((v=d.get("object")) != null && v.type() == Value.STRUCTURE && v.get("size").integer() > 0)
 				return height(d.get("object").get("0"));
 		}
 		// everything has failed, assume a height of 0 for the structure
@@ -427,15 +437,16 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 		// is it a structure?
 		if (visible_object instanceof Structure) {
 			final Structure d = (Structure) visible_object;
+			final String type = d.get("structure_type").string();
 			// check whether the width is explicitly defined
 			v = d.get("width");
 			if (v != null && v.type() == Value.INTEGER)
 				return v.integer();
 			// if this is a BUTTON, use the definition for the idle state instead
-			if (d.get("structure_type").equals("BUTTON") && !d.get("idle").equalsConstant("UNDEFINED"))
+			if (type.equals("BUTTON") && !d.get("idle").equalsConstant("UNDEFINED"))
 				return width(d.get("idle"));
 			// if this is a STRING, calculate its width
-			if (d.get("structure_type").equals("TEXT")) {
+			if (type.equals("TEXT")) {
 				FontMetrics fm;
 				if ((v=d.get("font")) != null && v.type() == Value.STRING)
 					fm = getFontMetrics(getFont(v.string()));
@@ -443,8 +454,17 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 					fm = getFontMetrics(getFont("")); // use the last font that was used to draw a string
 				return fm.stringWidth(d.get("text").toString());
 			}
+			// if its structure type has a special pixelwidth function, call it
+			final Value t = ScriptNode.getStructureType(type);
+			if (t != null) {
+				if ((v=t.get("pixelwidth")) != null && v.typeDirect() == Value.FUNCTION) {
+					v = FunctionCall.executeFunctionCall(v, null, (Structure) visible_object);
+					if (v.type() == Value.INTEGER)
+						return v.integer();
+				}
+			}
 			// if not, use the height of the first entry in the object array
-			if (d.get("object") != null && d.get("object").get("size").integer() > 0)
+			if ((v=d.get("object")) != null && v.type() == Value.STRUCTURE && v.get("size").integer() > 0)
 				return width(d.get("object").get("0"));
 		}
 		// everything has failed, assume a width of 0 for the structure

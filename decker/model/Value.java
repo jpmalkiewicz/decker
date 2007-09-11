@@ -43,7 +43,7 @@ public final class Value
 		// this if will only happen if the function stored in this variable is really an @ expression
 		if (object instanceof Expression)
 			return ((Expression)object).executeFetchValue();
-		return FunctionCall.executeFunctionCall(object, null, (visible_structure==null||!visible_structure.variablesSeeEachOther()) ? null : visible_structure);
+		return FunctionCall.executeFunctionCall(object, null, visible_structure);
 	}
 
 

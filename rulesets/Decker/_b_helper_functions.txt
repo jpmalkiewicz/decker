@@ -1,12 +1,4 @@
 english
-	RULESET.min = FUNCTION (a,b)
-		return_value = a < b ? a : b
-
-		
-	RULESET.max = FUNCTION (a,b)
-		return_value = a > b ? a : b
-
-
 	RULESET.arrayIndex = FUNCTION (array,entry)
 		if array.size != UNDEFINED
 			return_value = array.size - 1
