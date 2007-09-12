@@ -1,6 +1,6 @@
 78%
 2007-09-12
-  scrollers of the scrollpane work. content doesn't get displayed yet
+  SCROLLPANE works
 2007-09-11
   added optional structure type variables which do not get copied into each instantiated structure :
     pixelwidth, pixelheight   <- if these contain functions and the width / height isn't explicitly defined, they get called

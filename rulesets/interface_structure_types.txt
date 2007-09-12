@@ -345,15 +345,23 @@ english
 			y
 			width
 			height
-			component                            // component[2] optional vertical scrollbar, component[3] optional horizontal scrollbar, component[1] optional view element that gets displayed in the corner that is cut off if both scrollbars are displayed, component[0] a DRAWING_BOUNDARY with component[0].object[0] as the view element that is displayed in this scrollpane
+			component                            // component[2] optional vertical scrollbar, component[3] optional horizontal scrollbar, component[1] optional view element that gets displayed in the corner that is cut off if both scrollbars are displayed, component[0] a DRAWING_BOUNDARY with component[0].object[0] being a wrapper around the view element that is displayed in this scrollpane
 			displayed_element                    // the object that this SCROLLPANE displays
 			optional_scrollbars = true           // the scrollbars are optional by default and only get displayed when needed
 			vertical_scrollbar                   // either a scrollbar or an array containing the slider and buttons, or their names
 			horizontal_scrollbar                 // like vertical_scrollbar
 			corner_filler                        // component to be displayed in the cornerthat gets get cut off when both scrollbars are displayed
+			scrollbar_padding = 1                // number of pixels to be put left empty between the DRAWING_PANE and the scrollbar
 			initializer = FUNCTION
 				component = ARRAY
-					UNDEFINED
+					DRAWING_BOUNDARY
+						x = 0
+						y = 0
+						object[0] = COLLECTION   // wraps around the displayed component to be able to move it around on the screen without changing it
+							x = 0
+							y = 0
+							object = ARRAY
+								UNDEFINED        // the displayed component
 					UNDEFINED
 					UNDEFINED
 					UNDEFINED
@@ -367,15 +375,15 @@ english
 				// determine whether we need a vertical scrollbar
 				if value_type(vertical_scrollbar) == "STRUCTURE" && ( !optional_scrollbars || h < dh )
 					vscrollbar = vertical_scrollbar.structure_type == "ARRAY" ? createSimpleScrollbar(w, h, vertical_scrollbar, true) : vertical_scrollbar
-					w = w - pixelwidth(vscrollbar)
+					w = w - pixelwidth(vscrollbar) - scrollbar_padding
 				// determine whether we need a horizontal scrollbar
 				if value_type(horizontal_scrollbar) == "STRUCTURE" && ( !optional_scrollbars || w < dw )
 					hscrollbar = horizontal_scrollbar.structure_type == "ARRAY" ? createSimpleScrollbar(w, h, horizontal_scrollbar, false) : horizontal_scrollbar
-					h = h - pixelheight(hscrollbar)
+					h = h - pixelheight(hscrollbar) - scrollbar_padding
 					// check whether after adding the horizontal scrollbar we now need the vertical scrollbar (w, h, because the display area is no longer high enough to display the content). we don't have to check whether scrollbars are optional, they definitely are
 					if vscrollbar == false && value_type(vertical_scrollbar) == "STRUCTURE" && h < dh
 						vscrollbar = vertical_scrollbar.structure_type == "ARRAY" ? createSimpleScrollbar(w, h, vertical_scrollbar, true) : vertical_scrollbar
-						w = w - pixelwidth(vscrollbar)
+						w = w - pixelwidth(vscrollbar) - scrollbar_padding
 					else
 						vscrollbar.height = h   // the height needs to be reduced to make room for the horizontal scrollbar
 				// add/remove the vertical scrollbar
@@ -422,7 +430,13 @@ english
 				else
 					component[1] = UNDEFINED
 				// adjust the displayed content
-				debug(component[3].component[0].state+"   "+component[3].component[1].state)
+				component[0].width = w
+				component[0].height = h
+				component[0].object[0].x = hscrollbar == false ? 0 : -hscrollbar.slider_position
+				component[0].object[0].y = vscrollbar == false ? 0 : -vscrollbar.slider_position
+				component[0].object[0].object[0] = displayed_element
+//				debug(component[0])
+//				debug(component[3].component[0].state+"   "+component[3].component[1].state)
 //				debug(w+","+h+" "+dw+","+dh+" "+component[2].v_align+" "+component[2].x)
 // make sure the displayed_element gets displayed if it has changed
 //				component[0] = displayed_element // in case it has changed. now it will definitely be displayed
