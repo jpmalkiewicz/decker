@@ -14,11 +14,6 @@ english
 		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
 		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
 		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
-		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
-		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
-		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
-		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
-		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
 		LOCAL.k = COLLECTION
 //			x = CENTER
 			y = 0
@@ -34,7 +29,7 @@ english
 		LOCAL.scrollpane = SCROLLPANE
 			x = 20
 			y = 100
-			width = 100 //300
+			width = 300
 			height = screen_height - y - 50    // make the height relative to the screenheight
 			vertical_scrollbar = ARRAY
 				"scroller_vertical_blue0"
