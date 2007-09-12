@@ -1,9 +1,12 @@
 78%
+2007-09-12
+  scrollers of the scrollpane work. content doesn't get displayed yet
 2007-09-11
   added optional structure type variables which do not get copied into each instantiated structure :
     pixelwidth, pixelheight   <- if these contain functions and the width / height isn't explicitly defined, they get called
     expandable   <- got copied into each structure instance in the past
   fixed the window area turning white whenever the window size changed
+  continued work on SCROLLPANE
 2007-09-10
   separated the interface code from the decker scripts and made it global
   scrollbars can now be horizontal

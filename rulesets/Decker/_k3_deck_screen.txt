@@ -11,6 +11,14 @@ english
 		LOCAL.test_table = createTable (20, 0,0, 30,30,30,30)
 		addTableRow (test_table, "home/char", "home/deck", "home/options", "home/char")
 		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
+		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
+		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
+		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
+		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
+		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
+		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
+		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
+		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
 		LOCAL.k = COLLECTION
 //			x = CENTER
 			y = 0
@@ -20,24 +28,35 @@ english
 				"home/home"
 		setTableCell (test_table,0,2,k)
 		
+		LOCAL.screen_width = 430
+		LOCAL.screen_height = 300
+				
 		LOCAL.scrollpane = SCROLLPANE
 			x = 20
 			y = 100
-			width = 300
-			height = pixelheight(VIEW.this) - y - 50    // make the height relative to the screenheight
-			vertical_scrollbar = createScrollbar(RIGHT, 0, 10, SCROLLPANE.height, true, "scroller_vertical0", 500, "scroller_up0", "scroller_down0")
+			width = 100 //300
+			height = screen_height - y - 50    // make the height relative to the screenheight
+			vertical_scrollbar = ARRAY
+				"scroller_vertical_blue0"
+				"scroller_up_blue0"
+				"scroller_down_blue0"
+			horizontal_scrollbar = ARRAY
+				"scroller_horizontal_blue0"
+				"scroller_left_blue0"
+				"scroller_right_blue0"
+			displayed_element = test_table
 		object = ARRAY
 			SCREEN_BACKGROUND
-				width = 430
-				height = 300
+				width = screen_width
+				height = screen_height
+			createBorder(scrollpane.x-3, scrollpane.y-3, scrollpane.width+6, scrollpane.height+6, @TABLE_BACKGROUND_COLOR, true)
 			scrollpane
-			createBorder(scrollpane.x-2, scrollpane.y-2, scrollpane.x+scrollpane.width+4, scrollpane.y+scrollpane.height+4, @TABLE_BACKGROUND_COLOR, true)
 				
-			DRAWING_BOUNDARY
-				x = 50
-				y = 50
-				width = 70
-				height = 30
-				object[] = test_table
-			createScrollbar(10, 10, UNDEFINED, 150, true, "scroller_vertical0", 500, "scroller_up0", "scroller_down0")
-			createScrollbar(35, 165, 150, UNDEFINED, false, "scroller_horizontal0", 500, "scroller_left0", "scroller_right0")
+//			DRAWING_BOUNDARY
+//				x = 50
+//				y = 50
+//				width = 70
+//				height = 30
+//				object[] = test_table
+//			createScrollbar(10, 10, UNDEFINED, 150, true, "scroller_vertical0", 500, "scroller_up0", "scroller_down0")
+//			createScrollbar(35, 165, 150, UNDEFINED, false, "scroller_horizontal0", 500, "scroller_left0", "scroller_right0")
