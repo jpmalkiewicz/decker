@@ -438,13 +438,13 @@ ScriptNode.printStack(System.err, "");
 				}
 				else if (v.type() == Value.CONSTANT) {
 					if (v.equalsConstant("RIGHT")) {
-						if (a == null || a.equals("UNDEFINED")) // if the visible_object has no explicit horizontal alignment, treat it as LEFT aligned, i.e. sitting left of (x,y)
+						if (a == null || a.equalsConstant("UNDEFINED")) // if the visible_object has no explicit horizontal alignment, treat it as LEFT aligned, i.e. sitting left of (x,y)
 							ret = width(parent)-width(visible_object);
 						else
 							ret = width(parent);
 					}
 					else if (v.equalsConstant("CENTER")) {
-						if (a == null || a.equals("UNDEFINED")) // if the visible_object has no explicit horizontal alignment, treat it as CENTER aligned, i.e. sitting centered on (x,y)
+						if (a == null || a.equalsConstant("UNDEFINED")) // if the visible_object has no explicit horizontal alignment, treat it as CENTER aligned, i.e. sitting centered on (x,y)
 							ret = (width(parent)-width(visible_object))/2;
 						else
 							ret = width(parent)/2;
@@ -492,13 +492,13 @@ ScriptNode.printStack(System.err, "");
 				}
 				else if (v.type() == Value.CONSTANT) {
 					if (v.equalsConstant("BOTTOM")) {
-						if (a == null || a.equals("UNDEFINED")) // if the visible_object has no explicit vertical alignment, treat it as TOP aligned, i.e. sitting above (x,y)
+						if (a == null || a.equalsConstant("UNDEFINED")) // if the visible_object has no explicit vertical alignment, treat it as TOP aligned, i.e. sitting above (x,y)
 							ret = height(parent)-height(visible_object);
 						else
 							ret = height(parent);
 					}
 					else if (v.equalsConstant("CENTER")) {
-						if (a == null || a.equals("UNDEFINED")) // if the visible_object has no explicit vertical alignment, treat it as CENTER aligned, i.e. sitting centered on (x,y)
+						if (a == null || a.equalsConstant("UNDEFINED")) // if the visible_object has no explicit vertical alignment, treat it as CENTER aligned, i.e. sitting centered on (x,y)
 							ret = (height(parent)-height(visible_object))/2;
 						else
 							ret = height(parent)/2;

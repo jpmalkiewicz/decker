@@ -345,17 +345,84 @@ english
 			y
 			width
 			height
-			component                            // component[1] optional vertical scrollbar, component[2] optional horizontal scrollbar, component[0] a DRAWING_BOUNDARY with component[0].object[0] as the view element that is displayed in this scrollpane
-			displayed_object                     // the object that this SCROLLPANE displays
+			component                            // component[2] optional vertical scrollbar, component[3] optional horizontal scrollbar, component[1] optional view element that gets displayed in the corner that is cut off if both scrollbars are displayed, component[0] a DRAWING_BOUNDARY with component[0].object[0] as the view element that is displayed in this scrollpane
+			displayed_element                    // the object that this SCROLLPANE displays
 			optional_scrollbars = true           // the scrollbars are optional by default and only get displayed when needed
 			vertical_scrollbar                   // either a scrollbar or an array containing the slider and buttons, or their names
 			horizontal_scrollbar                 // like vertical_scrollbar
+			corner_filler                        // component to be displayed in the cornerthat gets get cut off when both scrollbars are displayed
+			initializer = FUNCTION
+				component = ARRAY
+					UNDEFINED
+					UNDEFINED
+					UNDEFINED
+					UNDEFINED
 			on_draw = FUNCTION
-				LOCAL.vsize = 0         // width of the scrollpane area reserved for the vertical scrollbar
-				LOCAL.hsize = 0         // width of the scrollpane area reserved for the horizontal scrollbar
-				// determine whether there should be a vertical scrollbar
-				if vertical_scrollbar != UNDEFINED
-//					LOCAL.scrollbar = 
-					
-					
-// adjust the scrollpane and scrollbars here
+				LOCAL.w = width                  // width of the space available for displaying the displayed_element after adding scrollbars
+				LOCAL.h = height                 // height of the space available for displaying the displayed_element after adding scrollbars
+				LOCAL.dw = pixelwidth(displayed_element)   // width of the displayed_element
+				LOCAL.dh = pixelheight(displayed_element)  // height of the displayed_element
+				LOCAL.vscrollbar = false
+				LOCAL.hscrollbar = false
+				// determine whether we need a vertical scrollbar
+				if value_type(vertical_scrollbar) == "STRUCTURE" && ( !optional_scrollbars || h < dh )
+					vscrollbar = vertical_scrollbar.structure_type == "ARRAY" ? createSimpleScrollbar(w, h, vertical_scrollbar, true) : vertical_scrollbar
+					w = w - pixelwidth(vscrollbar)
+				// determine whether we need a horizontal scrollbar
+				if value_type(horizontal_scrollbar) == "STRUCTURE" && ( !optional_scrollbars || w < dw )
+					hscrollbar = horizontal_scrollbar.structure_type == "ARRAY" ? createSimpleScrollbar(w, h, horizontal_scrollbar, false) : horizontal_scrollbar
+					h = h - pixelheight(hscrollbar)
+					// check whether after adding the horizontal scrollbar we now need the vertical scrollbar (w, h, because the display area is no longer high enough to display the content). we don't have to check whether scrollbars are optional, they definitely are
+					if vscrollbar == false && value_type(vertical_scrollbar) == "STRUCTURE" && h < dh
+						vscrollbar = vertical_scrollbar.structure_type == "ARRAY" ? createSimpleScrollbar(w, h, vertical_scrollbar, true) : vertical_scrollbar
+						w = w - pixelwidth(vscrollbar)
+					else
+						vscrollbar.height = h   // the height needs to be reduced to make room for the horizontal scrollbar
+				// add/remove the vertical scrollbar
+				if vscrollbar != false
+					vscrollbar.slider_max = dh - h
+					// if the vertical scrollbar already exists, fetch the current state
+					if component[2].structure_type == "SCROLLBAR"
+						setSliderPosition(vscrollbar, component[2].slider_position)
+						vscrollbar.slider_stepping = component[2].slider_stepping
+						vscrollbar.slider_dragging = component[2].slider_dragging
+						if vscrollbar.slider_dragging != UNDEFINED
+							vscrollbar.component[0].state = PRESSED
+						else
+							vscrollbar.component[0].state = component[2].component[0].state
+						if vscrollbar.component[1] != UNDEFINED && component[2].component[1] != UNDEFINED
+							vscrollbar.component[1].state = component[2].component[1].state
+						if vscrollbar.component[2] != UNDEFINED && component[2].component[2] != UNDEFINED
+							vscrollbar.component[2].state = component[2].component[2].state
+					component[2] = vscrollbar
+				else
+					component[2] = UNDEFINED
+				// add/remove the horizontal scrollbar
+				if hscrollbar != false
+					hscrollbar.slider_max = dw - w
+					// if the horizontal scrollbar already exists, fetch the current state
+					if component[3].structure_type == "SCROLLBAR"
+						setSliderPosition(hscrollbar, component[3].slider_position)
+						hscrollbar.slider_stepping = component[3].slider_stepping
+						hscrollbar.slider_dragging = component[3].slider_dragging
+						if hscrollbar.slider_dragging != UNDEFINED
+							hscrollbar.component[0].state = PRESSED
+						else
+							hscrollbar.component[0].state = component[3].component[0].state
+						if hscrollbar.component[1] != UNDEFINED && component[3].component[1] != UNDEFINED
+							hscrollbar.component[1].state = component[3].component[1].state
+						if hscrollbar.component[3] != UNDEFINED && component[3].component[3] != UNDEFINED
+							hscrollbar.component[3].state = component[3].component[3].state
+					component[3] = hscrollbar
+				else
+					component[3] = UNDEFINED
+				// add or remove the corner filler
+				if hscrollbar != false && vscrollbar != false
+					component[1] = corner_filler
+				else
+					component[1] = UNDEFINED
+				// adjust the displayed content
+				debug(component[3].component[0].state+"   "+component[3].component[1].state)
+//				debug(w+","+h+" "+dw+","+dh+" "+component[2].v_align+" "+component[2].x)
+// make sure the displayed_element gets displayed if it has changed
+//				component[0] = displayed_element // in case it has changed. now it will definitely be displayed
