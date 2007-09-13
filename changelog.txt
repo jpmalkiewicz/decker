@@ -1,6 +1,11 @@
 78%
+2007-09-13
+  worked a bit on the deck screen
+  added all the program types to the JDecker scripts. there's no functionality defined for them yet
 2007-09-12
   SCROLLPANE works
+  fixed a bug in AssignmentCommand regarding LOCAL variables
+  started to assemble the deck_screen
 2007-09-11
   added optional structure type variables which do not get copied into each instantiated structure :
     pixelwidth, pixelheight   <- if these contain functions and the width / height isn't explicitly defined, they get called

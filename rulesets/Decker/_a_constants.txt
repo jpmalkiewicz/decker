@@ -67,36 +67,43 @@ english
 		MISSION_TARGET
 	
 		PROGRAM           // thing types
-		PROGRAM_SOURCE
 		CHIP
-		CHIP_SOURCE
 		HARDWARE
+		SOURCE
 
 		INSTALLED         // program states
 		LOADED
 		RUNNING
 		
-		ANALYZE           // program types
-		AREA_ATTACK
+		ANALYSIS_BOOST    // program types
+		ANALYZE
 		ARMOR
 		ATTACK
+		AREA_ATTACK
 		ATTACK_BOOST
+		BOOST             // usually programs which add to rolls of a certain type. only one of them can be run simultaneously
+		CONFUSE
 		DECEIVE
 		DECOY
 		DECRYPT
 		DEFENSE_BOOST
+		EVALUATE
 		HIDE
 		MEDIC
 		PIERCING_ATTACK
 		REFLECT
 		RELOCATE
-		SCANNER
+		SCAN
+		SCANNER           // this is a program category that includes programs which scan and analyze stuff
+		SLOW_SCANNER      // run on a node for multiple turns, like SCAN and EVALUATE. programs from this category cannot be run simultaneously
 		SHIELD
 		SILENCE
-		SPECIAL
-		STEALTH_BOOST
+		SLOW
 		SMOKE
+		SPECIAL           // special purpose programs which only serve a run-specific purpose should have this tag
+		STEALTH_BOOST
 		VIRUS
+		WEAKEN
 		
 		CPU_FIRMWARE      // chip types
 		COPROCESSOR_FIRMWARE

@@ -1,7 +1,8 @@
 english
 	ENGINE.previous_displayed_screen = ARRAY
-		
-	ENGINE.display_screen = FUNCTION (screen, remember_old_screen)
+
+
+	ENGINE.displayScreen = FUNCTION (screen, remember_old_screen)
 		if screen.structure_type != UNDEFINED && screen != displayed_screen
 			if remember_old_screen
 				previous_displayed_screen[] = displayed_screen
@@ -15,7 +16,8 @@ english
 // debug end
 			repaint()
 
-	ENGINE.display_previous_screen = FUNCTION
+
+	ENGINE.displayPreviousScreen = FUNCTION
 		if previous_displayed_screen.size > 0
 			displayed_screen = delete(previous_displayed_screen, previous_displayed_screen.size-1)
 // debug start
@@ -27,7 +29,8 @@ english
 // debug end
 			repaint()
 
-	ENGINE.get_previous_screen = FUNCTION
+
+	ENGINE.getPreviousScreen = FUNCTION
 		if previous_displayed_screen.size > 0
 			return_value = previous_displayed_screen[previous_displayed_screen.size-1]
 

@@ -179,7 +179,7 @@ english
 						money = money + 10000
 						skill_points = 8
 // create the new character END
-					display_screen(home_screen)
+					displayScreen(home_screen)
 			BORDER_BUTTON
 				x = 17
 				y = 219
