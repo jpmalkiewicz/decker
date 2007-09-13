@@ -24,13 +24,20 @@ english
 		setTableCell (test_table,0,2,k)
 		
 		LOCAL.screen_width = 430
-		LOCAL.screen_height = 300
+		LOCAL.screen_height = 350
 				
+		back_button = BORDER_BUTTON
+			x = screen_width - 18 - 24
+			y = screen_height - 18 - 24
+			idle = "home/home"
+			on_mouse_up = FUNCTION
+				displayPreviousScreen()
+
 		LOCAL.scrollpane = SCROLLPANE
 			x = 20
-			y = 100
+			y = 160
 			width = 300
-			height = screen_height - y - 50    // make the height relative to the screenheight
+			height = screen_height - y - 65    // make the height relative to the screenheight
 			vertical_scrollbar = ARRAY
 				"scroller_vertical_blue0"
 				"scroller_up_blue0"
@@ -44,14 +51,34 @@ english
 			SCREEN_BACKGROUND
 				width = screen_width
 				height = screen_height
+			back_button
+			BORDER_BUTTON
+				x = back_button.x - 10 - 24
+				y = back_button.y
+				idle = "home/char"
+				on_mouse_up = FUNCTION
+					displayScreen(@character_screen, false)
+
+			// the hardware section
+			createText("Chips",       20, 15)
+			createText("CPU",         28, 17+16*1)
+			createText("Coprocessor", 28, 17+16*2)
+			createText("Attack",      28, 17+16*3)
+			createText("Defense",     28, 17+16*4)
+			createText("Stealth",     28, 17+16*5)
+			createText("Analysis",    28, 17+16*6)
+
+			// the software section
 			createBorder(scrollpane.x-3, scrollpane.y-3, scrollpane.width+6, scrollpane.height+6, @TABLE_BACKGROUND_COLOR, true)
 			scrollpane
-				
-//			DRAWING_BOUNDARY
-//				x = 50
-//				y = 50
-//				width = 70
-//				height = 30
-//				object[] = test_table
-//			createScrollbar(10, 10, UNDEFINED, 150, true, "scroller_vertical0", 500, "scroller_up0", "scroller_down0")
-//			createScrollbar(35, 165, 150, UNDEFINED, false, "scroller_horizontal0", 500, "scroller_left0", "scroller_right0")
+			
+		
+		chip_text = ARRAY
+		LOCAL.i = 0
+		while i < 6
+			chip_text[i] = createText("1", 120, 32+i*16, UNDEFINED, UNDEFINED, RIGHT)
+			object[] = chip_text[i]
+			i = i + 1
+
+		on_draw = FUNCTION
+			updateBackButton(back_button)

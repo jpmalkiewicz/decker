@@ -22,6 +22,15 @@ english
 				return_value = 5
 
 
+	// sets the back button's image to whereever it currently leads back to
+	RULESET.updateBackButton = FUNCTION (button)
+		LOCAL.previous_screen = getPreviousScreen()
+		if previous_screen == home_screen
+			button.idle = "home/home"
+		else
+			button.idle = "home/matrix"
+
+
 	// this function makes a mission available if it has a target system with a rating or it has a mission rating the rating is within +/-2 or +/-20% of the player's preferred mission rating
 	RULESET.defaultMissionAvailable = FUNCTION
 		if rating != UNDEFINED
@@ -53,3 +62,50 @@ english
 //		return_value = THING
 //			thingtype = _thingtype
 //			rating = _rating == UNDEFINED ? 0 : _rating
+
+
+//*****************************************************************************************************************************************************
+// action function ************************************************************************************************************************************
+//*****************************************************************************************************************************************************
+
+
+	RULESET.humanActionModifier = FUNCTION (human,stealth_action)        // if stealth_action is false it can be omitted
+		return_value = DECK_LOAD_MODIFIER[human.deck] - human.deck.damage/8 - MIN(human.physical_damage,human.mental_damage)/4
+		if human.current_node.smoke_level > 0
+			return_value = return_value + ( stealth_action ? 4 : -4 )
+		
+	
+	RULESET.humanRatingAttack = FUNCTION (human)
+		return_value = humanActionModifier(human) + MIN(human.deck.attack,human.deck.cpu) + human.attack
+		i = human.deck.program.size-1
+		while i >= 0
+			if human.deck.program[i].attack_modifier != UNDEFINED
+				return_value = return_value + human.deck.program[i].attack_modifier
+
+
+	RULESET.actionHumanAttackICE = FUNCTION (ice,program,target_number)
+		successes = rollDice(target_number)
+		if successes < 0
+			print program.name + " program missed"
+		else
+			print program.name + " program does " + successes*successes*HEALTH_INCREMENT + "% damage to " + ice.name
+			ice.damage = ice.damage + successes*successes
+			if ice.damage >= LETHAL_DAMAGE
+				actionCrashICE(human,ice)
+		human.time = human.time + 1       // an action has been taken, advance the time
+
+	
+	RULESET.actionCrashICE = FUNCTION (ice)
+		if ice.node == PLAYER.node
+			print "<#success>" + ice.name + " has crashed"
+			if PLAYER.current_target == ice
+				PLAYER.current_target = UNDEFINED
+			delete(ice.node.objects,ARRAY_INDEX(ice.node.objects,ice))
+			// if the ice is a tapeworm it dies never to come back. otherwise it goes to the ice respawn list
+			if ice.guards != UNDEFINED && ice.guards.structure_type == "FILE"
+				delete(ice)
+			else
+				ice.node.area.destroyed_ice[] = ice
+			
+
+

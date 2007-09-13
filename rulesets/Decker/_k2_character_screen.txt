@@ -87,7 +87,7 @@ english
 			y = 300 - 18 - 24
 			idle = "home/home"
 			on_mouse_up = FUNCTION
-				display_previous_screen()
+				displayPreviousScreen()
 			
 		object = ARRAY
 			SCREEN_BACKGROUND
@@ -112,7 +112,7 @@ english
 				y = back_button.y
 				idle = "home/deck"
 				on_mouse_up = FUNCTION
-					display_screen(@deck_screen, false)
+					displayScreen(@deck_screen, false)
 
 		attack_button = BORDER_BUTTON
 			x = 0
@@ -198,6 +198,8 @@ english
 			programming_points.text = player.programming
 			chip_design_points.text = player.chip_design
 			skill_points.text       = player.skill_points
+			
+			updateBackButton(back_button)
 			
 			lifestyle.text         = lifestyle_text[player.lifestyle]
 			monthly_cost.text      = LIFESTYLE_COST[player.lifestyle]
