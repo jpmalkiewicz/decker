@@ -8,6 +8,7 @@ public final class Function extends ScriptNode
 	private String[] argument_name = new String[0];
 	private Block function_body; // can't extend both the Expression and the Block class so the Block representing the funcion body goes here
 	private int id; // hard coded functions need an id to identify themselves
+	private Expression[] argument_default_value = new Expression[0];
 
 
 	Function (final int _id, final String[] _argument_list)  {
@@ -36,11 +37,12 @@ public final class Function extends ScriptNode
 	/** when the function is called, its arguments are available in two forms in the function body.
 	*   first through the ARRAY called argument, but also through the name of each argument if it has one.
 	*   call this method to assign a name to an argument. the nth call will name the nth argument */
-	void addArgumentName (final String _argument_name)  {
+	void addArgument (final String _argument_name, final Expression _default_value)  {
 		testVariableName(_argument_name);
 		if (_argument_name.equals("return_value") || _argument_name.equals("argument"))
 			throwException("function arguments must not be named \""+_argument_name+"\"");
 		argument_name = (String[]) ArrayModifier.addElement(argument_name, new String[argument_name.length+1], _argument_name);
+		argument_default_value = (Expression[]) ArrayModifier.addElement(argument_default_value, new Expression[argument_default_value.length+1], _default_value);
 	}
 
 
@@ -51,6 +53,26 @@ public final class Function extends ScriptNode
 
 
 	String[] getArgumentNames ()  { return argument_name; }
+
+
+	/** args must contain an ARRAY */
+	void insertDefaultArgumentValues (final Structure args)  {
+		final int starting_size = args.get("size").integer();
+		// determine the last index where we may have to insert a default value
+		int last_index = -1;
+		for (int i = argument_default_value.length; --i >= 0; )
+			if (argument_default_value[i] != null) {
+				last_index = i;
+				break;
+			}
+		// add the default values
+		for (int i = 0; i <= last_index; i++) {
+			if (i >= starting_size)
+				args.add("");
+			if (argument_default_value[i] != null)
+				args.get(""+i).set(argument_default_value[i].execute());
+		}
+	}
 
 
 	Block getFunctionBody ()  { return function_body; }

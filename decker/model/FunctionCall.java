@@ -15,9 +15,15 @@ public final class FunctionCall extends Expression
 		final Function function = (Function) ( (_function instanceof Function) ? _function : ((Value)_function).function() );
 		// calculate the values of the supplied arguments and create the FUNCTION_CALL structure
 		final Structure arguments = new Structure("ARRAY");
-		if (args != null)
+		if (args != null) {
+			// create the list of arguments
 			for (int i = 0; i < args.length; i++)
-				arguments.add("").set(args[i]);
+				if (args[i] != null)
+					arguments.add("").set(args[i]);
+				else
+					arguments.add("");
+		}
+		function.insertDefaultArgumentValues(arguments);
 		final Structure function_data = new Structure(arguments, function.getArgumentNames());
 		// unless the "enclosing_structure" is KEEP_STACK, remove all local stack items from the stack, then put the optional structure the function's variable is stored in, the FUNCTION_CALL and a new LOCAL structure on it
 		Structure[] old_stack = null;
@@ -60,7 +66,8 @@ public final class FunctionCall extends Expression
 		final int count = original.argument.length;
 		argument = new ScriptNode[count];
 		for (int i = 0; i < count; i++)
-			argument[i] = original.argument[i].copy();
+			if (original.argument[i] != null)
+				argument[i] = original.argument[i].copy();
 		// set the first operand to the expression in front of the brackets
 		addExpression(original.getFirstOperand().copy());
 	}
@@ -85,7 +92,8 @@ public final class FunctionCall extends Expression
 		// calculate the values of the supplied arguments
 		final Value[] arguments = new Value[argument.length];
 		for (int i = 0; i < argument.length; i++)
-			arguments[i] = argument[i].execute();
+			if (argument[i] != null)
+				arguments[i] = argument[i].execute();
 		// execute the function call nd return the resulting Value
 		return executeFunctionCall(function, arguments, null);
 	}
