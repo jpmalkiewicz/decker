@@ -1,5 +1,6 @@
 78%
 2007-09-14
+  added the column buttons to the deck screen
   fixed a bug where c.size would be interpreted as a single string instead of an expression with a member operator, in ScriptReader.java
   added getRomanNumber(), createProgram() and createDeck()
   added the hardware types

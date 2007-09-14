@@ -378,7 +378,7 @@ try {
 				return (a!=null) ? a : second_operand.execute();
 			case CONDITIONAL : // the : of the a?b:c operator. it's first operand is an expression with ? operator
 					if (at != Value.BOOLEAN)
-						throwException("a?b:c requires a boolean value in a");
+						throwException("a?b:c requires a boolean value in a. "+first_operand+" is of type "+Value.typeName(at)+" ("+a+")");
 				return a.bool() ? second_operand.execute() : null; // returning null will lead to an error if the parent operator is not the : operator
 		}
 

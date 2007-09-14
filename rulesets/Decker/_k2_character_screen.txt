@@ -51,6 +51,7 @@ english
 			idle = createText("Upgrade")
 			x = CENTER
 			y = 0
+			text_padding = 4
 			on_mouse_up = FUNCTION
 				player.money = player.money - LIFESTYLE_UPGRADE_COST[player.lifestyle]
 				player.lifestyle = player.lifestyle + 1
