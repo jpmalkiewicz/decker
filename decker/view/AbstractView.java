@@ -323,7 +323,7 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 				if ((v=d.get("font")) != null && v.type() == Value.STRING)
 					return getFontMetrics(getFont(v.string())).getAscent();
 				else
-					return getFontMetrics(getFont("")).getHeight(); // use the last font that was used to draw a string
+					return getFontMetrics(getFont("")).getAscent(); // use the last font that was used to draw a string
 			}
 			// if its structure type has a special pixelheight function, call it
 			final Value t = ScriptNode.getStructureType(type);

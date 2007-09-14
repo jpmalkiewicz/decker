@@ -216,9 +216,11 @@ english
 			// disabled
 			// hover
 			// on_mouse_up    // put the function with the button effect here, for a standard button
+			// text_padding    // put a value here if you want the text to be shifted a different number of pixels than 4 from the top
 			initializer = FUNCTION
-				BORDER_BUTTON.object = ARRAY
+				object = ARRAY
 					createBorder(0,0)
+				object[0].background_color = @BACKGROUND_COLOR
 			on_draw = FUNCTION
 				LOCAL.c = UNDEFINED
 				if state == IDLE
@@ -245,21 +247,22 @@ english
 						object = ARRAY
 							c
 				object[0].inverted = state == PRESSED
-				LOCAL.offset = (object[1].structure_type == "TEXT" ? 4 : 0)
+//				LOCAL.padding = (object[1].structure_type == "TEXT" ? 4 : 0)
+				LOCAL.padding = BORDER_BUTTON.text_padding != UNDEFINED && object[1].structure_type == "TEXT" ? text_padding : 0
 				// if the button has an explicitly defined width, set the border width to the same value and center the button image / text horizontally
 				if BORDER_BUTTON.width != UNDEFINED
 					object[0].width = width
 					object[1].x = CENTER
 				else
-					object[0].width = pixelwidth(object[1]) + 4 + 2*offset
-					object[1].x = 2 + offset
+					object[0].width = pixelwidth(object[1]) + 4 + 2*padding
+					object[1].x = 2 + padding
 				// if the button has an explicitly defined height, set the border height to the same value and center the button image / text vertically
-				if BORDER_BUTTON.width != UNDEFINED
+				if BORDER_BUTTON.height != UNDEFINED
 					object[0].height = height
 					object[1].y = CENTER
 				else     // otherwise, wrap a border around the content
-					object[0].height = pixelheight(object[1]) + 4 + 2*offset
-					object[1].y = 2 + offset/2
+					object[0].height = pixelheight(object[1]) + 4 + 2*padding
+					object[1].y = 2 + padding/2
 
 
 		TABLE
