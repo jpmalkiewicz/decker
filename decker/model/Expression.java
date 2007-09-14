@@ -241,13 +241,12 @@ try {
 					// if it's a "structure_type.this" pseudo member expression, try to find a structure of that type on the stack
 					if (first_operand.operator == VARIABLE) {
 						final String s = first_operand.operator_element.string();
-						for (int i = getStackTop()+1; --i >= 0; ) {
+						for (int i = stack_size; --i >= 0; ) {
 							if (stack[i].get("structure_type").equals(s)) {
 								a = new Value().set(stack[i]);
 								break;
 							}
 						}
-
 					}
 					if (a == null)
 						a = first_operand.execute();
@@ -307,7 +306,7 @@ try {
 					else if (( at == Value.REAL || at == Value.INTEGER )&&( bt == Value.REAL || bt == Value.INTEGER ))
 						return_value.set(((at==Value.REAL)?a.real():a.integer()) - ((bt==Value.REAL)?b.real():b.integer()));
 					else
-						throwException("The - operator requires two integers or real numbers as operands, "+a+"["+a.typeName()+"] - "+b+"["+a.typeName()+"] doesn't  work");
+						throwException("The - operator requires two integers or real numbers as operands,  "+a+" ("+a.typeName()+")  -  "+b+" ("+a.typeName()+")  doesn't  work");
 				break;
 			case NEGATIVE :
 					if(at == Value.INTEGER)

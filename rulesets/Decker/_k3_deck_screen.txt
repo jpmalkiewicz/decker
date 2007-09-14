@@ -2,12 +2,6 @@ english
 	RULESET.deck_screen = VIEW
 		title = "Decker - Deck"
 		
-// test code START ******************************
-		player = HUMAN
-		player.deck = DECK
-			
-// test code END ********************************
-		
 		LOCAL.test_table = createTable (20, 0,0, 30,30,30,30)
 		addTableRow (test_table, "home/char", "home/deck", "home/options", "home/char")
 		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
@@ -84,9 +78,18 @@ english
 		chip_text = ARRAY
 		LOCAL.i = 0
 		while i < 6
-			chip_text[i] = createText("1", 120, 32+i*16, UNDEFINED, UNDEFINED, RIGHT)
+			chip_text[i] = createText("1", 130, 32+i*16, UNDEFINED, UNDEFINED, RIGHT)
+			chip_text[i].h_align = LEFT
 			object[] = chip_text[i]
 			i = i + 1
-			
+
+
 		on_draw = FUNCTION
 			updateBackButton(back_button)
+			chip_text[0].text = player.deck.cpu
+			chip_text[1].text = player.deck.coprocessor
+			chip_text[2].text = player.deck.attack
+			chip_text[3].text = player.deck.defense
+			chip_text[4].text = player.deck.stealth
+			chip_text[5].text = player.deck.analysis
+			

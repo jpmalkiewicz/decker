@@ -111,7 +111,7 @@ english
 			type           // a THING_TYPE object
 			rating
 			size
-			// status      // for programs in the deck, this can have the values INSTALLED, LOADED, RUNNING
+			// status      // for programs on the deck, this can have the values INSTALLED, LOADED, RUNNING
 			// source_code // true if this thing is a source code
 			
 		DECK

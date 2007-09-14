@@ -141,7 +141,7 @@ abstract class ScriptReader
 		final StringBuffer ret = new StringBuffer();
 		ret.append((char)c);
 		int d = preview();
-		boolean is_real = true, dot_found = false;
+		boolean is_real = (d>='0' && d<='9'), dot_found = false;
 		while (d != -1 && VARIABLE_NAME_CHARACTERS_AND_DOT.indexOf(d) > -1)  {
 			if (d == '.') {
 				if (!is_real || dot_found) // stop reading characters if we've encountered a . and it's a variable name or if the real number would otherwise contain two .

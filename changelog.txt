@@ -1,5 +1,7 @@
 78%
 2007-09-14
+  fixed a bug where c.size would be interpreted as a single string instead of an expression with a member operator, in ScriptReader.java
+  added getRomanNumber(), createProgram() and createDeck()
   added the hardware types
   overhauled THING, THING_TYPE, the program type definitions. added ruleset functions for thing size and value
   it's now possible to omit function call arguments. just leave the argument empty, and the default value will be used
