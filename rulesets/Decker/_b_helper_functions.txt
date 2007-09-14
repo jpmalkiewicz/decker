@@ -8,10 +8,56 @@ english
 				return_value = UNDEFINED
 
 			
-//	RULESET.createThing = FUNCTION(_thingtype, _rating)
-//		return_value = THING
-//			thingtype = _thingtype
-//			rating = _rating == UNDEFINED ? 0 : _rating
+	RULESET.createDeck = FUNCTION (hardware_rating, program_rating)
+		return_value = DECK
+		if hardware_rating > 0
+			return_value.cpu = hardware_rating
+			return_value.coprocessor = hardware_rating
+			return_value.attack = hardware_rating
+			return_value.defense = hardware_rating
+			return_value.stealth = hardware_rating
+			return_value.analysis = hardware_rating
+		if program_rating > 0
+			return_value.program = ARRAY
+				createProgram(ATTACK, program_rating)
+				createProgram(SILENCE, program_rating)
+				createProgram(SMOKE, program_rating)
+				createProgram(MEDIC, program_rating)
+				createProgram(ARMOR, program_rating)
+				createProgram(HIDE, program_rating)
+				createProgram(DECEIVE, program_rating)
+				createProgram(ANALYZE, program_rating)
+				createProgram(SCAN, program_rating)
+				createProgram(EVALUATE, program_rating)
+				createProgram(DECRYPT, program_rating)
+
+
+	RULESET.createProgram = FUNCTION (_type, _rating, _status)
+		// find the program type
+		if value_type(_type) == "CONSTANT"
+			LOCAL.i = 0
+			LOCAL.c = UNDEFINED
+			while i < PROGRAM_TYPES.size
+				c = PROGRAM_TYPES[i].category
+				if c[c.size-1] == _type
+					_type = PROGRAM_TYPES[i]
+					i = PROGRAM_TYPES.size  // to exit the while loop
+				i = i + 1
+		if _type.structure_type == "THING_TYPE"
+			// create the program
+			return_value = THING
+				type = _type
+				rating = _rating
+				size = getThingSize(THING.this)
+				if _status != UNDEFINED
+					status = _status
+			// determine its default name
+			if _rating >= 1
+				if _type.default_name.structure_type == "ARRAY"
+					if _rating < _type.default_name.size
+						return_value.name = _type.default_name[_rating]
+					else
+						return_value.name = _type.default_name[_type.default_name.size-1] + " Mk "+getRomanNumber(_rating - _type.default_name.size + 1)
 
 
 	// this function makes a mission available if it has a target system with a rating or it has a mission rating the rating is within +/-2 or +/-20% of the player's preferred mission rating
@@ -40,7 +86,25 @@ english
 					i = i + 1
 			return_value = target_system.rating + target_count / 2 + special_condition
 
-	
+
+	// returns the roman number string for the given number. only works for numbers up to 4999. the format for the resulting numbers is intended for easy reading
+	RULESET.getRomanNumber = FUNCTION (x)
+		return_value = ""
+		LOCAL.i = 0
+		while x > 0
+			while x >= ROMAN_NUMBER_VALUE[i]
+				x = x - ROMAN_NUMBER_VALUE[i]
+				return_value = return_value + ROMAN_NUMBER_LETTER[i]
+			// now generate stuff like "XC" or "IV"
+			if i + 2 < ROMAN_NUMBER_VALUE.size && substring(ROMAN_NUMBER_VALUE[i+2]+"", 0, 1) == "1" && ROMAN_NUMBER_VALUE[i]-ROMAN_NUMBER_VALUE[i+2] <= x
+				x = x - (ROMAN_NUMBER_VALUE[i]-ROMAN_NUMBER_VALUE[i+2])
+				return_value = return_value + ROMAN_NUMBER_LETTER[i+2] + ROMAN_NUMBER_LETTER[i]
+			if i + 1 < ROMAN_NUMBER_VALUE.size && substring(ROMAN_NUMBER_VALUE[i+1]+"", 0, 1) == "1" && ROMAN_NUMBER_VALUE[i]-ROMAN_NUMBER_VALUE[i+1] <= x
+				x = x - (ROMAN_NUMBER_VALUE[i]-ROMAN_NUMBER_VALUE[i+1])
+				return_value = return_value + ROMAN_NUMBER_LETTER[i+1] + ROMAN_NUMBER_LETTER[i]
+			i = i + 1
+
+
 	// this function only makes sense for stuff that can be downloaded during a run or loaded onto a deck
 	RULESET.getThingSize = FUNCTION (thing)
 		LOCAL.type = thing.type
@@ -67,28 +131,6 @@ english
 			else // it's a piece of hardware. it's price is (base value * 2 ^ (rating-1))
 				return_value = type.base_value * pow(2,thing.rating)
 
-
-	RULESET.initializeDeck = FUNCTION (deck,program_rating, hardware_rating)
-		if hardware_rating > 0
-			deck.cpu = harware_rating
-			deck.coprocessor = harware_rating
-			deck.attack = harware_rating
-			deck.defense = harware_rating
-			deck.stealth = harware_rating
-			deck.analysis = harware_rating
-		if program_rating > 0
-			deck.program = ARRAY
-				createThing(ATTACK_PROGRAM, program_rating)
-				createThing(SILENCE_PROGRAM, program_rating)
-				createThing(SMOKE_PROGRAM, program_rating)
-				createThing(MEDIC_PROGRAM, program_rating)
-				createThing(ARMOR_PROGRAM, program_rating)
-				createThing(HIDE_PROGRAM, program_rating)
-				createThing(DECEIVE_PROGRAM, program_rating)
-				createThing(ANALYZE_PROGRAM, program_rating)
-				createThing(SCAN_PROGRAM, program_rating)
-				createThing(EVALUATE_PROGRAM, program_rating)
-				createThing(DECRYPT_PROGRAM, program_rating)
 
 
 	// returns a ^ b. be must be a non-negative integer

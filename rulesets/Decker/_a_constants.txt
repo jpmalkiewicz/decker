@@ -46,6 +46,24 @@ english
 		"Master of the Matrix"
 		"Matrix God"
 		
+	RULESET.ROMAN_NUMBER_LETTER = ARRAY
+		"M"
+		"D"
+		"C"
+		"L"
+		"X"
+		"V"
+		"I"
+
+	RULESET.ROMAN_NUMBER_VALUE = ARRAY
+		1000
+		500
+		100
+		50
+		10
+		5
+		1
+
 
 	constant
 		ACCEPTED          // mission and mission goal states

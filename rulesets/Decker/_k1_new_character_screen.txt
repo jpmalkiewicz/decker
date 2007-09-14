@@ -168,6 +168,7 @@ english
 						image = char_image.object[0]
 						LOCAL.slvl = bonus_name[selected_bonus] == "software" ? 2 : 1
 						LOCAL.hlvl = bonus_name[selected_bonus] == "hardware" ? 2 : 1
+						deck = createDeck(hlvl, slvl)
 						if bonus_name[selected_bonus] == "skills"
 							attack = 2
 							defense = 2
