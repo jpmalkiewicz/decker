@@ -1,4 +1,10 @@
 78%
+2007-09-14
+  it's now possible to omit function call arguments. just leave the argument empty, and the default value will be used
+  function arguments can now have default values
+  f = FUNCTION (a=3,b=4,c=5)
+  	debug(a*b*c)
+  f(1,,1)  // this function call will print "4" to the debug console, because the default value is used for the omitted parameter b
 2007-09-13
   worked a bit on the deck screen
   added all the program types to the JDecker scripts. there's no functionality defined for them yet

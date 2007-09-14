@@ -94,9 +94,9 @@ english
 	// image_array must contain 1-3 entries : [0] the slider, [1] the up/left arrow, [2] the down/right arrow
 	ENGINE.createSimpleScrollbar = FUNCTION (boundingwidth, boundingheight, image_array, vertical)
 		if vertical
-			return_value = createScrollbar(RIGHT, 0, UNDEFINED, boundingheight, true, image_array[0], 0, image_array[1], image_array[2])
+			return_value = createScrollbar(RIGHT, 0, , boundingheight, true, image_array[0], 0, image_array[1], image_array[2])
 		else
-			return_value = createScrollbar(0, BOTTOM, boundingwidth, UNDEFINED, false, image_array[0], 0, image_array[1], image_array[2])
+			return_value = createScrollbar(0, BOTTOM, boundingwidth, , false, image_array[0], 0, image_array[1], image_array[2])
 				
 
 	// returns a new TEXT with the default settings as defined in the TEXT object stored in TEXT_STYLE

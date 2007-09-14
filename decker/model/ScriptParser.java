@@ -419,8 +419,14 @@ System.out.println(" parsed");
 						throwException("variable name or ) expected but end of script found");
 					if (getLine() != enclosing_line)
 						throwException(s+" must sit on the same line as the FUNCTION tag, since it's part of the argument name list");
-					f.addArgumentName(s);
+					final String argname = s;
+					Expression argvalue = null;
 					s = readElement();
+					if (s != null && s.equals("=")) {
+						argvalue = parseExpression(enclosing_line, command_column, false);
+						s = readElement();
+					}
+					f.addArgument(argname, argvalue);
 					if (s == null ||( !s.equals(")") && !s.equals(",") ))
 						throwException(") or , expected but "+((s==null)?"end of script":s)+" found");
 					if (getLine() != enclosing_line)
@@ -670,10 +676,14 @@ System.out.println(" parsed");
 					argument_column = getColumn();
 				else if (getColumn() != argument_column)
 					throwException(s+" must startin column "+argument_column);
-				if (s.equals(","))
-					throwException("the , between function call arguments must not sit at the beginning of a line");
+//				if (s.equals(","))
+//					throwException("the , between function call arguments must not sit at the beginning of a line");
 			}
-			fc.addArgument(parseExpression(getLine(), command_column, expression_column, es, est, true));
+			// if the argument has been omitted, add an empty argument to the function call, otherwise parse the argument
+			if (s.equals(","))
+				fc.addArgument(null);
+			else
+				fc.addArgument(parseExpression(getLine(), command_column, expression_column, es, est, true));
 			s = readElement();
 			if (s == null ||( !s.equals(",") && !s.equals(")") ))
 				throwException(") or , expected but "+((s!=null)?s:"end of script")+" found");
