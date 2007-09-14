@@ -8,27 +8,10 @@ english
 				return_value = UNDEFINED
 
 			
-	RULESET.rollDice = FUNCTION (target_number)
-		x = random(1,20)
-		if x == 1
-			return_value = -1         // 5% critical failure
-		else if x == 20 && target_number > 20
-			return_value = 1          // 5% automatic success (smallest possible positive outcome)
-		else if x < target_number
-			return_value = 0
-		else
-			return_value = 1 + (x-target_number)/4
-			if return_value > 5
-				return_value = 5
-
-
-	// sets the back button's image to whereever it currently leads back to
-	RULESET.updateBackButton = FUNCTION (button)
-		LOCAL.previous_screen = getPreviousScreen()
-		if previous_screen == home_screen
-			button.idle = "home/home"
-		else
-			button.idle = "home/matrix"
+//	RULESET.createThing = FUNCTION(_thingtype, _rating)
+//		return_value = THING
+//			thingtype = _thingtype
+//			rating = _rating == UNDEFINED ? 0 : _rating
 
 
 	// this function makes a mission available if it has a target system with a rating or it has a mission rating the rating is within +/-2 or +/-20% of the player's preferred mission rating
@@ -58,14 +41,89 @@ english
 			return_value = target_system.rating + target_count / 2 + special_condition
 
 	
-//	RULESET.createThing = FUNCTION(_thingtype, _rating)
-//		return_value = THING
-//			thingtype = _thingtype
-//			rating = _rating == UNDEFINED ? 0 : _rating
+	// this function only makes sense for stuff that can be downloaded during a run or loaded onto a deck
+	RULESET.getThingSize = FUNCTION (thing)
+		LOCAL.type = thing.type
+		if thing.source_code
+// calculate the size of a source code here
+		else
+			if type.size_function != UNDEFINED
+				return_value = type.size_function(thing)
+			else
+				return_value = type.complexity * thing.rating
+
+
+	RULESET.getThingValue = FUNCTION (thing)
+		LOCAL.type = thing.type
+		if thing.source_code
+// calculate the value of a source code here
+		else
+			if type.size_function != UNDEFINED
+				return_value = type.size_function(thing)
+			else if arrayIndex(type.category, PROGRAM) >= 0 || arrayIndex(type.category, CHIP) >= 0
+				return_value = type.complexity * thing.rating * thing.rating * 25
+				if arrayIndex(type.category, CPU) >= 0
+					return_value = return_value * 6 / 5        // CPUs are 20% more expensive than their rating suggests
+			else // it's a piece of hardware. it's price is (base value * 2 ^ (rating-1))
+				return_value = type.base_value * pow(2,thing.rating)
+
+
+	RULESET.initializeDeck = FUNCTION (deck,program_rating, hardware_rating)
+		if hardware_rating > 0
+			deck.cpu = harware_rating
+			deck.coprocessor = harware_rating
+			deck.attack = harware_rating
+			deck.defense = harware_rating
+			deck.stealth = harware_rating
+			deck.analysis = harware_rating
+		if program_rating > 0
+			deck.program = ARRAY
+				createThing(ATTACK_PROGRAM, program_rating)
+				createThing(SILENCE_PROGRAM, program_rating)
+				createThing(SMOKE_PROGRAM, program_rating)
+				createThing(MEDIC_PROGRAM, program_rating)
+				createThing(ARMOR_PROGRAM, program_rating)
+				createThing(HIDE_PROGRAM, program_rating)
+				createThing(DECEIVE_PROGRAM, program_rating)
+				createThing(ANALYZE_PROGRAM, program_rating)
+				createThing(SCAN_PROGRAM, program_rating)
+				createThing(EVALUATE_PROGRAM, program_rating)
+				createThing(DECRYPT_PROGRAM, program_rating)
+
+
+	// returns a ^ b. be must be a non-negative integer
+	RULESET.pow = FUNCTION (a, b)
+		return_value = 1
+		while b > 0
+			return_value = return_value * a
+			b = b - 1
+
+
+	RULESET.rollDice = FUNCTION (target_number)
+		x = random(1,20)
+		if x == 1
+			return_value = -1         // 5% critical failure
+		else if x == 20 && target_number > 20
+			return_value = 1          // 5% automatic success (smallest possible positive outcome)
+		else if x < target_number
+			return_value = 0
+		else
+			return_value = 1 + (x-target_number)/4
+			if return_value > 5
+				return_value = 5
+
+
+	// sets the back button's image to whereever it currently leads back to
+	RULESET.updateBackButton = FUNCTION (button)
+		LOCAL.previous_screen = getPreviousScreen()
+		if previous_screen == home_screen
+			button.idle = "home/home"
+		else
+			button.idle = "home/matrix"
 
 
 //*****************************************************************************************************************************************************
-// action function ************************************************************************************************************************************
+// action functions ***********************************************************************************************************************************
 //*****************************************************************************************************************************************************
 
 

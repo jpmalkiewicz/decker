@@ -67,8 +67,8 @@ english
 		MISSION_TARGET
 	
 		PROGRAM           // thing types
-		CHIP
 		HARDWARE
+		CHIP
 		SOURCE
 
 		INSTALLED         // program states
@@ -105,12 +105,12 @@ english
 		VIRUS
 		WEAKEN
 		
-		CPU_FIRMWARE      // chip types
-		COPROCESSOR_FIRMWARE
-		ATTACK_FIRMWARE
-		DEFENSE_FIRMWARE
-		STEALTH_FIRMWARE
-		ANALYSIS_FIRMWARE
+		COPROCESSOR       // chip types
+		// CPU            // this is also a node type
+		// ATTACK         // this is also a program type
+		DEFENSE
+		STEALTH
+		ANALYSIS
 
 		CHIP_BURNER       // hardware types
 		SURGE_SUPPRESSOR
@@ -129,7 +129,7 @@ english
 		JUNCTION
 		PORTAL_IN
 		PORTAL_OUT
-		COP_SECURITY
+		SPU_SECURITY
 		IO_ICE
 		IO_EXTERNAL_ALERT
 		IO_HIGH_SPEED_ACCESS

@@ -94,13 +94,16 @@ english
 // miscellaneous types ********************************************************************************************************************************
 
 		THING_TYPE
+			expandable = true
 			type_name
 			category               // an array listing all the categories this thing type belongs to
-			value                  // a function to calculate the value of things of this type
-			size                   // a function to calculate the size of things of this type
-			default_name           // an array : default_name[x] is the default name of a thing of this type and item_rating x
-			effect                 // a function that gets executed when things of this type are used
-			sorting_priority       //integer. determines the default order of items in displayed lists (shop, a deck's loaded programs, ...)
+			// complexity          // determines the value, size and coding time for programs and chips
+			// base_value          // the value of hardware is base_value * 2 ^ (rating-1)
+			// value_function      // an optional function to calculate the value of things of this type
+			// size_function       // an optional function to calculate the size of things of this type
+			// default_name        // an array : default_name[x] is the default name of a thing of this type and item_rating x. for items with rating < 1 default_name[1] is used, for items with a higher rating than the array size, the last array entry is used, with the appendix "MK x" where x is (rating-max rating with name + 1) as a roman number
+			// effect              // a function that gets executed when things of this type are used
+			// max_rating          // some types of hardware have a max rating
 		
 		THING
 			expandable = true
@@ -108,7 +111,8 @@ english
 			type           // a THING_TYPE object
 			rating
 			size
-			status         // price if it's in the shop, status if it's a program in the deck (INSTALLED, LOADED, RUNNING)
+			// status      // for programs in the deck, this can have the values INSTALLED, LOADED, RUNNING
+			// source_code // true if this thing is a source code
 			
 		DECK
 			model = "(custom built)"
