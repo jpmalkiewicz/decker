@@ -5,10 +5,7 @@ english
 	RULESET.PROGRAM_TYPES = ARRAY
 		THING_TYPE
 			type_name = "Attack"
-			cost = FUNCTION (thing)
-				return_value = 2 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 2 * thing.level
+			complexity = 2
 			category = ARRAY
 				PROGRAM
 				ATTACK
@@ -44,10 +41,7 @@ english
 					actionHumanAttackICE(ice,thing,target_number)
 		THING_TYPE
 			type_name = "Area Attack"
-			cost = FUNCTION (thing)
-				return_value = 3 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 3 * thing.level
+			complexity = 3
 			category = ARRAY
 				PROGRAM
 				ATTACK
@@ -80,10 +74,7 @@ english
 				PROGRAM
 				ATTACK
 				PIERCING_ATTACK
-			cost = FUNCTION (thing)
-				return_value = 3 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 3 * thing.level
+			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Spear 1.0a"
@@ -111,10 +102,7 @@ english
 			category = ARRAY
 				PROGRAM
 				SLOW
-			cost = FUNCTION (thing)
-				return_value = 2 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 2 * thing.level
+			complexity = 2
 			default_name = ARRAY
 				UNDEFINED
 				"Slow"
@@ -142,10 +130,7 @@ english
 			category = ARRAY
 				PROGRAM
 				VIRUS
-			cost = FUNCTION (thing)
-				return_value = 3 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 3 * thing.level
+			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Flu 1.0"
@@ -173,10 +158,7 @@ english
 			category = ARRAY
 				PROGRAM
 				SILENCE
-			cost = FUNCTION (thing)
-				return_value = 3 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 3 * thing.level
+			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Silence"
@@ -204,10 +186,7 @@ english
 			category = ARRAY
 				PROGRAM
 				CONFUSE
-			cost = FUNCTION (thing)
-				return_value = 4 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 4 * thing.level
+			complexity = 4
 			default_name = ARRAY
 				UNDEFINED
 				"Confusion"
@@ -235,10 +214,7 @@ english
 			category = ARRAY
 				PROGRAM
 				WEAKEN
-			cost = FUNCTION (thing)
-				return_value = 2 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 2 * thing.level
+			complexity = 2
 			default_name = ARRAY
 				UNDEFINED
 				"Weaken"
@@ -266,10 +242,7 @@ english
 			category = ARRAY
 				PROGRAM
 				SHIELD
-			cost = FUNCTION (thing)
-				return_value = 3 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 3 * thing.level
+			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Shield"
@@ -297,10 +270,7 @@ english
 			category = ARRAY
 				PROGRAM
 				SMOKE
-			cost = FUNCTION (thing)
-				return_value = 1 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 1 * thing.level
+			complexity = 1
 			default_name = ARRAY
 				UNDEFINED
 				"Smoke"
@@ -328,10 +298,7 @@ english
 			category = ARRAY
 				PROGRAM
 				DECOY
-			cost = FUNCTION (thing)
-				return_value = 4 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 4 * thing.level
+			complexity = 4
 			default_name = ARRAY
 				UNDEFINED
 				"Decoy"
@@ -359,10 +326,7 @@ english
 			category = ARRAY
 				PROGRAM
 				MEDIC
-			cost = FUNCTION (thing)
-				return_value = 4 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 4 * thing.level
+			complexity = 4
 			default_name = ARRAY
 				UNDEFINED
 				"Medic"
@@ -390,10 +354,7 @@ english
 			category = ARRAY
 				PROGRAM
 				ARMOR
-			cost = FUNCTION (thing)
-				return_value = 3 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 3 * thing.level
+			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Armor"
@@ -421,10 +382,7 @@ english
 			category = ARRAY
 				PROGRAM
 				HIDE
-			cost = FUNCTION (thing)
-				return_value = 3 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 3 * thing.level
+			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Hide"
@@ -452,10 +410,7 @@ english
 			category = ARRAY
 				PROGRAM
 				DECEIVE
-			cost = FUNCTION (thing)
-				return_value = 2 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 2 * thing.level
+			complexity = 2
 			default_name = ARRAY
 				UNDEFINED
 				"Deceive"
@@ -483,10 +438,7 @@ english
 			category = ARRAY
 				PROGRAM
 				RELOCATE
-			cost = FUNCTION (thing)
-				return_value = 2 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 2 * thing.level
+			complexity = 2
 			default_name = ARRAY
 				UNDEFINED
 				"Relocate"
@@ -515,10 +467,7 @@ english
 				PROGRAM
 				SCANNER
 				ANALYZE
-			cost = FUNCTION (thing)
-				return_value = 1 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 1 * thing.level
+			complexity = 1
 			default_name = ARRAY
 				UNDEFINED
 				"Analyze"
@@ -548,10 +497,7 @@ english
 				SCANNER
 				SLOW_SCANNER
 				SCAN
-			cost = FUNCTION (thing)
-				return_value = 1 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 1 * thing.level
+			complexity = 1
 			default_name = ARRAY
 				UNDEFINED
 				"Scan"
@@ -581,10 +527,7 @@ english
 				SCANNER
 				SLOW_SCANNER
 				EVALUATE
-			cost = FUNCTION (thing)
-				return_value = 1 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 1 * thing.level
+			complexity = 1
 			default_name = ARRAY
 				UNDEFINED
 				"Evaluate"
@@ -612,10 +555,7 @@ english
 			category = ARRAY
 				PROGRAM
 				DECRYPT
-			cost = FUNCTION (thing)
-				return_value = 2 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 2 * thing.level
+			complexity = 2
 			default_name = ARRAY
 				UNDEFINED
 				"Decrypt"
@@ -643,10 +583,7 @@ english
 			category = ARRAY
 				PROGRAM
 				REFLECT
-			cost = FUNCTION (thing)
-				return_value = 4 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 4 * thing.level
+			complexity = 4
 			default_name = ARRAY
 				UNDEFINED
 				"Reflect"
@@ -675,10 +612,7 @@ english
 				PROGRAM
 				BOOST
 				ATTACK_BOOST
-			cost = FUNCTION (thing)
-				return_value = 3 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 3 * thing.level
+			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Attack Boost 1.0"
@@ -707,10 +641,7 @@ english
 				PROGRAM
 				BOOST
 				DEFENSE_BOOST
-			cost = FUNCTION (thing)
-				return_value = 3 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 3 * thing.level
+			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Defense Boost 1.0"
@@ -739,10 +670,7 @@ english
 				PROGRAM
 				BOOST
 				STEALTH_BOOST
-			cost = FUNCTION (thing)
-				return_value = 3 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 3 * thing.level
+			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Stealth Boost 1.0"
@@ -771,10 +699,7 @@ english
 				PROGRAM
 				BOOST
 				ANALYSIS_BOOST
-			cost = FUNCTION (thing)
-				return_value = 3 * thing.level * thing.level * 25
-			size = FUNCTION (thing)
-				return_value = 3 * thing.level
+			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Analysis Boost 1.0"
