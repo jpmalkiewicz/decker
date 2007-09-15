@@ -13,17 +13,12 @@ public class Decker
 	public static void main(String[] args) {
 System.out.println("there seems to be an 'else' clause missing in Node.cpp:411");
 System.out.println();
-System.out.println("game needs to be able to load default scripts from the jar");
 System.out.println("the game should display a placeholder image when an image is missing, instead of just erroring out");
-System.out.println("the minimum of physical and mental damage affects the players actions, I would have expected the sum or the maximum");
 System.out.println("change : more than one ICE can trace the player simultaneously");
-System.out.println("MANIPULATE_IO and RUN_PROGRAM goals have a node description as their target, not a node. this needs to change");
-System.out.println("set THING_TYPE.sorting_priority");
 System.out.println("FunctionCall.execute_filelist() needs to take mods into account");
-System.out.println("when a script doesn't have an accepted locale, say so in a message popup");
+System.out.println("when a script doesn't have any accepted locales, say so in a message popup");
 System.out.println("is Global.setCurrentRuleset() safe? what happens if the ruleset changes during a trigger check?");
 System.out.println("AbstractView.getImage() : need to put localized images back in, no support for mod images yet, loaded images aren't stored for later reuse yet");
-System.out.println("AbstractView : remove the marked constants at the top of the file?");
 		System.out.println("Errors are written to ERROR.JAVA for testing purposes");
 System.out.println();
 		try{
