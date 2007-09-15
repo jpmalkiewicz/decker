@@ -23,7 +23,7 @@ english
 				"scroller_down_blue0"
 			displayed_element = test_table
 			
-		LOCAL.createTableButton = FUNCTION (_text, _width, _x)
+		LOCAL.createTableButton = FUNCTION (_text, _width, _x, _sorting_order_function)
 			return_value = BORDER_BUTTON
 				x = _x[0]
 				y = _x[1] - 21
@@ -32,6 +32,12 @@ english
 				width = _width
 				height = 20
 				_x[0] = _x[0] + _width
+				sorting_order_function = &_sorting_order_function
+				on_mouse_up = FUNCTION
+					LOCAL.k = scrollpane.component[0].object[0].object[0]
+					debug("table identical : "+(scrollpane.displayed_element == scrollpane.component[0].object[0].object[0]))
+					sortTable(scrollpane.displayed_element, &sorting_order_function)
+					debug("table identical : "+(scrollpane.displayed_element == scrollpane.component[0].object[0].object[0]))
 
 		LOCAL.table_button_x = ARRAY
 			scrollpane.x - 1
@@ -61,12 +67,13 @@ english
 			// the software section
 			createBorder(scrollpane.x-3, scrollpane.y-23, scrollpane.width+6, scrollpane.height+26, @TABLE_BACKGROUND_COLOR, true)
 			scrollpane
-			createTableButton("Name",   136, table_button_x)
-			createTableButton("Class",   54, table_button_x)
-			createTableButton("Rating",  54, table_button_x)
-			createTableButton("Size",    54, table_button_x)
-			createTableButton("Loaded",  54, table_button_x)
-			createTableButton("Default", 54, table_button_x)
+			createTableButton("",        20, table_button_x, &compareProgramsDefault)
+			createTableButton("Name",   116, table_button_x, &compareProgramsDefault)
+			createTableButton("Class",   54, table_button_x, &compareProgramsDefault)
+			createTableButton("Rating",  54, table_button_x, &compareProgramsDefault)
+			createTableButton("Size",    54, table_button_x, &compareProgramsDefault)
+			createTableButton("Loaded",  54, table_button_x, &compareProgramsDefault)
+			createTableButton("Default", 54, table_button_x, &compareProgramsDefault)
 					
 		chip_text = ARRAY
 		LOCAL.i = 0
@@ -78,21 +85,20 @@ english
 			
 			
 		setup = FUNCTION
-			chip_text[0].text = player.deck.cpu
-			chip_text[1].text = player.deck.coprocessor
-			chip_text[2].text = player.deck.attack
-			chip_text[3].text = player.deck.defense
-			chip_text[4].text = player.deck.stealth
-			chip_text[5].text = player.deck.analysis
+			debug("setup")
+			updateBackButton(deck_screen.back_button)
+			deck_screen.chip_text[0].text = player.deck.cpu
+			deck_screen.chip_text[1].text = player.deck.coprocessor
+			deck_screen.chip_text[2].text = player.deck.attack
+			deck_screen.chip_text[3].text = player.deck.defense
+			deck_screen.chip_text[4].text = player.deck.stealth
+			deck_screen.chip_text[5].text = player.deck.analysis
 			// create the new software table
-			LOCAL.t = createTable (20, 0, 0, 135, 54, 54, 54, 54, 54)
-			t.cell_x = createArray (LEFT, CENTER, CENTER, CENTER, CENTER, CENTER)
+			LOCAL.t = createTable (20, 0, 0, 19, 116, 54, 54, 54, 54, 54)
+			t.cell_x = createArray (CENTER, 8, CENTER, CENTER, CENTER, CENTER, CENTER)
 			LOCAL.i = 0
 			LOCAL.p = player.deck.program
 			while i < p.size
-				addTableRow(t, createNameTableCell(p[i].type.image, p[i].name), createText(p[i].type.type_name,,,@TABLE_TEXT_COLOR), createText(p[i].rating,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR), createText("c",,,@TABLE_TEXT_COLOR), createText("d",,,@TABLE_TEXT_COLOR))
+				addTableRow(t, wrapImage(p[i].type.image), createText(p[i].name,,,@TABLE_TEXT_COLOR), createText(p[i].type.type_name,,,@TABLE_TEXT_COLOR), createText(p[i].rating,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR), createText("c",,,@TABLE_TEXT_COLOR), createText("d",,,@TABLE_TEXT_COLOR))
 				i = i + 1
-			scrollpane.displayed_element = t
-
-		on_draw = FUNCTION
-			updateBackButton(back_button)
+			deck_screen.scrollpane.displayed_element = t

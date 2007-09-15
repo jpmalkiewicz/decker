@@ -747,3 +747,9 @@ english
 				"Analysis Boost 5.0"
 				"Analysis Boost 5.1"
 				"Analysis Boost 6.0"
+
+	// add the default sorting order IDs
+	LOCAL.i = PROGRAM_TYPES.size - 1
+	while i >= 0
+		PROGRAM_TYPES[i].id = i
+		i = i - 1

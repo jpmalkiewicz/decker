@@ -19,7 +19,7 @@ public final class FunctionCall extends Expression
 			// create the list of arguments
 			for (int i = 0; i < args.length; i++)
 				if (args[i] != null)
-					arguments.add("").set(args[i]);
+					arguments.add("").setDirectly(args[i], false);
 				else
 					arguments.add("");
 		}

@@ -22,8 +22,8 @@ english
 				createProgram(ATTACK, program_rating)
 				createProgram(SILENCE, program_rating)
 				createProgram(SMOKE, program_rating)
-				createProgram(MEDIC, program_rating)
 				createProgram(ARMOR, program_rating)
+				createProgram(MEDIC, program_rating)
 				createProgram(HIDE, program_rating)
 				createProgram(DECEIVE, program_rating)
 				createProgram(ANALYZE, program_rating)
@@ -167,7 +167,40 @@ english
 			return_value = 1 + (x-target_number)/4
 			if return_value > 5
 				return_value = 5
-
+				
+				
+	// comparator must return a value below zero if the compared rows are in the wrong order, 0 if they are identical, a positive value if they are in the correct order
+	RULESET.sortTable = FUNCTION (table, comparator)
+		LOCAL.a = 0
+		LOCAL.b = 0
+		LOCAL.c = table.component
+		LOCAL.d = 0
+		LOCAL.swap = false
+		LOCAL.reverse = true
+		// determine if the table is already in order
+		while a+1 < c.size
+			reverse = reverse && comparator(a, a+1) >= 0
+			a = a + 1
+		reverse = reverse ? -1 : 1
+		// perform a bubblesort on the table rows
+		a = 0
+		while a+1 < c.size
+			b = c.size - 1
+			while b > a
+				if reverse * comparator(a, b) < 0
+					swapTableRows(table, a, b)
+					// swap the programs on the deck
+					swap = player.deck.program[a]
+					player.deck.program[a] = player.deck.program[b]
+					player.deck.program[b] = swap
+				b = b - 1
+			a = a + 1
+		debug(player.deck.program[0].name)
+		debug(c[0].component[1])
+	
+	RULESET.compareProgramsDefault = FUNCTION (a, b)
+		return_value = player.deck.program[b].type.id - player.deck.program[a].type.id
+			
 
 	// sets the back button's image to whereever it currently leads back to
 	RULESET.updateBackButton = FUNCTION (button)
@@ -176,6 +209,12 @@ english
 			button.idle = "home/home"
 		else
 			button.idle = "home/matrix"
+
+
+	RULESET.wrapImage = FUNCTION (image_name)
+		return_value = COLLECTION
+			object = ARRAY
+				image_name
 
 
 //*****************************************************************************************************************************************************

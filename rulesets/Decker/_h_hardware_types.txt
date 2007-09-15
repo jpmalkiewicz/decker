@@ -100,3 +100,10 @@ english
 				ANTI_TRACE_PROXY
 			base_value = 1500
 			max_rating = 1
+
+	// add the default sorting order IDs
+	LOCAL.i = HARDWARE_TYPES.size - 1
+	LOCAL.offset = PROGRAM_TYPES.size
+	while i >= 0
+		HARDWARE_TYPES[i].id = i + offset
+		i = i - 1
