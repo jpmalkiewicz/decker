@@ -6,6 +6,7 @@ english
 		THING_TYPE
 			type_name = "Attack"
 			complexity = 2
+			image = "program/attack"
 			category = ARRAY
 				PROGRAM
 				ATTACK
@@ -42,6 +43,7 @@ english
 		THING_TYPE
 			type_name = "Area Attack"
 			complexity = 3
+			image = "program/area_attack"
 			category = ARRAY
 				PROGRAM
 				ATTACK
@@ -70,11 +72,12 @@ english
 				"Nuke"
 		THING_TYPE
 			type_name = "Piercing Attack"
+			complexity = 3
+			image = "program/piercing_attack"
 			category = ARRAY
 				PROGRAM
 				ATTACK
 				PIERCING_ATTACK
-			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Spear 1.0a"
@@ -99,10 +102,11 @@ english
 				"Shredder"
 		THING_TYPE
 			type_name = "Slow"
+			complexity = 2
+			image = "program/slow"
 			category = ARRAY
 				PROGRAM
 				SLOW
-			complexity = 2
 			default_name = ARRAY
 				UNDEFINED
 				"Slow"
@@ -127,10 +131,11 @@ english
 				"TimeStop"
 		THING_TYPE
 			type_name = "Virus"
+			complexity = 3
+			image = "program/virus"
 			category = ARRAY
 				PROGRAM
 				VIRUS
-			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Flu 1.0"
@@ -154,39 +159,12 @@ english
 				"BrainBugs 3.1"
 				"Ebola"
 		THING_TYPE
-			type_name = "Silence"
-			category = ARRAY
-				PROGRAM
-				SILENCE
-			complexity = 3
-			default_name = ARRAY
-				UNDEFINED
-				"Silence"
-				"QuietYou"
-				"Gag 3.3"
-				"ZipIt 1.0"
-				"Muffler 2.1"
-				"Shhhh!"
-				"Laryngitis 2.3"
-				"MouthClamp 2.1"
-				"Hush 1.0"
-				"QuietYou 2.0"
-				"Muffler 3.0"
-				"Laryngitis 3.3a"
-				"QuietYou 3.0"
-				"Hush 2.0"
-				"Shhhh! II"
-				"Muffler 4.0"
-				"QuietYou 4.1"
-				"Laryngitis 4.02"
-				"ZipIt 2.1"
-				"MegaMute"
-		THING_TYPE
 			type_name = "Confuse"
+			complexity = 4
+			image = "program/confuse"
 			category = ARRAY
 				PROGRAM
 				CONFUSE
-			complexity = 4
 			default_name = ARRAY
 				UNDEFINED
 				"Confusion"
@@ -211,10 +189,11 @@ english
 				"DanQuayle"
 		THING_TYPE
 			type_name = "Weaken"
+			complexity = 2
+			image = "program/weaken"
 			category = ARRAY
 				PROGRAM
 				WEAKEN
-			complexity = 2
 			default_name = ARRAY
 				UNDEFINED
 				"Weaken"
@@ -238,39 +217,41 @@ english
 				"Sap"
 				"Impotence"
 		THING_TYPE
-			type_name = "Shield"
+			type_name = "Silence"
+			complexity = 3
+			image = "program/silence"
 			category = ARRAY
 				PROGRAM
-				SHIELD
-			complexity = 3
+				SILENCE
 			default_name = ARRAY
 				UNDEFINED
-				"Shield"
-				"Buckler 1.1a"
-				"Umbrella 1.0"
-				"Shield Mk2"
-				"Blocker 1.0"
-				"Bumper"
-				"Airbag 1.0"
-				"Blocker 2.0"
-				"Shield Mk3"
-				"Buckler 2.3"
-				"Airbag 2.0"
-				"Umbrella 3.0"
-				"ForceField 1.0"
-				"Buckler 3.0"
-				"Shield Mk4"
-				"Airbag 3.0"
-				"Buckler 3.2c"
-				"ForceField 2.0"
-				"Blocker 7.0"
-				"Aegis"
+				"Silence"
+				"QuietYou"
+				"Gag 3.3"
+				"ZipIt 1.0"
+				"Muffler 2.1"
+				"Shhhh!"
+				"Laryngitis 2.3"
+				"MouthClamp 2.1"
+				"Hush 1.0"
+				"QuietYou 2.0"
+				"Muffler 3.0"
+				"Laryngitis 3.3a"
+				"QuietYou 3.0"
+				"Hush 2.0"
+				"Shhhh! II"
+				"Muffler 4.0"
+				"QuietYou 4.1"
+				"Laryngitis 4.02"
+				"ZipIt 2.1"
+				"MegaMute"
 		THING_TYPE
 			type_name = "Smoke"
+			complexity = 1
+			image = "program/smoke"
 			category = ARRAY
 				PROGRAM
 				SMOKE
-			complexity = 1
 			default_name = ARRAY
 				UNDEFINED
 				"Smoke"
@@ -295,10 +276,11 @@ english
 				"Houdini"
 		THING_TYPE
 			type_name = "Decoy"
+			complexity = 4
+			image = "program/decoy"
 			category = ARRAY
 				PROGRAM
 				DECOY
-			complexity = 4
 			default_name = ARRAY
 				UNDEFINED
 				"Decoy"
@@ -322,39 +304,12 @@ english
 				"StandIn 4.1"
 				"Simulacrum"
 		THING_TYPE
-			type_name = "Medic"
-			category = ARRAY
-				PROGRAM
-				MEDIC
-			complexity = 4
-			default_name = ARRAY
-				UNDEFINED
-				"Medic"
-				"FirstAid 1.0"
-				"VirtualEMT"
-				"Bandage 1.0"
-				"Tourniquet 2.2"
-				"VirtualNurse"
-				"FirstAid 2.4d"
-				"MedKit 1.0"
-				"Restoration"
-				"Succor 1.0"
-				"Bandage 2.30"
-				"VirtualDoctor"
-				"Restoration II"
-				"Succor 2.01"
-				"Bandage 4.1"
-				"Restoration III"
-				"Succor 3.2"
-				"Restoration IV"
-				"VirtualSurgeon"
-				"M.A.S.H"
-		THING_TYPE
 			type_name = "Armor"
+			complexity = 3
+			image = "program/armor"
 			category = ARRAY
 				PROGRAM
 				ARMOR
-			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Armor"
@@ -378,11 +333,70 @@ english
 				"StoneSkin 4.0"
 				"Adamantium"
 		THING_TYPE
+			type_name = "Shield"
+			complexity = 3
+			image = "program/shield"
+			category = ARRAY
+				PROGRAM
+				SHIELD
+			default_name = ARRAY
+				UNDEFINED
+				"Shield"
+				"Buckler 1.1a"
+				"Umbrella 1.0"
+				"Shield Mk2"
+				"Blocker 1.0"
+				"Bumper"
+				"Airbag 1.0"
+				"Blocker 2.0"
+				"Shield Mk3"
+				"Buckler 2.3"
+				"Airbag 2.0"
+				"Umbrella 3.0"
+				"ForceField 1.0"
+				"Buckler 3.0"
+				"Shield Mk4"
+				"Airbag 3.0"
+				"Buckler 3.2c"
+				"ForceField 2.0"
+				"Blocker 7.0"
+				"Aegis"
+		THING_TYPE
+			type_name = "Medic"
+			complexity = 4
+			image = "program/medic"
+			category = ARRAY
+				PROGRAM
+				MEDIC
+			default_name = ARRAY
+				UNDEFINED
+				"Medic"
+				"FirstAid 1.0"
+				"VirtualEMT"
+				"Bandage 1.0"
+				"Tourniquet 2.2"
+				"VirtualNurse"
+				"FirstAid 2.4d"
+				"MedKit 1.0"
+				"Restoration"
+				"Succor 1.0"
+				"Bandage 2.30"
+				"VirtualDoctor"
+				"Restoration II"
+				"Succor 2.01"
+				"Bandage 4.1"
+				"Restoration III"
+				"Succor 3.2"
+				"Restoration IV"
+				"VirtualSurgeon"
+				"M.A.S.H"
+		THING_TYPE
 			type_name = "Hide"
+			complexity = 3
+			image = "program/hide"
 			category = ARRAY
 				PROGRAM
 				HIDE
-			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Hide"
@@ -407,10 +421,11 @@ english
 				"HollowMan"
 		THING_TYPE
 			type_name = "Deceive"
+			complexity = 2
+			image = "program/deceive"
 			category = ARRAY
 				PROGRAM
 				DECEIVE
-			complexity = 2
 			default_name = ARRAY
 				UNDEFINED
 				"Deceive"
@@ -435,10 +450,11 @@ english
 				"Politician"
 		THING_TYPE
 			type_name = "Relocate"
+			complexity = 2
+			image = "program/relocate"
 			category = ARRAY
 				PROGRAM
 				RELOCATE
-			complexity = 2
 			default_name = ARRAY
 				UNDEFINED
 				"Relocate"
@@ -463,11 +479,12 @@ english
 				"Trail-B-Gone"
 		THING_TYPE
 			type_name = "Analyze"
+			complexity = 1
+			image = "program/analyze"
 			category = ARRAY
 				PROGRAM
 				SCANNER
 				ANALYZE
-			complexity = 1
 			default_name = ARRAY
 				UNDEFINED
 				"Analyze"
@@ -492,12 +509,13 @@ english
 				"Forensics"
 		THING_TYPE
 			type_name = "Scan"
+			complexity = 1
+			image = "program/scan"
 			category = ARRAY
 				PROGRAM
 				SCANNER
 				SLOW_SCANNER
 				SCAN
-			complexity = 1
 			default_name = ARRAY
 				UNDEFINED
 				"Scan"
@@ -522,12 +540,13 @@ english
 				"SuperScan"
 		THING_TYPE
 			type_name = "Evaluate"
+			complexity = 1
+			image = "program/evaluate"
 			category = ARRAY
 				PROGRAM
 				SCANNER
 				SLOW_SCANNER
 				EVALUATE
-			complexity = 1
 			default_name = ARRAY
 				UNDEFINED
 				"Evaluate"
@@ -552,10 +571,11 @@ english
 				"ShowMeTheMoney"
 		THING_TYPE
 			type_name = "Decrypt"
+			complexity = 2
+			image = "program/decrypt"
 			category = ARRAY
 				PROGRAM
 				DECRYPT
-			complexity = 2
 			default_name = ARRAY
 				UNDEFINED
 				"Decrypt"
@@ -580,10 +600,11 @@ english
 				"SuperCracker"
 		THING_TYPE
 			type_name = "Reflect"
+			complexity = 4
+			image = "program/reflect"
 			category = ARRAY
 				PROGRAM
 				REFLECT
-			complexity = 4
 			default_name = ARRAY
 				UNDEFINED
 				"Reflect"
@@ -608,11 +629,12 @@ english
 				"Trampoline"
 		THING_TYPE
 			type_name = "Attack Boost"
+			complexity = 3
+			image = "program/attack_boost"
 			category = ARRAY
 				PROGRAM
 				BOOST
 				ATTACK_BOOST
-			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Attack Boost 1.0"
@@ -637,11 +659,12 @@ english
 				"Attack Boost 6.0"
 		THING_TYPE
 			type_name = "Defense Boost"
+			complexity = 3
+			image = "program/defense_boost"
 			category = ARRAY
 				PROGRAM
 				BOOST
 				DEFENSE_BOOST
-			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Defense Boost 1.0"
@@ -666,11 +689,12 @@ english
 				"Defense Boost 6.0"
 		THING_TYPE
 			type_name = "Stealth Boost"
+			complexity = 3
+			image = "program/stealth_boost"
 			category = ARRAY
 				PROGRAM
 				BOOST
 				STEALTH_BOOST
-			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Stealth Boost 1.0"
@@ -695,11 +719,12 @@ english
 				"Stealth Boost 6.0"
 		THING_TYPE
 			type_name = "Analysis Boost"
+			complexity = 3
+			image = "program/analysis_boost"
 			category = ARRAY
 				PROGRAM
 				BOOST
 				ANALYSIS_BOOST
-			complexity = 3
 			default_name = ARRAY
 				UNDEFINED
 				"Analysis Boost 1.0"

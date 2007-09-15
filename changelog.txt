@@ -1,4 +1,9 @@
 78%
+2007-09-15
+  added half the program information to the deck screen
+  added cell layout to createTableRow()
+  created the program images from the C++ Decker program image file
+  added the images to the program types and have the deck screen display them
 2007-09-14
   added the column buttons to the deck screen
   fixed a bug where c.size would be interpreted as a single string instead of an expression with a member operator, in ScriptReader.java

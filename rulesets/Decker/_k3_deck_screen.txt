@@ -1,30 +1,7 @@
 english
 	RULESET.deck_screen = VIEW
 		title = "Decker - Deck"
-		
-		LOCAL.test_table = createTable (20, 0,0, 30,30,30,30)
-		addTableRow (test_table, "home/char", "home/deck", "home/options", "home/char")
-		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
-		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
-		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
-		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
-		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
-		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
-		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
-		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
-		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
-		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
-		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
-		addTableRow (test_table, "home/deck", "home/deck", "home/deck")
-		LOCAL.k = COLLECTION
-//			x = CENTER
-			y = 0
-			v_align = CENTER
-//			h_align = LEFT
-			object = ARRAY
-				"home/home"
-		setTableCell (test_table,0,2,k)
-		
+				
 		LOCAL.screen_width = 540
 		LOCAL.screen_height = 430
 				
@@ -35,7 +12,7 @@ english
 			on_mouse_up = FUNCTION
 				displayPreviousScreen()
 
-		LOCAL.scrollpane = SCROLLPANE
+		scrollpane = SCROLLPANE
 			x = 20
 			y = 180
 			width = 404
@@ -44,10 +21,6 @@ english
 				"scroller_vertical_blue0"
 				"scroller_up_blue0"
 				"scroller_down_blue0"
-			horizontal_scrollbar = ARRAY
-				"scroller_horizontal_blue0"
-				"scroller_left_blue0"
-				"scroller_right_blue0"
 			displayed_element = test_table
 			
 		LOCAL.createTableButton = FUNCTION (_text, _width, _x)
@@ -74,7 +47,7 @@ english
 				y = back_button.y
 				idle = "home/char"
 				on_mouse_up = FUNCTION
-					displayScreen(@character_screen, false)
+					displayInitializedScreen(@character_screen, false)
 
 			// the hardware section
 			createText("Chips",       20, 15)
@@ -102,10 +75,9 @@ english
 			chip_text[i].h_align = LEFT
 			object[] = chip_text[i]
 			i = i + 1
-
-
-		on_draw = FUNCTION
-			updateBackButton(back_button)
+			
+			
+		setup = FUNCTION
 			chip_text[0].text = player.deck.cpu
 			chip_text[1].text = player.deck.coprocessor
 			chip_text[2].text = player.deck.attack
@@ -113,4 +85,14 @@ english
 			chip_text[4].text = player.deck.stealth
 			chip_text[5].text = player.deck.analysis
 			// create the new software table
-//			LOCAL st = TABLE
+			LOCAL.t = createTable (20, 0, 0, 135, 54, 54, 54, 54, 54)
+			t.cell_x = createArray (LEFT, CENTER, CENTER, CENTER, CENTER, CENTER)
+			LOCAL.i = 0
+			LOCAL.p = player.deck.program
+			while i < p.size
+				addTableRow(t, createNameTableCell(p[i].type.image, p[i].name), createText(p[i].type.type_name,,,@TABLE_TEXT_COLOR), createText(p[i].rating,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR), createText("c",,,@TABLE_TEXT_COLOR), createText("d",,,@TABLE_TEXT_COLOR))
+				i = i + 1
+			scrollpane.displayed_element = t
+
+		on_draw = FUNCTION
+			updateBackButton(back_button)

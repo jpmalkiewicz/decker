@@ -104,6 +104,7 @@ english
 			// default_name        // an array : default_name[x] is the default name of a thing of this type and item_rating x. for items with rating < 1 default_name[1] is used, for items with a higher rating than the array size, the last array entry is used, with the appendix "MK x" where x is (rating-max rating with name + 1) as a roman number
 			// effect              // a function that gets executed when things of this type are used
 			// max_rating          // some types of hardware have a max rating
+			// image               // for programs
 		
 		THING
 			expandable = true
@@ -174,3 +175,15 @@ english
 			current_target    // some ice or file
 			current_program   // the program this human is currently trying to use
 			time              // time for the current matrix run
+			
+// interface types ************************************************************************************************************************************
+
+		NAME_TABLE_CELL
+			expandable = true
+			component
+			width
+			height
+			initializer = FUNCTION
+				component = ARRAY
+					UNDEFINED   // the image
+					UNDEFINED   // the text

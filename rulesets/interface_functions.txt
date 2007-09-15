@@ -18,8 +18,28 @@ english
 				// if the function caller has supplied an object for this cell, put it in the cell
 				if argument[i+1] != UNDEFINED
 					a[] = argument[i+1]
-			i = i + 1
+					if argument[i+1].x == UNDEFINED && table.cell_x != UNDEFINED
+						if value_type(table.cell_x) == "CONSTANT"
+							argument[i+1].x = table.cell_x
+						else
+							argument[i+1].x = table.cell_x[i]
+					if argument[i+1].y == UNDEFINED && table.cell_y != UNDEFINED
+						if value_type(table.cell_y) == "CONSTANT"
+							argument[i+1].y = table.cell_y
+						else
+							argument[i+1].y = table.cell_y[i]
+					if argument[i+1].v_align == UNDEFINED && table.cell_v_align != UNDEFINED
+						if value_type(table.cell_v_align) == "CONSTANT"
+							argument[i+1].v_align = table.cell_v_align
+						else
+							argument[i+1].v_align = table.cell_v_align[i]
+					if argument[i+1].h_align == UNDEFINED && table.cell_h_align != UNDEFINED
+						if value_type(table.cell_h_align) == "CONSTANT"
+							argument[i+1].h_align = table.cell_h_align
+						else
+							argument[i+1].h_align = table.cell_h_align[i]
 			x_offset = x_offset + table.cell_width[i]
+			i = i + 1
 		// calculate the new table height
 		table.height = table.cell_height * table.component.size
 		
@@ -144,7 +164,7 @@ english
 				width = width + argument[i]
 				cell_width[] = &argument[i]
 				i = i + 1
-
+		debug(return_value)
 
 	// returns the name of the image to be displayed, deducing it from the state "0" image. e.g. deduceImageName("my_button0", "1") will return "my_button1" if an image "my_button1.*" exists, otherwise it returns "my_button0"
 	ENGINE.deduceImageName = FUNCTION (base_name, new_suffix)

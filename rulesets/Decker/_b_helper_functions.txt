@@ -32,6 +32,14 @@ english
 				createProgram(DECRYPT, program_rating)
 
 
+	RULESET.createNameTableCell = FUNCTION (image, text)
+		LOCAL.tx = pixelwidth(image)+1
+		return_value = NAME_TABLE_CELL
+			height = pixelheight(image)
+			component[0] = image
+			component[1] = createText(text, tx, CENTER, @TABLE_TEXT_COLOR)
+
+
 	RULESET.createProgram = FUNCTION (_type, _rating, _status)
 		// find the program type
 		if value_type(_type) == "CONSTANT"
@@ -85,6 +93,12 @@ english
 						target_count = target_count - 1
 					i = i + 1
 			return_value = target_system.rating + target_count / 2 + special_condition
+
+
+	RULESET.displayInitializedScreen = FUNCTION (screen, remember_old_screen)
+		displayScreen(screen, remember_old_screen)
+		if value_type(screen.setup) == "FUNCTION"
+			screen.setup()
 
 
 	// returns the roman number string for the given number. only works for numbers up to 4999. the format for the resulting numbers is intended for easy reading

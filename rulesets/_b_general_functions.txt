@@ -1,4 +1,12 @@
 english
+	ENGINE.createArray = FUNCTION
+		return_value = ARRAY
+		LOCAL.i = 0
+		while i < argument.size
+			return_value[] = argument[i]
+			i = i + 1
+
+
 	// returns the maximum value from a list of parameters. min(1) returns 1, min(4,5,6,7) returns 7
 	ENGINE.max = FUNCTION
 		LOCAL.i = 1
