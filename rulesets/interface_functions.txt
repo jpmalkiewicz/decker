@@ -164,7 +164,7 @@ english
 				width = width + argument[i]
 				cell_width[] = &argument[i]
 				i = i + 1
-		debug(return_value)
+
 
 	// returns the name of the image to be displayed, deducing it from the state "0" image. e.g. deduceImageName("my_button0", "1") will return "my_button1" if an image "my_button1.*" exists, otherwise it returns "my_button0"
 	ENGINE.deduceImageName = FUNCTION (base_name, new_suffix)
@@ -245,3 +245,18 @@ english
 				content.h_align = table.cell_h_align[column]
 			else
 				content.h_align = table.cell_h_align
+				
+				
+	// swaps the rows at index a and b in the given table
+	ENGINE.swapTableRows = FUNCTION (table, a, b)
+		// first, swap the table rows themselves
+		LOCAL.swap = table.component[a]
+		table.component[a] = table.component[b]
+		table.component[b] = swap
+		// then fix the y coordinates
+		LOCAL.i = table.cell_width.size-1
+		while i >= 0
+			table.component[a].component[i].y = a * table.cell_height
+			table.component[b].component[i].y = b * table.cell_height
+			i = i - 1
+		

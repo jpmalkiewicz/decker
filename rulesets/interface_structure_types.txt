@@ -439,8 +439,5 @@ english
 				component[0].object[0].x = hscrollbar == false ? 0 : -hscrollbar.slider_position
 				component[0].object[0].y = vscrollbar == false ? 0 : -vscrollbar.slider_position
 				component[0].object[0].object[0] = displayed_element
-//				debug(component[0])
-//				debug(component[3].component[0].state+"   "+component[3].component[1].state)
-//				debug(w+","+h+" "+dw+","+dh+" "+component[2].v_align+" "+component[2].x)
-// make sure the displayed_element gets displayed if it has changed
-//				component[0] = displayed_element // in case it has changed. now it will definitely be displayed
+				debug("SCROLLPANE.on_draw()")
+				debug(component[0].object[0].object[0].component[0].component[1])
