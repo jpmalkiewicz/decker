@@ -7,6 +7,7 @@ english
 			name = "Attack"
 			complexity = 2
 			image = "program/attack"
+			default_category = DEFAULT_ATTACK          // this type of program can be used as the default attack program
 			category = ARRAY
 				PROGRAM
 				ATTACK
@@ -44,6 +45,7 @@ english
 			name = "Area Attack"
 			complexity = 3
 			image = "program/area_attack"
+			default_category = DEFAULT_ATTACK
 			category = ARRAY
 				PROGRAM
 				ATTACK
@@ -74,6 +76,7 @@ english
 			name = "Piercing Attack"
 			complexity = 3
 			image = "program/piercing_attack"
+			default_category = DEFAULT_ATTACK
 			category = ARRAY
 				PROGRAM
 				ATTACK
@@ -307,6 +310,7 @@ english
 			name = "Armor"
 			complexity = 3
 			image = "program/armor"
+			default_category = DEFAULT_ARMOR
 			category = ARRAY
 				PROGRAM
 				ARMOR
@@ -394,6 +398,7 @@ english
 			name = "Hide"
 			complexity = 3
 			image = "program/hide"
+			default_category = DEFAULT_HIDE
 			category = ARRAY
 				PROGRAM
 				HIDE

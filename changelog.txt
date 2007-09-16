@@ -1,4 +1,6 @@
 78%
+2007-09-16
+  changing the load / default state of programs works
 2007-09-15
   added half the program information to the deck screen
   added cell layout to createTableRow()

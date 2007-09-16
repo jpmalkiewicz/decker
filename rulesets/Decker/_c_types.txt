@@ -112,13 +112,14 @@ english
 			type           // a THING_TYPE object
 			rating
 			size
-			// status      // for programs on the deck, this can have the values INSTALLED, LOADED, RUNNING
+			// state       // for programs on the deck, this can have the values INSTALLED, LOADED, DEFAULT
 			// source_code // true if this thing is a source code
 			
 		DECK
 			model = "(custom built)"
 			damage = 0
-			current_load = 0  // 0 = light, 1 = medium, 2 = high
+			current_load = 0      // 0 = light, 1 = medium, 2 = high
+			loaded_programs_size = 0
 			cpu = 1
 			coprocessor = 1
 			attack = 1
@@ -126,9 +127,15 @@ english
 			stealth = 1
 			analysis = 1
 			program
-			intializer = FUNCTION
+			default_program
+			initializer = FUNCTION
 				program = ARRAY
-			
+				default_program = ARRAY
+					UNDEFINED
+					UNDEFINED
+					UNDEFINED
+				debug(deck)
+
 		MISSION
 			expandable = true
 			available = @DEFAULT_MISSION_AVAILABLE

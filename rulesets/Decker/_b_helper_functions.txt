@@ -21,6 +21,8 @@ english
 
 	RULESET.createDeck = FUNCTION (hardware_rating, program_rating)
 		return_value = DECK
+			cpu = 1
+		debug (return_value)
 		if hardware_rating > 0
 			return_value.cpu = hardware_rating
 			return_value.coprocessor = hardware_rating
@@ -41,6 +43,11 @@ english
 				createProgram(SCAN, program_rating)
 				createProgram(EVALUATE, program_rating)
 				createProgram(DECRYPT, program_rating)
+			LOCAL.a = return_value.program.size - 1
+			while a >= 0
+				setProgramState(return_value, return_value.program[a], return_value.program[a].type.default_category != UNDEFINED ? DEFAULT : LOADED)
+				a = a - 1
+				
 
 
 	RULESET.createNameTableCell = FUNCTION (image, text)
@@ -51,7 +58,7 @@ english
 			component[1] = createText(text, tx, CENTER, @TABLE_TEXT_COLOR)
 
 
-	RULESET.createProgram = FUNCTION (_type, _rating, _status)
+	RULESET.createProgram = FUNCTION (_type, _rating)
 		// find the program type
 		if value_type(_type) == "CONSTANT"
 			LOCAL.i = 0
@@ -68,8 +75,6 @@ english
 				type = _type
 				rating = _rating
 				size = getThingSize(THING.this)
-				if _status != UNDEFINED
-					status = _status
 			// determine its default name
 			if _rating >= 1
 				if _type.default_name.structure_type == "ARRAY"
@@ -112,15 +117,10 @@ english
 			screen.setup()
 
 
-	RULESET.defaultProgramType = FUNCTION (program)
-		if indexof(ATTACK, program.type.category) > -1
-			return_value = ATTACK
-		if indexof(ARMOR, program.type.category) > -1
-			return_value = ARMOR
-		if indexof(HIDE, program.type.category) > -1
-			return_value = HIDE
+	RULESET.getMaxLoad = FUNCTION (deck)
+		return_value = 30 * deck.cpu + ( deck.cpu < deck.coprocessor ? deck.cpu : deck.coprocessor )
 
-			
+
 	// returns the roman number string for the given number. only works for numbers up to 4999. the format for the resulting numbers is intended for easy reading
 	RULESET.getRomanNumber = FUNCTION (x)
 		return_value = ""
@@ -189,6 +189,23 @@ english
 				return_value = 5
 				
 				
+	RULESET.setProgramState = FUNCTION (deck, program, state)
+		if state != program.state
+			LOCAL.max_load = getMaxLoad(deck)
+			if state != INSTALLED && program.state == INSTALLED && deck.loaded_programs_size + program.size <= max_load
+				deck.loaded_programs_size = deck.loaded_programs_size + program.size
+				if state == DEFAULT
+					if deck.default_program[program.type.default_category] != UNDEFINED
+						deck.default_program[program.type.default_category].state = LOADED   // the old default program is no longer the default program
+					deck.default_program[program.type.default_category] = program
+			if state == INSTALLED && program.state != INSTALLED
+				deck.loaded_programs_size = deck.loaded_programs_size - program.size
+				if program.state == DEFAULT
+					deck.default_program[program.type.default_category] = UNDEFINED
+			program.state = state
+			deck.current_load = deck.loaded_programs_size <= max_load / 3 ? 0 : ( deck.loaded_programs_size <= max_load * 2 / 3 ? 1 : 2 )
+
+
 	// comparator must return a value below zero if the compared rows are in the wrong order, 0 if they are identical, a positive value if they are in the correct order
 	RULESET.sortTable = FUNCTION (table, comparator)
 		LOCAL.a = 0

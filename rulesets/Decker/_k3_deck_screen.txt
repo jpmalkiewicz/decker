@@ -96,39 +96,49 @@ english
 			t.cell_y = CENTER
 			LOCAL.i = 0
 			LOCAL.p = player.deck.program
-			LOCAL.status = UNDEFINED
+			LOCAL.state = UNDEFINED
 			LOCAL.loaded = UNDEFINED
 			
-			LOCAL.status_function = FUNCTION
-				if prog.status != DEFAULT
-					prog.status = DEFAULT
-					idle = "status_on"
-// remove the DEFAULT state from the previous DEFAULT program from this category
-				else
-					prog.status = LOADED
+			
+			LOCAL.default_function = FUNCTION
+				if prog.state == DEFAULT
+					setProgramState(player.deck, prog, LOADED)
 					idle = "status_off"
+				else
+					// switch off the default marker for the old default program in the table
+					LOCAL.p2 = player.deck.default_program[prog.type.default_type]
+					if p2 != UNDEFINED
+						LOCAL.index = indexof(p2, player.deck.program)
+						getTableCell(deck_screen.scrollpane.displayed_element, index, 6).idle = "status_off"
+					// if the program wasn't loaded, change the load marker
+					if prog.state == INSTALLED
+						LOCAL.index = indexof(prog, player.deck.program)
+						getTableCell(deck_screen.scrollpane.displayed_element, index, 5).idle = "status_on"
+					setProgramState(player.deck, prog, DEFAULT)
+					idle = "status_on"
+				
 					
-			LOCAL.status_function = FUNCTION
-				if prog.status != INSTALLED
-					prog.status = INSTALLED
-					idle = "status_off"
-				else
-					prog.status = LOADED
-					idle = "status_on"
+			LOCAL.load_function = FUNCTION
+				if prog.state == DEFAULT
+					LOCAL.index = indexof(prog, player.deck.program)
+					getTableCell(deck_screen.scrollpane.displayed_element, index, 6).idle = "status_off"
+				setProgramState(player.deck, prog, prog.state != INSTALLED ? INSTALLED : LOADED)
+				idle = prog.state == INSTALLED ? "status_off" : "status_on"
+			
 			
 			while i < p.size
 				loaded = BUTTON
-					idle = p[i].status == DEFAULT || p[i].status == LOADED ?  "status_on"  :  "status_off"
+					idle = p[i].state != INSTALLED ?  "status_on"  :  "status_off"
 					prog = p[i]
 					on_mouse_down = &load_function
-				if p[i].status == DEFAULT || defaultProgramType(p[i]) != UNDEFINED
-					status = BUTTON
-						idle = p[i].status == DEFAULT  ?  "status_on"  :  "status_off"
+				if p[i].type.default_category != UNDEFINED
+					state = BUTTON
+						idle = p[i].state == DEFAULT  ?  "status_on"  :  "status_off"
 						prog = p[i]
-						on_mouse_down = &status_function
+						on_mouse_down = &default_function
 				else
-					LOCAL.status = createText("")
+					state = createText("")
 				
-				addTableRow(t, wrapImage(p[i].type.image), createText(p[i].name,,,@TABLE_TEXT_COLOR), createText(p[i].type.name,,,@TABLE_TEXT_COLOR), createText(p[i].rating,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR), wrapImage("status_on"), status)
+				addTableRow(t, wrapImage(p[i].type.image), createText(p[i].name,,,@TABLE_TEXT_COLOR), createText(p[i].type.name,,,@TABLE_TEXT_COLOR), createText(p[i].rating,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR), loaded, state)
 				i = i + 1
 			deck_screen.scrollpane.displayed_element = t

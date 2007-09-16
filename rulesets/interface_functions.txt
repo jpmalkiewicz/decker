@@ -247,6 +247,10 @@ english
 				content.h_align = table.cell_h_align
 				
 				
+	ENGINE.getTableCell = FUNCTION (table, row, column)
+		return_value = table.component[row].component[column].component[0]
+		
+				
 	// swaps the rows at index a and b in the given table
 	ENGINE.swapTableRows = FUNCTION (table, a, b)
 		// first, swap the table rows themselves
