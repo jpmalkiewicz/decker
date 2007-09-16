@@ -23,6 +23,13 @@ english
 		3*4000
 		3*10000
 		
+	
+	RULESET.LOAD_TEXT = ARRAY
+		"Light"
+		"Normal"
+		"Heavy"
+
+
 	RULESET.REPUTATION_NAME = ARRAY
 		"Nobody"
 		"Wannabe"
@@ -45,7 +52,8 @@ english
 		"Digital Nightmare"
 		"Master of the Matrix"
 		"Matrix God"
-		
+
+
 	RULESET.ROMAN_NUMBER_LETTER = ARRAY
 		"M"
 		"D"
