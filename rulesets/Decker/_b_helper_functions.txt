@@ -1,13 +1,24 @@
 english
-	RULESET.arrayIndex = FUNCTION (array,entry)
-		if array.size != UNDEFINED
-			return_value = array.size - 1
-			while return_value >= 0 && array[return_value] != entry
-				return_value = return_value - 1
-			if i == -1
-				return_value = UNDEFINED
+	RULESET.compareProgramsDefault = FUNCTION (a, b)
+		return_value = player.deck.program[b].type.id - player.deck.program[a].type.id
 
-			
+
+	RULESET.compareProgramsName = FUNCTION (a, b)
+		return_value = player.deck.program[b].name < player.deck.program[a].name ? -1 : ( player.deck.program[b].name > player.deck.program[a].name ? 1 : 0 )
+
+
+	RULESET.compareProgramsRating = FUNCTION (a, b)
+		return_value = player.deck.program[b].rating - player.deck.program[a].rating
+
+
+	RULESET.compareProgramsSize = FUNCTION (a, b)
+		return_value = player.deck.program[b].size - player.deck.program[a].size
+
+
+	RULESET.compareProgramsType = FUNCTION (a, b)
+		return_value = player.deck.program[b].type.name < player.deck.program[a].type.name ? -1 : ( player.deck.program[b].type.name > player.deck.program[a].type.name ? 1 : 0 )
+
+
 	RULESET.createDeck = FUNCTION (hardware_rating, program_rating)
 		return_value = DECK
 		if hardware_rating > 0
@@ -101,6 +112,15 @@ english
 			screen.setup()
 
 
+	RULESET.defaultProgramType = FUNCTION (program)
+		if indexof(ATTACK, program.type.category) > -1
+			return_value = ATTACK
+		if indexof(ARMOR, program.type.category) > -1
+			return_value = ARMOR
+		if indexof(HIDE, program.type.category) > -1
+			return_value = HIDE
+
+			
 	// returns the roman number string for the given number. only works for numbers up to 4999. the format for the resulting numbers is intended for easy reading
 	RULESET.getRomanNumber = FUNCTION (x)
 		return_value = ""
@@ -138,9 +158,9 @@ english
 		else
 			if type.size_function != UNDEFINED
 				return_value = type.size_function(thing)
-			else if arrayIndex(type.category, PROGRAM) >= 0 || arrayIndex(type.category, CHIP) >= 0
+			else if indexof(PROGRAM, type.category) >= 0 || indexof(CHIP, type.category) >= 0
 				return_value = type.complexity * thing.rating * thing.rating * 25
-				if arrayIndex(type.category, CPU) >= 0
+				if indexof(CPU, type.category) >= 0
 					return_value = return_value * 6 / 5        // CPUs are 20% more expensive than their rating suggests
 			else // it's a piece of hardware. it's price is (base value * 2 ^ (rating-1))
 				return_value = type.base_value * pow(2,thing.rating)
@@ -195,13 +215,8 @@ english
 					player.deck.program[b] = swap
 				b = b - 1
 			a = a + 1
-		debug(player.deck.program[0].name)
-		debug(c[0].component[1])
-	
-	RULESET.compareProgramsDefault = FUNCTION (a, b)
-		return_value = player.deck.program[b].type.id - player.deck.program[a].type.id
-			
 
+	
 	// sets the back button's image to whereever it currently leads back to
 	RULESET.updateBackButton = FUNCTION (button)
 		LOCAL.previous_screen = getPreviousScreen()

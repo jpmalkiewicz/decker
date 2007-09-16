@@ -5,6 +5,8 @@
   created the program images from the C++ Decker program image file
   added the images to the program types and have the deck screen display them
   the program table can now be sorted by the first column
+  added on/off bulbs for the program status
+  the code for changing the program status is half done
 2007-09-14
   added the column buttons to the deck screen
   fixed a bug where c.size would be interpreted as a single string instead of an expression with a member operator, in ScriptReader.java

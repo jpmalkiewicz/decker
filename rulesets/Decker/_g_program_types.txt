@@ -4,7 +4,7 @@
 english
 	RULESET.PROGRAM_TYPES = ARRAY
 		THING_TYPE
-			type_name = "Attack"
+			name = "Attack"
 			complexity = 2
 			image = "program/attack"
 			category = ARRAY
@@ -41,7 +41,7 @@ english
 						target_number = target_number + 3
 					actionHumanAttackICE(ice,thing,target_number)
 		THING_TYPE
-			type_name = "Area Attack"
+			name = "Area Attack"
 			complexity = 3
 			image = "program/area_attack"
 			category = ARRAY
@@ -71,7 +71,7 @@ english
 				"Logic Bomb V"
 				"Nuke"
 		THING_TYPE
-			type_name = "Piercing Attack"
+			name = "Piercing Attack"
 			complexity = 3
 			image = "program/piercing_attack"
 			category = ARRAY
@@ -101,7 +101,7 @@ english
 				"IcePick 3.0"
 				"Shredder"
 		THING_TYPE
-			type_name = "Slow"
+			name = "Slow"
 			complexity = 2
 			image = "program/slow"
 			category = ARRAY
@@ -130,7 +130,7 @@ english
 				"Bind 4.1"
 				"TimeStop"
 		THING_TYPE
-			type_name = "Virus"
+			name = "Virus"
 			complexity = 3
 			image = "program/virus"
 			category = ARRAY
@@ -159,7 +159,7 @@ english
 				"BrainBugs 3.1"
 				"Ebola"
 		THING_TYPE
-			type_name = "Confuse"
+			name = "Confuse"
 			complexity = 4
 			image = "program/confuse"
 			category = ARRAY
@@ -188,7 +188,7 @@ english
 				"Lobotomy 4.0"
 				"DanQuayle"
 		THING_TYPE
-			type_name = "Weaken"
+			name = "Weaken"
 			complexity = 2
 			image = "program/weaken"
 			category = ARRAY
@@ -217,7 +217,7 @@ english
 				"Sap"
 				"Impotence"
 		THING_TYPE
-			type_name = "Silence"
+			name = "Silence"
 			complexity = 3
 			image = "program/silence"
 			category = ARRAY
@@ -246,7 +246,7 @@ english
 				"ZipIt 2.1"
 				"MegaMute"
 		THING_TYPE
-			type_name = "Smoke"
+			name = "Smoke"
 			complexity = 1
 			image = "program/smoke"
 			category = ARRAY
@@ -275,7 +275,7 @@ english
 				"Blind 4.0a"
 				"Houdini"
 		THING_TYPE
-			type_name = "Decoy"
+			name = "Decoy"
 			complexity = 4
 			image = "program/decoy"
 			category = ARRAY
@@ -304,7 +304,7 @@ english
 				"StandIn 4.1"
 				"Simulacrum"
 		THING_TYPE
-			type_name = "Armor"
+			name = "Armor"
 			complexity = 3
 			image = "program/armor"
 			category = ARRAY
@@ -333,7 +333,7 @@ english
 				"StoneSkin 4.0"
 				"Adamantium"
 		THING_TYPE
-			type_name = "Shield"
+			name = "Shield"
 			complexity = 3
 			image = "program/shield"
 			category = ARRAY
@@ -362,7 +362,7 @@ english
 				"Blocker 7.0"
 				"Aegis"
 		THING_TYPE
-			type_name = "Medic"
+			name = "Medic"
 			complexity = 4
 			image = "program/medic"
 			category = ARRAY
@@ -391,7 +391,7 @@ english
 				"VirtualSurgeon"
 				"M.A.S.H"
 		THING_TYPE
-			type_name = "Hide"
+			name = "Hide"
 			complexity = 3
 			image = "program/hide"
 			category = ARRAY
@@ -420,7 +420,7 @@ english
 				"SuperCloak"
 				"HollowMan"
 		THING_TYPE
-			type_name = "Deceive"
+			name = "Deceive"
 			complexity = 2
 			image = "program/deceive"
 			category = ARRAY
@@ -449,7 +449,7 @@ english
 				"Forge 2.3a"
 				"Politician"
 		THING_TYPE
-			type_name = "Relocate"
+			name = "Relocate"
 			complexity = 2
 			image = "program/relocate"
 			category = ARRAY
@@ -478,7 +478,7 @@ english
 				"TraceBuster 3.0"
 				"Trail-B-Gone"
 		THING_TYPE
-			type_name = "Analyze"
+			name = "Analyze"
 			complexity = 1
 			image = "program/analyze"
 			category = ARRAY
@@ -508,7 +508,7 @@ english
 				"Identify 3.0.3"
 				"Forensics"
 		THING_TYPE
-			type_name = "Scan"
+			name = "Scan"
 			complexity = 1
 			image = "program/scan"
 			category = ARRAY
@@ -539,7 +539,7 @@ english
 				"Snoopy 3.0"
 				"SuperScan"
 		THING_TYPE
-			type_name = "Evaluate"
+			name = "Evaluate"
 			complexity = 1
 			image = "program/evaluate"
 			category = ARRAY
@@ -570,7 +570,7 @@ english
 				"BlueBook 4.0a"
 				"ShowMeTheMoney"
 		THING_TYPE
-			type_name = "Decrypt"
+			name = "Decrypt"
 			complexity = 2
 			image = "program/decrypt"
 			category = ARRAY
@@ -599,7 +599,7 @@ english
 				"Decrypt IV"
 				"SuperCracker"
 		THING_TYPE
-			type_name = "Reflect"
+			name = "Reflect"
 			complexity = 4
 			image = "program/reflect"
 			category = ARRAY
@@ -628,7 +628,7 @@ english
 				"BounceBackSupreme"
 				"Trampoline"
 		THING_TYPE
-			type_name = "Attack Boost"
+			name = "Attack Boost"
 			complexity = 3
 			image = "program/attack_boost"
 			category = ARRAY
@@ -658,7 +658,7 @@ english
 				"Attack Boost 5.1"
 				"Attack Boost 6.0"
 		THING_TYPE
-			type_name = "Defense Boost"
+			name = "Defense Boost"
 			complexity = 3
 			image = "program/defense_boost"
 			category = ARRAY
@@ -688,7 +688,7 @@ english
 				"Defense Boost 5.1"
 				"Defense Boost 6.0"
 		THING_TYPE
-			type_name = "Stealth Boost"
+			name = "Stealth Boost"
 			complexity = 3
 			image = "program/stealth_boost"
 			category = ARRAY
@@ -718,7 +718,7 @@ english
 				"Stealth Boost 5.1"
 				"Stealth Boost 6.0"
 		THING_TYPE
-			type_name = "Analysis Boost"
+			name = "Analysis Boost"
 			complexity = 3
 			image = "program/analysis_boost"
 			category = ARRAY
