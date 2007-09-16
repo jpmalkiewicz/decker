@@ -1,5 +1,5 @@
 english
-	RULESET.compareProgramsDefault = FUNCTION (a, b)
+	RULESET.compareProgramsPreset = FUNCTION (a, b)
 		return_value = player.deck.program[b].type.id - player.deck.program[a].type.id
 
 
@@ -8,21 +8,27 @@ english
 
 
 	RULESET.compareProgramsRating = FUNCTION (a, b)
-		return_value = player.deck.program[b].rating - player.deck.program[a].rating
+		return_value = player.deck.program[a].rating - player.deck.program[b].rating
 
 
 	RULESET.compareProgramsSize = FUNCTION (a, b)
-		return_value = player.deck.program[b].size - player.deck.program[a].size
+		return_value = player.deck.program[a].size - player.deck.program[b].size
 
 
 	RULESET.compareProgramsType = FUNCTION (a, b)
 		return_value = player.deck.program[b].type.name < player.deck.program[a].type.name ? -1 : ( player.deck.program[b].type.name > player.deck.program[a].type.name ? 1 : 0 )
 
 
+	RULESET.compareProgramsLoaded = FUNCTION (a, b)
+		return_value = ( player.deck.program[b].state == INSTALLED ? 0 : 1 ) - ( player.deck.program[a].state == INSTALLED ? 0 : 1 )
+
+
+	RULESET.compareProgramsDefault = FUNCTION (a, b)
+		return_value = ( player.deck.program[b].type.default_category == UNDEFINED ? 2 : ( player.deck.program[b].state == DEFAULT ? 0 : 1 )) - ( player.deck.program[a].type.default_category == UNDEFINED ? 2 : ( player.deck.program[a].state == DEFAULT ? 0 : 1 ))
+
+
 	RULESET.createDeck = FUNCTION (hardware_rating, program_rating)
 		return_value = DECK
-			cpu = 1
-		debug (return_value)
 		if hardware_rating > 0
 			return_value.cpu = hardware_rating
 			return_value.coprocessor = hardware_rating
@@ -33,6 +39,7 @@ english
 		if program_rating > 0
 			return_value.program = ARRAY
 				createProgram(ATTACK, program_rating)
+				createProgram(PIERCING_ATTACK, program_rating+2)
 				createProgram(SILENCE, program_rating)
 				createProgram(SMOKE, program_rating)
 				createProgram(ARMOR, program_rating)
@@ -192,12 +199,15 @@ english
 	RULESET.setProgramState = FUNCTION (deck, program, state)
 		if state != program.state
 			LOCAL.max_load = getMaxLoad(deck)
-			if state != INSTALLED && program.state == INSTALLED && deck.loaded_programs_size + program.size <= max_load
-				deck.loaded_programs_size = deck.loaded_programs_size + program.size
-				if state == DEFAULT
-					if deck.default_program[program.type.default_category] != UNDEFINED
-						deck.default_program[program.type.default_category].state = LOADED   // the old default program is no longer the default program
-					deck.default_program[program.type.default_category] = program
+			if state != INSTALLED && program.state == INSTALLED
+				if deck.loaded_programs_size + program.size <= max_load
+					deck.loaded_programs_size = deck.loaded_programs_size + program.size
+				else
+					state = INSTALLED   // the program doesn't fit into the deck's memory
+			if state == DEFAULT
+				if deck.default_program[program.type.default_category] != UNDEFINED
+					deck.default_program[program.type.default_category].state = LOADED   // the old default program is no longer the default program
+				deck.default_program[program.type.default_category] = program
 			if state == INSTALLED && program.state != INSTALLED
 				deck.loaded_programs_size = deck.loaded_programs_size - program.size
 				if program.state == DEFAULT
