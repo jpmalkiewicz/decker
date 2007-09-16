@@ -35,9 +35,7 @@ english
 				sorting_order_function = &_sorting_order_function
 				on_mouse_up = FUNCTION
 					LOCAL.k = scrollpane.component[0].object[0].object[0]
-					debug("table identical : "+(scrollpane.displayed_element == scrollpane.component[0].object[0].object[0]))
 					sortTable(scrollpane.displayed_element, &sorting_order_function)
-					debug("table identical : "+(scrollpane.displayed_element == scrollpane.component[0].object[0].object[0]))
 
 		LOCAL.table_button_x = ARRAY
 			scrollpane.x - 1
@@ -68,10 +66,10 @@ english
 			createBorder(scrollpane.x-3, scrollpane.y-23, scrollpane.width+6, scrollpane.height+26, @TABLE_BACKGROUND_COLOR, true)
 			scrollpane
 			createTableButton("",        20, table_button_x, &compareProgramsDefault)
-			createTableButton("Name",   116, table_button_x, &compareProgramsDefault)
-			createTableButton("Class",   54, table_button_x, &compareProgramsDefault)
-			createTableButton("Rating",  54, table_button_x, &compareProgramsDefault)
-			createTableButton("Size",    54, table_button_x, &compareProgramsDefault)
+			createTableButton("Name",   116, table_button_x, &compareProgramsName)
+			createTableButton("Type",    54, table_button_x, &compareProgramsType)
+			createTableButton("Rating",  54, table_button_x, &compareProgramsRating)
+			createTableButton("Size",    54, table_button_x, &compareProgramsSize)
 			createTableButton("Loaded",  54, table_button_x, &compareProgramsDefault)
 			createTableButton("Default", 54, table_button_x, &compareProgramsDefault)
 					
@@ -85,7 +83,6 @@ english
 			
 			
 		setup = FUNCTION
-			debug("setup")
 			updateBackButton(deck_screen.back_button)
 			deck_screen.chip_text[0].text = player.deck.cpu
 			deck_screen.chip_text[1].text = player.deck.coprocessor
@@ -94,11 +91,44 @@ english
 			deck_screen.chip_text[4].text = player.deck.stealth
 			deck_screen.chip_text[5].text = player.deck.analysis
 			// create the new software table
-			LOCAL.t = createTable (20, 0, 0, 19, 116, 54, 54, 54, 54, 54)
+			LOCAL.t = createTable (18, 0, 0, 19, 116, 54, 54, 54, 54, 54)
 			t.cell_x = createArray (CENTER, 8, CENTER, CENTER, CENTER, CENTER, CENTER)
+			t.cell_y = CENTER
 			LOCAL.i = 0
 			LOCAL.p = player.deck.program
+			LOCAL.status = UNDEFINED
+			LOCAL.loaded = UNDEFINED
+			
+			LOCAL.status_function = FUNCTION
+				if prog.status != DEFAULT
+					prog.status = DEFAULT
+					idle = "status_on"
+// remove the DEFAULT state from the previous DEFAULT program from this category
+				else
+					prog.status = LOADED
+					idle = "status_off"
+					
+			LOCAL.status_function = FUNCTION
+				if prog.status != INSTALLED
+					prog.status = INSTALLED
+					idle = "status_off"
+				else
+					prog.status = LOADED
+					idle = "status_on"
+			
 			while i < p.size
-				addTableRow(t, wrapImage(p[i].type.image), createText(p[i].name,,,@TABLE_TEXT_COLOR), createText(p[i].type.type_name,,,@TABLE_TEXT_COLOR), createText(p[i].rating,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR), createText("c",,,@TABLE_TEXT_COLOR), createText("d",,,@TABLE_TEXT_COLOR))
+				loaded = BUTTON
+					idle = p[i].status == DEFAULT || p[i].status == LOADED ?  "status_on"  :  "status_off"
+					prog = p[i]
+					on_mouse_down = &load_function
+				if p[i].status == DEFAULT || defaultProgramType(p[i]) != UNDEFINED
+					status = BUTTON
+						idle = p[i].status == DEFAULT  ?  "status_on"  :  "status_off"
+						prog = p[i]
+						on_mouse_down = &status_function
+				else
+					LOCAL.status = createText("")
+				
+				addTableRow(t, wrapImage(p[i].type.image), createText(p[i].name,,,@TABLE_TEXT_COLOR), createText(p[i].type.name,,,@TABLE_TEXT_COLOR), createText(p[i].rating,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR), wrapImage("status_on"), status)
 				i = i + 1
 			deck_screen.scrollpane.displayed_element = t

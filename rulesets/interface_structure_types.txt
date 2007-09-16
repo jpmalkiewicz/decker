@@ -439,5 +439,3 @@ english
 				component[0].object[0].x = hscrollbar == false ? 0 : -hscrollbar.slider_position
 				component[0].object[0].y = vscrollbar == false ? 0 : -vscrollbar.slider_position
 				component[0].object[0].object[0] = displayed_element
-				debug("SCROLLPANE.on_draw()")
-				debug(component[0].object[0].object[0].component[0].component[1])

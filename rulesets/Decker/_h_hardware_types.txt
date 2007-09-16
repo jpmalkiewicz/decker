@@ -1,100 +1,100 @@
 english
 	RULESET.HARDWARE_TYPES = ARRAY
 		THING_TYPE
-			type_name = "CPU"
+			name = "CPU"
 			category = ARRAY
 				CHIP
 				CPU
 			complexity = 5
 		THING_TYPE
-			type_name = "Coprocessor"
+			name = "Coprocessor"
 			category = ARRAY
 				CHIP
 				COPROCESSOR
 			complexity = 5
 		THING_TYPE
-			type_name = "Attack Firmware"
+			name = "Attack Firmware"
 			category = ARRAY
 				CHIP
 				ATTACK
 			complexity = 4
 		THING_TYPE
-			type_name = "Defense Firmware"
+			name = "Defense Firmware"
 			category = ARRAY
 				CHIP
 				DEFENSE
 			complexity = 4
 		THING_TYPE
-			type_name = "Stealth Firmware"
+			name = "Stealth Firmware"
 			category = ARRAY
 				CHIP
 				STEALTH
 			complexity = 4
 		THING_TYPE
-			type_name = "Analysis Firmware"
+			name = "Analysis Firmware"
 			category = ARRAY
 				CHIP
 				ANALYSIS
 			complexity = 4
 
 		THING_TYPE
-			type_name = "Chip Burner"
+			name = "Chip Burner"
 			category = ARRAY
 				HARDWARE
 				CHIP_BURNER
 			base_value = 1000
 			max_rating = 4
 		THING_TYPE
-			type_name = "Surge Processor"
+			name = "Surge Processor"
 			category = ARRAY
 				HARDWARE
 				SURGE_SUPPRESSOR
 			base_value = 500
 			max_rating = 5
 		THING_TYPE
-			type_name = "Neural Damper"
+			name = "Neural Damper"
 			category = ARRAY
 				HARDWARE
 				NEURAL_DAMPER
 			base_value = 1000
 			max_rating = 5
 		THING_TYPE
-			type_name = "Trace Monitor"
+			name = "Trace Monitor"
 			category = ARRAY
 				HARDWARE
 				TRACE_MONITOR
 			base_value = 250
 			max_rating = 3
 		THING_TYPE
-			type_name = "Bio Monitor"
+			name = "Bio Monitor"
 			category = ARRAY
 				HARDWARE
 				BIO_MONITOR
 			base_value = 500
 			max_rating = 2
 		THING_TYPE
-			type_name = "High Bandwidth Bus"
+			name = "High Bandwidth Bus"
 			category = ARRAY
 				HARDWARE
 				HIGH_BANDWIDTH_BUS
 			base_value = 500
 			max_rating = 5
 		THING_TYPE
-			type_name = "Proximity Mapper"
+			name = "Proximity Mapper"
 			category = ARRAY
 				HARDWARE
 				PROXIMITY_MAPPER
 			base_value = 2000
 			max_rating = 1
 		THING_TYPE
-			type_name = "Design Assistant"
+			name = "Design Assistant"
 			category = ARRAY
 				HARDWARE
 				DESIGN_ASSISTANT
 			base_value = 2000
 			max_rating = 3
 		THING_TYPE
-			type_name = "Anti Trace Proxy"
+			name = "Anti Trace Proxy"
 			category = ARRAY
 				HARDWARE
 				ANTI_TRACE_PROXY

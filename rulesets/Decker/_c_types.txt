@@ -95,7 +95,7 @@ english
 
 		THING_TYPE
 			expandable = true
-			type_name
+			name
 			category               // an array listing all the categories this thing type belongs to
 			// complexity          // determines the value, size and coding time for programs and chips
 			// base_value          // the value of hardware is base_value * 2 ^ (rating-1)

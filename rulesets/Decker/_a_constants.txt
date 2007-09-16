@@ -91,6 +91,7 @@ english
 
 		INSTALLED         // program states
 		LOADED
+		DEFAULT
 		RUNNING
 		
 		ANALYSIS_BOOST    // program types
