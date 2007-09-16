@@ -1,5 +1,7 @@
 78%
 2007-09-16
+  finished up the program table sorting buttons
+  fixed a bug where structure type names in expressions were replaced with the structure type instead of a new instance of the structure type
   changing the load / default state of programs works
 2007-09-15
   added half the program information to the deck screen

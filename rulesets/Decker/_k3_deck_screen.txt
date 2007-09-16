@@ -65,12 +65,12 @@ english
 			// the software section
 			createBorder(scrollpane.x-3, scrollpane.y-23, scrollpane.width+6, scrollpane.height+26, @TABLE_BACKGROUND_COLOR, true)
 			scrollpane
-			createTableButton("",        20, table_button_x, &compareProgramsDefault)
+			createTableButton("",        20, table_button_x, &compareProgramsPreset)
 			createTableButton("Name",   116, table_button_x, &compareProgramsName)
 			createTableButton("Type",    54, table_button_x, &compareProgramsType)
 			createTableButton("Rating",  54, table_button_x, &compareProgramsRating)
 			createTableButton("Size",    54, table_button_x, &compareProgramsSize)
-			createTableButton("Loaded",  54, table_button_x, &compareProgramsDefault)
+			createTableButton("Loaded",  54, table_button_x, &compareProgramsLoaded)
 			createTableButton("Default", 54, table_button_x, &compareProgramsDefault)
 					
 		chip_text = ARRAY
@@ -106,9 +106,10 @@ english
 					idle = "status_off"
 				else
 					// switch off the default marker for the old default program in the table
-					LOCAL.p2 = player.deck.default_program[prog.type.default_type]
+					LOCAL.p2 = player.deck.default_program[prog.type.default_category]
 					if p2 != UNDEFINED
 						LOCAL.index = indexof(p2, player.deck.program)
+						debug("old default program : "+p2.name+" "+index)
 						getTableCell(deck_screen.scrollpane.displayed_element, index, 6).idle = "status_off"
 					// if the program wasn't loaded, change the load marker
 					if prog.state == INSTALLED
