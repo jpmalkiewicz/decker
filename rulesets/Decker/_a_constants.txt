@@ -63,6 +63,12 @@ english
 		10
 		5
 		1
+		
+		
+	// IDs for categories in which programs can be used as the default program
+	RULESET.DEFAULT_ATTACK = 0
+	RULESET.DEFAULT_ARMOR  = 1
+	RULESET.DEFAULT_HIDE   = 2
 
 
 	constant
