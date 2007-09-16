@@ -125,7 +125,7 @@ english
 
 
 	RULESET.getMaxLoad = FUNCTION (deck)
-		return_value = 30 * deck.cpu + ( deck.cpu < deck.coprocessor ? deck.cpu : deck.coprocessor )
+		return_value = 30 * ( deck.cpu + ( deck.cpu < deck.coprocessor ? deck.cpu : deck.coprocessor ) )
 
 
 	// returns the roman number string for the given number. only works for numbers up to 4999. the format for the resulting numbers is intended for easy reading
@@ -199,21 +199,21 @@ english
 	RULESET.setProgramState = FUNCTION (deck, program, state)
 		if state != program.state
 			LOCAL.max_load = getMaxLoad(deck)
-			if state != INSTALLED && program.state == INSTALLED
-				if deck.loaded_programs_size + program.size <= max_load
-					deck.loaded_programs_size = deck.loaded_programs_size + program.size
+			if state != INSTALLED &&( program.state != LOADED && program.state != DEFAULT )
+				if deck.used_memory + program.size <= max_load
+					deck.used_memory = deck.used_memory + program.size
 				else
 					state = INSTALLED   // the program doesn't fit into the deck's memory
 			if state == DEFAULT
 				if deck.default_program[program.type.default_category] != UNDEFINED
 					deck.default_program[program.type.default_category].state = LOADED   // the old default program is no longer the default program
 				deck.default_program[program.type.default_category] = program
-			if state == INSTALLED && program.state != INSTALLED
-				deck.loaded_programs_size = deck.loaded_programs_size - program.size
+			if state == INSTALLED &&( program.state == LOADED || program.state == DEFAULT )
+				deck.used_memory = deck.used_memory - program.size
 				if program.state == DEFAULT
 					deck.default_program[program.type.default_category] = UNDEFINED
 			program.state = state
-			deck.current_load = deck.loaded_programs_size <= max_load / 3 ? 0 : ( deck.loaded_programs_size <= max_load * 2 / 3 ? 1 : 2 )
+			deck.current_load = deck.used_memory <= max_load / 3 ? 0 : ( deck.used_memory <= max_load * 2 / 3 ? 1 : 2 )
 
 
 	// comparator must return a value below zero if the compared rows are in the wrong order, 0 if they are identical, a positive value if they are in the correct order
