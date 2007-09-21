@@ -218,14 +218,14 @@ english
 					component[0].width = width
 					component[1].x = CENTER
 				else
-					component[0].width = pixelwidth(component[1]) + 4 + 2*padding
+					component[0].width = pixelwidth(c) + 4 + 2*padding
 					component[1].x = 2 + padding
 				// if the button has an explicitly defined height, set the border height to the same value and center the button image / text vertically
 				if BORDER_BUTTON.height != UNDEFINED
 					component[0].height = height
 					component[1].y = CENTER
 				else     // otherwise, wrap a border around the content
-					component[0].height = pixelheight(component[1]) + 4 + 2*padding
+					component[0].height = pixelheight(c) + 4 + 2*padding
 					component[1].y = 2 + padding/2
 
 

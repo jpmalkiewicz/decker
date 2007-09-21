@@ -172,10 +172,9 @@ dummy = true;
 					final Value[] comp = v.array();
 					final int ccount = comp.length;
 					for (int i = 0; i < ccount; i++)
-						if (comp[i].type() == Value.STRUCTURE)
-							drawContent(comp[i], d);
+						drawContent(comp[i], d);
 				}
-				else if (v.type() == Value.STRUCTURE) {
+				else if (!v.equalsConstant("UNDEFINED")) {
 					drawContent(v, d);
 				}
 			}
