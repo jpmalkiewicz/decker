@@ -12,14 +12,12 @@ english
 // interface element types ****************************************************************************************************************************
 
 
-		DRAWING_BOUNDARY // limits the area where things can be drawn to the given rectangle. all drawings which are in the object array of the DRAWING_BOUNDARY get cut off at the edge of the rectangle and only display inside
+		DRAWING_BOUNDARY // limits the area where things can be drawn to the given rectangle. all drawings which are in the component array of the DRAWING_BOUNDARY get cut off at the edge of the rectangle and only display inside
 			x
 			y
 			width
 			height
-			object
-			initializer = FUNCTION
-				object = ARRAY
+			component
 
 
 		COMPONENT             // all variables in each view definition are optional
@@ -28,9 +26,9 @@ english
 			y
 			// width
 			// height
-			// title
+			// title             // only relevant if it is the top level component. then it sets the frame title
 			// background_image
-			// object         // must contain an array which contains the interface elements of this view, e.g. buttons and lists
+			// component         // must contain an array which contains the interface elements of this view, e.g. buttons and lists
 
 
 		BUTTON
@@ -45,7 +43,8 @@ english
 			// hover
 			// on_mouse_up    // put the function with the button effect here, for a standard button
 			initializer = FUNCTION
-				BUTTON.component = ARRAY
+				component = ARRAY
+					UNDEFINED
 			on_draw = FUNCTION
 				if state == IDLE
 					if component[0] != idle
@@ -53,19 +52,19 @@ english
 				if state == PRESSED
 					LOCAL.p = BUTTON.pressed  // using "BUTTON." to make sure we're not using the "pressed" variable from some other structure
 					if p == UNDEFINED
-						p = deduceImageName(BUTTON.idle, "1")    // deduces the name of the image for the pressed state from the name of the idle state image
+						p = deduceImageName(idle, "1")    // deduces the name of the image for the pressed state from the name of the idle state image
 					if component[0] != p
 						component[0] = p
 				if state == DISABLED
 					LOCAL.p = BUTTON.disabled
 					if p == UNDEFINED
-						p = deduceImageName(BUTTON.idle, "2")
+						p = deduceImageName(idle, "2")
 					if component[0] != p
 						component[0] = p
 				if state == HOVER
 					LOCAL.p = BUTTON.hover
 					if p == UNDEFINED
-						p = deduceImageName(BUTTON.idle, "3")
+						p = deduceImageName(idle, "3")
 					if component[0] != p
 						component[0] = p
 
@@ -137,46 +136,13 @@ english
 			width
 			height
 			inverted = false
-			color1 = @BORDER_COLOR1
-			color2 = @BORDER_COLOR2
-			object
+			top_color = @BORDER_COLOR1
+			left_color
+			right_color
+			bottom_color = @BORDER_COLOR2
 			background_color
 			component
-			initializer = FUNCTION
-				component = ARRAY
-					LINE
-					LINE
-					LINE
-					LINE
-					LINE
-					LINE
-					LINE
-					LINE
-					UNDEFINED  // placeholder for the rectangle that draws the background, if it has a color
-			on_draw = FUNCTION
-				// adjust the lines if the border has changed
-				LOCAL.c1 = inverted ? color2 : color1
-				LOCAL.c2 = inverted ? color1 : color2
-				LOCAL.corner_modifier = inverted ? 1 : 0
-				if component[0].x2 != width-1 || component[2].y2 != height-1 || c1 != component[0].color || c2 != component[7].color
-					setLine(component[0], 0, 0, width-1, 0, c1)    // the top border
-					setLine(component[1], 1, 1, width-2, 1, c1)
-					setLine(component[2], 0, 1, 0, height-1, c1)   // the left border
-					setLine(component[3], 1, 2, 1, height-2, c1)
-					setLine(component[4], width-1, 1-corner_modifier, width-1, height-1, c2)          // the right border
-					setLine(component[5], width-2, 2-corner_modifier, width-2, height-2+corner_modifier, c2)
-					setLine(component[6], 1-corner_modifier, height-1, width-2+corner_modifier, height-1, c2)    // the bottom border
-					setLine(component[7], 2-corner_modifier, height-2, width-3+corner_modifier, height-2, c2)
-				if background_color == UNDEFINED
-					component[8] = UNDEFINED
-				else if component[8].color != background_color
-					if component[8] == UNDEFINED
-						component[8] = RECTANGLE
-					component[8].x = 2
-					component[8].y = 2
-					component[8].width = BORDER.width-4
-					component[8].height = BORDER.height-4
-					component[8].color = background_color
+			thickness = 2
 
 
 		SCREEN_BACKGROUND
@@ -184,7 +150,6 @@ english
 			y = 0
 			width
 			height
-			object
 			component
 			initializer = FUNCTION
 				component = ARRAY
@@ -209,18 +174,19 @@ english
 			expandable = true
 			x
 			y
+			component
 			state = IDLE
 			idle              // the image for the idle state of the button. if the image name ends with a 0 and no pressed, hover or disabled images are defined, the program will look for images of the same name but ending in a 1, 2 and 3 for them
-			object
 			// pressed
 			// disabled
 			// hover
 			// on_mouse_up    // put the function with the button effect here, for a standard button
 			// text_padding    // put a value here if you want the text to be shifted a different number of pixels than 4 from the top
 			initializer = FUNCTION
-				object = ARRAY
+				component = ARRAY
 					createBorder(0,0)
-				object[0].background_color = @BACKGROUND_COLOR
+					UNDEFINED    // placeholder for the button face
+				component[0].background_color = @BACKGROUND_COLOR
 			on_draw = FUNCTION
 				LOCAL.c = UNDEFINED
 				if state == IDLE
@@ -239,30 +205,28 @@ english
 						c = deduceImageName(idle, "3")
 				// if it's the name of an image, put a wrapper around it so we can position it within the button area
 				if value_type(c) != "STRING"
-					object[1] = c
-				else if object[1].structure_type == COLLECTION
-					object[1].object[0] = c
+					component[1] = c
+				else if component[1].structure_type == COLLECTION
+					component[1].component = c
 				else
-					object[1] = COLLECTION
-						object = ARRAY
-							c
-				object[0].inverted = state == PRESSED
-//				LOCAL.padding = (object[1].structure_type == "TEXT" ? 4 : 0)
-				LOCAL.padding = BORDER_BUTTON.text_padding != UNDEFINED && object[1].structure_type == "TEXT" ? text_padding : 0
+					component[1] = COLLECTION
+						component = c
+				component[0].inverted = state == PRESSED
+				LOCAL.padding = BORDER_BUTTON.text_padding != UNDEFINED && component[1].structure_type == "TEXT" ? text_padding : 0
 				// if the button has an explicitly defined width, set the border width to the same value and center the button image / text horizontally
 				if BORDER_BUTTON.width != UNDEFINED
-					object[0].width = width
-					object[1].x = CENTER
+					component[0].width = width
+					component[1].x = CENTER
 				else
-					object[0].width = pixelwidth(object[1]) + 4 + 2*padding
-					object[1].x = 2 + padding
+					component[0].width = pixelwidth(component[1]) + 4 + 2*padding
+					component[1].x = 2 + padding
 				// if the button has an explicitly defined height, set the border height to the same value and center the button image / text vertically
 				if BORDER_BUTTON.height != UNDEFINED
-					object[0].height = height
-					object[1].y = CENTER
+					component[0].height = height
+					component[1].y = CENTER
 				else     // otherwise, wrap a border around the content
-					object[0].height = pixelheight(object[1]) + 4 + 2*padding
-					object[1].y = 2 + padding/2
+					component[0].height = pixelheight(component[1]) + 4 + 2*padding
+					component[1].y = 2 + padding/2
 
 
 		TABLE
@@ -288,7 +252,6 @@ english
 			v_align
 			h_align
 			component  // component[0] = scroller, [1] = up arrow (optional), [2] = down arrow (optional), [3] is an invisible rectangle that spans the whole screen to capture on_mouse_dragged events
-			object
 			on_draw
 			slider_position = 0  // logical position
 			slider_max           // you HAVE to set this to a positive number or the slider won't work
@@ -345,8 +308,8 @@ english
 			y
 			width
 			height
-			component                            // component[2] optional vertical scrollbar, component[3] optional horizontal scrollbar, component[1] optional view element that gets displayed in the corner that is cut off if both scrollbars are displayed, component[0] a DRAWING_BOUNDARY with component[0].object[0] being a wrapper around the view element that is displayed in this scrollpane
-			displayed_element                    // the object that this SCROLLPANE displays
+			component                            // component[2] optional vertical scrollbar, component[3] optional horizontal scrollbar, component[1] optional view element that gets displayed in the corner that is cut off if both scrollbars are displayed, component[0] a DRAWING_BOUNDARY with component[0].component being a wrapper around the view element that is displayed in this scrollpane
+			displayed_element                    // the component that this SCROLLPANE displays
 			optional_scrollbars = true           // the scrollbars are optional by default and only get displayed when needed
 			vertical_scrollbar                   // either a scrollbar or an array containing the slider and buttons, or their names
 			horizontal_scrollbar                 // like vertical_scrollbar
@@ -357,11 +320,10 @@ english
 					DRAWING_BOUNDARY
 						x = 0
 						y = 0
-						object[0] = COLLECTION   // wraps around the displayed component to be able to move it around on the screen without changing it
+						component = COMPONENT   // wraps around the displayed component to be able to move it around on the screen without changing it
 							x = 0
 							y = 0
-							object = ARRAY
-								UNDEFINED        // the displayed component
+							component = UNDEFINED  // the displayed component
 					UNDEFINED
 					UNDEFINED
 					UNDEFINED
@@ -432,6 +394,6 @@ english
 				// adjust the displayed content
 				component[0].width = w
 				component[0].height = h
-				component[0].object[0].x = hscrollbar == false ? 0 : -hscrollbar.slider_position
-				component[0].object[0].y = vscrollbar == false ? 0 : -vscrollbar.slider_position
-				component[0].object[0].object[0] = displayed_element
+				component[0].component.x = hscrollbar == false ? 0 : -hscrollbar.slider_position
+				component[0].component.y = vscrollbar == false ? 0 : -vscrollbar.slider_position
+				component[0].component.component = displayed_element

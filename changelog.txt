@@ -1,5 +1,6 @@
 78%
 2007-09-21
+  BORDER drawing is now hard coded and accepts 1-4 colors instead of 2
   decided to get rid of the .object entry of components, and to let the interface code accept a single STRUCTURE as a component (should help with table cells)
   simplified and speeded up calls of hard coded functions
   ARRAY is no longer a structure type, it's now a data type, like STRUCTURE, INTEGER, STRING, etc

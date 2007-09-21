@@ -86,6 +86,72 @@ dummy = true;
 				clip = g.getClip();
 				g.setClip(dx, dy, w, h);
 			}
+			else if (type.equals("BORDER")) {
+				final boolean inverted = d.get("inverted").equals(true);
+				Value vtc = d.get("top_color").evaluate(), vlc = d.get("left_color").evaluate(), vrc = d.get("right_color").evaluate(), vbc = d.get("bottom_color").evaluate();
+				if (vtc.equalsConstant("UNDEFINED"))
+					vtc = vlc;
+				else if (vlc.equalsConstant("UNDEFINED"))
+					vlc = vtc;
+				if (vrc.equalsConstant("UNDEFINED")) {
+					if (!vbc.equalsConstant("UNDEFINED"))
+						vrc = vbc;
+					else
+						vrc = vlc;
+				}
+				if (vbc.equalsConstant("UNDEFINED"))
+					vbc = vrc;
+				// determine the line thickness
+				int thickness = 2;
+				if ((v=d.get("thickness")).type() == Value.INTEGER)
+					thickness = v.integer();
+				// if we have enough colors, draw the border
+				if (!vlc.equalsConstant("UNDEFINED")) {
+					final int w1 = w-1;
+					final int h1 = h-1;
+					if (!inverted) {
+						// draw the top border
+						g.setColor(getColor(vtc.toString()));
+						for (int i = thickness; --i >= 0; )
+							g.drawLine(dx+i, dy+i, dx+w1-i, dy+i);
+						// draw the left border
+						g.setColor(getColor(vlc.toString()));
+						for (int i = thickness; --i >= 0; )
+							g.drawLine(dx+i, dy+i+1, dx+i, dy+h1-i);
+						// draw the right border
+						g.setColor(getColor(vrc.toString()));
+						for (int i = thickness; --i >= 0; )
+							g.drawLine(dx+w1-i, dy+i+1, dx+w1-i, dy+h1-i);
+						// draw the bottom border
+						g.setColor(getColor(vbc.toString()));
+						for (int i = thickness; --i >= 0; )
+							g.drawLine(dx+i+1, dy+h1-i, dx+w1-i-1, dy+h1-i);
+					}
+					else {
+						// draw the bottom border
+						g.setColor(getColor(vtc.toString()));
+						for (int i = thickness; --i >= 0; )
+							g.drawLine(dx+i, dy+h1-i, dx+w1-i, dy+h1-i);
+						// draw the right border
+						g.setColor(getColor(vlc.toString()));
+						for (int i = thickness; --i >= 0; )
+							g.drawLine(dx+w1-i, dy+i, dx+w1-i, dy+h1-i-1);
+						// draw the left border
+						g.setColor(getColor(vrc.toString()));
+						for (int i = thickness; --i >= 0; )
+							g.drawLine(dx+i, dy+i+1, dx+i, dy+h1-i-1);
+						// draw the top border
+						g.setColor(getColor(vbc.toString()));
+						for (int i = thickness; --i >= 0; )
+							g.drawLine(dx+i, dy+i, dx+w1-i-1, dy+i);
+					}
+				}
+				// draw the background
+				if (!(v=d.get("background_color").evaluate()).equalsConstant("UNDEFINED")) {
+					g.setColor(getColor(v.toString()));
+					g.fillRect(dx+thickness, dy+thickness, w-2*thickness, h-2*thickness);
+				}
+			}
 			else if (type.equals("LINE") && d.get("x2").type() == Value.INTEGER && d.get("y2").type() == Value.INTEGER) {
 				if ((v=d.get("color").evaluate()) != null)
 					g.setColor(getColor(v.toString()));

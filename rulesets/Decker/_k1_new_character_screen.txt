@@ -188,4 +188,3 @@ english
 			component[] = bonus_button_group[i]
 			adjust_button(bonus_button_group[i], i==0)
 			LOCAL.i = i + 1
-		debug(COMPONENT.this)
