@@ -1,5 +1,6 @@
 package decker.model;
 import java.io.PrintStream;
+import decker.util.*;
 
 
 
@@ -27,16 +28,17 @@ final class AssignmentCommand extends ScriptNode
 	public Value execute ()  {
 		// fetch the variable
 		Value ret = null, v;
+		final int voperator = variable.getOperator();
 		// if there exists a LOCAL variable of that name, use that
-		if (variable.getOperator() == Expression.VARIABLE) {
+		if (voperator == Expression.VARIABLE) {
 			for (int i = stack_size; --i >= 0; ) {
 				if (stack[i].get("structure_type").equals("LOCAL")) {
 					ret = stack[i].get(variable.toString());
 				}
 			}
 		}
-		// if the topmost structure on the stack is expandable and not of type LOCAL (a sign that we're inside a function body), add the variable to it (if it doesn't exist yet)
-		if (ret == null && variable.getOperator() == Expression.VARIABLE && stack[stack_size-1].canHoldCustomVariables() && !stack[stack_size-1].get("structure_type").equals("LOCAL")) {
+		// if the topmost structure on the stack is expandable and not of type LOCAL, add the variable to it (if it doesn't exist yet)
+		if (ret == null && voperator == Expression.VARIABLE && stack[stack_size-1].canHoldCustomVariables() && !stack[stack_size-1].get("structure_type").equals("LOCAL")) {
 			ret = stack[stack_size-1].get(variable.toString());
 			if (ret == null)
 				ret = stack[stack_size-1].add(variable.toString());
@@ -47,7 +49,7 @@ final class AssignmentCommand extends ScriptNode
 		final Structure k = ret.getEnclosingStructure();
 		if (k == null) {
 			// if it's just a variable name, add it to the innermost Structure on the stack that can hold custom variables
-			if (variable.getOperator() == Expression.VARIABLE) {
+			if (voperator == Expression.VARIABLE) {
 				final String varname = variable.toString();
 				testVariableName(varname);
 				boolean var_created = false;
@@ -60,7 +62,7 @@ final class AssignmentCommand extends ScriptNode
 				if (!var_created)
 					throwException("failed to create variable. there is no structure that can hold custom variables on the stack atm");
 			}
-			else if (variable.getOperator() == Expression.MEMBER) {
+			else if (voperator == Expression.MEMBER) {
 				// the variable gets added to some structure, find the structure
 				if (variable.getSecondOperand().getOperator() != Expression.VARIABLE)
 					throwException("failed to create variable. variable name expected but operator type "+variable.getSecondOperand().getOperator()+" found:\n"+variable.getSecondOperand().toString());
@@ -89,18 +91,38 @@ final class AssignmentCommand extends ScriptNode
 					throwException("failed to create variable. the structure "+variable.getFirstOperand().toString()+" of type "+structure.get("structure_type")+" cannot hold custom variables");
 				ret = structure.structure().add(varname);
 			}
-			else if (variable.getOperator() == Expression.ARRAY_INDEX) {
+			else if (voperator == Expression.ARRAY_INDEX) {
 				// fetch the array
-				final Value array = variable.getFirstOperand().execute();
-				if (array.type() != Value.STRUCTURE)
-					throwException("failed to create variable. "+variable.getFirstOperand().toString()+" gives a "+array.typeName()+" instead of a structure");
-				if (!array.get("structure_type").equals("ARRAY"))
-					throwException("failed to create variable. "+variable.getFirstOperand().toString()+" gives a "+array.get("structure_type")+" instead of an ARRAY");
+				final Value varray = variable.getFirstOperand().execute();
+				if (varray.type() != Value.ARRAY)
+					throwException("failed to fetch assigned variable. "+variable.getFirstOperand().toString()+" gives a "+varray.typeName()+" instead of an array");
+				final ArrayWrapper array = varray.arrayWrapper();
 				// make sure it's a valid array index
-				final String varname = variable.getSecondOperand().execute().toString();
-				if (varname.length() > 0 && !varname.equals(array.get("size").toString()))
-					throwException("failed to create variable. Array index must be either empty or the current array size ("+array.get("size").toString()+"), not "+varname);
-				ret = array.structure().add(varname);
+				final Value vindex = variable.getSecondOperand().execute();
+				final int vit = vindex.type();
+				int index = Integer.MIN_VALUE;
+				if (vit == Value.INTEGER)
+					index = vindex.integer();
+				else if (vit == Value.REAL)
+					index = Math.round(vit);
+				else {
+					String s = vindex.toString();
+					if (s.length() == 0)
+						index = array.array.length;
+					else try {
+						index = Integer.parseInt(s);
+					} catch (Throwable t) {
+						throwException("\""+s+"\" is no a valid array index in "+variable.toString());
+					}
+				}
+				if (index < 0 || index > array.array.length)
+					throwException("failed to fetch or create variable. Array index must be between 0 and "+(array.array.length-1)+" (inclusive), not "+index);
+				else if (index < array.array.length)
+					ret = array.array[index];
+				else {
+					ret = new Value();
+					array.array = (Value[]) ArrayModifier.addElement(array.array, new Value[index+1], ret);
+				}
 			}
 			else
 				throwException("failed to create variable. unable to handle expressions whose top level operator is "+variable.getOperatorElement().toString());
