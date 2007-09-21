@@ -15,7 +15,7 @@ english
 				height = table.cell_height
 				LOCAL.a = ARRAY
 				component = a
-				// if the function caller has supplied an object for this cell, put it in the cell
+				// if the function caller has supplied a component for this cell, put it in the cell
 				if argument[i+1] != UNDEFINED
 					a[] = argument[i+1]
 					if argument[i+1].x == UNDEFINED && table.cell_x != UNDEFINED
@@ -54,9 +54,9 @@ english
 			background_color = &bbackground_color
 			inverted = binverted == true
 			if &bcolor1 != UNDEFINED
-				color1 = &bcolor1
+				top_color = &bcolor1
 			if &bcolor2 != UNDEFINED
-				color2 = &bcolor2
+				bottom_color = &bcolor2
 			
 	
 	ENGINE.createScrollbar = FUNCTION (_x, _y, _width, _height, _vertical, _slider, _slider_max, _up_left_arrow, _down_right_arrow, _slider_stepping, _slider_position)
@@ -119,7 +119,7 @@ english
 			return_value = createScrollbar(0, BOTTOM, boundingwidth, , false, image_array[0], 0, image_array[1], image_array[2])
 				
 
-	// returns a new TEXT with the default settings as defined in the TEXT object stored in TEXT_STYLE
+	// returns a new TEXT with the default settings as defined in the TEXT stored in TEXT_STYLE
 	ENGINE.createText = FUNCTION (text, x, y, color, font, h_align, v_align, width, height)
 		return_value = copy(TEXT_STYLE)
 		// for all settings which are not defined, the default settings will be used
@@ -143,7 +143,7 @@ english
 			return_value.v_align = &height
 			
 	
-	// returns a new TEXT with the default settings as defined in the TEXT object stored in TEXT_STYLE
+	// returns a new TEXT with the default settings as defined in the TEXT stored in TEXT_STYLE
 	ENGINE.createTextBold = FUNCTION (text, x, y, color, font)
 		return_value = copy(TEXT_STYLE_BOLD)
 		// for all settings which are not defined, the default settings will be used
