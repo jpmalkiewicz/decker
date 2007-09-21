@@ -1,7 +1,7 @@
 english
-	RULESET.home_screen = VIEW
+	RULESET.home_screen = COMPONENT
 		title = "Decker - At Home"
-		object = ARRAY
+		component = ARRAY
 			SCREEN_BACKGROUND
 				width = 215
 				height = 233
@@ -14,14 +14,14 @@ english
 				on_mouse_up = FUNCTION
 					displayInitializedScreen(target_screen, true)
 			object_array[] = createText(button_text, 41, 14 + index * 27)
-		addEntry("home/char",     "View Character",        character_screen, object, 0)
-		addEntry("home/deck",     "View Cyberdeck",        deck_screen, object, 1)
-		addEntry("home/contract", "View Contracts",        character_screen, object, 2)
-		addEntry("home/shop",     "Buy Hardware/Software", character_screen, object, 3)
-		addEntry("home/project",  "Projects",              character_screen, object, 4)
-		addEntry("home/rest",     "Rest and Recuperate",   character_screen, object, 5)
-		addEntry("home/matrix",   "Enter the Matrix",      character_screen, object, 6)
-		addEntry("home/options",  "Options",               character_screen, object, 7)
+		addEntry("home/char",     "View Character",        character_screen, component, 0)
+		addEntry("home/deck",     "View Cyberdeck",        deck_screen,      component, 1)
+		addEntry("home/contract", "View Contracts",        character_screen, component, 2)
+		addEntry("home/shop",     "Buy Hardware/Software", character_screen, component, 3)
+		addEntry("home/project",  "Projects",              character_screen, component, 4)
+		addEntry("home/rest",     "Rest and Recuperate",   character_screen, component, 5)
+		addEntry("home/matrix",   "Enter the Matrix",      character_screen, component, 6)
+		addEntry("home/options",  "Options",               character_screen, component, 7)
 
 
 	RULESET.initial_screen = new_character_screen

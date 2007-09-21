@@ -206,10 +206,10 @@ english
 				// if it's the name of an image, put a wrapper around it so we can position it within the button area
 				if value_type(c) != "STRING"
 					component[1] = c
-				else if component[1].structure_type == COLLECTION
+				else if component[1].structure_type == COMPONENT
 					component[1].component = c
 				else
-					component[1] = COLLECTION
+					component[1] = COMPONENT
 						component = c
 				component[0].inverted = state == PRESSED
 				LOCAL.padding = BORDER_BUTTON.text_padding != UNDEFINED && component[1].structure_type == "TEXT" ? text_padding : 0
@@ -266,7 +266,7 @@ english
 					UNDEFINED  // slider
 					UNDEFINED  // up/left arrow, optional
 					UNDEFINED  // down/right arrow, optional
-					COLLECTION // this is an invisible rectangle that spans the whole screen to capture on_mouse_dragged events
+					COMPONENT // this is an invisible rectangle that spans the whole screen to capture on_mouse_dragged events
 						x = -1000000
 						y = x
 						width = -2*x
