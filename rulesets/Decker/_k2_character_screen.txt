@@ -9,25 +9,25 @@ english
 			"Upper Class"
 			"Elite"
 		
-		char_name = createText("",       130,  15, object)
-		char_reputation = createText("", 130,  35, object)
-		char_money = createText("",      130,  55, object)
-		char_health = createText("",     130,  75, object)
-		date = createText("",              0,  15, object)
+		char_name       = createText("", 130,  15)
+		char_reputation = createText("", 130,  35)
+		char_money      = createText("", 130,  55)
+		char_health     = createText("", 130,  75)
+		date            = createText("",   0,  15)
 
-		attack_points = createText("",      RIGHT,   0)
-		defense_points = createText("",     RIGHT,  20)
-		stealth_points = createText("",     RIGHT,  40)
-		analysis_points = createText("",    RIGHT,  60)
+		attack_points      = createText("", RIGHT,   0)
+		defense_points     = createText("", RIGHT,  20)
+		stealth_points     = createText("", RIGHT,  40)
+		analysis_points    = createText("", RIGHT,  60)
 		programming_points = createText("", RIGHT,  80)
 		chip_design_points = createText("", RIGHT, 100)
-		skill_points = createText("",       RIGHT, 130)
+		skill_points       = createText("", RIGHT, 130)
 		skill_panel = COMPONENT
 			x = 28
 			y = 129
 			width = 156
 			height = 142
-			object = ARRAY
+			component = ARRAY
 				createText("Attack",              0,   0)
 				createText("Defense",             0,  20)
 				createText("Stealth",             0,  40)
@@ -56,12 +56,12 @@ english
 				player.money = player.money - LIFESTYLE_UPGRADE_COST[player.lifestyle]
 				player.lifestyle = player.lifestyle + 1
 		lifestyle_upgrade_text = createText("", 0, 60)
-		lifestyle_panel = COLLECTION
+		lifestyle_panel = COMPONENT
 			x = skill_panel.x + skill_panel.width + 30
 			y = skill_panel.y
 			width = 430-x-28
 			height = 100
-			object = ARRAY
+			component = ARRAY
 				createText("Current Lifestyle",  0,  0)
 				createText("Monthly Cost",       0, 20)
 				createText("Due in",             0, 40)
@@ -70,18 +70,18 @@ english
 				monthly_cost
 				monthly_cost_due
 				lifestyle_upgrade
-				COLLECTION  // the upgrade button will sit in here
+				COMPONENT  // the upgrade button will sit in here
 					x = CENTER
 					y = 80
 					width = 0
 					height = 20
-					object = ARRAY
+					component = ARRAY
 						UNDEFINED
 					on_draw = FUNCTION
 						if player.lifestyle + 1 < LIFESTYLE_COST.size && player.money >= LIFESTYLE_UPGRADE_COST[player.lifestyle]
-							object[0] = lifestyle_upgrade_button
+							component[0] = lifestyle_upgrade_button
 						else
-							object[0] = UNDEFINED				
+							component[0] = UNDEFINED				
 		lifestyle_panel_border = createBorder(lifestyle_panel.x-10, lifestyle_panel.y-9, lifestyle_panel.width+20, lifestyle_panel.height+20, UNDEFINED, true)
 		back_button = BORDER_BUTTON
 			x = 430 - 18 - 24
@@ -90,7 +90,7 @@ english
 			on_mouse_up = FUNCTION
 				displayPreviousScreen()
 			
-		object = ARRAY
+		component = ARRAY
 			SCREEN_BACKGROUND
 				width = 430
 				height = 300
@@ -164,12 +164,12 @@ english
 					player.skill_points = player.skill_points - player.chip_design
 					player.chip_design = player.chip_design + 1
 			
-		skill_panel.object[] = COMPONENT
+		skill_panel.component[] = COMPONENT
 			x = skill_panel.width-pixelwidth(createText("20"))*3/2 - 18
 			y = 0
 			width = 0
 			height = 0
-			object = ARRAY
+			component = ARRAY
 				UNDEFINED  // placeholders for the skill raiser buttons
 				UNDEFINED
 				UNDEFINED
@@ -177,12 +177,12 @@ english
 				UNDEFINED
 				UNDEFINED
 			on_draw = FUNCTION
-				object[0] = player.skill_points >= player.attack      ? attack_button      : UNDEFINED
-				object[1] = player.skill_points >= player.defense     ? defense_button     : UNDEFINED
-				object[2] = player.skill_points >= player.stealth     ? stealth_button     : UNDEFINED
-				object[3] = player.skill_points >= player.analysis    ? analysis_button    : UNDEFINED
-				object[4] = player.skill_points >= player.programming ? programming_button : UNDEFINED
-				object[5] = player.skill_points >= player.chip_design ? chip_design_button : UNDEFINED
+				component[0] = player.skill_points >= player.attack      ? attack_button      : UNDEFINED
+				component[1] = player.skill_points >= player.defense     ? defense_button     : UNDEFINED
+				component[2] = player.skill_points >= player.stealth     ? stealth_button     : UNDEFINED
+				component[3] = player.skill_points >= player.analysis    ? analysis_button    : UNDEFINED
+				component[4] = player.skill_points >= player.programming ? programming_button : UNDEFINED
+				component[5] = player.skill_points >= player.chip_design ? chip_design_button : UNDEFINED
 
 		on_draw = FUNCTION
 			char_name.text          = player.name

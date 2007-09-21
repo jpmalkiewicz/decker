@@ -1,6 +1,6 @@
 78%
 2007-09-21
-  new character screen works completely
+  all screens except for the deck screen work again
   BORDER drawing is now hard coded and accepts 1-4 colors instead of 2
   decided to get rid of the .object entry of components, and to let the interface code accept a single STRUCTURE as a component (should help with table cells)
   simplified and speeded up calls of hard coded functions
