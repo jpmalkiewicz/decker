@@ -84,7 +84,7 @@ english
 				width = 82
 				height = 28
 				inverted = true
-				component = component + ARRAY
+				component = ARRAY
 					char_image
 					BORDER_BUTTON
 						x = 2
@@ -172,7 +172,7 @@ english
 				x = 17
 				y = 219
 				idle = "cancel0"
-				on_mouse_up = @exit_program
+				on_mouse_up = &exit_program
 		LOCAL.i = 0
 		while i < bonus_name.size
 			bonus_button_group[] = BUTTON

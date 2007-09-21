@@ -411,7 +411,7 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 			if ((v=d.get("component")) != null) {
 				if (v.type() == Value.ARRAY && v.array().length > 0)
 					return width(v.get(0));
-				else if (v.type() == Value.STRUCTURE)
+				if (v.type() == Value.STRUCTURE)
 					return width(v.structure());
 			}
 		}
