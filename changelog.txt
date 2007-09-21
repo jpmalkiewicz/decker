@@ -1,7 +1,8 @@
 78%
 2007-09-21
-  ARRAY is no longer a structure type, it's now a data type, like STRUCTURE, INTEGER, STRING, etc
+  decided to get rid of the .object entry of components, and to let the interface code accept a single STRUCTURE as a component (should help with table cells)
   simplified and speeded up calls of hard coded functions
+  ARRAY is no longer a structure type, it's now a data type, like STRUCTURE, INTEGER, STRING, etc
 2007-09-16
   deck screen displays current load info
   finished up the program table sorting buttons

@@ -334,9 +334,13 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 						return v.integer();
 				}
 			}
-			// if not, use the height of the first entry in the object array
-			if ((v=d.get("object")) != null && v.type() == Value.STRUCTURE && v.get("size").integer() > 0)
-				return height(d.get("object").get("0"));
+			// if not, use the height of the first sub-component
+			if ((v=d.get("component")) != null) {
+				if (v.type() == Value.ARRAY && v.array().length > 0)
+					return height(v.get(0));
+				else if (v.type() == Value.STRUCTURE)
+					return height(v.structure());
+			}
 		}
 		// everything has failed, assume a height of 0 for the structure
 		return 0;
@@ -403,9 +407,13 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 						return v.integer();
 				}
 			}
-			// if not, use the height of the first entry in the object array
-			if ((v=d.get("object")) != null && v.type() == Value.STRUCTURE && v.get("size").integer() > 0)
-				return width(d.get("object").get("0"));
+			// if not, use the width of the first sub-component
+			if ((v=d.get("component")) != null) {
+				if (v.type() == Value.ARRAY && v.array().length > 0)
+					return width(v.get(0));
+				else if (v.type() == Value.STRUCTURE)
+					return width(v.structure());
+			}
 		}
 		// everything has failed, assume a width of 0 for the structure
 		return 0;

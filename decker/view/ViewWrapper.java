@@ -114,7 +114,7 @@ public final class ViewWrapper extends Canvas implements ComponentListener
 							discardEvent = true;
 					}
 				} catch (Throwable t) {
-					System.err.println(t);
+					t.printStackTrace();
 				}
 			}
 			if (discardEvent) {

@@ -120,7 +120,7 @@ english
 				
 
 	// returns a new TEXT with the default settings as defined in the TEXT object stored in TEXT_STYLE
-	ENGINE.createText = FUNCTION (text, x, y, color, font, h_align, v_align)
+	ENGINE.createText = FUNCTION (text, x, y, color, font, h_align, v_align, width, height)
 		return_value = copy(TEXT_STYLE)
 		// for all settings which are not defined, the default settings will be used
 		if text != UNDEFINED
@@ -137,6 +137,10 @@ english
 			return_value.h_align = &h_align
 		if v_align != UNDEFINED
 			return_value.v_align = &v_align
+		if width != UNDEFINED
+			return_value.v_align = &width
+		if height != UNDEFINED
+			return_value.v_align = &height
 			
 	
 	// returns a new TEXT with the default settings as defined in the TEXT object stored in TEXT_STYLE
