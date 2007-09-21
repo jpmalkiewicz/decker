@@ -22,7 +22,7 @@ english
 				object = ARRAY
 
 
-		VIEW                  // all variables in each view definition are optional
+		COMPONENT             // all variables in each view definition are optional
 			expandable = true
 			x
 			y

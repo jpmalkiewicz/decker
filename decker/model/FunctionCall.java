@@ -6,6 +6,7 @@ import decker.util.*;
 public final class FunctionCall extends Expression
 {
 	private ScriptNode[] argument = new Expression[0];
+	private final static Value[] DUMMY_ARGS = new Value[0];
 
 
 	/** called by decker.model.Global.executeExpression() and by FunctionCall.execute()
@@ -13,6 +14,8 @@ public final class FunctionCall extends Expression
 	*   the enclosing ScriptNodes are already sitting on the stack for data retrieval */
 	public final static Value executeFunctionCall (final Object _function, Value[] args, final Structure enclosing_structure) {
 		final Function function = (Function) ( (_function instanceof Function) ? _function : ((Value)_function).function() );
+		if (args == null)
+			args = DUMMY_ARGS;
 		// if it is a hard coded function, call it immediately
 		if (function.getFunctionBody() == null)
 			return StaticScriptFunctions.execute(function.getFunctionID(), args);

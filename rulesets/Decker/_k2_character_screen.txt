@@ -1,5 +1,5 @@
 english
-	RULESET.character_screen = VIEW
+	RULESET.character_screen = COMPONENT
 		title = "Decker - Character"
 		
 		lifestyle_text = ARRAY
@@ -22,7 +22,7 @@ english
 		programming_points = createText("", RIGHT,  80)
 		chip_design_points = createText("", RIGHT, 100)
 		skill_points = createText("",       RIGHT, 130)
-		skill_panel = VIEW
+		skill_panel = COMPONENT
 			x = 28
 			y = 129
 			width = 156
@@ -164,7 +164,7 @@ english
 					player.skill_points = player.skill_points - player.chip_design
 					player.chip_design = player.chip_design + 1
 			
-		skill_panel.object[] = VIEW
+		skill_panel.object[] = COMPONENT
 			x = skill_panel.width-pixelwidth(createText("20"))*3/2 - 18
 			y = 0
 			width = 0

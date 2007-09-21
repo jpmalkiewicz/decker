@@ -99,16 +99,20 @@ dummy = true;
 			else if (type.equals("TABLE")) {
 				UITable.draw(d, g, this);
 			}
-			// draw the components of this screen element
+			// draw the child components of this view component
 			v = d.get("component");
-			final int count2 = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
-			for (int i = 0; i < count2; i++)
-				drawContent(v.get(i+""), d);
-			// draw the child views
-			v = d.get("object");
-			final int count = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
-			for (int i = 0; i < count; i++)
-				drawContent(v.get(i+""), d);
+			if (v != null) {
+				if (v.type() == Value.ARRAY) {
+					final Value[] comp = v.array();
+					final int ccount = comp.length;
+					for (int i = 0; i < ccount; i++)
+						if (comp[i].type() == Value.STRUCTURE)
+							drawContent(comp[i], d);
+				}
+				else if (v.type() == Value.STRUCTURE) {
+					drawContent(v, d);
+				}
+			}
 			ScriptNode.removeStackItem(d);
 			// restore the dx and dy values
 			if (parent != null) {
@@ -179,18 +183,20 @@ dummy = true;
 		if ((v=d.get("on_key_down")) != null && v.typeDirect() == Value.FUNCTION) {
 			FunctionCall.executeFunctionCall(v.function(), args, ScriptNode.KEEP_STACK);
 		}
-		// then hand the event on to the components of this view element
+		// hand the event on to all sub-components
 		v = d.get("component");
-		final int count2 = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
-		for (int i = 0; i < count2; i++)
-			if ((v2=v.get(i+"")).type() == Value.STRUCTURE)
-				eventKeyPressed(args, v2.structure());
-		// finally hand the event on to the child view objects
-		v = d.get("object");
-		final int count = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
-		for (int i = 0; i < count; i++)
-			if ((v2=v.get(i+"")).type() == Value.STRUCTURE)
-				eventKeyPressed(args, v2.structure());
+		if (v != null) {
+			if (v.type() == Value.ARRAY) {
+				final Value[] comp = v.array();
+				final int ccount = comp.length;
+				for (int i = 0; i < ccount; i++)
+					if (comp[i].type() == Value.STRUCTURE)
+						eventKeyPressed(args, comp[i].structure());
+			}
+			else if (v.type() == Value.STRUCTURE) {
+				eventKeyPressed(args, v.structure());
+			}
+		}
 		// clean up
 		ScriptNode.removeStackItem(d);
 	}
@@ -204,7 +210,7 @@ dummy = true;
 
 	/** returns true iff the event has been consumed */
 	private boolean eventMouseDragged (int x, int y, final int dx, final int dy, final Structure d, final Structure parent)  {
-		Value v, v2;
+		Value v;
 		// put the current data object on the stack, in case there are function calls for nested objects
 		ScriptNode.addStackItem(d);
 		// we have to adjust the event coordinates if d is not the top level view object
@@ -229,20 +235,21 @@ dummy = true;
 		if ((v=d.get("on_mouse_dragged")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, d)) {
 			FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y), new Value().set(dx), new Value().set(dy) }, ScriptNode.KEEP_STACK);
 		}
-		// then hand the event on to the components of this view element
+		// hand the event on to all sub-components
 		v = d.get("component");
-		final int count2 = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
-		for (int i = 0; i < count2; i++)
-			if ((v2=v.get(i+"")).type() == Value.STRUCTURE)
-				if (eventMouseDragged(x, y, dx, dy, v2.structure(), d))
+		if (v != null) {
+			if (v.type() == Value.ARRAY) {
+				final Value[] comp = v.array();
+				final int ccount = comp.length;
+				for (int i = 0; i < ccount; i++)
+					if (comp[i].type() == Value.STRUCTURE && eventMouseDragged(x, y, dx, dy, comp[i].structure(), d))
+						return true;
+			}
+			else if (v.type() == Value.STRUCTURE) {
+				if (eventMouseDragged(x, y, dx, dy, v.structure(), d))
 					return true;
-		// finally hand the event on to the child view objects
-		v = d.get("object");
-		final int count = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
-		for (int i = 0; i < count; i++)
-			if ((v2=v.get(i+"")).type() == Value.STRUCTURE)
-				if (eventMouseDragged(x, y, dx, dy, v2.structure(), d))
-					return true;
+			}
+		}
 		// clean up
 		ScriptNode.removeStackItem(d);
 		return false;
@@ -251,7 +258,7 @@ dummy = true;
 
 	/** returns true iff the event has been consumed */
 	private boolean eventMouseMoved (int x, int y, final Structure d, final Structure parent)  {
-		Value v, v2;
+		Value v;
 		// put the current data object on the stack, in case there are function calls for nested objects
 		ScriptNode.addStackItem(d);
 		// we have to adjust the event coordinates if d is not the top level view object
@@ -270,20 +277,21 @@ dummy = true;
 				repaint();
 			}
 		}
-		// then hand the event on to the components of this view element
+		// hand the event on to all sub-components
 		v = d.get("component");
-		final int count2 = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
-		for (int i = 0; i < count2; i++)
-			if ((v2=v.get(i+"")).type() == Value.STRUCTURE)
-				if (eventMouseMoved(x, y, v2.structure(), d))
+		if (v != null) {
+			if (v.type() == Value.ARRAY) {
+				final Value[] comp = v.array();
+				final int ccount = comp.length;
+				for (int i = 0; i < ccount; i++)
+					if (comp[i].type() == Value.STRUCTURE && eventMouseMoved(x, y,  comp[i].structure(), d))
+						return true;
+			}
+			else if (v.type() == Value.STRUCTURE) {
+				if (eventMouseMoved(x, y, v.structure(), d))
 					return true;
-		// finally hand the event on to the child view objects
-		v = d.get("object");
-		final int count = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
-		for (int i = 0; i < count; i++)
-			if ((v2=v.get(i+"")).type() == Value.STRUCTURE)
-				if (eventMouseMoved(x, y, v2.structure(), d))
-					return true;
+			}
+		}
 		// clean up
 		ScriptNode.removeStackItem(d);
 		return false;
@@ -292,7 +300,7 @@ dummy = true;
 
 	/** returns true iff the event has been consumed */
 	private boolean eventMousePressed (int x, int y, final Structure d, final Structure parent)  {
-		Value v, v2;
+		Value v;
 		// put the current data object on the stack, in case there are function calls for nested objects
 		ScriptNode.addStackItem(d);
 		// we have to adjust the event coordinates if d is not the top level view object
@@ -317,20 +325,21 @@ dummy = true;
 		if ((v=d.get("on_mouse_down")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, d)) {
 			FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y) }, ScriptNode.KEEP_STACK);
 		}
-		// then hand the event on to the components of this view element
+		// hand the event on to all sub-components
 		v = d.get("component");
-		final int count2 = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
-		for (int i = 0; i < count2; i++)
-			if ((v2=v.get(i+"")).type() == Value.STRUCTURE)
-				if (eventMousePressed(x, y, v2.structure(), d))
+		if (v != null) {
+			if (v.type() == Value.ARRAY) {
+				final Value[] comp = v.array();
+				final int ccount = comp.length;
+				for (int i = 0; i < ccount; i++)
+					if (comp[i].type() == Value.STRUCTURE && eventMousePressed(x, y, comp[i].structure(), d))
+						return true;
+			}
+			else if (v.type() == Value.STRUCTURE) {
+				if (eventMousePressed(x, y, v.structure(), d))
 					return true;
-		// finally hand the event on to the child view objects
-		v = d.get("object");
-		final int count = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
-		for (int i = 0; i < count; i++)
-			if ((v2=v.get(i+"")).type() == Value.STRUCTURE)
-				if (eventMousePressed(x, y, v2.structure(), d))
-					return true;
+			}
+		}
 		// clean up
 		ScriptNode.removeStackItem(d);
 		return false;
@@ -339,7 +348,7 @@ dummy = true;
 
 	/** returns true iff the event has been consumed */
 	private boolean eventMouseReleased (int x, int y, final Structure d, final Structure parent)  {
-		Value v, v2;
+		Value v;
 		// put the current data object on the stack, in case there are function calls for nested objects
 		ScriptNode.addStackItem(d);
 		// we have to adjust the event coordinates if d is not the top level view object
@@ -368,20 +377,21 @@ dummy = true;
 		else if ((v=d.get("on_mouse_up")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, d)) {
 			FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y) }, ScriptNode.KEEP_STACK);
 		}
-		// then hand the event on to the components of this view element
+		// hand the event on to all sub-components
 		v = d.get("component");
-		final int count2 = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
-		for (int i = 0; i < count2; i++)
-			if ((v2=v.get(i+"")).type() == Value.STRUCTURE)
-				if (eventMouseReleased(x, y, v2.structure(), d))
+		if (v != null) {
+			if (v.type() == Value.ARRAY) {
+				final Value[] comp = v.array();
+				final int ccount = comp.length;
+				for (int i = 0; i < ccount; i++)
+					if (comp[i].type() == Value.STRUCTURE && eventMouseReleased(x, y, comp[i].structure(), d))
+						return true;
+			}
+			else if (v.type() == Value.STRUCTURE) {
+				if (eventMouseReleased(x, y, v.structure(), d))
 					return true;
-		// finally hand the event on to the child view objects
-		v = d.get("object");
-		final int count = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
-		for (int i = 0; i < count; i++)
-			if ((v2=v.get(i+"")).type() == Value.STRUCTURE)
-				if (eventMouseReleased(x, y, v2.structure(), d))
-					return true;
+			}
+		}
 		// clean up
 		ScriptNode.removeStackItem(d);
 		return false;

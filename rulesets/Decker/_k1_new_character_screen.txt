@@ -1,14 +1,13 @@
 english
-	RULESET.new_character_screen = VIEW
+	RULESET.new_character_screen = COMPONENT
 		title = "Decker - New Character"
-		object = ARRAY
 		//**************************** data for the character image selector *****************************
 		char_images = filelist("artwork/character_image/")   // this variable stores the list of available character images, the screen display class doesn't recognize it
 		char_image_index = 0
-		char_image = VIEW                            // the player icon
+		char_image = COMPONENT     // the player icon
 			x = 29
 			y = 2
-			object = ARRAY
+			component = ARRAY
 				RECTANGLE
 					x = -3
 					y = 0
@@ -70,12 +69,12 @@ english
 			user_input.text = "Hacker X"
 			user_input.font = TEXT_STYLE_BOLD.font
 			user_input.y = 3
-			cursor = VIEW
+			cursor = COMPONENT
+				x = 0
 				y = 3
-				object = ARRAY
-					"new_character/cursor"
+				component = "new_character/cursor"
 		//************************************************************************************************
-		object = ARRAY
+		component = ARRAY
 			SCREEN_BACKGROUND
 				width = 260
 				height = 260
@@ -85,8 +84,8 @@ english
 				width = 82
 				height = 28
 				inverted = true
-				object = ARRAY
-					char_image					
+				component = component + ARRAY
+					char_image
 					BORDER_BUTTON
 						x = 2
 						y = 2
@@ -96,7 +95,7 @@ english
 								char_image_index = char_images.size - 1
 							else
 								char_image_index = char_image_index - 1
-							char_image.object[1] = "character_image/"+char_images[char_image_index]
+							char_image.component[1] = "character_image/"+char_images[char_image_index]
 					UNDEFINED
 					BORDER_BUTTON
 						x = 56
@@ -107,24 +106,14 @@ english
 								char_image_index = 0
 							else
 								char_image_index = char_image_index + 1
-							char_image.object[1] = "character_image/"+char_images[char_image_index]
+							char_image.component[1] = "character_image/"+char_images[char_image_index]
 			createBorder(55, 47, 187, 24, @NCS_USER_INPUT_BACKGROUND_COLOR, true)
 			char_name
 			createText("New Decker Character", CENTER, 18)
 			createText("Name", 17, 51)
-			VIEW
-				x = 145
-				y = 83
-				width = 67
-				object = ARRAY
-					createText("Starting Bonus", CENTER, 0)
-			VIEW
-				x = 70
-				y = 83
-				width = 0
-				object = ARRAY
-					createText("Character", CENTER, 0)
-					createText("Image", CENTER, 16)
+			createText("Starting Bonus", 179, 83, , , CENTER)
+			createText("Character", 70,  83, , , CENTER)
+			createText("Image", 70,  99, , , CENTER)
 			BUTTON
 				x = CENTER
 				y = 207
@@ -134,8 +123,7 @@ english
 				pressed = createText("Ironman Mode", 0, 0, @NCS_PRESSED_OPTION_TEXT_COLOR)
 				hover = pressed
 				on_off_text = createTextBold(UNDEFINED, RIGHT, 0)
-				object = ARRAY
-					on_off_text
+				component[] = on_off_text
 				on_mouse_up = FUNCTION
 					ironman = !ironman
 					adjust_on_off_text(on_off_text,ironman)
@@ -149,8 +137,7 @@ english
 				pressed = createText("Tooltips", 0, 0, @NCS_PRESSED_OPTION_TEXT_COLOR)
 				hover = pressed
 				on_off_text = createTextBold(UNDEFINED, RIGHT, 0)
-				object = ARRAY
-					on_off_text
+				component[] = on_off_text
 				on_mouse_up = FUNCTION
 					tooltips = !tooltips
 					adjust_on_off_text(on_off_text,tooltips)
@@ -165,7 +152,7 @@ english
 					GLOBAL.ironman = ironman
 					GLOBAL.player = HUMAN
 						name = char_name.user_input.text
-						image = char_image.object[0]
+						image = char_image.component[0]
 						LOCAL.slvl = bonus_name[selected_bonus] == "software" ? 2 : 1
 						LOCAL.hlvl = bonus_name[selected_bonus] == "hardware" ? 2 : 1
 						deck = createDeck(hlvl, slvl)
@@ -198,6 +185,7 @@ english
 				pressed = createText(bonus_text[i], CENTER, CENTER)
 				hover = pressed	
 				on_mouse_up = &bonus_button_function
-			object[] = bonus_button_group[i]
+			component[] = bonus_button_group[i]
 			adjust_button(bonus_button_group[i], i==0)
 			LOCAL.i = i + 1
+		debug(COMPONENT.this)
