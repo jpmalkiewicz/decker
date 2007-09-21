@@ -11,41 +11,32 @@ public final class FunctionCall extends Expression
 	/** called by decker.model.Global.executeExpression() and by FunctionCall.execute()
 	*   _function must be either a Function or a Value containing a Function
 	*   the enclosing ScriptNodes are already sitting on the stack for data retrieval */
-	public final static Value executeFunctionCall (final Object _function, final Value[] args, final Structure enclosing_structure) {
+	public final static Value executeFunctionCall (final Object _function, Value[] args, final Structure enclosing_structure) {
 		final Function function = (Function) ( (_function instanceof Function) ? _function : ((Value)_function).function() );
-		// calculate the values of the supplied arguments and create the FUNCTION_CALL structure
-		final Structure arguments = new Structure("ARRAY");
-		if (args != null) {
-			// create the list of arguments
-			for (int i = 0; i < args.length; i++)
-				if (args[i] != null)
-					arguments.add("").setDirectly(args[i], false);
-				else
-					arguments.add("");
-		}
-		function.insertDefaultArgumentValues(arguments);
-		final Structure function_data = new Structure(arguments, function.getArgumentNames());
-		// unless the "enclosing_structure" is KEEP_STACK, remove all local stack items from the stack, then put the optional structure the function's variable is stored in, the FUNCTION_CALL and a new LOCAL structure on it
-		Structure[] old_stack = null;
-		if (enclosing_structure != KEEP_STACK && function.getFunctionBody() != null) {
-			old_stack = removeLocalStackItems();
-			if (enclosing_structure != null)
-				addStackItem(enclosing_structure);
-		}
-		addStackItem(function_data);
-
-		// execute the function
-		Value v;
-		if (function.getFunctionBody() != null)
+		// if it is a hard coded function, call it immediately
+		if (function.getFunctionBody() == null)
+			return StaticScriptFunctions.execute(function.getFunctionID(), args);
+		else {
+			// calculate the values of the supplied arguments and create the FUNCTION_CALL structure
+			args = function.insertDefaultArgumentValues(args);
+			final Structure function_data = new Structure(args, function.getArgumentNames());
+			// unless the "enclosing_structure" is KEEP_STACK, remove all local stack items from the stack, then put the optional structure the function's variable is stored in, the FUNCTION_CALL and a new LOCAL structure on it
+			Structure[] old_stack = null;
+			if (enclosing_structure != KEEP_STACK) {
+				old_stack = removeLocalStackItems();
+				if (enclosing_structure != null)
+					addStackItem(enclosing_structure);
+			}
+			addStackItem(function_data);
+			// execute the function
 			function.getFunctionBody().execute();
-		else
-			StaticScriptFunctions.execute(function.getFunctionID(), function_data, args);
-		// restore the original local stack and return the function's return value
-		if (enclosing_structure != KEEP_STACK && function.getFunctionBody() != null)
-			restoreLocalStack(old_stack);
-		else
-			removeStackItem(function_data);
-		return function_data.get("return_value");
+			// restore the original local stack and return the function's return value
+			if (enclosing_structure != KEEP_STACK)
+				restoreLocalStack(old_stack);
+			else
+				removeStackItem(function_data);
+			return function_data.get("return_value");
+		}
 	}
 
 

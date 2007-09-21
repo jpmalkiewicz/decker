@@ -221,13 +221,9 @@ try {
 			case BRACKET :
 				return a;
 			case ARRAY_INDEX :
-					if(at != Value.STRUCTURE)
-						throwException("The array index operator [] requires a variable containing a structure in front of the brackets");
-					Value ret = b.toString().equals("") ? a.structure().add("") : a.get(b.toString());
-					if (ret != null)
-						return ret;
-					// if the array/structure entry doesn't exist, return UNDEFINED
-				break;
+					if(at != Value.ARRAY)
+						throwException("The array index operator [] requires a variable containing an array in front of the brackets");
+				return (bt==Value.INTEGER) ? a.get(b.integer()) : a.get(b.toString());
 			case FETCH_VALUE :
 					return_value.setFetchValue(this);
 				break;
@@ -252,8 +248,12 @@ try {
 						a = first_operand.execute();
 					if (a == null)
 						throwException(first_operand+" does not exist");
-					if(a.type() != Value.STRUCTURE)
+					if(a.type() != Value.STRUCTURE) {
+							if (a.type() == Value.ARRAY && variable_name.equals("size")) {
+								return new Value().set(a.array().length);
+							}
 							return new Value(); // returns UNDEFINED to make scripting easier and to enable scripts to check whether a variable contains a structure ( in that case the following expression is true :   var.structure_type != UNDEFINED )
+						}
 					if (variable_name.equals("this"))
 						return a;
 					final Value val = a.get(variable_name);
@@ -282,16 +282,15 @@ try {
 					return_value.set(!a.bool());
 				break;
 			case ADD :
-					if(at == Value.STRUCTURE && bt == Value.STRUCTURE && a.get("structure_type").equals("ARRAY") && b.get("structure_type").equals("ARRAY")) {
+					if(at == Value.ARRAY && bt == Value.ARRAY) {
 						// create the new array from the old ones
-						final Structure array = new Structure("ARRAY");
-						return_value.set(a);
-						final int size_a = a.get("size").integer();
-						for (int i = 0; i < size_a; i++)
-							array.add("").set(a.get(i+""));
-						final int size_b = b.get("size").integer();
-						for (int i = 0; i < size_b; i++)
-							array.add("").set(b.get(i+""));
+						final Value[] aa = a.array(), bb = b.array(), array = new Value[aa.length+bb.length];
+						final int asize = aa.length;
+						for (int i = bb.length; --i >= 0; )
+							array[i+asize] = bb[i];
+						for (int i = asize; --i >= 0; )
+							array[i] = aa[i];
+						return_value.set(new ArrayWrapper(array));
 					}
 					else if (at == Value.INTEGER && bt == Value.INTEGER)
 						return_value.set(a.integer() + b.integer());

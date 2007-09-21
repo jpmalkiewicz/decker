@@ -56,8 +56,7 @@ public final class Function extends ScriptNode
 
 
 	/** args must contain an ARRAY */
-	void insertDefaultArgumentValues (final Structure args)  {
-		final int starting_size = args.get("size").integer();
+	Value[] insertDefaultArgumentValues (final Value[] args)  {
 		// determine the last index where we may have to insert a default value
 		int last_index = -1;
 		for (int i = argument_default_value.length; --i >= 0; )
@@ -65,13 +64,22 @@ public final class Function extends ScriptNode
 				last_index = i;
 				break;
 			}
+		// make sure the returned array is big enough
+		Value[] ret = args;
+		if (last_index >= args.length) {
+			ret = new Value[last_index+1];
+			System.arraycopy(args, 0, ret, 0, args.length);
+		}
 		// add the default values
 		for (int i = 0; i <= last_index; i++) {
-			if (i >= starting_size)
-				args.add("");
-			if (argument_default_value[i] != null)
-				args.get(""+i).set(argument_default_value[i].execute());
+			if (ret[i] == null) {
+				ret[i] = new Value();
+				if (argument_default_value[i] != null && ret[i] == null) {
+					ret[i].set(argument_default_value[i].execute());
+				}
+			}
 		}
+		return ret;
 	}
 
 

@@ -1,6 +1,9 @@
 78%
+2007-09-21
+  ARRAY is no longer a structure type, it's now a data type, like STRUCTURE, INTEGER, STRING, etc
+  simplified and speeded up calls of hard coded functions
 2007-09-16
-  current load is displayed
+  deck screen displays current load info
   finished up the program table sorting buttons
   fixed a bug where structure type names in expressions were replaced with the structure type instead of a new instance of the structure type
   changing the load / default state of programs works

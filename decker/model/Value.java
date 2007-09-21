@@ -5,8 +5,8 @@ package decker.model;
 *   Value objects can hold any type of value. */
 public final class Value
 {
-	public final static int CONSTANT = 0, BOOLEAN = 1, INTEGER = 2, STRING = 3, STRUCTURE = 4, FUNCTION = 5, REAL = 6;
-	private final static String[] TYPE_NAME = { "CONSTANT", "BOOLEAN", "INTEGER", "STRING", "STRUCTURE", "FUNCTION", "REAL" };
+	public final static int CONSTANT = 0, BOOLEAN = 1, INTEGER = 2, STRING = 3, STRUCTURE = 4, FUNCTION = 5, REAL = 6, ARRAY = 7;
+	private final static String[] TYPE_NAME = { "CONSTANT", "BOOLEAN", "INTEGER", "STRING", "STRUCTURE", "FUNCTION", "REAL", "ARRAY" };
 
 
 
@@ -136,6 +136,17 @@ public final class Value
 	}
 
 
+	public Value set (final ArrayWrapper a)  {
+		if (object != a)  { // no need to check whether type is not STRUCTURE here
+			type = ARRAY;
+			object = a;
+			if (visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
+				Global.testTriggers();
+		}
+		return this;
+	}
+
+
 	public Value setConstant (final String constant)  {
 		if (type != CONSTANT || !((String)object).equals(constant)) {
 			type = CONSTANT;
@@ -217,7 +228,7 @@ public final class Value
 			case CONSTANT :
 			case STRING :
 				return ((String)object).equals((String)value.object);
-			default : // STRUCTURE or FUNCTION
+			default : // STRUCTURE or FUNCTION or ARRAY
 				return object == value.object;
 		}
 	}
@@ -239,7 +250,7 @@ public final class Value
 			case CONSTANT :
 			case STRING :
 				return ((String)v.object).equals((String)value.object);
-			default : // STRUCTURE or FUNCTION
+			default : // STRUCTURE or FUNCTION or ARRAY
 				return v.object == value.object;
 		}
 	}
@@ -295,6 +306,15 @@ public final class Value
 	}
 
 
+	public boolean equals (final ArrayWrapper array)  {
+		if (type == FUNCTION) {
+			final Value v = executeExpression();
+			return v.type == ARRAY && v.object == array;
+		}
+		return type == ARRAY && object == array;
+	}
+
+
 	public boolean equalsConstant (final String c) {
 		if (type == FUNCTION) {
 			final Value v = executeExpression();
@@ -312,9 +332,35 @@ public final class Value
 
 	public Value get (final String name)  {
 		final Value v = (type!=FUNCTION) ? this : executeExpression();
-		if(v.type != STRUCTURE)
-			throw new RuntimeException("Cannot convert "+TYPE_NAME[v.type]+" to STRUCTURE");
+		if(v.type != STRUCTURE) {
+			if (v.type != ARRAY)
+				throw new RuntimeException("Cannot convert "+TYPE_NAME[v.type]+" to STRUCTURE");
+			else {
+				final Value[] a = ((ArrayWrapper)v.object).array;
+				if (name.equals("size"))
+					return new Value().set(a.length);
+				if (name.equals(""))
+					return new Value();
+				try {
+					final int index = Integer.parseInt(name);
+					return ( index < 0 || index >= a.length ) ? new Value() : a[index]; // returns UNDEFINED if the index doesn't exist
+				} catch (NumberFormatException x) {
+					throw new RuntimeException("Cannot convert "+name+" to an array index");
+				}
+			}
+		}
 		return ((Structure)v.object).get(name);
+	}
+
+
+	public Value get (int index) {
+		final Value v = (type!=FUNCTION) ? this : executeExpression();
+		if (v.type != ARRAY)
+			throw new RuntimeException("Cannot use an array index ("+TYPE_NAME[v.type]+") with a "+TYPE_NAME[v.type]);
+		else {
+			final Value[] a = ((ArrayWrapper)v.object).array;;
+			return ( index < 0 || index >= a.length ) ? new Value() : a[index]; // returns UNDEFINED if the index doesn't exist
+		}
 	}
 
 
@@ -343,6 +389,22 @@ public final class Value
 
 
 	public String typeNameDirect ()  { return TYPE_NAME[type]; }
+
+
+	public Value[] array ()  {
+		final Value v = (type!=FUNCTION) ? this : executeExpression();
+		if (v.type != ARRAY)
+			throw new RuntimeException("Cannot convert "+TYPE_NAME[v.type]+" to ARRAY");
+		return ((ArrayWrapper)v.object).array;
+	}
+
+
+	public ArrayWrapper arrayWrapper ()  {
+		final Value v = (type!=FUNCTION) ? this : executeExpression();
+		if (v.type != ARRAY)
+			throw new RuntimeException("Cannot convert "+TYPE_NAME[v.type]+" to ARRAY");
+		return (ArrayWrapper) v.object;
+	}
 
 
 	public boolean bool ()  {
@@ -410,5 +472,5 @@ public final class Value
 	}
 
 
-	public String toString ()  { return (type==INTEGER) ? (integer+"") : ( (type==BOOLEAN) ? (bool+"") : ( (type==REAL) ? (real+"") : object.toString() )); }
+	public String toString ()  { return (type==INTEGER) ? (integer+"") : ( (type==BOOLEAN) ? (bool+"") : ( (type==REAL) ? (real+"") : ( (type==ARRAY) ? "ARRAY" : object.toString() ))); }
 }

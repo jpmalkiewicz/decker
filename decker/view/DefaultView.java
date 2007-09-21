@@ -65,7 +65,8 @@ dummy = true;
 				dy += y;
 			}
 			// draw the structure
-			if (d.get("structure_type").equals("TEXT")) {
+			final String type = d.get("structure_type").toString();
+			if (type.equals("TEXT")) {
 				// set the font
 				if ((v2=d.get("font")) != null && v2.type() == Value.STRING)
 					g.setFont(getFont(d.get("font").string(), true));
@@ -81,33 +82,28 @@ dummy = true;
 				// draw the string
 				g.drawString(s, dx, dy+fm.getAscent());
 			}
-			else if (d.get("structure_type").equals("DRAWING_BOUNDARY")) {
+			else if (type.equals("DRAWING_BOUNDARY")) {
 				clip = g.getClip();
 				g.setClip(dx, dy, w, h);
 			}
-			else if (d.get("structure_type").equals("LINE") && d.get("x2").type() == Value.INTEGER && d.get("y2").type() == Value.INTEGER) {
+			else if (type.equals("LINE") && d.get("x2").type() == Value.INTEGER && d.get("y2").type() == Value.INTEGER) {
 				if ((v=d.get("color").evaluate()) != null)
 					g.setColor(getColor(v.toString()));
 				g.drawLine(dx, dy, dx+d.get("x2").integer()-x, dy+d.get("y2").integer()-y);
 			}
-			else if (d.get("structure_type").equals("RECTANGLE")) {
+			else if (type.equals("RECTANGLE")) {
 				if ((v=d.get("color").evaluate()) != null)
 					g.setColor(getColor(v.toString()));
 				g.fillRect(dx, dy, w, h);
+			}
+			else if (type.equals("TABLE")) {
+				UITable.draw(d, g, this);
 			}
 			// draw the components of this screen element
 			v = d.get("component");
 			final int count2 = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();
 			for (int i = 0; i < count2; i++)
-{
-if (ScriptNode.getStackEntry(4).get("structure_type").equals("TABLE")) {
-System.err.println("drawing component "+v);
-if (v.type() == Value.STRUCTURE)
-v.structure().print(System.err, "   ", true);
-ScriptNode.printStack(System.err, "");
-}
 				drawContent(v.get(i+""), d);
-}
 			// draw the child views
 			v = d.get("object");
 			final int count = (v==null || v.type() != Value.STRUCTURE || !v.get("structure_type").equals("ARRAY")) ? 0 : v.get("size").integer();

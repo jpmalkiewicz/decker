@@ -8,252 +8,269 @@ import java.util.GregorianCalendar;
 
 final class StaticScriptFunctions extends ScriptNode
 {
-	final static void execute (final int function_id, final Structure function_data, final Value[] args) {
+	private final static Value DUMMY_VALUE = new Value();
+
+
+	final static Value execute (final int function_id, final Value[] args) {
 		Value v;
 		switch (function_id) {
-			case Global.F_DATE_DAY_OF_MONTH : execute_date_day_of_month(function_data); break;
-			case Global.F_DATE_DAYS_IN_MONTH : execute_date_days_in_month(function_data); break;
-			case Global.F_DATE_TEXT : execute_date_text(function_data); break;
-			case Global.F_DEBUG : execute_debug(function_data); break;
-			case Global.F_DELETE : execute_delete(function_data); break;
-			case Global.F_EXIT_PROGRAM : System.exit(0); break;
-			case Global.F_FILELIST : execute_filelist(function_data); break;
-			case Global.F_GET_STRUCTURE_STACK : execute_get_structure_stack(function_data); break;
-			case Global.F_IMAGE_EXISTS : execute_image_exists(function_data); break;
-			case Global.F_INDEXOF : execute_indexof(function_data); break;
-			case Global.F_INSERT : execute_insert(function_data); break;
-			case Global.F_PIXELHEIGHT : execute_pixelheight(function_data); break;
-			case Global.F_PIXELWIDTH : execute_pixelwidth(function_data); break;
-			case Global.F_RANDOM : execute_random(function_data); break;
-			case Global.F_REPAINT : if ((v=stack[ENGINE_STACK_SLOT].get("frames_per_second")) == null || v.type() != Value.INTEGER || v.integer() <= 0) try { Global.getDisplayedComponent().repaint(); } catch (Throwable t) {}; break;
-			case Global.F_SIZE : execute_size(function_data); break;
-			case Global.F_SUBSTRING : execute_substring(function_data); break;
-			case Global.F_TO_LOWER_CASE : if (args.length>0) function_data.get("return_value").set(args[0].toString().toLowerCase()); break;
-			case Global.F_TO_UPPER_CASE : if (args.length>0) function_data.get("return_value").set(args[0].toString().toUpperCase()); break;
-			case Global.F_VALUE_TYPE : if (args.length>0) function_data.get("return_value").set(args[0].typeNameDirect()); break;
+			case Global.F_DATE_DAY_OF_MONTH : return execute_date_day_of_month(args);
+			case Global.F_DATE_DAYS_IN_MONTH : return execute_date_days_in_month(args);
+			case Global.F_DATE_TEXT : return execute_date_text(args);
+			case Global.F_DEBUG : return execute_debug(args);
+			case Global.F_DELETE : return execute_delete(args);
+			case Global.F_EXIT_PROGRAM : System.exit(0); return null;
+			case Global.F_FILELIST : return execute_filelist(args);
+			case Global.F_GET_STRUCTURE_STACK : return execute_get_structure_stack(args);
+			case Global.F_IMAGE_EXISTS : return execute_image_exists(args);
+			case Global.F_INDEXOF : return execute_indexof(args);
+			case Global.F_INSERT : return execute_insert(args);
+			case Global.F_PIXELHEIGHT : return execute_pixelheight(args);
+			case Global.F_PIXELWIDTH : return execute_pixelwidth(args);
+			case Global.F_RANDOM : return execute_random(args);
+			case Global.F_REPAINT : if ((v=stack[ENGINE_STACK_SLOT].get("frames_per_second")) == null || v.type() != Value.INTEGER || v.integer() <= 0) try { Global.getDisplayedComponent().repaint(); } catch (Throwable t) {}; return new Value();
+			case Global.F_SIZE : return execute_size(args);
+			case Global.F_SUBSTRING : return execute_substring(args);
+			case Global.F_TO_LOWER_CASE : return (args.length==0) ? new Value() : new Value().set(args[0].toString().toLowerCase());
+			case Global.F_TO_UPPER_CASE : return (args.length==0) ? new Value() : new Value().set(args[0].toString().toUpperCase());
+			case Global.F_VALUE_TYPE : return (args.length==0) ? new Value() : new Value().set(args[0].typeNameDirect());
 		}
+		return null;
 	}
 
 
 	/** executes the hard coded script function date_day_of_month(year,month,day) */
-	private final static void execute_date_day_of_month (final Structure function_data)  {
-		final Structure args = function_data.get("argument").structure();
-		if (args.get("size").integer() >= 3 && args.get("0").type() == Value.INTEGER && args.get("1").type() == Value.INTEGER && args.get("2").type() == Value.INTEGER) {
-			final int year = args.get("0").integer();
-			final int month = args.get("1").integer();
-			final int day = args.get("2").integer();
-			function_data.get("return_value").set(new GregorianCalendar(year, month, day).get(GregorianCalendar.DAY_OF_MONTH));
+	private final static Value execute_date_day_of_month (final Value[] args)  {
+		if (args.length >= 3 && args[0] != null && args[1] != null && args[2] != null && args[0].type() == Value.INTEGER && args[1].type() == Value.INTEGER && args[2].type() == Value.INTEGER) {
+			final int year = args[0].integer();
+			final int month = args[1].integer();
+			final int day = args[2].integer();
+			return new Value().set(new GregorianCalendar(year, month, day).get(GregorianCalendar.DAY_OF_MONTH));
 		}
+		return DUMMY_VALUE;
 	}
 
 
 	/** executes the hard coded script function date_days_in_month(year,month,day) */
-	private final static void execute_date_days_in_month (final Structure function_data)  {
-		final Structure args = function_data.get("argument").structure();
-		if (args.get("size").integer() >= 3 && args.get("0").type() == Value.INTEGER && args.get("1").type() == Value.INTEGER && args.get("2").type() == Value.INTEGER) {
-			final int year = args.get("0").integer();
-			final int month = args.get("1").integer();
-			final int day = args.get("2").integer();
-			function_data.get("return_value").set(new GregorianCalendar(year, month, day).getActualMaximum(GregorianCalendar.DAY_OF_MONTH));
+	private final static Value execute_date_days_in_month (final Value[] args)  {
+		if (args.length >= 3 && args[0] != null && args[1] != null && args[2] != null && args[0].type() == Value.INTEGER && args[1].type() == Value.INTEGER && args[2].type() == Value.INTEGER) {
+			final int year = args[0].integer();
+			final int month = args[1].integer();
+			final int day = args[2].integer();
+			return new Value().set(new GregorianCalendar(year, month, day).getActualMaximum(GregorianCalendar.DAY_OF_MONTH));
 		}
+		return DUMMY_VALUE;
 	}
 
 
 	/** executes the hard coded script function date_text(year,month,day) */
-	private final static void execute_date_text (final Structure function_data)  {
-		final Structure args = function_data.get("argument").structure();
-		if (args.get("size").integer() >= 3 && args.get("0").type() == Value.INTEGER && args.get("1").type() == Value.INTEGER && args.get("2").type() == Value.INTEGER) {
-			final int year = args.get("0").integer();
-			final int month = args.get("1").integer();
-			final int day = args.get("2").integer();
-			function_data.get("return_value").set(DateFormat.getDateInstance(DateFormat.LONG).format(new GregorianCalendar(year, month, day).getTime()));
+	private final static Value execute_date_text (final Value[] args)  {
+		if (args.length >= 3 && args[0] != null && args[1] != null && args[2] != null && args[0].type() == Value.INTEGER && args[1].type() == Value.INTEGER && args[2].type() == Value.INTEGER) {
+			final int year = args[0].integer();
+			final int month = args[1].integer();
+			final int day = args[2].integer();
+			return new Value().set(DateFormat.getDateInstance(DateFormat.LONG).format(new GregorianCalendar(year, month, day).getTime()));
 		}
+		return DUMMY_VALUE;
 	}
 
 
 	/** executes the hard coded script function debug(object,to_console) */
-	private final static void execute_debug (final Structure function_data)  {
-		final Value vwhat = function_data.get("argument").get("0");
-		final Value vwhere = function_data.get("argument").get("1");
-		if (vwhat != null) {
-			PrintStream where = (vwhere != null && vwhere.equals(false)) ? System.err : System.out;
-			if (vwhat.typeDirect() == Value.FUNCTION)
-				vwhat.function().print(where, "", true);
-			else if (vwhat.type() == Value.STRUCTURE)
-				vwhat.structure().print(where, "", true);
+	private final static Value execute_debug (final Value[] args)  {
+		if (args.length == 0 || args[0] == null) {
+			if (args.length >= 2 && args[1] != null && args[1].equals(false))
+				System.err.println();
 			else
-				where.println(vwhat.toString());
+				System.out.println();
 		}
+		else {
+			final PrintStream where = (args.length >= 2 && args[1] != null && args[1].equals(false)) ? System.err : System.out;
+			final Value v = args[0];
+			if (v.typeDirect() == Value.FUNCTION)
+				v.function().print(where, "", true);
+			else if (v.typeDirect() == Value.STRUCTURE)
+				v.structure().print(where, "", true);
+			else if (v.typeDirect() == Value.ARRAY)
+where.println("*** NOT PRINTING ARRAYS YET IN StaticScriptFunctions.execute_debug()");
+			else
+				where.println(v.toString());
+		}
+		return DUMMY_VALUE;
 	}
 
 
-	private final static void execute_delete (final Structure function_data)  {
-		final Value varray = function_data.get("argument").get("0");
-		final Value vindex = function_data.get("argument").get("1");
-		if (varray.type() == Value.STRUCTURE && vindex.type() == Value.INTEGER) {
-			final Value v = varray.structure().deleteFromArray(vindex.integer());
-			if (v != null)
-				function_data.putDirectlyIntoStringTreeMap("return_value", v);
+	private final static Value execute_delete (final Value[] args)  {
+		if (args.length >= 2 && args[0] != null && args[1] != null && args[0].type() == Value.ARRAY && args[1].type() == Value.INTEGER) {
+			final int index = args[1].integer();
+			final ArrayWrapper array = args[0].arrayWrapper();
+			final int old_length = array.array.length;
+			if (index >= 0 && index < old_length) {
+				final Value[] new_array = new Value[old_length-1];
+				System.arraycopy(array.array, 0, new_array, 0, index);
+				System.arraycopy(array.array, index+1, new_array, index, old_length-index-1);
+				final Value ret = array.array[index];
+				array.array = new_array;
+				return ret;
+			}
 		}
+		return DUMMY_VALUE;
 	}
 
 
 	/** executes the hard coded script function filelist(x) */
-	private final static void execute_filelist (final Structure function_data)  {
-		final Value v = function_data.get("argument").get("0");
-		if (v != null && v.toString().indexOf("..") == -1 && v.toString().indexOf(":") == -1 && v.toString().indexOf("~") == -1) {
-			try {
-				File d = new File(("rulesets/"+Global.getCurrentRuleset().getName()+"/"+v.toString()).replace('/', File.separatorChar));
-				if (d.exists() && d.isDirectory()) {
-					// create an alphabetical list of file names for the files in this folder
-					final File[] f = d.listFiles();
-					int count = 0;
-					final String[] name = new String[f.length];
-					for (int i = 0; i < f.length; i++) {
-						if (f[i].isFile()) {
-							// insert it in the alphabetical list of file names
-							final String n = f[i].getName();
-							for (int j = 0; j <= count; j++)
-								if (j == count)
-									name[j] = n;
-								else if (name[j].compareTo(n) >= 0) {
-									System.arraycopy(name, j, name, j+1, count-j);
-									name[j] = n;
-									break;
-								}
-							count++;
+	private final static Value execute_filelist (final Value[] args)  {
+		if (args.length > 0 && args[0] != null) {
+			final String s = args[0].toString();
+			if (s.indexOf("..") == -1 && s.indexOf(":") == -1 && s.indexOf("~") == -1) {
+				try {
+					final File d = new File(("rulesets/"+Global.getCurrentRuleset().getName()+"/"+s).replace('/', File.separatorChar));
+					if (d.exists() && d.isDirectory()) {
+						// create an alphabetical list of file names for the files in this folder
+						final File[] f = d.listFiles();
+						int count = 0;
+						final String[] name = new String[f.length];
+						for (int i = 0; i < f.length; i++) {
+							if (f[i].isFile()) {
+								// insert it into the alphabetical list of file names
+								final String n = f[i].getName();
+								for (int j = 0; j <= count; j++)
+									if (j == count)
+										name[j] = n;
+									else if (name[j].compareTo(n) >= 0) {
+										System.arraycopy(name, j, name, j+1, count-j);
+										name[j] = n;
+										break;
+									}
+								count++;
+							}
 						}
+						// turn the list into an ARRAY and return it
+						final Value[] array = new Value[count];
+						for (int i = count; --i >= 0; )
+							array[i] = new Value().set(name[i]);
+						return new Value().set(new ArrayWrapper(array));
 					}
-					// turn the list into an ARRAY and return it
-					final Structure a = new Structure("ARRAY");
-					for (int i = 0; i < count; i++)
-						a.add("").set(name[i]);
-					function_data.get("return_value").set(a);
-					return;
-				}
-			} catch (Throwable t) { t.printStackTrace(); }
+				} catch (Throwable t) { t.printStackTrace(); }
+			}
 		}
-		function_data.get("return_value").set(new Structure("ARRAY"));
+		return new Value().set(new ArrayWrapper(new Value[0]));
 	}
 
 
 	/** executes the hard coded script function getStructureStack(year,month,day) */
-	private final static void execute_get_structure_stack (final Structure function_data)  {
+	private final static Value execute_get_structure_stack (final Value[] args)  {
 		Structure stack = new Structure("ARRAY");
 		for (int i = 0; i < ScriptNode.stack_size-1; i++) { // -1 because otherwise it would add its own LOCAL data object to the returned array
 			stack.add("").set(new Value().set(ScriptNode.stack[i].get("structure_type")));
 		}
-		function_data.get("return_value").set(stack);
+		return new Value().set(stack);
 	}
 
 
 	/** searches for a value in an array or a substring in a string */
-	private final static void execute_image_exists (final Structure function_data)  {
-		final String name = (function_data.get("argument").get("0")==null) ? "UNDEFINED" : function_data.get("argument").get("0").toString();
-		function_data.get("return_value").set(AbstractView.getImage(name) != null);
+	private final static Value execute_image_exists (final Value[] args)  {
+		return new Value().set(args.length > 0 && args[0] != null && AbstractView.getImage(args[0].toString()) != null);
 	}
 
 
-	/** searches for a value in an array or a substring in a string */
-	private final static void execute_indexof (final Structure function_data)  {
-		final Value vwhat = function_data.get("argument").get("0");
-		final Value vwhere = function_data.get("argument").get("1");
-		final Value vdirection = function_data.get("argument").get("2");
-		final Value vstart = function_data.get("argument").get("3");
-		final boolean direction = !(vdirection != null && vdirection.equals(false));
-		if (vwhat != null && vwhere != null) {
-			if (vwhere.type() == Value.STRING) {
+	/** searches for a value in an array or a substring in a string. args are what, where, direction, from_index */
+	private final static Value execute_indexof (final Value[] args)  {
+		if (args.length >= 2 && args[0] != null && args[1] != null) {
+			final int where_type = args[1].type();
+			final boolean direction = !(args.length > 2 && args[2] != null && args[2].equals(false));
+			if (where_type == Value.STRING) {
 				// we're looking for a substring in a string
-				final String s = vwhere.string(), what = vwhat.toString();
+				final String s = args[1].string(), what = args[0].toString();
 				final int size = s.length();
 				if (direction) {
 					// search forwards
-					final int start = (vstart != null && vstart.type() == Value.INTEGER) ? vstart.integer() : 0;
+					final int start = (args.length > 3 && args[3] != null && args[3].type() == Value.INTEGER) ? args[3].integer() : 0;
 					int ret = s.indexOf(what, start);
 					if (ret >= 0)
-						function_data.get("return_value").set(ret);
+						return new Value().set(ret);
 				}
 				else {
 					// search backwards
-					final int start = (vstart != null && vstart.type() == Value.INTEGER) ? vstart.integer() : size-1;
+					final int start = (args.length > 3 && args[3] != null && args[3].type() == Value.INTEGER) ? args[3].integer() : size-1;
 					int ret = s.lastIndexOf(what, start);
 					if (ret >= 0)
-						function_data.get("return_value").set(ret);
+						return new Value().set(ret);
 				}
 			}
-			else if (vwhere.type() == Value.STRUCTURE && vwhere.get("structure_type").equals("ARRAY")) {
+			else if (where_type == Value.ARRAY) {
 				// search for a value in an array
-				final Structure array = vwhere.structure();
-				final int size = array.get("size").integer();
+				final Value[] array = args[1].array();
+				final int size = array.length;
+				final Value what = args[0];
 				if (direction) {
 					// search forwards
-					final int start = (vstart != null && vstart.type() == Value.INTEGER && vstart.integer() >= 0) ? vstart.integer() : 0;
+					final int start = (args.length > 3 && args[3] != null && args[3].type() == Value.INTEGER && args[3].integer() > 0) ? args[3].integer() : 0;
 					final int end = size-1;
-					for (int i = start; i <= end; i++)
-						if (array.get(i+"").equals(vwhat)) {
-							function_data.get("return_value").set(i);
-							break;
+					for (int i = start; i <= end; i++) {
+						if (array[i].equals(what)) {
+							return new Value().set(i);
 						}
+					}
 				}
 				else {
 					// search backwards
-					final int start = (vstart != null && vstart.type() == Value.INTEGER && vstart.integer() < size) ? vstart.integer() : (size-1);
-					for (int i = start; i >= 0; i--)
-						if (array.get(i+"").equals(vwhat)) {
-							function_data.get("return_value").set(i);
-							break;
+					final int start = (args.length > 3 && args[3] != null && args[3].type() == Value.INTEGER && args[3].integer() < size-1) ? args[3].integer() : size-1;
+					for (int i = start; i >= 0; i--) {
+						if (array[i].equals(what)) {
+							return new Value().set(i);
 						}
+					}
 				}
 			}
 		}
+		return DUMMY_VALUE;
 	}
 
 
-	private final static void execute_insert (final Structure function_data)  {
-		final Value varray = function_data.get("argument").get("0");
-		final Value vindex = function_data.get("argument").get("1");
-		if (varray.type() == Value.STRUCTURE && vindex.type() == Value.INTEGER) {
-			final Value v = varray.structure().insertIntoArray(vindex.integer());
-			if (v != null)
-				function_data.putDirectlyIntoStringTreeMap("return_value", v);
+	private final static Value execute_insert (final Value[] args)  {
+		if (args.length >= 2 && args[0] != null && args[1] != null && args[0].type() == Value.ARRAY && args[1].type() == Value.INTEGER) {
+			final int index = args[1].integer();
+			final ArrayWrapper array = args[0].arrayWrapper();
+			final int old_length = array.array.length;
+			if (index >= 0 && index <= old_length) {
+				final Value[] new_array = new Value[old_length+1];
+				System.arraycopy(array.array, 0, new_array, 0, index);
+				System.arraycopy(array.array, index, new_array, index+1, old_length-index);
+				new_array[index] = new Value();
+				array.array = new_array;
+				return new_array[index];
+			}
 		}
+		return DUMMY_VALUE;
 	}
 
 
-	private final static void execute_pixelheight (final Structure function_data)  {
-		final Value v = function_data.get("argument").get("0");
-		final AbstractView view = Global.getViewWrapper().getView();
-		if (v != null)
-			function_data.get("return_value").set(view.height(v));
+	private final static Value execute_pixelheight (final Value[] args)  {
+		return new Value().set((args.length == 0 || args[0] == null) ? 0 : Global.getViewWrapper().getView().height(args[0]));
 	}
 
 
-	private final static void execute_pixelwidth (final Structure function_data)  {
-		final Value v = function_data.get("argument").get("0");
-		final AbstractView view = Global.getViewWrapper().getView();
-		if (v != null)
-			function_data.get("return_value").set(view.width(v));
+	private final static Value execute_pixelwidth (final Value[] args)  {
+		return new Value().set((args.length == 0 || args[0] == null) ? 0 : Global.getViewWrapper().getView().width(args[0]));
 	}
 
 
-	private final static void execute_random (final Structure function_data)  {
-		final Value v1 = function_data.get("argument").get("0");
-		final Value v2 = function_data.get("argument").get("1");
-		if (v1 != null && v2 != null) {
-			if (v1.type() == Value.INTEGER && v2.type() == Value.INTEGER) {
-				int start = v1.integer();
-				int end = v2.integer();
+	private final static Value execute_random (final Value[] args)  {
+		if (args.length >= 2 && args[0] != null && args[1] != null) {
+			if (args[0].type() == Value.INTEGER && args[1].type() == Value.INTEGER) {
+				int start = args[0].integer();
+				int end = args[1].integer();
 				// make sure start <= end
 				if (start > end) {
 					final int k = start;
 					start = end;
 					end = k;
 				}
-				function_data.get("return_value").set(Global.random.nextInt(end-start+1)+start);
+				return new Value().set(Global.random.nextInt(end-start+1)+start);
 			}
-			if (v1.type() == Value.STRING && v2.type() == Value.STRING) {
-				String sstart = v1.string();
-				String send = v2.string();
+			if (args[0].type() == Value.STRING && args[1].type() == Value.STRING) {
+				String sstart = args[0].string();
+				String send = args[1].string();
 				if (sstart.length() == 1 && send.length() == 1) {
 					int start = (int) sstart.charAt(0);
 					int end = (int) send.charAt(0);
@@ -263,48 +280,49 @@ final class StaticScriptFunctions extends ScriptNode
 						start = end;
 						end = k;
 					}
-					function_data.get("return_value").set(((char)(Global.random.nextInt(end-start+1)+start)) + "");
+					return new Value().set(((char)(Global.random.nextInt(end-start+1)+start)) + "");
 				}
 			}
 		}
+		return DUMMY_VALUE;
 	}
 
 
 	/** executes the hard coded script function size(x) */
-	private final static void execute_size (final Structure function_data)  {
-		final Value v = function_data.get("argument").get("0");
-		if (v != null) {
-			if (v.type() != Value.STRUCTURE)
-				function_data.get("return_value").set(v.toString().length());
-			else if (v.get("structure_type").equals("ARRAY"))
-				function_data.get("return_value").set(v.get("size"));
+	private final static Value execute_size (final Value[] args)  {
+		if (args.length > 0 && args[0] != null) {
+			if (args[0].type() == Value.ARRAY)
+				return new Value().set(args[0].array().length);
+			else
+				return new Value().set(args[0].toString().length());
 		}
+		return DUMMY_VALUE;
 	}
 
 
 	/** executes the hard coded script function substring(x) */
-	private final static void execute_substring (final Structure function_data)  {
-		final Value arg = function_data.get("argument");
-		final Value v = arg.get("0"), from = arg.get("1"), to = arg.get("2");
-		if (v != null) {
-			final String s = v.toString();
-			int ifrom = 0, ito = s.length();
-			try {
-				ifrom = from.integer();
-			} catch (Throwable t) {}
-			if (ifrom > s.length())
-				ifrom = s.length();
-			if (ifrom < 0)
-				ifrom = 0;
-			try {
-				ito = to.integer();
-			} catch (Throwable t) {}
-			if (ito > s.length())
-				ito = s.length();
-			if (ito < ifrom)
-				ito = ifrom;
-			function_data.get("return_value").set(s.substring(ifrom,ito));
+	private final static Value execute_substring (final Value[] args)  {
+		if (args.length > 0 && args[0] != null) {
+			final String s = args[0].toString();
+			final int slength = s.length();
+			int from = 0, to = slength;
+			if (args.length > 1 && args[1] != null && args[1].type() == Value.INTEGER) {
+				from = args[1].integer();
+				if (from >= to)
+					return new Value().set("");
+				if (from < 0)
+					from = 0;
+			}
+			if (args.length > 2 && args[2] != null && args[2].type() == Value.INTEGER) {
+				to = args[2].integer();
+				if (to <= from)
+					return new Value().set("");
+				if (to > slength)
+					from = slength;
+			}
+			return new Value().set(s.substring(from,to));
 		}
+		return DUMMY_VALUE;
 	}
 
 

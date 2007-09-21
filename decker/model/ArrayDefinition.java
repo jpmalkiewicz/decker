@@ -44,10 +44,10 @@ final class ArrayDefinition extends Expression
 	public Value execute ()  {
 		// creates a new array and returns it
 		final int count = array_definition.length;
-		final Structure array = new Structure("ARRAY");
+		final Value[] array = new Value[count];
 		for (int i = 0; i < count; i++)
-			array.add("").set(array_definition[i].execute());
-		return new Value().set(array);
+			array[i] = new Value().set(array_definition[i].execute());
+		return new Value().set(new ArrayWrapper(array));
 	}
 
 
