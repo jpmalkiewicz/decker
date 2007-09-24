@@ -338,8 +338,8 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 			if ((v=d.get("component")) != null) {
 				if (v.type() == Value.ARRAY && v.array().length > 0)
 					return height(v.get(0));
-				else if (v.type() == Value.STRUCTURE)
-					return height(v.structure());
+				else
+					return height(v);
 			}
 		}
 		// everything has failed, assume a height of 0 for the structure
@@ -411,8 +411,7 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 			if ((v=d.get("component")) != null) {
 				if (v.type() == Value.ARRAY && v.array().length > 0)
 					return width(v.get(0));
-				if (v.type() == Value.STRUCTURE)
-					return width(v.structure());
+				return width(v);
 			}
 		}
 		// everything has failed, assume a width of 0 for the structure

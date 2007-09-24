@@ -25,6 +25,9 @@ final class AssignmentCommand extends ScriptNode
 	ScriptNode copy ()  { return new AssignmentCommand(this); }
 
 
+Value old_array_entry;
+
+
 	public Value execute ()  {
 		// fetch the variable
 		Value ret = null, v;
@@ -38,13 +41,15 @@ final class AssignmentCommand extends ScriptNode
 			}
 		}
 		// if the topmost structure on the stack is expandable and not of type LOCAL, add the variable to it (if it doesn't exist yet)
-		if (ret == null && voperator == Expression.VARIABLE && stack[stack_size-1].canHoldCustomVariables() && !stack[stack_size-1].get("structure_type").equals("LOCAL")) {
-			ret = stack[stack_size-1].get(variable.toString());
-			if (ret == null)
-				ret = stack[stack_size-1].add(variable.toString());
+		if (ret == null) {
+			if (voperator == Expression.VARIABLE && stack[stack_size-1].canHoldCustomVariables() && !stack[stack_size-1].get("structure_type").equals("LOCAL")) {
+				ret = stack[stack_size-1].get(variable.toString());
+				if (ret == null)
+					ret = stack[stack_size-1].add(variable.toString());
+			}
+			else
+				ret = variable.execute();
 		}
-		else
-			ret = variable.execute();
 		// if the variable doesn't exist yet, its enclosing structure is null
 		final Structure k = ret.getEnclosingStructure();
 		if (k == null) {

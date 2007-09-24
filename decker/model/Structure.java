@@ -10,6 +10,8 @@ public final class Structure
 
 
 	public Structure (final String type_name)  {
+if (type_name==null)
+throw new RuntimeException("trying to use null as a structure type");
 		addDirectly("structure_type").set(type_name);
 		// if there exists a template structure for this type, copy it
 		if (ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] != null)  {
@@ -52,13 +54,18 @@ public final class Structure
 		this ("LOCAL");
 		add("argument").set(new ArrayWrapper(arguments));
 		add("return_value");
+//System.out.println("Structure : "+arguments.length+"   "+argument_names.length+"  "+((argument_names.length > 0)?argument_names[0]:""));
+
 		// manually add all the named arguments to the structure - they contain the same variable as the arguments array, not just the same value
 		final int argument_count = arguments.length;
 		for (int i = argument_names.length; --i >= 0; ) {
 			if (i >= argument_count)
 				add(argument_names[i]);
-			else
+			else {
 				members.put(argument_names[i], arguments[i]);
+				if (arguments[i].getEnclosingStructure() == null)
+					arguments[i].setEnclosingStructure(this);
+			}
 		}
 	}
 
@@ -66,9 +73,7 @@ public final class Structure
 	/** adds a new variable to this collection */
 	public Value add (String name)  {
 		final Value ret = new Value(this);
-		final Value overwritten_value = (Value) members.put(name, ret);
-		if (overwritten_value != null)
-			overwritten_value.destroy();
+		members.put(name, ret);
 		return ret;
 	}
 
@@ -114,12 +119,18 @@ public final class Structure
 				out.println(ind+"...");
 		}
 		else {
+boolean throwException = false;
 			out.println(); // gotta add a line feed behind the structure type
 			final StringTreeMap.Iterator i = members.getIterator();
 			while (i.hasNext()) {
 				final StringTreeMap.TreeNode n = i.nextNode();
 				out.print(ind + n.getKey() + " = ");
 				final Value v = (Value) n.getValue();
+if (v == null){
+out.println("*** null ***");
+throwException = true;
+}
+else
 				if (v.typeDirect() == Value.STRUCTURE)
 					v.structure().print(out, ind, false);
 				else if (v.isExpression())
@@ -129,18 +140,22 @@ public final class Structure
 				else
 					out.println(v.toString());
 			}
+if (throwException)
+throw new RuntimeException("Structure member is null");
 		}
 		return true;
 	}
 
 
-	void putDirectlyIntoStringTreeMap (final String key, final Value v)  { members.put(key, v); }
+	void putDirectlyIntoStringTreeMap (final String key, final Value v)  {
+if (v == null)
+throw new RuntimeException("who's putting null into a StringTreeMap ?!?");
+		members.put(key, v);
+	}
 
 
 	void remove (final String key)  {
 		final Value overwritten_value = (Value) members.remove(key);
-		if (overwritten_value != null)
-			overwritten_value.destroy();
 	}
 
 

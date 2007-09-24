@@ -10,8 +10,8 @@ import java.awt.image.*;
 public class DefaultView extends AbstractView
 {
 	private String old_title = "";
-	private int dx, dy;
 	private Graphics g;
+	private int current_dx, current_dy;
 	private final static Shape NO_CLIP_CHANGE = new java.awt.geom.Line2D.Double();
 
 
@@ -26,12 +26,12 @@ dummy = true;
 //v.structure().print(System.err,"", true);
 }
 		g = gr;
-		drawContent(v, null);
+		drawContent(v, 0, 0, Integer.MIN_VALUE, Integer.MIN_VALUE);
 
 	}
 
 
-	public void drawContent (final Value display_this, final Structure parent)  {
+	public void drawContent (final Value display_this, int dx, int dy, final int parent_width, final int parent_height)  {
 		if (display_this.type() != Value.STRUCTURE) {
 			if (!display_this.equalsConstant("UNDEFINED")) {
 				// treat it as a string and fetch the corresponding image
@@ -48,12 +48,17 @@ dummy = true;
 			Shape clip = NO_CLIP_CHANGE;
 			// if the structure has an on_draw function, execute it
 			if ((v=d.get("on_draw")) != null && v.typeDirect() == Value.FUNCTION) {
+				// gotta store the current draw coordinates, in case they get polled by the on_draw function
+				current_dx = dx;
+				current_dy = dy;
 				FunctionCall.executeFunctionCall(v.function(), null, ScriptNode.KEEP_STACK);
 			}
-			final int x = x(d,parent), y = y(d,parent);
-			final int w = width(d), h = height(d);
+			final int x = x(d, parent_width);
+			final int y = y(d, parent_height);
+			final int w = width(d);
+			final int h = height(d);
 			// adjust the Frame if this is the top level view
-			if (parent == null)  {
+			if (parent_width == Integer.MIN_VALUE)  {
 				// set the window title - it may have changed during code execution
 				if ( (v=d.get("title")) != null && !v.equalsConstant("UNDEFINED") && !v.equals(old_title))  {
 					old_title = v.toString();
@@ -163,7 +168,7 @@ dummy = true;
 				g.fillRect(dx, dy, w, h);
 			}
 			else if (type.equals("TABLE")) {
-				UITable.draw(d, g, this);
+				UITable.draw(dx, dy, d, g, this);
 			}
 			// draw the child components of this view component
 			v = d.get("component");
@@ -172,18 +177,13 @@ dummy = true;
 					final Value[] comp = v.array();
 					final int ccount = comp.length;
 					for (int i = 0; i < ccount; i++)
-						drawContent(comp[i], d);
+						drawContent(comp[i], dx, dy, w, h);
 				}
 				else if (!v.equalsConstant("UNDEFINED")) {
-					drawContent(v, d);
+					drawContent(v, dx, dy, w, h);
 				}
 			}
 			ScriptNode.removeStackItem(d);
-			// restore the dx and dy values
-			if (parent != null) {
-				dx -= x;
-				dy -= y;
-			}
 			// restore the clipping area if the currently displayed element has changed it, e.g. a DRAWING_BOUNDARY structure
 			if (clip != NO_CLIP_CHANGE)
 				g.setClip(clip);
@@ -267,23 +267,26 @@ dummy = true;
 	}
 
 
-	public void eventMouseDragged (final int x, final int y, final int dx, final int dy)  { final Value v = Global.getDisplayedScreen(); if (v != null && v.type() == Value.STRUCTURE) eventMouseDragged (x, y, dx, dy, v.structure(), null); }
-	public void eventMouseMoved (final int x, final int y)  { final Value v = Global.getDisplayedScreen(); if (v != null && v.type() == Value.STRUCTURE) eventMouseMoved (x, y, v.structure(), null); }
-	public void eventMousePressed (final int x, final int y)  { final Value v = Global.getDisplayedScreen(); if (v != null && v.type() == Value.STRUCTURE) eventMousePressed (x, y, v.structure(), null); }
-	public void eventMouseReleased (final int x, final int y)  { final Value v = Global.getDisplayedScreen(); if (v != null && v.type() == Value.STRUCTURE) eventMouseReleased (x, y, v.structure(), null); }
+	public void eventMouseDragged (final int x, final int y, final int dx, final int dy)  { final Value v = Global.getDisplayedScreen(); if (v != null && v.type() == Value.STRUCTURE) eventMouseDragged (x, y, dx, dy, v.structure(), Integer.MIN_VALUE, Integer.MIN_VALUE); }
+	public void eventMouseMoved (final int x, final int y)  { final Value v = Global.getDisplayedScreen(); if (v != null && v.type() == Value.STRUCTURE) eventMouseMoved (x, y, v.structure(), Integer.MIN_VALUE, Integer.MIN_VALUE); }
+	public void eventMousePressed (final int x, final int y)  { final Value v = Global.getDisplayedScreen(); if (v != null && v.type() == Value.STRUCTURE) eventMousePressed (x, y, v.structure(), Integer.MIN_VALUE, Integer.MIN_VALUE); }
+	public void eventMouseReleased (final int x, final int y)  { final Value v = Global.getDisplayedScreen(); if (v != null && v.type() == Value.STRUCTURE) eventMouseReleased (x, y, v.structure(), Integer.MIN_VALUE, Integer.MIN_VALUE); }
 
 
 	/** returns true iff the event has been consumed */
-	private boolean eventMouseDragged (int x, int y, final int dx, final int dy, final Structure d, final Structure parent)  {
+	private boolean eventMouseDragged (int x, int y, final int dx, final int dy, final Structure d, final int parent_width, final int parent_height)  {
 		Value v;
 		// put the current data object on the stack, in case there are function calls for nested objects
 		ScriptNode.addStackItem(d);
 		// we have to adjust the event coordinates if d is not the top level view object
-		x -= x(d,parent);
-		y -= y(d,parent);
+		x -= x(d, parent_width);
+		y -= y(d, parent_height);
+		// determine the width and height of the structure
+		final int w = width(d);
+		final int h = height(d);
 		// if the current structure is a button that is not disabled, it may have changed its state
 		if (( d.get("structure_type").equals("BUTTON") || d.get("structure_type").equals("BORDER_BUTTON") )&& !d.get("state").equalsConstant("DISABLED")) {
-			if (inside(x, y, d)) {
+			if (inside(x, y, w, h, d)) {
 				if (!d.get("state").equalsConstant("PRESSED")) {
 					d.get("state").setConstant("PRESSED");
 					repaint();
@@ -297,7 +300,7 @@ dummy = true;
 			}
 		}
 		// if the component has an on_mouse_dragged function, call it
-		if ((v=d.get("on_mouse_dragged")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, d)) {
+		if ((v=d.get("on_mouse_dragged")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, w, h, d)) {
 			FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y), new Value().set(dx), new Value().set(dy) }, ScriptNode.KEEP_STACK);
 		}
 		// hand the event on to all sub-components
@@ -307,11 +310,11 @@ dummy = true;
 				final Value[] comp = v.array();
 				final int ccount = comp.length;
 				for (int i = 0; i < ccount; i++)
-					if (comp[i].type() == Value.STRUCTURE && eventMouseDragged(x, y, dx, dy, comp[i].structure(), d))
+					if (comp[i].type() == Value.STRUCTURE && eventMouseDragged(x, y, dx, dy, comp[i].structure(), w, h))
 						return true;
 			}
 			else if (v.type() == Value.STRUCTURE) {
-				if (eventMouseDragged(x, y, dx, dy, v.structure(), d))
+				if (eventMouseDragged(x, y, dx, dy, v.structure(), w, h))
 					return true;
 			}
 		}
@@ -322,16 +325,19 @@ dummy = true;
 
 
 	/** returns true iff the event has been consumed */
-	private boolean eventMouseMoved (int x, int y, final Structure d, final Structure parent)  {
+	private boolean eventMouseMoved (int x, int y, final Structure d, final int parent_width, final int parent_height)  {
 		Value v;
 		// put the current data object on the stack, in case there are function calls for nested objects
 		ScriptNode.addStackItem(d);
 		// we have to adjust the event coordinates if d is not the top level view object
-		x -= x(d,parent);
-		y -= y(d,parent);
+		x -= x(d, parent_width);
+		y -= y(d, parent_height);
+		// determine the width and height of the structure
+		final int w = width(d);
+		final int h = height(d);
 		// process the event
 		if (( d.get("structure_type").equals("BUTTON") || d.get("structure_type").equals("BORDER_BUTTON") )&& !d.get("state").equalsConstant("DISABLED")) {
-			if (inside(x, y, d)) {
+			if (inside(x, y, w, h, d)) {
 				if (!d.get("state").equalsConstant("HOVER")) {
 					d.get("state").setConstant("HOVER");
 					repaint();
@@ -349,11 +355,11 @@ dummy = true;
 				final Value[] comp = v.array();
 				final int ccount = comp.length;
 				for (int i = 0; i < ccount; i++)
-					if (comp[i].type() == Value.STRUCTURE && eventMouseMoved(x, y,  comp[i].structure(), d))
+					if (comp[i].type() == Value.STRUCTURE && eventMouseMoved(x, y,  comp[i].structure(), w, h))
 						return true;
 			}
 			else if (v.type() == Value.STRUCTURE) {
-				if (eventMouseMoved(x, y, v.structure(), d))
+				if (eventMouseMoved(x, y, v.structure(), w, h))
 					return true;
 			}
 		}
@@ -364,16 +370,19 @@ dummy = true;
 
 
 	/** returns true iff the event has been consumed */
-	private boolean eventMousePressed (int x, int y, final Structure d, final Structure parent)  {
+	private boolean eventMousePressed (int x, int y, final Structure d, final int parent_width, final int parent_height)  {
 		Value v;
 		// put the current data object on the stack, in case there are function calls for nested objects
 		ScriptNode.addStackItem(d);
 		// we have to adjust the event coordinates if d is not the top level view object
-		x -= x(d,parent);
-		y -= y(d,parent);
+		x -= x(d, parent_width);
+		y -= y(d, parent_height);
+		// determine the width and height of the structure
+		final int w = width(d);
+		final int h = height(d);
 		// if the current structure is a button that is not disabled, it may have changed its state
 		if (( d.get("structure_type").equals("BUTTON") || d.get("structure_type").equals("BORDER_BUTTON") )&& !d.get("state").equalsConstant("DISABLED")) {
-			if (inside(x, y, d)) {
+			if (inside(x, y, w, h, d)) {
 				if (!d.get("state").equalsConstant("PRESSED")) {
 					d.get("state").setConstant("PRESSED");
 					repaint();
@@ -387,7 +396,7 @@ dummy = true;
 			}
 		}
 		// if the component has an on_mouse_down function, call it
-		if ((v=d.get("on_mouse_down")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, d)) {
+		if ((v=d.get("on_mouse_down")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, w, h, d)) {
 			FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y) }, ScriptNode.KEEP_STACK);
 		}
 		// hand the event on to all sub-components
@@ -397,11 +406,11 @@ dummy = true;
 				final Value[] comp = v.array();
 				final int ccount = comp.length;
 				for (int i = 0; i < ccount; i++)
-					if (comp[i].type() == Value.STRUCTURE && eventMousePressed(x, y, comp[i].structure(), d))
+					if (comp[i].type() == Value.STRUCTURE && eventMousePressed(x, y, comp[i].structure(), w, h))
 						return true;
 			}
 			else if (v.type() == Value.STRUCTURE) {
-				if (eventMousePressed(x, y, v.structure(), d))
+				if (eventMousePressed(x, y, v.structure(), w, h))
 					return true;
 			}
 		}
@@ -412,18 +421,20 @@ dummy = true;
 
 
 	/** returns true iff the event has been consumed */
-	private boolean eventMouseReleased (int x, int y, final Structure d, final Structure parent)  {
+	private boolean eventMouseReleased (int x, int y, final Structure d, final int parent_width, final int parent_height)  {
 		Value v;
 		// put the current data object on the stack, in case there are function calls for nested objects
 		ScriptNode.addStackItem(d);
 		// we have to adjust the event coordinates if d is not the top level view object
-		x -= x(d,parent);
-		y -= y(d,parent);
-
+		x -= x(d, parent_width);
+		y -= y(d, parent_height);
+		// determine the width and height of the structure
+		final int w = width(d);
+		final int h = height(d);
 		// if the current structure is a button that is not disabled, it may have changed its state
 		if (d.get("structure_type").equals("BUTTON") || d.get("structure_type").equals("BORDER_BUTTON")) {
 			if (!d.get("state").equalsConstant("DISABLED")) {
-				if (inside(x, y, d)) {
+				if (inside(x, y, w, h, d)) {
 					if ((v=d.get("on_mouse_up")) != null && v.typeDirect() == Value.FUNCTION) {
 						FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y) }, ScriptNode.KEEP_STACK);
 						repaint();
@@ -439,7 +450,7 @@ dummy = true;
 				}
 			}
 		}
-		else if ((v=d.get("on_mouse_up")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, d)) {
+		else if ((v=d.get("on_mouse_up")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, w, h, d)) {
 			FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y) }, ScriptNode.KEEP_STACK);
 		}
 		// hand the event on to all sub-components
@@ -449,11 +460,11 @@ dummy = true;
 				final Value[] comp = v.array();
 				final int ccount = comp.length;
 				for (int i = 0; i < ccount; i++)
-					if (comp[i].type() == Value.STRUCTURE && eventMouseReleased(x, y, comp[i].structure(), d))
+					if (comp[i].type() == Value.STRUCTURE && eventMouseReleased(x, y, comp[i].structure(), w, h))
 						return true;
 			}
 			else if (v.type() == Value.STRUCTURE) {
-				if (eventMouseReleased(x, y, v.structure(), d))
+				if (eventMouseReleased(x, y, v.structure(), w, h))
 					return true;
 			}
 		}
@@ -463,17 +474,17 @@ dummy = true;
 	}
 
 
-	public int getDrawOffsetX ()  { return dx; }
+	public int getDrawOffsetX ()  { return current_dx; }
 
 
-	public int getDrawOffsetY ()  { return dy; }
+	public int getDrawOffsetY ()  { return current_dy; }
 
 
 // private methods **************************************************************************************************************************************
 
 
 	/** returns true iff the point (x,y) is inside the view object */
-	private boolean inside (final int x, final int y, final Structure d)  {
+	private boolean inside (final int x, final int y, final int w, final int h, final Structure d)  {
 		// (x,y) can only be inside the image if both x and y are >= 0
 		if (x >= 0 && y >= 0) {
 			Value v;
@@ -484,16 +495,16 @@ dummy = true;
 					return x < i.getWidth() && y < i.getHeight() && i.getRGB(x,y) == 0xffffff;
 			}
 			// otherwise determine the width and height of the view element and just check whether (x,y) is inside the resulting rectangle
-			return x < width(d) && y < height(d);
+			return x < w && y < h;
 		}
 		return false;
 	}
 
 
-	private int x (Object visible_object, final Structure parent)  {
+	private int x (Object visible_object, final int parent_width)  {
 		int ret = 0;
 		// if it's the top level view (parent==null) it automatically sits at (0,0)
-		if (parent != null &&( visible_object instanceof Structure ||( visible_object instanceof Value && ((Value)visible_object).type() == Value.STRUCTURE ))) {
+		if (parent_width > Integer.MIN_VALUE &&( visible_object instanceof Structure ||( visible_object instanceof Value && ((Value)visible_object).type() == Value.STRUCTURE ))) {
 			if (visible_object instanceof Value)
 				visible_object = ((Value)visible_object).structure();
 			final Value v = ((Structure)visible_object).get("x");
@@ -510,15 +521,15 @@ dummy = true;
 				else if (v.type() == Value.CONSTANT) {
 					if (v.equalsConstant("RIGHT")) {
 						if (a == null || a.equalsConstant("UNDEFINED")) // if the visible_object has no explicit horizontal alignment, treat it as LEFT aligned, i.e. sitting left of (x,y)
-							ret = width(parent)-width(visible_object);
+							ret = parent_width-width(visible_object);
 						else
-							ret = width(parent);
+							ret = parent_width;
 					}
 					else if (v.equalsConstant("CENTER")) {
 						if (a == null || a.equalsConstant("UNDEFINED")) // if the visible_object has no explicit horizontal alignment, treat it as CENTER aligned, i.e. sitting centered on (x,y)
-							ret = (width(parent)-width(visible_object))/2;
+							ret = (parent_width-width(visible_object))/2;
 						else
-							ret = width(parent)/2;
+							ret = parent_width/2;
 					}
 //					else if (v.equalsConstant("LEFT"))  // this case has no effect as x is already assumed to be 0
 //						ret = 0;
@@ -544,10 +555,10 @@ dummy = true;
 	}
 
 
-	private int y (Object visible_object, final Structure parent)  {
+	private int y (Object visible_object, final int parent_height)  {
 		int ret = 0;
 		// if it's the top level view (parent==null) it automatically sits at (0,0)
-		if (parent != null &&( visible_object instanceof Structure ||( visible_object instanceof Value && ((Value)visible_object).type() == Value.STRUCTURE ))) {
+		if (parent_height > Integer.MIN_VALUE &&( visible_object instanceof Structure ||( visible_object instanceof Value && ((Value)visible_object).type() == Value.STRUCTURE ))) {
 			if (visible_object instanceof Value)
 				visible_object = ((Value)visible_object).structure();
 			final Value v = ((Structure)visible_object).get("y");
@@ -564,15 +575,15 @@ dummy = true;
 				else if (v.type() == Value.CONSTANT) {
 					if (v.equalsConstant("BOTTOM")) {
 						if (a == null || a.equalsConstant("UNDEFINED")) // if the visible_object has no explicit vertical alignment, treat it as TOP aligned, i.e. sitting above (x,y)
-							ret = height(parent)-height(visible_object);
+							ret = parent_height-height(visible_object);
 						else
-							ret = height(parent);
+							ret = parent_height;
 					}
 					else if (v.equalsConstant("CENTER")) {
 						if (a == null || a.equalsConstant("UNDEFINED")) // if the visible_object has no explicit vertical alignment, treat it as CENTER aligned, i.e. sitting centered on (x,y)
-							ret = (height(parent)-height(visible_object))/2;
+							ret = (parent_height-height(visible_object))/2;
 						else
-							ret = height(parent)/2;
+							ret = parent_height/2;
 					}
 //					else if (v.equalsConstant("TOP"))  // this case has no effect as y is already assumed to be 0
 //						ret = 0;
