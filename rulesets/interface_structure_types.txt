@@ -231,17 +231,19 @@ english
 
 		TABLE
 			expandable = true
-			rows          // number of rows in this table
-			columns       // number of columns in this table
-			cell          // two dimensional array containing the cells
-			cell_height   // all rows have the same height
-			cell_width    // array containing the width for each column
+			rows = 0       // number of rows in this table
+			columns        // number of columns in this table
+			cell           // two dimensional array containing the cells
+			cell_height    // all rows have the same height
+			cell_width     // array containing the width for each column
 			//cell_h_align // default horizontal alignment of cell content. if it's defined in an ARRAY it's entries are used as the default horizontal alignment of cell content for each column. this value will only be used if the cell content doesn't have a valid value for v_align. watch out, the alignment setting gets set for the cell content. if the same thing is displayed in different cells (even from different tables), the cell that gets displayed first determines its alignment, if cell_alignment_x is set
 			//cell_v_align // default vertical alignment of cell content, works like cell_h_align
 			//cell_x // x value of cell content. works like cell_h_align
 			//cell_y // y value of cell content. works like cell_h_align
 			width = 0
 			height = 0
+			initializer = FUNCTION
+				cell = ARRAY
 
 
 		SCROLLBAR  // a vertical scrollbar
@@ -335,16 +337,17 @@ english
 				LOCAL.vscrollbar = false
 				LOCAL.hscrollbar = false
 				// determine whether we need a vertical scrollbar
-				if value_type(vertical_scrollbar) == "STRUCTURE" && ( !optional_scrollbars || h < dh )
-					vscrollbar = vertical_scrollbar.structure_type == "ARRAY" ? createSimpleScrollbar(w, h, vertical_scrollbar, true) : vertical_scrollbar
+				if ( !optional_scrollbars || h < dh ) && ( value_type(vertical_scrollbar) == "STRUCTURE" || value_type(vertical_scrollbar) == "ARRAY" )
+					vertical_scrollbar[0] = "scroller_vertical_blue0"
+					vscrollbar = value_type(vertical_scrollbar) == "ARRAY" ? createSimpleScrollbar(w, h, vertical_scrollbar, true) : vertical_scrollbar
 					w = w - pixelwidth(vscrollbar) - scrollbar_padding
 				// determine whether we need a horizontal scrollbar
-				if value_type(horizontal_scrollbar) == "STRUCTURE" && ( !optional_scrollbars || w < dw )
-					hscrollbar = horizontal_scrollbar.structure_type == "ARRAY" ? createSimpleScrollbar(w, h, horizontal_scrollbar, false) : horizontal_scrollbar
+				if ( !optional_scrollbars || w < dw ) && ( value_type(horizontal_scrollbar) == "STRUCTURE" || value_type(horizontal_scrollbar) == "ARRAY" )
+					hscrollbar = value_type(horizontal_scrollbar) == "ARRAY" ? createSimpleScrollbar(w, h, horizontal_scrollbar, false) : horizontal_scrollbar
 					h = h - pixelheight(hscrollbar) - scrollbar_padding
 					// check whether after adding the horizontal scrollbar we now need the vertical scrollbar (w, h, because the display area is no longer high enough to display the content). we don't have to check whether scrollbars are optional, they definitely are
-					if vscrollbar == false && value_type(vertical_scrollbar) == "STRUCTURE" && h < dh
-						vscrollbar = vertical_scrollbar.structure_type == "ARRAY" ? createSimpleScrollbar(w, h, vertical_scrollbar, true) : vertical_scrollbar
+					if h < dh && ( value_type(vertical_scrollbar) == "STRUCTURE" || value_type(vertical_scrollbar) == "ARRAY" )
+						vscrollbar = value_type(vertical_scrollbar) == "ARRAY" ? createSimpleScrollbar(w, h, vertical_scrollbar, true) : vertical_scrollbar
 						w = w - pixelwidth(vscrollbar) - scrollbar_padding
 					else
 						vscrollbar.height = h   // the height needs to be reduced to make room for the horizontal scrollbar

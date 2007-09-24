@@ -14,6 +14,7 @@ public final class FunctionCall extends Expression
 	*   the enclosing ScriptNodes are already sitting on the stack for data retrieval */
 	public final static Value executeFunctionCall (final Object _function, Value[] args, final Structure enclosing_structure) {
 		final Function function = (Function) ( (_function instanceof Function) ? _function : ((Value)_function).function() );
+final Value[] args_old = args;
 		if (args == null)
 			args = DUMMY_ARGS;
 		// if it is a hard coded function, call it immediately
@@ -21,8 +22,30 @@ public final class FunctionCall extends Expression
 			return StaticScriptFunctions.execute(function.getFunctionID(), args);
 		else {
 			// calculate the values of the supplied arguments and create the FUNCTION_CALL structure
+/*
+if (args_old != null)
+System.out.println("args original length : "+(args_old.length));
+else
+System.out.println("args = null");
+*/
+for (int i = args.length; --i >= 0; )
+	if (args[i] != null)
+		args[i].toString();
+
 			args = function.insertDefaultArgumentValues(args);
 			final Structure function_data = new Structure(args, function.getArgumentNames());
+for (int i = args.length; --i >= 0; )
+	if (args[i] != null)
+		args[i].toString();
+//System.out.println("executeFunctionCall : "+args.length+"  "+function_data.size()+"  anl="+function.getArgumentNames().length);
+//function_data.print(System.out, "", true);
+/*
+if (function.getArgumentNames().length == 2 && function.getArgumentNames()[0].equals("string") && function.getArgumentNames()[1].equals("is_on"))
+{
+	System.out.println("* calling adjust_on_off_text : ");
+	new RuntimeException("sdffwedf").printStackTrace();
+}
+*/
 			// unless the "enclosing_structure" is KEEP_STACK, remove all local stack items from the stack, then put the optional structure the function's variable is stored in, the FUNCTION_CALL and a new LOCAL structure on it
 			Structure[] old_stack = null;
 			if (enclosing_structure != KEEP_STACK) {
@@ -81,14 +104,26 @@ public final class FunctionCall extends Expression
 			// fetch the function we will execute
 			function = (Function) getFirstOperand().execute().function();
 		} catch (RuntimeException ex) {
+			ex.printStackTrace();
 			throwException(ex.toString());
 		}
 		// calculate the values of the supplied arguments
+/*
+if (function.getArgumentNames().length == 2 && function.getArgumentNames()[0].equals("string") && function.getArgumentNames()[1].equals("is_on"))
+{
+	System.out.println("* calling adjust_on_off_text : "+argument.length+"*");
+}
+System.out.println("");
+*/
 		final Value[] arguments = new Value[argument.length];
 		for (int i = 0; i < argument.length; i++)
-			if (argument[i] != null)
+			if (argument[i] != null) {
 				arguments[i] = argument[i].execute();
-		// execute the function call nd return the resulting Value
+				// we need to create a new variable so just the value of the original variable from the expression is transferred, and not the variable itself
+				if (arguments[i].getEnclosingStructure() != null)
+					arguments[i] = new Value().setDirectly(arguments[i], false);
+			}
+		// execute the function call and return the resulting Value
 		return executeFunctionCall(function, arguments, null);
 	}
 
@@ -103,9 +138,9 @@ public final class FunctionCall extends Expression
 	public String toString()  {
 		String ret = getFirstOperand().toString() + " (";
 		if (argument.length > 0) {
-			ret += argument[0].toString();
+			ret += (argument[0]!=null) ? argument[0].toString() : " ";
 			for (int i = 1; i < argument.length; i++)
-				ret += ", "+argument[i].toString();
+				ret += ", "+((argument[i]!=null)?argument[i].toString():"");
 		}
 		ret += ")";
 		return ret;

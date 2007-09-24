@@ -22,9 +22,11 @@ final class StaticScriptFunctions extends ScriptNode
 			case Global.F_EXIT_PROGRAM : System.exit(0); return null;
 			case Global.F_FILELIST : return execute_filelist(args);
 			case Global.F_GET_STRUCTURE_STACK : return execute_get_structure_stack(args);
+			case Global.F_HAS_VARIABLE : return execute_hasVariable(args);
 			case Global.F_IMAGE_EXISTS : return execute_image_exists(args);
 			case Global.F_INDEXOF : return execute_indexof(args);
 			case Global.F_INSERT : return execute_insert(args);
+			case Global.F_IS_EXPANDABLE : return execute_isExpandable(args);
 			case Global.F_PIXELHEIGHT : return execute_pixelheight(args);
 			case Global.F_PIXELWIDTH : return execute_pixelwidth(args);
 			case Global.F_RANDOM : return execute_random(args);
@@ -93,7 +95,8 @@ final class StaticScriptFunctions extends ScriptNode
 			else if (v.typeDirect() == Value.ARRAY)
 where.println("*** NOT PRINTING ARRAYS YET IN StaticScriptFunctions.execute_debug()");
 			else
-				where.println(v.toString());
+where.println(v);
+//				where.println(v.toString());
 		}
 		return DUMMY_VALUE;
 	}
@@ -164,6 +167,12 @@ where.println("*** NOT PRINTING ARRAYS YET IN StaticScriptFunctions.execute_debu
 			stack.add("").set(new Value().set(ScriptNode.stack[i].get("structure_type")));
 		}
 		return new Value().set(stack);
+	}
+
+
+	/** returns true if args[0] is a structure and has a variable named args[1] */
+	private final static Value execute_hasVariable (final Value[] args)  {
+		return new Value().set(args.length > 1 && args[0] != null && args[1] != null && args[0].type() == Value.STRUCTURE && args[0].structure().get(args[1].toString()) != null);
 	}
 
 
@@ -242,6 +251,14 @@ where.println("*** NOT PRINTING ARRAYS YET IN StaticScriptFunctions.execute_debu
 			}
 		}
 		return DUMMY_VALUE;
+	}
+
+
+	private final static Value execute_isExpandable (final Value[] args)  {
+		if (args.length == 0 || args[0] == null || args[0].type() != Value.STRUCTURE)
+			return new Value().set(false);
+		Value v = getStructureType(args[0].get("structure_type").string()).get("expandable");
+		return new Value().set(v != null && v.equals(true));
 	}
 
 

@@ -1,47 +1,46 @@
 english
 	ENGINE.addTableRow = FUNCTION (table)
 		// create the new table row
-		LOCAL.row = COLLECTION
-			component = ARRAY
-		table.component[] = row
+		LOCAL.row = ARRAY
+		table.cell[] = row
 		LOCAL.i = 0
-		LOCAL.x_offset = 0
-		while i < table.cell_width.size
-			// create the container for the component of the next cell
-			row.component[] = COLLECTION
-				x = x_offset
-				y = table.height
-				width = table.cell_width[i]
-				height = table.cell_height
-				LOCAL.a = ARRAY
-				component = a
-				// if the function caller has supplied a component for this cell, put it in the cell
-				if argument[i+1] != UNDEFINED
-					a[] = argument[i+1]
-					if argument[i+1].x == UNDEFINED && table.cell_x != UNDEFINED
-						if value_type(table.cell_x) == "CONSTANT"
-							argument[i+1].x = table.cell_x
-						else
-							argument[i+1].x = table.cell_x[i]
-					if argument[i+1].y == UNDEFINED && table.cell_y != UNDEFINED
-						if value_type(table.cell_y) == "CONSTANT"
-							argument[i+1].y = table.cell_y
-						else
-							argument[i+1].y = table.cell_y[i]
-					if argument[i+1].v_align == UNDEFINED && table.cell_v_align != UNDEFINED
-						if value_type(table.cell_v_align) == "CONSTANT"
-							argument[i+1].v_align = table.cell_v_align
-						else
-							argument[i+1].v_align = table.cell_v_align[i]
-					if argument[i+1].h_align == UNDEFINED && table.cell_h_align != UNDEFINED
-						if value_type(table.cell_h_align) == "CONSTANT"
-							argument[i+1].h_align = table.cell_h_align
-						else
-							argument[i+1].h_align = table.cell_h_align[i]
-			x_offset = x_offset + table.cell_width[i]
+		LOCAL.columns = table.columns
+		LOCAL.k = UNDEFINED
+		LOCAL.can_expand = UNDEFINED
+		while i < columns
+			k = argument[i+1]
+			// if it's not a structure, wrap a COMPONENT around it so we can set its position within the table cell
+			if value_type(k) != "STRUCTURE" && k != UNDEFINED
+				k = COMPONENT
+					component = k
+			row[] = k
+			// use the default values for all undefined cell values
+			if k != UNDEFINED
+				can_expand = isExpandable(k)
+				if k.x == UNDEFINED && table.cell_x != UNDEFINED && ( can_expand || hasVariable(k,"x") )
+					if value_type(table.cell_x) == "CONSTANT"
+						k.x = table.cell_x
+					else
+						k.x = table.cell_x[i]
+				if k.y == UNDEFINED && table.cell_y != UNDEFINED && ( can_expand || hasVariable(k,"y") )
+					if value_type(table.cell_y) == "CONSTANT"
+						k.y = table.cell_y
+					else
+						k.y = table.cell_y[i]
+				if k.v_align == UNDEFINED && table.cell_v_align != UNDEFINED && ( can_expand || hasVariable(k,"v_align") )
+					if value_type(table.cell_v_align) == "CONSTANT"
+						k.v_align = table.cell_v_align
+					else
+						k.v_align = table.cell_v_align[i]
+				if k.h_align == UNDEFINED && table.cell_h_align != UNDEFINED && ( can_expand || hasVariable(k,"h_align") )
+					if value_type(table.cell_h_align) == "CONSTANT"
+						k.h_align = table.cell_h_align
+					else
+						k.h_align = table.cell_h_align[i]
 			i = i + 1
-		// calculate the new table height
-		table.height = table.cell_height * table.component.size
+		// adjust the table size
+		table.rows = table.cell.size
+		table.height = table.cell_height * table.rows
 		
 		
 	// creates a border with the given values
@@ -72,8 +71,15 @@ english
 				slider_max = _slider_max
 			// add the slider and the optional arrow buttons
 			if value_type(_slider) == "STRING"      // it's the name of an image. we need to turn it into a button
+// !!
+//				debug("a")
+				LOCAL.b = _slider
+//				debug("b")
+// !! end
 				_slider = BUTTON
-					idle = _slider
+					idle = b
+//					idle = _slider
+//				debug(_slider)
 			if vertical
 				_slider.x = CENTER
 				_slider.y = 0   // the y position is adjusted every time the SCROLLBAR is drawn. this way it can adjust to mods with different sized buttons
@@ -119,6 +125,22 @@ english
 			return_value = createScrollbar(0, BOTTOM, boundingwidth, , false, image_array[0], 0, image_array[1], image_array[2])
 				
 
+	ENGINE.createTable = FUNCTION (pcolumns, pcell_height, pcell_width)
+		return_value = TABLE
+			columns = &pcolumns
+			cell_height = &pcell_height
+			if argument.size == 3
+				cell_width = pcell_width
+			else
+				cell_width = ARRAY
+				LOCAL.i = 2
+				while i < argument.size
+					width = width + argument[i]  // the width of the table
+					cell_width[] = &argument[i]
+					i = i + 1
+				columns = cell_width.size
+
+
 	// returns a new TEXT with the default settings as defined in the TEXT stored in TEXT_STYLE
 	ENGINE.createText = FUNCTION (text, x, y, color, font, h_align, v_align, width, height)
 		return_value = copy(TEXT_STYLE)
@@ -155,19 +177,6 @@ english
 			return_value.color = &color
 		if font != UNDEFINED
 			return_value.font = &font
-
-
-	ENGINE.createTable = FUNCTION (pcell_height, px, py)
-		return_value = TABLE
-			x = &px
-			y = &py
-			cell_height = &pcell_height
-			cell_width = ARRAY
-			LOCAL.i = 3
-			while i < argument.size
-				width = width + argument[i]
-				cell_width[] = &argument[i]
-				i = i + 1
 
 
 	// returns the name of the image to be displayed, deducing it from the state "0" image. e.g. deduceImageName("my_button0", "1") will return "my_button1" if an image "my_button1.*" exists, otherwise it returns "my_button0"
@@ -228,27 +237,34 @@ english
 
 
 	ENGINE.setTableCell = FUNCTION (table,row,column,content)
-		table.component[row].component[column].component[0] = content
-		if content.x == UNDEFINED
-			if table.cell_x.structure_type == "ARRAY"
-				content.x = table.cell_x[column]
-			else
-				content.x = table.cell_x
-		if content.y == UNDEFINED
-			if table.cell_y.structure_type == "ARRAY"
-				content.y = table.cell_y[column]
-			else
-				content.y = table.cell_y
-		if content.v_align == UNDEFINED
-			if table.cell_v_align.structure_type == "ARRAY"
-				content.v_align = table.cell_v_align[column]
-			else
-				content.v_align = table.cell_v_align
-		if content.h_align == UNDEFINED
-			if table.cell_h_align.structure_type == "ARRAY"
-				content.h_align = table.cell_h_align[column]
-			else
-				content.h_align = table.cell_h_align
+		// if it's not a structure, wrap a COMPONENT around it so we can set its position within the table cell
+		if value_type(content) != "STRUCTURE" && content != UNDEFINED
+			content = COMPONENT
+				component = content
+		table.cell[row][column] = content
+		// use the default values for all undefined cell values
+		if content != UNDEFINED
+			LOCAL.can_expand = isExpandable(content)
+			if content.x == UNDEFINED && table.cell_x != UNDEFINED && ( can_expand || hasVariable(content,"x") )
+				if value_type(table.cell_x) == "CONSTANT"
+					content.x = table.cell_x
+				else
+					content.x = table.cell_x[i]
+			if content.y == UNDEFINED && table.cell_y != UNDEFINED && ( can_expand || hasVariable(content,"y") )
+				if value_type(table.cell_y) == "CONSTANT"
+					content.y = table.cell_y
+				else
+					content.y = table.cell_y[i]
+			if content.v_align == UNDEFINED && table.cell_v_align != UNDEFINED && ( can_expand || hasVariable(content,"v_align") )
+				if value_type(table.cell_v_align) == "CONSTANT"
+					content.v_align = table.cell_v_align
+				else
+					content.v_align = table.cell_v_align[i]
+			if content.h_align == UNDEFINED && table.cell_h_align != UNDEFINED && ( can_expand || hasVariable(content,"h_align") )
+				if value_type(table.cell_h_align) == "CONSTANT"
+					content.h_align = table.cell_h_align
+				else
+					content.h_align = table.cell_h_align[i]
 				
 				
 	ENGINE.getTableCell = FUNCTION (table, row, column)

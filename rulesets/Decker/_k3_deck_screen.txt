@@ -1,5 +1,5 @@
 english
-	RULESET.deck_screen = VIEW
+	RULESET.deck_screen = COMPONENT
 		title = "Decker - Deck"
 				
 		LOCAL.screen_width = 540
@@ -15,7 +15,7 @@ english
 		scrollpane = SCROLLPANE
 			x = 20
 			y = 180
-			width = 404
+			width = 405
 			height = screen_height - y - 80    // make the height relative to the screenheight
 			vertical_scrollbar = ARRAY
 				"scroller_vertical_blue0"
@@ -34,7 +34,7 @@ english
 				_x[0] = _x[0] + _width
 				sorting_order_function = &_sorting_order_function
 				on_mouse_up = FUNCTION
-					LOCAL.k = scrollpane.component[0].object[0].object[0]
+					LOCAL.k = scrollpane.component[0].component[0].component[0]
 					sortTable(scrollpane.displayed_element, &sorting_order_function)
 
 		LOCAL.table_button_x = ARRAY
@@ -47,7 +47,7 @@ english
 		load_2_text = createText("", scrollpane.x+scrollpane.width, current_load_text.y+18*2, , , LEFT)
 
 			
-		object = ARRAY
+		component = ARRAY
 			SCREEN_BACKGROUND
 				width = screen_width
 				height = screen_height
@@ -72,7 +72,7 @@ english
 			createBorder(scrollpane.x-3, scrollpane.y-23, scrollpane.width+6, scrollpane.height+26, @TABLE_BACKGROUND_COLOR, true)
 			scrollpane
 			createTableButton("",        20, table_button_x, &compareProgramsPreset)
-			createTableButton("Name",   116, table_button_x, &compareProgramsName)
+			createTableButton("Name",   117, table_button_x, &compareProgramsName)
 			createTableButton("Type",    54, table_button_x, &compareProgramsType)
 			createTableButton("Rating",  54, table_button_x, &compareProgramsRating)
 			createTableButton("Size",    54, table_button_x, &compareProgramsSize)
@@ -94,7 +94,7 @@ english
 		while i < 6
 			chip_text[i] = createText("1", 130, 32+i*16, UNDEFINED, UNDEFINED, RIGHT)
 			chip_text[i].h_align = LEFT
-			object[] = chip_text[i]
+			component[] = chip_text[i]
 			i = i + 1
 			
 			
@@ -112,9 +112,8 @@ english
 			deck_screen.load_1_text.text = i*2/3
 			deck_screen.load_2_text.text = i
 			// create the new software table
-			LOCAL.t = createTable (18, 0, 0, 19, 116, 54, 54, 54, 54, 54)
+			LOCAL.t = createTable ( , 18, 19, 116, 54, 54, 54, 54, 54)
 			t.cell_x = createArray (CENTER, 8, CENTER, CENTER, CENTER, CENTER, CENTER)
-			t.cell_y = CENTER
 			LOCAL.p = player.deck.program
 			LOCAL.state = UNDEFINED
 			LOCAL.loaded = UNDEFINED
@@ -162,6 +161,6 @@ english
 				else
 					state = createText("")
 				
-				addTableRow(t, wrapImage(p[i].type.image), createText(p[i].name,,,@TABLE_TEXT_COLOR), createText(p[i].type.name,,,@TABLE_TEXT_COLOR), createText(p[i].rating,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR), loaded, state)
+				addTableRow(t, p[i].type.image, createText(p[i].name,,,@TABLE_TEXT_COLOR), createText(p[i].type.name,,,@TABLE_TEXT_COLOR), createText(p[i].rating,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR), loaded, state)
 				i = i + 1
 			deck_screen.scrollpane.displayed_element = t

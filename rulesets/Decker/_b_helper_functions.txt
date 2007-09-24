@@ -84,7 +84,7 @@ english
 				size = getThingSize(THING.this)
 			// determine its default name
 			if _rating >= 1
-				if _type.default_name.structure_type == "ARRAY"
+				if value_type(_type.default_name) == "ARRAY"
 					if _rating < _type.default_name.size
 						return_value.name = _type.default_name[_rating]
 					else
@@ -105,9 +105,9 @@ english
 			special_condition = 0
 			target_count = 0
 			// there's either one goal or an array of goals
-			if goal.structure_type != "ARRAY" &&( goal.structure_type == "NO_RED_ALARM" || goal.structure_type == "CREATE_BACKDOOR" || goal.structure_type == "CRASH_SYSTEM" || goal.structure_type == "TIME_RESTRICTION" )	
+			if value_type(goal) != "ARRAY" &&( goal.structure_type == "NO_RED_ALARM" || goal.structure_type == "CREATE_BACKDOOR" || goal.structure_type == "CRASH_SYSTEM" || goal.structure_type == "TIME_RESTRICTION" )	
 				special_condition = goal.structure_type == "TIME_RESTRICTION" ? 2 : 1
-			if goal.structure_type == "ARRAY"
+			if value_type(goal) == "ARRAY"
 				target_count = goal.size
 				i = 0
 				while i < goal.size

@@ -32,13 +32,6 @@ public final class Value
 	}
 
 
-	/** removes all object references from this Value, to make garbage collection easier */
-	void destroy ()  {
-		object = null;
-		visible_structure = null;
-	}
-
-
 	private Value executeExpression ()  {
 		// this if will only happen if the function stored in this variable is really an @ expression
 		if (object instanceof Expression)
@@ -173,6 +166,11 @@ public final class Value
 	}
 
 
+	void setEnclosingStructure (final Structure s)  {
+		visible_structure = s;
+	}
+
+
 	public Value setFetchValue (final Expression e)  {
 		if (object != e) { // no need to check whether type is not FUNCTION here
 			if (e.getOperator() != Expression.FETCH_VALUE)
@@ -183,25 +181,6 @@ public final class Value
 				Global.testTriggers();
 		}
 		return this;
-	}
-
-
-// add    ***************************************************************************************************************
-
-
-	public void add (final Value value)  {
-		if(type == INTEGER && value.type == INTEGER)
-			set(integer + value.integer);
-		else
-			throw new RuntimeException("can only add up two integers");
-	}
-
-
-	public void add (final int i)  {
-		if(type == INTEGER)
-			set(integer + i);
-		else
-			throw new RuntimeException("can only add up two integers");
 	}
 
 

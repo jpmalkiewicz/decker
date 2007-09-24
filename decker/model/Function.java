@@ -74,9 +74,15 @@ public final class Function extends ScriptNode
 		for (int i = 0; i <= last_index; i++) {
 			if (ret[i] == null) {
 				ret[i] = new Value();
-				if (argument_default_value[i] != null && ret[i] == null) {
+				if (argument_default_value[i] != null) {
 					ret[i].set(argument_default_value[i].execute());
 				}
+			}
+		}
+		// set all remaining missing arguments to UNDEFINED
+		for (int i = last_index+1; i < args.length; i++) {
+			if (ret[i] == null) {
+				ret[i] = new Value();
 			}
 		}
 		return ret;

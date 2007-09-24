@@ -29,20 +29,16 @@ public class FPSThread extends Thread
 		while (running) {
 			time = System.nanoTime();
 			component.repaint();
+System.out.println(((System.nanoTime()-time)/1000000L)+"                        FPSThread");
 			final Value vfps = ScriptNode.getValue("FRAMES_PER_SECOND");
-			final long fps = (vfps==null||vfps.type()!=Value.INTEGER) ? 0 : vfps.integer();
-			if (fps > 0) {
-				final long nanoseconds_per_frame = 1000000000L / fps;
-				time += nanoseconds_per_frame - System.nanoTime();
-				if (time >= 1000000L) { // if the next frame is at least 1 millisecond away, wait
-					try {
-						sleep(time/1000000L, (int)(time%1000000L));
-					} catch (InterruptedException ex) {}
-				}
-			}
-			else {
+			long fps = (vfps==null||vfps.type()!=Value.INTEGER) ? 25 : vfps.integer();
+			if (fps <= 0)
+				fps = 100;
+			final long nanoseconds_per_frame = 1000000000L / fps;
+			time += nanoseconds_per_frame - System.nanoTime();
+			if (time >= 1000000L) { // if the next frame is at least 1 millisecond away, wait
 				try {
-					sleep(25); // wait 25 milliseconds before checking again whether there is valid fps value
+					sleep(time/1000000L, (int)(time%1000000L));
 				} catch (InterruptedException ex) {}
 			}
 		}
