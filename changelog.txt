@@ -1,4 +1,6 @@
 78%
+2007-09-24
+  fixed a lot of minor bugs and one fatal bug
 2007-09-21
   all screens except for the deck screen work again
   BORDER drawing is now hard coded and accepts 1-4 colors instead of 2

@@ -38,7 +38,7 @@ public final class ViewWrapper extends Canvas implements ComponentListener
 
 
 	private Image buffer;
-	private boolean painting, repaint;
+	private boolean painting;
 	private AbstractView view;
 	private AWTEvent lastEvent;
 	private final Queue events = new Queue();
@@ -66,20 +66,18 @@ public final class ViewWrapper extends Canvas implements ComponentListener
 
 
 	private void handleUserInput () {
-		while (events.size() > 0) {
+		for (int i = events.size(); --i >= 0; ) {
 			final AWTEvent e = (AWTEvent) events.remove();
 			final AWTEvent e2 = lastEvent;
 			lastEvent = e;
 			final AbstractView v = view;
 			boolean discardEvent = true;
-			int mx = 0, my = 0;
+			final int mx = mouse_x, my = mouse_y;
 			if (v != null) {
 				discardEvent = false;
 				try {
 					// if it is a mouse event, remember the old mouse position
 					if (e instanceof MouseEvent) {
-						mx = mouse_x;
-						my = mouse_y;
 						mouse_x = ((MouseEvent)e).getX();
 						mouse_y = ((MouseEvent)e).getY();
 					}
@@ -133,7 +131,6 @@ public final class ViewWrapper extends Canvas implements ComponentListener
 
 	public void processEvent (final AWTEvent e) {
 		events.add(e);
-		repaint();
 	}
 
 
@@ -175,73 +172,63 @@ public final class ViewWrapper extends Canvas implements ComponentListener
 			return;
 		}
 		painting = true;
-		do {
-			try {
-				repaint = false;
+		try {
+			handleUserInput();
 
-				handleUserInput();
+			if (view != null) {
+				final Value scr = Global.getDisplayedScreen();
+				if (scr != null) {
+					final int w = view.width(scr), h = view.height(scr);
 
-				if (view != null) {
-					final Value scr = Global.getDisplayedScreen();
-					if (scr != null) {
-						final int w = view.width(scr), h = view.height(scr);
-
-						if (w > 0 && h > 0) {
-							// draw the next frame
-							if (buffer == null || buffer.getWidth(this) != w || buffer.getHeight(this) != h) {
-								try {
-									buffer = createImage(w, h);
-								} catch (Throwable t) {
-									// this ought to be extremely rare
-									repaint = true;
-									painting = false;
-									repaint();
-									return;
-								}
+					if (w > 0 && h > 0) {
+						// draw the next frame
+						if (buffer == null || buffer.getWidth(this) != w || buffer.getHeight(this) != h) {
+							try {
+								buffer = createImage(w, h);
+							} catch (Throwable t) {
+								// this ought to be extremely rare
+System.out.println("FAILED TO CREATE screen buffer o_O");
+								painting = false;
+								return;
 							}
+						}
 
-							final Graphics bg = buffer.getGraphics();
-							bg.setFont(getFont());
+						final Graphics bg = buffer.getGraphics();
+						bg.setFont(getFont());
 
-							// fetch the background color
-							final Value bgcolor_string = ScriptNode.getValue("BACKGROUND_COLOR");
-							if (bgcolor_string != null && bgcolor_string.type() == Value.STRING) {
-								final Color bgcolor = AbstractView.getColor(bgcolor_string.string());
-								if (bgcolor != null) {
-									setBackground(bgcolor);
-									bg.setColor(bgcolor);
-									bg.fillRect(0, 0, w, h);
-								}
+						// fetch the background color
+						final Value bgcolor_string = ScriptNode.getValue("BACKGROUND_COLOR");
+						if (bgcolor_string != null && bgcolor_string.type() == Value.STRING) {
+							final Color bgcolor = AbstractView.getColor(bgcolor_string.string());
+							if (bgcolor != null) {
+								setBackground(bgcolor);
+								bg.setColor(bgcolor);
+								bg.fillRect(0, 0, w, h);
 							}
-							bg.setColor(getForeground());
-							view.drawContent(bg); // call drawContent() instead of paint(), because the coordinate system already sits where it should
-							g.drawImage(buffer, 0, 0, this);
-							if (w != old_width || h != old_height) {
-								old_width = w;
-								old_height = h;
-								setScreenSize(w, h);
-							}
+						}
+						bg.setColor(getForeground());
+						view.drawContent(bg); // call drawContent() instead of paint(), because the coordinate system already sits where it should
+						g.drawImage(buffer, 0, 0, this);
+						if (w != old_width || h != old_height) {
+							old_width = w;
+							old_height = h;
+							setScreenSize(w, h);
 						}
 					}
 				}
-			} catch (Throwable t) {
-				t.printStackTrace();
+			}
+		} catch (Throwable t) {
+			t.printStackTrace();
 System.out.println("exiting from program instead of trying to repaint after error");
 System.exit(1);
-				repaint = true;
-			}
-		} while (repaint);
+		}
 		painting = false;
 	}
 
 
 	public void update (final Graphics g) {
-		if (getSize().width == 0 || getSize().height == 0)
+		if (painting || getSize().width == 0 || getSize().height == 0)
 			return;
-		if(painting) {
-			repaint = true;
-			return;
-		}
 		synchronizedUpdate(g);
 	}
 }

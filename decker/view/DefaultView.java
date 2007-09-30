@@ -15,16 +15,10 @@ public class DefaultView extends AbstractView
 	private final static Shape NO_CLIP_CHANGE = new java.awt.geom.Line2D.Double();
 
 
-boolean dummy;
 	public void drawContent (final Graphics gr)  {
 		final Value v = Global.getDisplayedScreen();
 		if (v == null)
 			return;
-if (!dummy)
-{
-dummy = true;
-//v.structure().print(System.err,"", true);
-}
 		g = gr;
 		drawContent(v, 0, 0, Integer.MIN_VALUE, Integer.MIN_VALUE);
 
