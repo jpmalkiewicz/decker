@@ -154,9 +154,12 @@ public abstract class ScriptNode
 		if ((ret=stack[ENGINE_STACK_SLOT].get("STRUCTURE_TYPES").get(name)) != null)
 			return ret;
 		// try to fetch the variable from one of the Structures in the global structures stack
-		for (int i = stack_size; --i >= 0; )
-			if ((ret=stack[i].get(name)) != null)
-				return ret;
+		for (int i = stack_size; --i >= 0; ) {
+			try {
+				if ((ret=stack[i].get(name)) != null)
+					return ret;
+			} catch (Throwable t) {}
+		}
 		return null;
 	}
 

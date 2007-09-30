@@ -25,3 +25,4 @@ english
 
 
 	RULESET.initial_screen = new_character_screen
+//	ENGINE.FRAMES_PER_SECOND = 100
