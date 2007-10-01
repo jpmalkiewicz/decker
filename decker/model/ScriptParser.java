@@ -166,12 +166,12 @@ System.out.println(" parsed");
 			while(s != null && getColumn() == column)  {
 				if(s.equals("if") || s.equals("while"))
 					block.addScriptNode(parseConditionalCommand(getLine(), column));
-				else if(s.equals("trigger") || s.equals("global_trigger"))
-					block.addScriptNode(parseTriggerCommand(getLine(), column));
 				else if(s.equals("print"))
 					block.addScriptNode(parsePrintCommand());
 				else if(s.equals("constant"))
 					block.addScriptNode(parseConstantDefinitionCommand(getLine(), column));
+				else if(s.equals("global"))
+					block.addScriptNode(parseGlobalDefinitionCommand(getLine(), column));
 				else if(s.equals("structure"))
 					block.addScriptNode(parseTypeDefinitionCommand(getLine(), column));
 				else if(s.equals("else") || s.equals("elseif"))
@@ -261,6 +261,61 @@ System.out.println(" parsed");
 	}
 
 
+	private GlobalDefinitionCommand parseGlobalDefinitionCommand (final int command_line, final int command_column)  {
+		readElement(); // discard the "global" tag
+		int count = 0;
+		AssignmentCommand[] globals = new AssignmentCommand[10];
+		// determine whether it's a single line definition or a block definition
+		String s = previewElement();
+		if (s != null) {
+			if (getLine() == command_line)
+				throwException("cannot have anything on the line where the \"global\" command stands. put the global definitions in the block that follows the command");
+			final int column = getColumn();
+			if (column > command_column)  {
+				do {
+					// make sure the list of globals can hold another item
+					if (count == globals.length) {
+						final AssignmentCommand[] c = globals;
+						globals = new AssignmentCommand[globals.length*2];
+						System.arraycopy(c, 0, globals, 0, count);
+					}
+					// add the next definition of a global to the list
+					final int line = getLine(); // so we can tell the AssignmentCommand where it started, if this is one
+					// parse the expression that will sit on the left side of the = or by itself if it's a function call
+					final Expression x = parseExpression(line, column, false);
+					if (x.getOperator() != Expression.VARIABLE)
+						throwException("can only have simple variable names on the left side of a = in \"global\" blocks");
+					s = readElement();
+					// check whether it's an assignment command
+					if (s == null || !s.equals("="))
+						throwException("= expected but "+((s==null)?"end of script":s)+" found");
+					final AssignmentCommand ac = new AssignmentCommand(true, script_name, line, column);
+					ac.setVariableExpression(x); // the stuff that sits on the left side of the =
+					s = previewElement();
+					if(s == null)
+						throwException("Expression of FUNCTION definition on the right side of the = expected but end of script found");
+					if (getLine() != line)
+						throwException("Expression of FUNCTION definition on the right side of the = must start on the same line as the expression on the left side did");
+					if(s.equals("FUNCTION"))
+						ac.setValueExpression(parseFunctionDefinition(line, getColumn(), line, column));
+					else
+						ac.setValueExpression(parseExpression(line, column, true));
+					globals[count++] = ac;
+					// check whether there's another global definition following this one
+					s = previewElement();
+				} while (s != null && getColumn() == column);
+			}
+			if (s != null && getColumn() > command_column)
+				throwException(s + " should be starting in column "+column+", column "+command_column+" or further left");
+		}
+		if (count == 0)
+			throwException("the globals command must be followed by at least one global value");
+		// create and return the corresponding ConstantDefinitionCommand
+		final AssignmentCommand[] global_list = new AssignmentCommand[count];
+		System.arraycopy(globals, 0, global_list, 0, count);
+		return new GlobalDefinitionCommand(global_list, script_name, command_line, command_column);
+	}
+
 
 	private PrintCommand parsePrintCommand ()  {
 		final int line = getLine(), column = getColumn();
@@ -268,15 +323,6 @@ System.out.println(" parsed");
 		final PrintCommand pc = new PrintCommand(script_name, line, column);
 		pc.setDisplayedExpression(parseExpression(line, column, true));
 		return pc;
-	}
-
-
-	private TriggerCommand parseTriggerCommand (final int command_line, final int command_column)  {
-		final String command = readElement();
-		final TriggerCommand c = new TriggerCommand(command, script_name, command_line, command_column);
-		c.setConditionalExpression(parseExpression(command_line, command_column, false));
-		parseBlock(c, last_expression_line, command_column);
-		return c;
 	}
 
 
@@ -381,7 +427,7 @@ System.out.println(" parsed");
 		// check whether it's an assignment command
 		if (s != null && s.equals("=")) {
 			readElement();
-			final AssignmentCommand ac = new AssignmentCommand(script_name, line, block_column);
+			final AssignmentCommand ac = new AssignmentCommand(false, script_name, line, block_column);
 			ac.setVariableExpression(x); // the stuff that sits on the left side of the =
 			s = previewElement();
 			if(s == null)
@@ -470,7 +516,7 @@ System.out.println(" parsed");
 					e.setOperator(Expression.NEGATIVE);
 					ret = parseExpression(current_line, command_column, expression_column, expression_stack, expression_stack_top, allow_structure_definition_blocks); // parse the expression that the - negates
 				break;
-			case Expression.FETCH_VALUE :
+			case Expression.GLOBAL_VALUE :
 					e = new Expression(s, script_name, current_line, column, expression_stack, expression_stack_top);
 					ret = parseExpression(current_line, command_column, expression_column, expression_stack, expression_stack_top, allow_structure_definition_blocks); // parse the expression behind the @
 				break;

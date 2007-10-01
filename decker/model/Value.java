@@ -5,8 +5,8 @@ package decker.model;
 *   Value objects can hold any type of value. */
 public final class Value
 {
-	public final static int CONSTANT = 0, BOOLEAN = 1, INTEGER = 2, STRING = 3, STRUCTURE = 4, FUNCTION = 5, REAL = 6, ARRAY = 7;
-	private final static String[] TYPE_NAME = { "CONSTANT", "BOOLEAN", "INTEGER", "STRING", "STRUCTURE", "FUNCTION", "REAL", "ARRAY" };
+	public final static int CONSTANT = 0, BOOLEAN = 1, INTEGER = 2, STRING = 3, STRUCTURE = 4, FUNCTION = 5, REAL = 6, ARRAY = 7, GLOBAL_VALUE = 8;
+	private final static String[] TYPE_NAME = { "CONSTANT", "BOOLEAN", "INTEGER", "STRING", "STRUCTURE", "FUNCTION", "REAL", "ARRAY", "GLOBAL_VALUE" };
 
 
 
@@ -34,8 +34,10 @@ public final class Value
 
 	private Value executeExpression ()  {
 		// this if will only happen if the function stored in this variable is really an @ expression
-		if (object instanceof Expression)
-			return ((Expression)object).executeFetchValue();
+		if (type == GLOBAL_VALUE) {
+			Value v = (Value) ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT].get("GLOBAL_VALUES").get((String)object);
+			return (v!=null) ? v : new Value();
+		}
 		return FunctionCall.executeFunctionCall(object, null, visible_structure);
 	}
 
@@ -45,123 +47,83 @@ public final class Value
 
 	public Value set (Value value)  {
 		// if the value contains a function, execute the function. it's okay for the function to return another function. such a returned function will not be executed but stored in this Value
-		if (value.type == FUNCTION)
+		if (value.type == FUNCTION || value.type == GLOBAL_VALUE)
 			value = value.executeExpression();
-		if (!equalsAbsolute(value)) {
-			type = value.type;
-			bool = value.bool;
-			integer = value.integer;
-			real = value.real;
-			object = value.object;
-			if(visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
-				Global.testTriggers();
-		}
+		type = value.type;
+		bool = value.bool;
+		integer = value.integer;
+		real = value.real;
+		object = value.object;
 		return this;
 	}
 
 
 	public Value set (final boolean b)  {
-		if (type != BOOLEAN || bool != b) {
-			type = BOOLEAN;
-			bool = b;
-			object = null; // this is done to get rid off references to obsolete objects
-			if (visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
-				Global.testTriggers();
-		}
+		type = BOOLEAN;
+		bool = b;
+		object = null; // this is done to get rid off references to obsolete objects
 		return this;
 	}
 
 
 	public Value set (final int i)  {
-		if (type != INTEGER || integer != i) {
-			type = INTEGER;
-			integer = i;
-			object = null; // this is done to get rid off references to obsolete objects
-			if (visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
-				Global.testTriggers();
-		}
+		type = INTEGER;
+		integer = i;
+		object = null; // this is done to get rid off references to obsolete objects
 		return this;
 	}
 
 
 	public Value set (final double r)  {
-		if (type != REAL || !equals(r)) {
-			type = REAL;
-			real = r;
-			object = null; // this is done to get rid off references to obsolete objects
-			if (visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
-				Global.testTriggers();
-		}
+		type = REAL;
+		real = r;
+		object = null; // this is done to get rid off references to obsolete objects
 		return this;
 	}
 
 
 	public Value set (final String s)  {
-		if (type != STRING || !((String)object).equals(s)) {
-			type = STRING;
-			object = s;
-			if (visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
-				Global.testTriggers();
-		}
+		type = STRING;
+		object = s;
 		return this;
 	}
 
 
 	public Value set (final Structure s)  {
-		if (object != s)  { // no need to check whether type is not STRUCTURE here
-			type = STRUCTURE;
-			object = s;
-			if (visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
-				Global.testTriggers();
-		}
+		type = STRUCTURE;
+		object = s;
 		return this;
 	}
 
 
 	public Value set (final Function f)  {
-		if (object != f) { // no need to check whether type is not FUNCTION here
-			type = FUNCTION;
-			object = f;
-			if (visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
-				Global.testTriggers();
-		}
+		type = FUNCTION;
+		object = f;
 		return this;
 	}
 
 
 	public Value set (final ArrayWrapper a)  {
-		if (object != a)  { // no need to check whether type is not STRUCTURE here
-			type = ARRAY;
-			object = a;
-			if (visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
-				Global.testTriggers();
-		}
+		type = ARRAY;
+		object = a;
 		return this;
 	}
 
 
 	public Value setConstant (final String constant)  {
-		if (type != CONSTANT || !((String)object).equals(constant)) {
-			type = CONSTANT;
-			object = constant;
-			if (visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
-				Global.testTriggers();
-		}
+		type = CONSTANT;
+		object = constant;
 		return this;
 	}
 
 
 	/** sets this Value to value without implicitly calling the function if v contains one */
-	public Value setDirectly (final Value value, final boolean test_triggers)  {
-		if (!equalsAbsolute(value)) {
-			type = value.type;
-			bool = value.bool;
-			integer = value.integer;
-			real = value.real;
-			object = value.object;
-			if (test_triggers && visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
-				Global.testTriggers();
-		}
+	public Value setDirectly (final Value value)  {
+		type = value.type;
+		bool = value.bool;
+		integer = value.integer;
+		real = value.real;
+		object = value.object;
 		return this;
 	}
 
@@ -171,15 +133,9 @@ public final class Value
 	}
 
 
-	public Value setFetchValue (final Expression e)  {
-		if (object != e) { // no need to check whether type is not FUNCTION here
-			if (e.getOperator() != Expression.FETCH_VALUE)
-				throw new RuntimeException("this method only works for the @ operator, not for "+e.getOperatorElement().toString());
-			type = FUNCTION;
-			object = e;
-			if (visible_structure != null && !visible_structure.get("structure_type").equals("LOCAL")) // otherwise it's a temporary Value object and there cannot possibly a listener for it
-				Global.testTriggers();
-		}
+	public Value setGlobalValue (final String value_name)  {
+		type = GLOBAL_VALUE;
+		object = value_name;
 		return this;
 	}
 
@@ -207,7 +163,7 @@ public final class Value
 			case CONSTANT :
 			case STRING :
 				return ((String)object).equals((String)value.object);
-			default : // STRUCTURE or FUNCTION or ARRAY
+			default : // STRUCTURE or FUNCTION or ARRAY or GLOBAL_VALUE
 				return object == value.object;
 		}
 	}
@@ -215,8 +171,8 @@ public final class Value
 
 
 	public boolean equals (Value value)  {
-		final Value v = (type==FUNCTION) ? executeExpression() : this;
-		if (value.type == FUNCTION)
+		final Value v = (type!=FUNCTION&&type!=GLOBAL_VALUE) ? this : executeExpression();
+		if (value.type == FUNCTION || value.type == GLOBAL_VALUE)
 			value = value.executeExpression();
 		if(v.type != value.type || v.type == REAL)
 			return v.equalsAbsolute(value);
@@ -229,14 +185,14 @@ public final class Value
 			case CONSTANT :
 			case STRING :
 				return ((String)v.object).equals((String)value.object);
-			default : // STRUCTURE or FUNCTION or ARRAY
+			default : // STRUCTURE or FUNCTION or ARRAY or GLOBAL_VALUE
 				return v.object == value.object;
 		}
 	}
 
 
 	public boolean equals (final boolean b)  {
-		if (type == FUNCTION) {
+		if (type == FUNCTION || type == GLOBAL_VALUE) {
 			final Value v = executeExpression();
 			return v.type == BOOLEAN && v.bool == b;
 		}
@@ -245,7 +201,7 @@ public final class Value
 
 
 	public boolean equals (final int i)  {
-		final Value v = (type == FUNCTION) ? executeExpression() : this;
+		final Value v = (type!=FUNCTION&&type!=GLOBAL_VALUE) ? this : executeExpression();
 		if (v.type == REAL) {
 			final Value rer = ScriptNode.getValue("REAL_EQUAL_RANGE");
 			final double range = (rer==null||rer.type!=REAL) ? 0.000000001 : rer.real;
@@ -257,7 +213,7 @@ public final class Value
 
 
 	public boolean equals (final double r)  {
-		final Value v = (type == FUNCTION) ? executeExpression() : this;
+		final Value v = (type!=FUNCTION&&type!=GLOBAL_VALUE) ? this : executeExpression();
 		if (v.type != REAL && v.type != INTEGER)
 			return false;
 		final Value rer = ScriptNode.getValue("REAL_EQUAL_RANGE");
@@ -268,7 +224,7 @@ public final class Value
 
 
 	public boolean equals (final String s)  {
-		if (type == FUNCTION) {
+		if (type == FUNCTION || type == GLOBAL_VALUE) {
 			final Value v = executeExpression();
 			return v.type == STRING && v.object.equals(s);
 		}
@@ -277,7 +233,7 @@ public final class Value
 
 
 	public boolean equals (final Structure s)  {
-		if (type == FUNCTION) {
+		if (type == FUNCTION || type == GLOBAL_VALUE) {
 			final Value v = executeExpression();
 			return v.type == STRUCTURE && v.object == s;
 		}
@@ -286,7 +242,7 @@ public final class Value
 
 
 	public boolean equals (final ArrayWrapper array)  {
-		if (type == FUNCTION) {
+		if (type == FUNCTION || type == GLOBAL_VALUE) {
 			final Value v = executeExpression();
 			return v.type == ARRAY && v.object == array;
 		}
@@ -295,7 +251,7 @@ public final class Value
 
 
 	public boolean equalsConstant (final String c) {
-		if (type == FUNCTION) {
+		if (type == FUNCTION || type == GLOBAL_VALUE) {
 			final Value v = executeExpression();
 			return v.type == CONSTANT && v.object.equals(c);
 		}
@@ -306,11 +262,11 @@ public final class Value
 // "get"    *************************************************************************************************************
 
 
-	public Value evaluate ()  { return (type != FUNCTION) ? this : executeExpression(); }
+	public Value evaluate ()  { return (type != FUNCTION && type != GLOBAL_VALUE) ? this : executeExpression(); }
 
 
 	public Value get (final String name)  {
-		final Value v = (type!=FUNCTION) ? this : executeExpression();
+		final Value v = (type!=FUNCTION&&type!=GLOBAL_VALUE) ? this : executeExpression();
 		if(v.type != STRUCTURE) {
 			if (v.type != ARRAY)
 				throw new RuntimeException("Cannot convert "+TYPE_NAME[v.type]+" to STRUCTURE");
@@ -333,7 +289,7 @@ public final class Value
 
 
 	public Value get (int index) {
-		final Value v = (type!=FUNCTION) ? this : executeExpression();
+		final Value v = (type!=FUNCTION&&type!=GLOBAL_VALUE) ? this : executeExpression();
 		if (v.type != ARRAY)
 			throw new RuntimeException("Cannot use an array index ("+TYPE_NAME[v.type]+") with a "+TYPE_NAME[v.type]);
 		else {
@@ -346,16 +302,10 @@ public final class Value
 	public Structure getEnclosingStructure ()  { return visible_structure; }
 
 
-	public Value getValue ()  { return (type != FUNCTION) ? this : executeExpression(); }
+	public Value getValue ()  { return (type!=FUNCTION&&type!=GLOBAL_VALUE) ? this : executeExpression(); }
 
 
-	public boolean isExpression () { return type == FUNCTION && object instanceof Expression; }
-
-
-	public boolean isFunction () { return type == FUNCTION; }
-
-
-	public int type ()  { return (type!=FUNCTION) ? type : executeExpression().type; }
+	public int type ()  { return (type!=FUNCTION&&type!=GLOBAL_VALUE) ? type : executeExpression().type; }
 
 
 	public int typeDirect ()  { return type; }
@@ -371,7 +321,7 @@ public final class Value
 
 
 	public Value[] array ()  {
-		final Value v = (type!=FUNCTION) ? this : executeExpression();
+		final Value v = (type!=FUNCTION&&type!=GLOBAL_VALUE) ? this : executeExpression();
 		if (v.type != ARRAY)
 			throw new RuntimeException("Cannot convert "+TYPE_NAME[v.type]+" to ARRAY");
 		return ((ArrayWrapper)v.object).array;
@@ -379,7 +329,7 @@ public final class Value
 
 
 	public ArrayWrapper arrayWrapper ()  {
-		final Value v = (type!=FUNCTION) ? this : executeExpression();
+		final Value v = (type!=FUNCTION&&type!=GLOBAL_VALUE) ? this : executeExpression();
 		if (v.type != ARRAY)
 			throw new RuntimeException("Cannot convert "+TYPE_NAME[v.type]+" to ARRAY");
 		return (ArrayWrapper) v.object;
@@ -387,7 +337,7 @@ public final class Value
 
 
 	public boolean bool ()  {
-		final Value v = (type!=FUNCTION) ? this : executeExpression();
+		final Value v = (type!=FUNCTION&&type!=GLOBAL_VALUE) ? this : executeExpression();
 		if (v.type != BOOLEAN)
 			throw new RuntimeException("Cannot convert "+TYPE_NAME[v.type]+" to BOOLEAN");
 		return v.bool;
@@ -395,7 +345,7 @@ public final class Value
 
 
 	public int integer ()  {
-		final Value v = (type!=FUNCTION) ? this : executeExpression();
+		final Value v = (type!=FUNCTION&&type!=GLOBAL_VALUE) ? this : executeExpression();
 		if (v.type != INTEGER)
 			throw new RuntimeException("Cannot convert "+TYPE_NAME[v.type]+" to INTEGER");
 		return v.integer;
@@ -403,7 +353,7 @@ public final class Value
 
 
 	public double real ()  {
-		final Value v = (type!=FUNCTION) ? this : executeExpression();
+		final Value v = (type!=FUNCTION&&type!=GLOBAL_VALUE) ? this : executeExpression();
 		if (v.type != REAL)
 			if (v.type == INTEGER)
 				return v.integer;
@@ -414,7 +364,7 @@ public final class Value
 
 
 	public String string ()  {
-		final Value v = (type!=FUNCTION) ? this : executeExpression();
+		final Value v = (type!=FUNCTION&&type!=GLOBAL_VALUE) ? this : executeExpression();
 		if (v.type != STRING)
 			throw new RuntimeException("Cannot convert "+TYPE_NAME[v.type]+" to STRING");
 		return (String) v.object;
@@ -422,7 +372,7 @@ public final class Value
 
 
 	public Structure structure ()  {
-		final Value v = (type!=FUNCTION) ? this : executeExpression();
+		final Value v = (type!=FUNCTION&&type!=GLOBAL_VALUE) ? this : executeExpression();
 		if (v.type != STRUCTURE)
 			throw new RuntimeException("Cannot convert "+TYPE_NAME[v.type]+" to STRUCTURE");
 		return (Structure) v.object;
@@ -430,7 +380,7 @@ public final class Value
 
 
 	public String constant ()  {
-		final Value v = (type!=FUNCTION) ? this : executeExpression();
+		final Value v = (type!=FUNCTION&&type!=GLOBAL_VALUE) ? this : executeExpression();
 		if (v.type != STRUCTURE)
 			throw new RuntimeException("Cannot convert "+TYPE_NAME[v.type]+" to STRUCTURE");
 		return (String) v.object;
@@ -444,12 +394,5 @@ public final class Value
 	}
 
 
-	public Expression expression ()  {
-		if(type != FUNCTION)
-			throw new RuntimeException("Cannot convert the "+TYPE_NAME[type]+" \""+toString()+"\" to FUNCTION");
-		return (Expression) object;
-	}
-
-
-	public String toString ()  { return (type==INTEGER) ? (integer+"") : ( (type==BOOLEAN) ? (bool+"") : ( (type==REAL) ? (real+"") : ( (type==ARRAY) ? "ARRAY" : object.toString() ))); }
+	public String toString ()  { return (type==INTEGER) ? (integer+"") : ( (type==BOOLEAN) ? (bool+"") : ( (type==REAL) ? (real+"") : ( (type==ARRAY) ? "ARRAY" : ( (type==GLOBAL_VALUE) ? ("@"+(String)object) : object.toString() )))); }
 }

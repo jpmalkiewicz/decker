@@ -58,7 +58,7 @@ english
 				y = back_button.y
 				idle = "home/char"
 				on_mouse_up = FUNCTION
-					displayInitializedScreen(@character_screen, false)
+					displayInitializedScreen(character_screen, false)
 
 			// the hardware section
 			createText("Chips",       20, 15)

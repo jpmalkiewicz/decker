@@ -15,7 +15,7 @@ import java.util.Random;
 public final class Global
 {
 	final static Random random = new Random();
-	final static String COMMANDS = " if while trigger global_trigger print copy display structure constant "; // the string must start and end with spaces
+	final static String COMMANDS = " if while global print copy display structure constant "; // the string must start and end with spaces
 	final static String BLOCK_INDENT = "   ";
 	final static int PARSER_EXPRESSION_STACK_SIZE = 100;
 
@@ -28,13 +28,9 @@ public final class Global
 	private final static Ruleset engine = new Ruleset("");
 	private static Ruleset current_ruleset = new Ruleset("(dummy)");
 
-	static boolean test_triggers = true;
-	private static boolean test_triggers_again = false;
-
 
 
 	final static void addStructureType (final StructureDefinition sd)  { current_ruleset.addStructureType(sd); }
-	final static void addTrigger (final TriggerCommand tc)  { if (tc.isGlobal()) engine.addTrigger(tc); else current_ruleset.addTrigger(tc); }
 public static Ruleset getCurrentRuleset ()  { return current_ruleset; }
 	public static Structure getEngineData ()  { return ScriptNode.stack[ScriptNode.ENGINE_STACK_SLOT]; }
 
@@ -76,7 +72,6 @@ public static Ruleset getCurrentRuleset ()  { return current_ruleset; }
 
 	public final static void initializeRulesets ()  {
 System.out.println(ruleset.length+" rulesets");
-		test_triggers = false; // switch trigger testing off during the initialization
 		final Ruleset r = current_ruleset;
 		// first run the global scripts
 System.out.println("running global scripts");
@@ -92,7 +87,6 @@ System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").t
 		}
 		current_ruleset = r;
 		ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] = r.data;
-		test_triggers = true;
 // print all ENGINE level structure types
 // engine.data.get("STRUCTURE_TYPES").structure().print(System.err, "", true);
 	}
@@ -111,8 +105,6 @@ System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").t
 
 
 	public static void loadRulesets ()  {
-		// switch off trigger checking while the data is being loaded
-		test_triggers = false;
 		// load the scripts from the rulesets subfolder of the folder the jar sits in
 		final File rulsets_dir = new File("rulesets");
 		if (rulsets_dir.exists() && rulsets_dir.isDirectory()) {
@@ -137,48 +129,19 @@ System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").t
 				}
 			}
 
-			// add the global scripts which sit directly in the rulesets folder to the dummy ruleset that holds the global triggers
-			System.out.println("loading global scripts");
+			// add the global scripts which sit directly in the rulesets folder to the engine ruleset
+			System.out.println("loading engine scripts");
 			for (int i = 0; i < dir_list.length; i++)
 				if (dir_list[i].getName().toLowerCase().endsWith(".txt"))
 					engine.addScript(ScriptParser.parse(dir_list[i]));
 		}
-		// switch trigger checking back on
-		test_triggers = true;
 	}
 
 
 public static void setCurrentRuleset (final Ruleset r)  {
 current_ruleset = r;
 ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] = r.data;
-testTriggers();
 }
-
-
-	static void testTriggers ()  {
-		if (!test_triggers) {
-			test_triggers_again = true;
-			return;
-		}
-		test_triggers = false;
-		// remove all but global structures from the stack
-		final Structure[] old_stack = ScriptNode.removeLocalStackItems();
-		do {
-			test_triggers = false;
-			do {
-				test_triggers_again = false;
-				// test the global triggers first
-				final Ruleset crs = current_ruleset;
-				engine.testTriggers();
-				// if the current ruleset hasn't changed, tell it that one of its values has changed
-				if (current_ruleset == crs)
-					crs.testTriggers();
-			} while (test_triggers_again);
-			test_triggers = true;
-		} while (test_triggers_again); // in case there's some weird multi-thread problem
-		// restore the stack
-		ScriptNode.restoreLocalStack(old_stack);
-	}
 
 
 // view methods ***************************************************************************************************************************************

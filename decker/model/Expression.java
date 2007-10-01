@@ -5,11 +5,11 @@ import java.io.PrintStream;
 
 public class Expression extends ScriptNode
 {
-	final static int STRUCTURE_DEFINITION = 1, ARRAY_DEFINITION = 3, NOT_AN_OPERATOR = 4, VARIABLE = 5, CONSTANT = 6, BRACKET = 7, MEMBER = 8, ARRAY_INDEX = 9, FUNCTION_CALL = 10, FETCH_VALUE = 11, RAW_VALUE = 12, MULTIPLY = 13, DIVIDE = 14, NOT = 15, ADD = 16, SUBSTRACT = 17, NEGATIVE = 18, GREATER = 19, LESS = 20, GREATER_OR_EQUAL = 21, LESS_OR_EQUAL = 22, NOT_EQUAL = 23, EQUAL = 24, AND = 25, OR = 26, CONDITIONAL_COLON = 27, CONDITIONAL = 28;
+	final static int STRUCTURE_DEFINITION = 1, ARRAY_DEFINITION = 3, NOT_AN_OPERATOR = 4, VARIABLE = 5, CONSTANT = 6, BRACKET = 7, MEMBER = 8, ARRAY_INDEX = 9, FUNCTION_CALL = 10, GLOBAL_VALUE = 11, RAW_VALUE = 12, MULTIPLY = 13, DIVIDE = 14, NOT = 15, ADD = 16, SUBSTRACT = 17, NEGATIVE = 18, GREATER = 19, LESS = 20, GREATER_OR_EQUAL = 21, LESS_OR_EQUAL = 22, NOT_EQUAL = 23, EQUAL = 24, AND = 25, OR = 26, CONDITIONAL_COLON = 27, CONDITIONAL = 28;
 	final static int[] OPERATOR_PRIORITY = new int[29];
 	// the string below contains all the one character operators, with OPERATOR_STRING.charAt(x) having the operator id x
 	final static String OPERATOR_STRING = "(.[*/!+-><:?@";
-	final static int[] OPERATOR_STRING_ID = { BRACKET, MEMBER, ARRAY_INDEX, MULTIPLY, DIVIDE, NOT, ADD, SUBSTRACT, GREATER, LESS, CONDITIONAL_COLON, CONDITIONAL, FETCH_VALUE };
+	final static int[] OPERATOR_STRING_ID = { BRACKET, MEMBER, ARRAY_INDEX, MULTIPLY, DIVIDE, NOT, ADD, SUBSTRACT, GREATER, LESS, CONDITIONAL_COLON, CONDITIONAL, GLOBAL_VALUE };
 	final static String OPERATOR_STRING_2 = "==!=<>>=<=&&||";
 	final static int[] OPERATOR_STRING_2_ID = { EQUAL, NOT_EQUAL, NOT_EQUAL, GREATER_OR_EQUAL, LESS_OR_EQUAL, AND, OR };
 
@@ -172,11 +172,13 @@ try {
 
 
 	void addExpression (final Expression expression)  {
-		// if this expression is the FETCH_VALUE operator @, make sure that the added expression describes a variable
-		if (( operator == FETCH_VALUE || operator == RAW_VALUE )&& expression.operator != VARIABLE && expression.operator != MEMBER && expression.operator != ARRAY_INDEX)
+		// if this expression is the GLOBAL_VALUE operator @, make sure that the added expression describes a variable
+		if ( operator == GLOBAL_VALUE && expression.operator != VARIABLE)
+			throwException("the "+operator_element.toString()+" operator requires the name of a global value as its operand");
+		if (operator == RAW_VALUE && expression.operator != VARIABLE && expression.operator != MEMBER && expression.operator != ARRAY_INDEX)
 			throwException("the "+operator_element.toString()+" operator requires a variable as its operand");
 		// add the expression to this expression as the first or second operand
-		if (first_operand != null && operator != NEGATIVE && operator != NOT && operator != BRACKET && operator != FETCH_VALUE && operator != RAW_VALUE)
+		if (first_operand != null && operator != NEGATIVE && operator != NOT && operator != BRACKET && operator != GLOBAL_VALUE && operator != RAW_VALUE)
 			second_operand = expression;
 		else
 			first_operand = expression;
@@ -191,7 +193,7 @@ try {
 
 		// most operators use the value of their two operands. fetch them unless they won't be used
 		Value a = null, b = null;
-		if (operator != MEMBER && operator != FETCH_VALUE) {
+		if (operator != MEMBER && operator != GLOBAL_VALUE) {
 			if(first_operand != null) {
 				a = first_operand.execute();
 				if (a == null && operator != CONDITIONAL_COLON)
@@ -224,11 +226,11 @@ try {
 					if(at != Value.ARRAY)
 						throwException("The array index operator [] requires a variable containing an array in front of the brackets");
 				return (bt==Value.INTEGER) ? a.get(b.integer()) : a.get(b.toString());
-			case FETCH_VALUE :
-					return_value.setFetchValue(this);
+			case GLOBAL_VALUE :
+					return_value.setGlobalValue(first_operand.toString());
 				break;
 			case RAW_VALUE :
-					return_value.setDirectly(a, false);
+					return_value.setDirectly(a);
 				break;
 			case MEMBER :
 					if (second_operand.operator != VARIABLE)
@@ -385,16 +387,6 @@ try {
 	}
 
 
-	/** returns the value a FETCH_VALUE operator @ points at */
-	Value executeFetchValue ()  {
-		if (operator != FETCH_VALUE)
-			throwException("trying to fetch the value from an @ operator, but operator "+operator_element.toString()+" found");
-		if (first_operand == null)
-			throwException("the operand of the @ operator is missing");
-		return first_operand.execute();
-	}
-
-
 	Expression getFirstOperand ()  { return first_operand; }
 	int getOperator ()  { return operator; }
 	Value getOperatorElement ()  { return operator_element; }
@@ -439,7 +431,7 @@ try {
 				break;
 			case NOT :
 			case NEGATIVE :
-			case FETCH_VALUE :
+			case GLOBAL_VALUE :
 					out.print((line_start?indentation:"") + operator_element.toString());
 					ret = print(out, indentation, false, first_operand);
 				break;

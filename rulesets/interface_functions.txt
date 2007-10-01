@@ -143,7 +143,7 @@ english
 
 	// returns a new TEXT with the default settings as defined in the TEXT stored in TEXT_STYLE
 	ENGINE.createText = FUNCTION (text, x, y, color, font, h_align, v_align, width, height)
-		return_value = copy(TEXT_STYLE)
+		return_value = copy(@TEXT_STYLE)
 		// for all settings which are not defined, the default settings will be used
 		if text != UNDEFINED
 			return_value.text = &text
@@ -167,7 +167,7 @@ english
 	
 	// returns a new TEXT with the default settings as defined in the TEXT stored in TEXT_STYLE
 	ENGINE.createTextBold = FUNCTION (text, x, y, color, font)
-		return_value = copy(TEXT_STYLE_BOLD)
+		return_value = copy(@TEXT_STYLE_BOLD)
 		// for all settings which are not defined, the default settings will be used
 		if x != UNDEFINED
 			return_value.x = &x
