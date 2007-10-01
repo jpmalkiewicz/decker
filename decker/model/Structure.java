@@ -30,7 +30,7 @@ throw new RuntimeException("trying to use null as a structure type");
 					if (k.equals("initializer"))
 						initializer = (Value) n.getValue();
 					else if (!k.equals("pixelwidth") && !k.equals("pixelheight") && !k.equals("expandable")) // pixelwidth and pixelheight stay with their structure type and aren't copied to the instantiated structures
-						addDirectly(k).setDirectly((Value)n.getValue(), false);
+						addDirectly(k).setDirectly((Value)n.getValue());
 				}
 				// execute the STRUCTURE_TYPE's initializer function if there is one
 				if (initializer != null && initializer.typeDirect() == Value.FUNCTION)
@@ -44,7 +44,7 @@ throw new RuntimeException("trying to use null as a structure type");
 		StringTreeMap.Iterator i = original.members.getIterator();
 		while (i.hasNext()) {
 			final StringTreeMap.TreeNode n = i.nextNode();
-			addDirectly(n.getKey()).setDirectly((Value)n.getValue(), false);
+			addDirectly(n.getKey()).setDirectly((Value)n.getValue());
 		}
 	}
 
@@ -133,9 +133,7 @@ throwException = true;
 else
 				if (v.typeDirect() == Value.STRUCTURE)
 					v.structure().print(out, ind, false);
-				else if (v.isExpression())
-					v.expression().print(out, ind, false);
-				else if (v.isFunction())
+				else if (v.typeDirect() == Value.FUNCTION)
 					v.function().print(out, ind, false);
 				else
 					out.println(v.toString());

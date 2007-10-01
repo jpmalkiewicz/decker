@@ -1,4 +1,7 @@
 2007-10-01
+  added the new "global" command that lets you add global values to a ruleset
+  changed @ to fetch "global" values from the ruleset (they sit in the GLOBAL_VALUES structure in the ruleset)
+  removed the whole trigger system
   added the optional hardware display
   removed some disused clutter from the scripts
 2007-09-30

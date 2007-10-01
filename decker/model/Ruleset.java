@@ -8,8 +8,6 @@ public final class Ruleset
 {
 	public final Structure data = new Structure("RULESET");
 	final StringTreeMap structure_types = new StringTreeMap();
-	private TriggerCommand[] trigger = new TriggerCommand[100];
-	private int trigger_count;
 	private Script[] script = new Script[0]; // the list of scripts in this ruleset
 
 
@@ -23,6 +21,7 @@ public final class Ruleset
 			constants.add("UNDEFINED");
 		}
 		data.add("CONSTANTS").set(constants);
+		data.add("GLOBAL_VALUES").set(new Structure("SET"));
 		// add the set of structure types
 		final Structure structure_types = new Structure("SET");
 		data.add("STRUCTURE_TYPES").set(structure_types);
@@ -47,16 +46,6 @@ public final class Ruleset
 	}
 
 
-	void addTrigger (final TriggerCommand t)  {
-		if (trigger.length == trigger_count) {
-			final TriggerCommand[] k = trigger;
-			trigger = new TriggerCommand[trigger_count*2];
-			System.arraycopy(k, 0, trigger, 0, trigger_count);
-		}
-		trigger[trigger_count++] = t;
-	}
-
-
 	void initialize (final Locale[] accepted_localizations)  {
 		for (int i = 0; i < script.length; i++)
 			script[i].execute(accepted_localizations);
@@ -64,15 +53,4 @@ public final class Ruleset
 
 
 	public String getName()  { return data.get("RULESET_NAME").toString(); }
-
-
-	void testTriggers ()  {
-		for (int i = trigger_count; --i >= 0; ) {
-			if (trigger[i].testTrigger()) {
-				// the trigger wants to be removed from the list, so let#s do that
-				System.arraycopy(trigger, i+1, trigger, i, trigger_count-i-1);
-				trigger_count--;
-			}
-		}
-	}
 }

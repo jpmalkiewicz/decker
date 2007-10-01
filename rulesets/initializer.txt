@@ -14,7 +14,6 @@ english
 				debug("  " + previous_displayed_screen[i].title)
 				i = i - 1
 // debug end
-			repaint()
 
 
 	ENGINE.displayPreviousScreen = FUNCTION
@@ -27,7 +26,6 @@ english
 				debug("  " + previous_displayed_screen[i].title)
 				i = i - 1
 // debug end
-			repaint()
 
 
 	ENGINE.getPreviousScreen = FUNCTION

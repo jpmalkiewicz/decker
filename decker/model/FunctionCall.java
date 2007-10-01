@@ -121,7 +121,7 @@ System.out.println("");
 				arguments[i] = argument[i].execute();
 				// we need to create a new variable so just the value of the original variable from the expression is transferred, and not the variable itself
 				if (arguments[i].getEnclosingStructure() != null)
-					arguments[i] = new Value().setDirectly(arguments[i], false);
+					arguments[i] = new Value().setDirectly(arguments[i]);
 			}
 		// execute the function call and return the resulting Value
 		return executeFunctionCall(function, arguments, null);
