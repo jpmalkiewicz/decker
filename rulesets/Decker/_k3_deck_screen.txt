@@ -45,6 +45,7 @@ english
 		load_0_text = createText("", scrollpane.x+scrollpane.width, current_load_text.y, , , LEFT)
 		load_1_text = createText("", scrollpane.x+scrollpane.width, current_load_text.y+18, , , LEFT)
 		load_2_text = createText("", scrollpane.x+scrollpane.width, current_load_text.y+18*2, , , LEFT)
+		optional_hardware = COLLECTION
 
 			
 		component = ARRAY
@@ -78,6 +79,7 @@ english
 			createTableButton("Size",    54, table_button_x, &compareProgramsSize)
 			createTableButton("Loaded",  54, table_button_x, &compareProgramsLoaded)
 			createTableButton("Default", 54, table_button_x, &compareProgramsDefault)
+			optional_hardware   // the optional hardware texts will be stored in optional_hardware.component
 			
 			// the current load section
 			createText("Current Load", scrollpane.x, current_load_text.y)
@@ -111,13 +113,29 @@ english
 			deck_screen.load_0_text.text = i/3
 			deck_screen.load_1_text.text = i*2/3
 			deck_screen.load_2_text.text = i
-			// create the new software table
+			deck_screen.optional_hardware.component = ARRAY
+			LOCAL.h = player.deck.optional_hardware
+			if h.size > 0
+				LOCAL.xoff = h.size <= 6 ? 210 : 200
+				LOCAL.second_column = h.size <= 6 ? h.size : (h.size+1)/2
+				deck_screen.optional_hardware.component[] = createText("Optional Hardware", xoff-8, 15)
+				if h.size > 6
+					deck_screen.optional_hardware.component[0].x = xoff+140
+					deck_screen.optional_hardware.component[0].h_align = CENTER
+				i = 0
+				while i < second_column
+					deck_screen.optional_hardware.component[] = createText(player.deck.optional_hardware[i].name, xoff, 17+(i+1)*16)
+					i = i + 1
+				while i < player.deck.optional_hardware.size
+					deck_screen.optional_hardware.component[] = createText(player.deck.optional_hardware[i].name, xoff+160, 17+(i+1-second_column)*16)
+					i = i + 1
+			
+			// create the new software table ***********************************************************************************************************
 			LOCAL.t = createTable ( , 18, 19, 116, 54, 54, 54, 54, 54)
 			t.cell_x = createArray (CENTER, 8, CENTER, CENTER, CENTER, CENTER, CENTER)
 			LOCAL.p = player.deck.program
 			LOCAL.state = UNDEFINED
 			LOCAL.loaded = UNDEFINED
-			
 			
 			LOCAL.default_function = FUNCTION
 				if prog.state == DEFAULT
@@ -137,7 +155,6 @@ english
 					idle = "status_on"
 					deck_screen.current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
 				
-					
 			LOCAL.load_function = FUNCTION
 				if prog.state == DEFAULT
 					LOCAL.index = indexof(prog, player.deck.program)
@@ -145,7 +162,6 @@ english
 				setProgramState(player.deck, prog, prog.state != INSTALLED ? INSTALLED : LOADED)
 				idle = prog.state == INSTALLED ? "status_off" : "status_on"
 				deck_screen.current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
-			
 			
 			i = 0
 			while i < p.size

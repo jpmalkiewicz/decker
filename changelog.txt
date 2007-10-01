@@ -1,4 +1,8 @@
-78%
+2007-10-01
+  added the optional hardware display
+  removed some disused clutter from the scripts
+2007-09-30
+  removed the disused wrapImage function
 2007-09-24
   fixed a lot of minor bugs and one fatal bug
 2007-09-21
@@ -7,6 +11,8 @@
   decided to get rid of the .object entry of components, and to let the interface code accept a single STRUCTURE as a component (should help with table cells)
   simplified and speeded up calls of hard coded functions
   ARRAY is no longer a structure type, it's now a data type, like STRUCTURE, INTEGER, STRING, etc
+
+78%
 2007-09-16
   deck screen displays current load info
   finished up the program table sorting buttons

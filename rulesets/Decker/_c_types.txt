@@ -128,13 +128,14 @@ english
 			analysis = 1
 			program
 			default_program
+			optional_hardware
 			initializer = FUNCTION
 				program = ARRAY
+				optional_hardware = ARRAY
 				default_program = ARRAY
 					UNDEFINED
 					UNDEFINED
 					UNDEFINED
-				debug(deck)
 
 		MISSION
 			expandable = true

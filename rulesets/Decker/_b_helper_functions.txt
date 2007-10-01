@@ -56,13 +56,35 @@ english
 				a = a - 1
 				
 
-
-	RULESET.createNameTableCell = FUNCTION (image, text)
-		LOCAL.tx = pixelwidth(image)+1
-		return_value = NAME_TABLE_CELL
-			height = pixelheight(image)
-			component[0] = image
-			component[1] = createText(text, tx, CENTER, @TABLE_TEXT_COLOR)
+	RULESET.createHardware = FUNCTION (_type, _rating)
+		// find the hardware type
+		if value_type(_type) == "CONSTANT"
+			LOCAL.i = 0
+			LOCAL.c = UNDEFINED
+			while i < HARDWARE_TYPES.size
+				c = HARDWARE_TYPES[i].category
+				if c[c.size-1] == _type
+					_type = HARDWARE_TYPES[i]
+					i = HARDWARE_TYPES.size  // to exit the while loop
+				i = i + 1
+		if _type.structure_type == "THING_TYPE"
+			// create the piece of hardware
+			return_value = THING
+				type = _type
+				rating = _rating
+			// determine its default name
+			if _rating >= 1
+				LOCAL.basename = _type.default_name != UNDEFINED ? _type.default_name : _type.name
+				if value_type(basename) == "ARRAY"
+					if _rating < basename.size
+						return_value.name = basename[_rating]
+					else
+						return_value.name = basename[basename.size-1] + " " + getRomanNumber(_rating - basename.size + 1)
+				else
+					if _rating == 1
+						return_value.name = basename
+					else
+						return_value.name = basename + " " + getRomanNumber(_rating)
 
 
 	RULESET.createProgram = FUNCTION (_type, _rating)
@@ -170,7 +192,7 @@ english
 				if indexof(CPU, type.category) >= 0
 					return_value = return_value * 6 / 5        // CPUs are 20% more expensive than their rating suggests
 			else // it's a piece of hardware. it's price is (base value * 2 ^ (rating-1))
-				return_value = type.base_value * pow(2,thing.rating)
+				return_value = type.base_value * pow(2,thing.rating-1)
 
 
 
@@ -187,7 +209,7 @@ english
 		if x == 1
 			return_value = -1         // 5% critical failure
 		else if x == 20 && target_number > 20
-			return_value = 1          // 5% automatic success (smallest possible positive outcome)
+			return_value = 1          // 5% automatic success (lowest possible positive outcome)
 		else if x < target_number
 			return_value = 0
 		else
@@ -251,12 +273,6 @@ english
 			button.idle = "home/home"
 		else
 			button.idle = "home/matrix"
-
-
-	RULESET.wrapImage = FUNCTION (image_name)
-		return_value = COLLECTION
-			object = ARRAY
-				image_name
 
 
 //*****************************************************************************************************************************************************
