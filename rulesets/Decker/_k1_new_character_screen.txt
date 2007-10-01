@@ -164,8 +164,13 @@ english
 							programming = 2
 							chip_design = 2
 						money = bonus_name[selected_bonus] == "money" ? 2000 : 100
+// debug stuff START
 						money = money + 10000
 						skill_points = 8
+						LOCAL.i = 6
+						while i < 12
+							deck.optional_hardware[] = createHardware(HARDWARE_TYPES[i], random(1,HARDWARE_TYPES[i].max_rating))
+							i = i + 1
 // create the new character END
 					displayScreen(home_screen)
 			BORDER_BUTTON
