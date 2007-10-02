@@ -1,4 +1,5 @@
 2007-10-02
+  the status_off bitmap now uses an alpha channel. 32 bit .bmp files are now loadable, the pixel data is interpreted as aarrggbb
   table rows can be dragged
   the table sorting buttons on the deck screen work again
   events get handed on to table cells

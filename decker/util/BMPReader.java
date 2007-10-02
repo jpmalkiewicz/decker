@@ -1,6 +1,7 @@
 package decker.util;
 import java.awt.Component;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.awt.image.MemoryImageSource;
 import java.io.InputStream;
 import java.io.IOException;
@@ -72,7 +73,30 @@ public class BMPReader
 
 
 			// read the image data
-			if (nbitcount==24)
+			if (nbitcount==32)
+			{
+				// No Palette data for 32-bit format.
+				// no padding out neccessary
+				// the data will be interpreted as aarrggbb
+				int ndata[] = new int [nheight * nwidth];
+				byte brgb[] = new byte [nwidth * 4 * nheight];
+				read(stream, brgb, 0, brgb.length);
+				int nindex = 0;
+				for (int j = 0; j < nheight; j++)
+				{
+					for (int i = 0; i < nwidth; i++)
+					{
+						ndata[nwidth*(nheight-j-1)+i] = parseValue(brgb, nindex, 4);
+						nindex += 4;
+					}
+				}
+				image = new BufferedImage(nwidth, nheight, BufferedImage.TYPE_INT_ARGB);
+				((BufferedImage)image).setRGB(0, 0, nwidth, nheight, ndata, 0, nwidth);
+System.out.println(image.getWidth(null)+" "+image.getHeight(null));
+System.out.println("colors : "+Integer.toString(ndata[0],16)+" "+Integer.toString(ndata[9+9*18],16));
+				return image;
+			}
+			else if (nbitcount==24)
 			{
 				// No Palette data for 24-bit format but scan lines are
 				// padded out to even 4-byte boundaries.
@@ -96,7 +120,7 @@ public class BMPReader
 			}
 			else if (nbitcount==16)
 			{
-				// No Palette data for 24-bit format but scan lines are
+				// No Palette data for 16-bit format but scan lines are
 				// padded out to even 4-byte boundaries.
 				int npad = (nsizeimage / nheight) - nwidth * 2;
 				int ndata[] = new int [nheight * nwidth];
@@ -122,7 +146,7 @@ public class BMPReader
 			}
 			else if(nbitcount == 8)
 			{
-				// Read the image data (actually indices into the palette)
+				// Read the image data (actually indexes into the palette)
 				// Scan lines are still padded out to even 4-byte
 				// boundaries.
 				int npad8 = (nsizeimage / nheight) - nwidth;
@@ -145,7 +169,7 @@ public class BMPReader
 			}
 			else if(nbitcount == 4)
 			{
-				// Read the image data (actually indices into the palette)
+				// Read the image data (actually indexes into the palette)
 				// Scan lines are still padded out to even 4-byte
 				// boundaries.
 				int npad4 = (nsizeimage / nheight) - (nwidth+1)/2;
@@ -171,7 +195,7 @@ public class BMPReader
 			}
 			else
 			{
-				System.out.println ("InputStream does not contain a 24-bit, 16-bit, 8-bit or 4-bit Windows Bitmap. cannot parse "+nbitcount+" bit bitmaps");
+				System.out.println ("InputStream does not contain a 32-bit, 24-bit, 16-bit, 8-bit or 4-bit Windows Bitmap. cannot parse "+nbitcount+" bit bitmaps");
 				System.exit(1);
 				image = null;
 			}
