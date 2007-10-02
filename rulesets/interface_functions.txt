@@ -268,7 +268,7 @@ english
 				
 				
 	ENGINE.getTableCell = FUNCTION (table, row, column)
-		return_value = table.component[row].component[column].component[0]
+		return_value = table.cell[row][column]
 		
 				
 	// swaps the rows at index a and b in the given table

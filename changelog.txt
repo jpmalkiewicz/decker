@@ -1,3 +1,8 @@
+2007-10-02
+  events get handed on to table cells
+  fixed a few small bugs in connection with event consumption
+  removed all repaint() calls, now input events don't slow down the game anymore
+  rows are now selectable in TABLE
 2007-10-01
   added the new "global" command that lets you add global values to a ruleset
   changed @ to fetch "global" values from the ruleset (they sit in the GLOBAL_VALUES structure in the ruleset)

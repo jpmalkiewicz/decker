@@ -10,6 +10,7 @@ english
 		BACKGROUND_COLOR = "#0000ff"    // default color for the screen background
 		BACKGROUND_COLOR2 = "#333399"   // set this to UNDEFINED to give screens only 1 border
 		TABLE_BACKGROUND_COLOR = "#ffffff"
+		TABLE_SELECTED_ROW_BACKGROUND = "#bbccff"
 		TABLE_TEXT_COLOR = "#000033"
 		TEXT_STYLE = TEXT
 			font = "Arial;13pt"
