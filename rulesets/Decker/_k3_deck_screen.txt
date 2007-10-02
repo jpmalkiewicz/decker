@@ -133,6 +133,8 @@ english
 			// create the new software table ***********************************************************************************************************
 			LOCAL.t = createTable ( , 18, 19, 116, 54, 54, 54, 54, 54)
 			t.cell_x = createArray (CENTER, 8, CENTER, CENTER, CENTER, CENTER, CENTER)
+			t.cell_y = CENTER
+			t.selected_row_background = @TABLE_SELECTED_ROW_BACKGROUND
 			LOCAL.p = player.deck.program
 			LOCAL.state = UNDEFINED
 			LOCAL.loaded = UNDEFINED

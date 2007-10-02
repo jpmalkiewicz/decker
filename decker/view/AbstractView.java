@@ -347,11 +347,6 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 	}
 
 
-	public void repaint()  {
-		Global.getViewWrapper().repaint();
-	}
-
-
 	/** sets the text in the title bar of the Frame */
 	public void setTitle (final String new_title)  {
 		// the Frame should be the top-most parent object of the ViewWrapper

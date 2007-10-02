@@ -7,7 +7,7 @@ import java.awt.image.*;
 
 
 
-public class DefaultView extends AbstractView
+public final class DefaultView extends AbstractView
 {
 	private String old_title = "";
 	private Graphics g;
@@ -83,7 +83,7 @@ public class DefaultView extends AbstractView
 			}
 			else if (type.equals("DRAWING_BOUNDARY")) {
 				clip = g.getClip();
-				g.setClip(dx, dy, w, h);
+				g.clipRect(dx, dy, w, h);
 			}
 			else if (type.equals("BORDER")) {
 				final boolean inverted = d.get("inverted").equals(true);
@@ -268,7 +268,7 @@ public class DefaultView extends AbstractView
 
 
 	/** returns true iff the event has been consumed */
-	private boolean eventMouseDragged (int x, int y, final int dx, final int dy, final Structure d, final int parent_width, final int parent_height)  {
+	boolean eventMouseDragged (int x, int y, final int dx, final int dy, final Structure d, final int parent_width, final int parent_height)  {
 		Value v;
 		// put the current data object on the stack, in case there are function calls for nested objects
 		ScriptNode.addStackItem(d);
@@ -279,23 +279,27 @@ public class DefaultView extends AbstractView
 		final int w = width(d);
 		final int h = height(d);
 		// if the current structure is a button that is not disabled, it may have changed its state
-		if (( d.get("structure_type").equals("BUTTON") || d.get("structure_type").equals("BORDER_BUTTON") )&& !d.get("state").equalsConstant("DISABLED")) {
+		final String t = d.get("structure_type").string();
+		if (( t.equals("BUTTON") || t.equals("BORDER_BUTTON") )&& !d.get("state").equalsConstant("DISABLED")) {
 			if (inside(x, y, w, h, d)) {
 				if (!d.get("state").equalsConstant("PRESSED")) {
 					d.get("state").setConstant("PRESSED");
-					repaint();
 				}
 			}
 			else {
 				if (!d.get("state").equalsConstant("IDLE")) {
 					d.get("state").setConstant("IDLE");
-					repaint();
 				}
 			}
 		}
 		// if the component has an on_mouse_dragged function, call it
 		if ((v=d.get("on_mouse_dragged")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, w, h, d)) {
 			FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y), new Value().set(dx), new Value().set(dy) }, ScriptNode.KEEP_STACK);
+		}
+		// if this is a DRAWING_BOUNDARY and the event happened outside the drawable area, set its coordinates to -100000,-100000 when telling the sub-components about it
+		if (t.equals("DRAWING_BOUNDARY") &&( x < 0 || y < 0 || x >= d.get("width").integer() || y >= d.get("height").integer() )) {
+			x = -100000;
+			y = -100000;
 		}
 		// hand the event on to all sub-components
 		v = d.get("component");
@@ -304,14 +308,22 @@ public class DefaultView extends AbstractView
 				final Value[] comp = v.array();
 				final int ccount = comp.length;
 				for (int i = 0; i < ccount; i++)
-					if (comp[i].type() == Value.STRUCTURE && eventMouseDragged(x, y, dx, dy, comp[i].structure(), w, h))
+					if (comp[i].type() == Value.STRUCTURE && eventMouseDragged(x, y, dx, dy, comp[i].structure(), w, h)) {
+						ScriptNode.removeStackItem(d);
 						return true;
+					}
 			}
 			else if (v.type() == Value.STRUCTURE) {
-				if (eventMouseDragged(x, y, dx, dy, v.structure(), w, h))
+				if (eventMouseDragged(x, y, dx, dy, v.structure(), w, h)) {
+					ScriptNode.removeStackItem(d);
 					return true;
+				}
 			}
 		}
+		// if it's a table, we'll have to send the event to each cell manually
+		if (t.equals("TABLE"))
+			if (UITable.eventMouseDragged(x, y, dx, dy, d, parent_width, parent_height, this))
+				return true;
 		// clean up
 		ScriptNode.removeStackItem(d);
 		return false;
@@ -319,7 +331,7 @@ public class DefaultView extends AbstractView
 
 
 	/** returns true iff the event has been consumed */
-	private boolean eventMouseMoved (int x, int y, final Structure d, final int parent_width, final int parent_height)  {
+	boolean eventMouseMoved (int x, int y, final Structure d, final int parent_width, final int parent_height)  {
 		Value v;
 		// put the current data object on the stack, in case there are function calls for nested objects
 		ScriptNode.addStackItem(d);
@@ -330,17 +342,21 @@ public class DefaultView extends AbstractView
 		final int w = width(d);
 		final int h = height(d);
 		// process the event
-		if (( d.get("structure_type").equals("BUTTON") || d.get("structure_type").equals("BORDER_BUTTON") )&& !d.get("state").equalsConstant("DISABLED")) {
+		final String t = d.get("structure_type").string();
+		if (( t.equals("BUTTON") || t.equals("BORDER_BUTTON") )&& !d.get("state").equalsConstant("DISABLED")) {
 			if (inside(x, y, w, h, d)) {
 				if (!d.get("state").equalsConstant("HOVER")) {
 					d.get("state").setConstant("HOVER");
-					repaint();
 				}
 			}
 			else if (!d.get("state").equalsConstant("IDLE")) {
 				d.get("state").setConstant("IDLE");
-				repaint();
 			}
+		}
+		// if this is a DRAWING_BOUNDARY and the event happened outside the drawable area, set its coordinates to -100000,-100000 when telling the sub-components about it
+		if (t.equals("DRAWING_BOUNDARY") &&( x < 0 || y < 0 || x >= d.get("width").integer() || y >= d.get("height").integer() )) {
+			x = -100000;
+			y = -100000;
 		}
 		// hand the event on to all sub-components
 		v = d.get("component");
@@ -349,14 +365,22 @@ public class DefaultView extends AbstractView
 				final Value[] comp = v.array();
 				final int ccount = comp.length;
 				for (int i = 0; i < ccount; i++)
-					if (comp[i].type() == Value.STRUCTURE && eventMouseMoved(x, y,  comp[i].structure(), w, h))
+					if (comp[i].type() == Value.STRUCTURE && eventMouseMoved(x, y,  comp[i].structure(), w, h)) {
+						ScriptNode.removeStackItem(d);
 						return true;
+					}
 			}
 			else if (v.type() == Value.STRUCTURE) {
-				if (eventMouseMoved(x, y, v.structure(), w, h))
+				if (eventMouseMoved(x, y, v.structure(), w, h)) {
+					ScriptNode.removeStackItem(d);
 					return true;
+				}
 			}
 		}
+		// if it's a table, we'll have to send the event to each cell manually
+		if (t.equals("TABLE"))
+			if (UITable.eventMouseMoved(x, y, d, parent_width, parent_height, this))
+				return true;
 		// clean up
 		ScriptNode.removeStackItem(d);
 		return false;
@@ -364,7 +388,7 @@ public class DefaultView extends AbstractView
 
 
 	/** returns true iff the event has been consumed */
-	private boolean eventMousePressed (int x, int y, final Structure d, final int parent_width, final int parent_height)  {
+	boolean eventMousePressed (int x, int y, final Structure d, final int parent_width, final int parent_height)  {
 		Value v;
 		// put the current data object on the stack, in case there are function calls for nested objects
 		ScriptNode.addStackItem(d);
@@ -375,24 +399,37 @@ public class DefaultView extends AbstractView
 		final int w = width(d);
 		final int h = height(d);
 		// if the current structure is a button that is not disabled, it may have changed its state
-		if (( d.get("structure_type").equals("BUTTON") || d.get("structure_type").equals("BORDER_BUTTON") )&& !d.get("state").equalsConstant("DISABLED")) {
-			if (inside(x, y, w, h, d)) {
-				if (!d.get("state").equalsConstant("PRESSED")) {
-					d.get("state").setConstant("PRESSED");
-					repaint();
+		final String t = d.get("structure_type").string();
+		if ( t.equals("BUTTON") || t.equals("BORDER_BUTTON") ) {
+			if (!d.get("state").equalsConstant("DISABLED"))
+				if (inside(x, y, w, h, d)) {
+					if (!d.get("state").equalsConstant("PRESSED")) {
+						d.get("state").setConstant("PRESSED");
+					}
 				}
-			}
-			else {
-				if (!d.get("state").equalsConstant("IDLE")) {
-					d.get("state").setConstant("IDLE");
-					repaint();
+				else {
+					if (!d.get("state").equalsConstant("IDLE")) {
+						d.get("state").setConstant("IDLE");
+					}
 				}
+		}
+		else if (t.equals("TABLE")) {
+System.out.println("table");
+			if (getColor(d.get("selected_row_background").toString()) != null && inside(x, y, w, h, d)) {
+System.out.println("table 2");
+				d.get("selected_row").set(y/d.get("cell_height").integer());
+System.out.println("selected row is now "+d.get("selected_row"));
 			}
 		}
 		// if the component has an on_mouse_down function, call it
 		if ((v=d.get("on_mouse_down")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, w, h, d)) {
 			FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y) }, ScriptNode.KEEP_STACK);
 		}
+		// if this is a DRAWING_BOUNDARY and the event happened outside the drawable area, set its coordinates to -100000,-100000 when telling the sub-components about it
+		if (t.equals("DRAWING_BOUNDARY") &&( x < 0 || y < 0 || x >= d.get("width").integer() || y >= d.get("height").integer() )) {
+			x = -100000;
+			y = -100000;
+		}
 		// hand the event on to all sub-components
 		v = d.get("component");
 		if (v != null) {
@@ -400,14 +437,22 @@ public class DefaultView extends AbstractView
 				final Value[] comp = v.array();
 				final int ccount = comp.length;
 				for (int i = 0; i < ccount; i++)
-					if (comp[i].type() == Value.STRUCTURE && eventMousePressed(x, y, comp[i].structure(), w, h))
+					if (comp[i].type() == Value.STRUCTURE && eventMousePressed(x, y, comp[i].structure(), w, h)) {
+						ScriptNode.removeStackItem(d);
 						return true;
+					}
 			}
 			else if (v.type() == Value.STRUCTURE) {
-				if (eventMousePressed(x, y, v.structure(), w, h))
+				if (eventMousePressed(x, y, v.structure(), w, h)) {
+					ScriptNode.removeStackItem(d);
 					return true;
+				}
 			}
 		}
+		// if it's a table, we'll have to send the event to each cell manually
+		if (t.equals("TABLE"))
+			if (UITable.eventMousePressed(x, y, d, parent_width, parent_height, this))
+				return true;
 		// clean up
 		ScriptNode.removeStackItem(d);
 		return false;
@@ -415,7 +460,7 @@ public class DefaultView extends AbstractView
 
 
 	/** returns true iff the event has been consumed */
-	private boolean eventMouseReleased (int x, int y, final Structure d, final int parent_width, final int parent_height)  {
+	boolean eventMouseReleased (int x, int y, final Structure d, final int parent_width, final int parent_height)  {
 		Value v;
 		// put the current data object on the stack, in case there are function calls for nested objects
 		ScriptNode.addStackItem(d);
@@ -426,26 +471,29 @@ public class DefaultView extends AbstractView
 		final int w = width(d);
 		final int h = height(d);
 		// if the current structure is a button that is not disabled, it may have changed its state
-		if (d.get("structure_type").equals("BUTTON") || d.get("structure_type").equals("BORDER_BUTTON")) {
+		final String t = d.get("structure_type").string();
+		if (t.equals("BUTTON") || t.equals("BORDER_BUTTON")) {
 			if (!d.get("state").equalsConstant("DISABLED")) {
 				if (inside(x, y, w, h, d)) {
 					if ((v=d.get("on_mouse_up")) != null && v.typeDirect() == Value.FUNCTION) {
 						FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y) }, ScriptNode.KEEP_STACK);
-						repaint();
 					}
 					if (!d.get("state").equalsConstant("HOVER")) {
 						d.get("state").setConstant("HOVER");
-						repaint();
 					}
 				}
 				else if (!d.get("state").equalsConstant("IDLE")) {
 					d.get("state").setConstant("IDLE");
-					repaint();
 				}
 			}
 		}
 		else if ((v=d.get("on_mouse_up")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, w, h, d)) {
 			FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y) }, ScriptNode.KEEP_STACK);
+		}
+		// if this is a DRAWING_BOUNDARY and the event happened outside the drawable area, set its coordinates to -100000,-100000 when telling the sub-components about it
+		if (t.equals("DRAWING_BOUNDARY") &&( x < 0 || y < 0 || x >= d.get("width").integer() || y >= d.get("height").integer() )) {
+			x = -100000;
+			y = -100000;
 		}
 		// hand the event on to all sub-components
 		v = d.get("component");
@@ -454,14 +502,22 @@ public class DefaultView extends AbstractView
 				final Value[] comp = v.array();
 				final int ccount = comp.length;
 				for (int i = 0; i < ccount; i++)
-					if (comp[i].type() == Value.STRUCTURE && eventMouseReleased(x, y, comp[i].structure(), w, h))
+					if (comp[i].type() == Value.STRUCTURE && eventMouseReleased(x, y, comp[i].structure(), w, h)) {
+						ScriptNode.removeStackItem(d);
 						return true;
+					}
 			}
 			else if (v.type() == Value.STRUCTURE) {
-				if (eventMouseReleased(x, y, v.structure(), w, h))
+				if (eventMouseReleased(x, y, v.structure(), w, h)) {
+					ScriptNode.removeStackItem(d);
 					return true;
+				}
 			}
 		}
+		// if it's a table, we'll have to send the event to each cell manually
+		if (t.equals("TABLE"))
+			if (UITable.eventMouseReleased(x, y, d, parent_width, parent_height, this))
+				return true;
 		// clean up
 		ScriptNode.removeStackItem(d);
 		return false;
