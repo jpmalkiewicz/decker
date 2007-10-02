@@ -98,6 +98,26 @@ class UITable
 					if (caller.eventMouseDragged(x-cx[i], eventy, dx, dy, row[i].structure(), cw[i], ch))
 						return true;
 		}
+		// if we're currently dragging a row, check whether it has changed its position
+		if ((q=d.get("can_drag_rows")).type() == Value.INTEGER) {
+			final int dragged_row_index = q.integer()/ch;
+			if (y >= 0 && y/ch < rows && y/ch != dragged_row_index) {
+				// the row has been dragged to a new position
+				final Value dragged_row = cells[dragged_row_index];
+				if (y/ch > dragged_row_index)
+					System.arraycopy(cells, dragged_row_index+1, cells, dragged_row_index, y/ch-dragged_row_index);
+				else
+					System.arraycopy(cells, y/ch, cells, y/ch+1, dragged_row_index-y/ch);
+				cells[y/ch] = dragged_row;
+				q.set(q.integer()%ch+(y/ch)*ch);
+				// call the row drag listener function if there is one
+				if ((q=d.get("on_row_drag")) != null && q.typeDirect() == Value.FUNCTION)
+					FunctionCall.executeFunctionCall(q.function(), new Value[]{ new Value().set(d), new Value().set(dragged_row_index), new Value().set(y/ch) }, ScriptNode.KEEP_STACK);
+			}
+		}
+		// move the row selection to the current row
+		if (!d.get("selected_row_background").equalsConstant("UNDEFINED") && DefaultView.inside(x, y, total_width, ch*rows, d))
+			d.get("selected_row").set(y/ch);
 		return false;
 	}
 
@@ -168,6 +188,9 @@ class UITable
 				total_width += w;
 			}
 		}
+		// change the selected row
+		if (!d.get("selected_row_background").equalsConstant("UNDEFINED") && DefaultView.inside(x, y, total_width, ch*rows, d))
+			d.get("selected_row").set(y/d.get("cell_height").integer());
 		// spread the event
 		final Value[] cells = d.get("cell").array();
 		for (int j = 0; j < rows; j++) {
@@ -178,6 +201,9 @@ class UITable
 					if (caller.eventMousePressed(x-cx[i], eventy, row[i].structure(), cw[i], ch))
 						return true;
 		}
+		// if it is possible to drag rows and the event hasn't been consumed, remember the place where the row was grabbed
+		if (( (q=d.get("can_drag_rows")).equals(true) || q.type() == Value.INTEGER )&& DefaultView.inside(x, y, total_width, ch*rows, d))
+			q.set(y);
 		return false;
 	}
 
@@ -207,6 +233,10 @@ class UITable
 				cw[i] = w;
 				total_width += w;
 			}
+		}
+		// stop the row drag mechanism
+		if ((q=d.get("can_drag_rows")).type() == Value.INTEGER) {
+			q.set(true);
 		}
 		// spread the event
 		final Value[] cells = d.get("cell").array();

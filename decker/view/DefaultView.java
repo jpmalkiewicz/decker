@@ -413,14 +413,6 @@ public final class DefaultView extends AbstractView
 					}
 				}
 		}
-		else if (t.equals("TABLE")) {
-System.out.println("table");
-			if (getColor(d.get("selected_row_background").toString()) != null && inside(x, y, w, h, d)) {
-System.out.println("table 2");
-				d.get("selected_row").set(y/d.get("cell_height").integer());
-System.out.println("selected row is now "+d.get("selected_row"));
-			}
-		}
 		// if the component has an on_mouse_down function, call it
 		if ((v=d.get("on_mouse_down")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, w, h, d)) {
 			FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y) }, ScriptNode.KEEP_STACK);
@@ -534,7 +526,7 @@ System.out.println("selected row is now "+d.get("selected_row"));
 
 
 	/** returns true iff the point (x,y) is inside the view object */
-	private boolean inside (final int x, final int y, final int w, final int h, final Structure d)  {
+	static boolean inside (final int x, final int y, final int w, final int h, final Structure d)  {
 		// (x,y) can only be inside the image if both x and y are >= 0
 		if (x >= 0 && y >= 0) {
 			Value v;

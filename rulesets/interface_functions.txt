@@ -269,18 +269,3 @@ english
 				
 	ENGINE.getTableCell = FUNCTION (table, row, column)
 		return_value = table.cell[row][column]
-		
-				
-	// swaps the rows at index a and b in the given table
-	ENGINE.swapTableRows = FUNCTION (table, a, b)
-		// first, swap the table rows themselves
-		LOCAL.swap = table.component[a]
-		table.component[a] = table.component[b]
-		table.component[b] = swap
-		// then fix the y coordinates
-		LOCAL.i = table.cell_width.size-1
-		while i >= 0
-			table.component[a].component[i].y = a * table.cell_height
-			table.component[b].component[i].y = b * table.cell_height
-			i = i - 1
-		
