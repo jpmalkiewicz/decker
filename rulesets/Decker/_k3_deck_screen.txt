@@ -34,7 +34,6 @@ english
 				_x[0] = _x[0] + _width
 				sorting_order_function = &_sorting_order_function
 				on_mouse_up = FUNCTION
-					LOCAL.k = scrollpane.component[0].component[0].component[0]
 					sortTable(scrollpane.displayed_element, &sorting_order_function)
 
 		LOCAL.table_button_x = ARRAY
@@ -135,6 +134,21 @@ english
 			t.cell_x = createArray (CENTER, 8, CENTER, CENTER, CENTER, CENTER, CENTER)
 			t.cell_y = CENTER
 			t.selected_row_background = @TABLE_SELECTED_ROW_BACKGROUND
+			t.can_drag_rows = true
+			t.on_row_drag = FUNCTION (table, old_row_index, new_row_index)
+				// rearrange the programs n the player deck accordingly
+				LOCAL.p = player.deck.program
+				LOCAL.backup = p[old_row_index]
+				LOCAL.i = old_row_index
+				if old_row_index > new_row_index
+					while i > new_row_index
+						p[i] = p[i-1]
+						i = i - 1
+				else
+					while i < new_row_index
+						p[i] = p[i+1]
+						i = i + 1
+				p[new_row_index] = backup
 			LOCAL.p = player.deck.program
 			LOCAL.state = UNDEFINED
 			LOCAL.loaded = UNDEFINED

@@ -1,4 +1,6 @@
 2007-10-02
+  table rows can be dragged
+  the table sorting buttons on the deck screen work again
   events get handed on to table cells
   fixed a few small bugs in connection with event consumption
   removed all repaint() calls, now input events don't slow down the game anymore

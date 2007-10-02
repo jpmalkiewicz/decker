@@ -242,10 +242,13 @@ english
 	RULESET.sortTable = FUNCTION (table, comparator)
 		LOCAL.a = 0
 		LOCAL.b = 0
-		LOCAL.c = table.component
+		LOCAL.c = table.cell
 		LOCAL.d = 0
 		LOCAL.swap = false
 		LOCAL.reverse = true
+		LOCAL.selected_row = UNDEFINED
+		if table.selected_row >= 0 && table.selected_row < table.rows
+			selected_row = table.cell[table.selected_row]
 		// determine if the table is already in order
 		while a+1 < c.size
 			reverse = reverse && comparator(a, a+1) >= 0
@@ -257,13 +260,23 @@ english
 			b = c.size - 1
 			while b > a
 				if reverse * comparator(a, b) < 0
-					swapTableRows(table, a, b)
+					swap = c[a]
+					c[a] = c[b]
+					c[b] = swap
 					// swap the programs on the deck
 					swap = player.deck.program[a]
 					player.deck.program[a] = player.deck.program[b]
 					player.deck.program[b] = swap
 				b = b - 1
 			a = a + 1
+		// move the row selection
+		if selected_row != UNDEFINED
+			a = table.rows-1
+			while a >= 0
+				if c[a] == selected_row
+					table.selected_row = a
+					a = -1
+				a = a - 1
 
 	
 	// sets the back button's image to whereever it currently leads back to

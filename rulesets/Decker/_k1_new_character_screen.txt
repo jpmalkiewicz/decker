@@ -33,15 +33,15 @@ english
 		adjust_button = FUNCTION (button, is_selected)
 			if is_selected == true
 				// it is selected, mark it
-				button.idle.font = TEXT_STYLE_BOLD.font
+				button.idle.font = @TEXT_STYLE_BOLD.font
 				button.idle.color = @NCS_SELECTED_SKILL_COLOR
 				button.pressed.font = button.idle.font
 				button.pressed.color = button.idle.color
 			else
 				// it is not selected, unmark it
-				button.idle.font = TEXT_STYLE.font
+				button.idle.font = @TEXT_STYLE.font
 				button.idle.color = @NCS_UNSELECTED_SKILL_COLOR
-				button.pressed.font = TEXT_STYLE_BOLD.font
+				button.pressed.font = @TEXT_STYLE_BOLD.font
 				button.pressed.color = @NCS_PRESSED_SKILL_COLOR
 		LOCAL.bonus_button_function = FUNCTION
 			// mark this button and unmark the old selected button unless it's the same button
@@ -67,7 +67,7 @@ english
 			height = 20
 			user_input.color = @NCS_USER_INPUT_COLOR
 			user_input.text = "Hacker X"
-			user_input.font = TEXT_STYLE_BOLD.font
+			user_input.font = @TEXT_STYLE_BOLD.font
 			user_input.y = 3
 			cursor = COMPONENT
 				x = 0
