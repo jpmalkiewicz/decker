@@ -189,8 +189,16 @@ class UITable
 			}
 		}
 		// change the selected row
-		if (!d.get("selected_row_background").equalsConstant("UNDEFINED") && DefaultView.inside(x, y, total_width, ch*rows, d))
-			d.get("selected_row").set(y/d.get("cell_height").integer());
+		if (!d.get("selected_row_background").equalsConstant("UNDEFINED") && DefaultView.inside(x, y, total_width, ch*rows, d)) {
+			q = d.get("selected_row");
+			int old_selected_row = (q.type() != Value.INTEGER) ? -1 : q.integer();
+			if (old_selected_row != y/ch) {
+				Value old = new Value().setDirectly(q);
+				q.set(y/ch);
+				if ((q=d.get("on_selection_change")) != null && q.typeDirect() == Value.FUNCTION)
+					FunctionCall.executeFunctionCall(q.function(), new Value[]{ new Value().set(d), old, new Value().set(y/ch) }, ScriptNode.KEEP_STACK);
+			}
+		}
 		// spread the event
 		final Value[] cells = d.get("cell").array();
 		for (int j = 0; j < rows; j++) {

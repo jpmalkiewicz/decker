@@ -244,6 +244,7 @@ english
 			//cell_x // x value of cell content. works like cell_h_align
 			//cell_y // y value of cell content. works like cell_h_align
 			// on_row_drag           // put an event handler function here if you want to react to rows getting dragged
+			// on_selection_change   // put an event handler function here if you want to react to rows getting selected or deselected by the player
 			width = 0
 			height = 0
 			initializer = FUNCTION

@@ -1,3 +1,6 @@
+2007-10-03
+  added a trashcan image
+  deckscreen now has a trashcan button while a program is selected
 2007-10-02
   the status_off bitmap now uses an alpha channel. 32 bit .bmp files are now loadable, the pixel data is interpreted as aarrggbb
   table rows can be dragged
