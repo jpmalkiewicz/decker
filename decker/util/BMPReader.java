@@ -92,8 +92,6 @@ public class BMPReader
 				}
 				image = new BufferedImage(nwidth, nheight, BufferedImage.TYPE_INT_ARGB);
 				((BufferedImage)image).setRGB(0, 0, nwidth, nheight, ndata, 0, nwidth);
-System.out.println(image.getWidth(null)+" "+image.getHeight(null));
-System.out.println("colors : "+Integer.toString(ndata[0],16)+" "+Integer.toString(ndata[9+9*18],16));
 				return image;
 			}
 			else if (nbitcount==24)

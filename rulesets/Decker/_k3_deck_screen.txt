@@ -45,13 +45,14 @@ english
 		load_1_text = createText("", scrollpane.x+scrollpane.width, current_load_text.y+18, , , LEFT)
 		load_2_text = createText("", scrollpane.x+scrollpane.width, current_load_text.y+18*2, , , LEFT)
 		optional_hardware = COLLECTION
-
+		trashcan_wrapper = COMPONENT
 			
 		component = ARRAY
 			SCREEN_BACKGROUND
 				width = screen_width
 				height = screen_height
 			back_button
+			trashcan_wrapper
 			BORDER_BUTTON
 				x = back_button.x - 10 - 24
 				y = back_button.y
@@ -149,6 +150,18 @@ english
 						p[i] = p[i+1]
 						i = i + 1
 				p[new_row_index] = backup
+			t.on_selection_change = FUNCTION (table, old_selected_row, new_selected_row)
+				if new_selected_row >= 0 && new_selected_row < table.rows
+					if trashcan_wrapper.component == UNDEFINED
+						trashcan_wrapper.component = BORDER_BUTTON
+							x = scrollpane.x-3
+							y = back_button.y
+							idle = "trashcan0"
+							on_mouse_up = FUNCTION
+								trashcan_wrapper.component = UNDEFINED
+				else
+					trashcan_wrapper.component = UNDEFINED
+					
 			LOCAL.p = player.deck.program
 			LOCAL.state = UNDEFINED
 			LOCAL.loaded = UNDEFINED
