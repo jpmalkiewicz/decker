@@ -26,6 +26,8 @@ public final class DefaultView extends AbstractView
 
 
 	public void drawContent (final Value display_this, int dx, int dy, final int parent_width, final int parent_height)  {
+		final int w = width(display_this);
+		final int h = height(display_this);
 		if (display_this.type() != Value.STRUCTURE) {
 			if (!display_this.equalsConstant("UNDEFINED")) {
 				// treat it as a string and fetch the corresponding image
@@ -49,8 +51,6 @@ public final class DefaultView extends AbstractView
 			}
 			final int x = x(d, parent_width);
 			final int y = y(d, parent_height);
-			final int w = width(d);
-			final int h = height(d);
 			// adjust the Frame if this is the top level view
 			if (parent_width == Integer.MIN_VALUE)  {
 				// set the window title - it may have changed during code execution
@@ -104,6 +104,9 @@ public final class DefaultView extends AbstractView
 				int thickness = 2;
 				if ((v=d.get("thickness")).type() == Value.INTEGER)
 					thickness = v.integer();
+				else if ((v=ScriptNode.getValue("DEFAULT_BORDER_THICKNESS")).type() == Value.INTEGER)
+					thickness = v.integer();
+
 				// if we have enough colors, draw the border
 				if (!vlc.equalsConstant("UNDEFINED")) {
 					final int w1 = w-1;
@@ -181,6 +184,21 @@ public final class DefaultView extends AbstractView
 			// restore the clipping area if the currently displayed element has changed it, e.g. a DRAWING_BOUNDARY structure
 			if (clip != NO_CLIP_CHANGE)
 				g.setClip(clip);
+		}
+		// display the overlays if this is the top level screen element
+		if (parent_width == Integer.MIN_VALUE)  {
+			Value q = ScriptNode.getStackEntry(ScriptNode.ENGINE_STACK_SLOT).get("screen_overlays");
+			if (q != null) {
+				if (q.type() == Value.ARRAY) {
+					final Value[] overlays = q.array();
+					final int ocount = overlays.length;
+					for (int i = 0; i < ocount; i++)
+						drawContent(overlays[i], dx, dy, w, h);
+				}
+				else if (!q.equalsConstant("UNDEFINED")) {
+					drawContent(q, dx, dy, w, h);
+				}
+			}
 		}
 	}
 

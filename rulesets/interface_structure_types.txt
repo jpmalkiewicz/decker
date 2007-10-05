@@ -1,16 +1,7 @@
 english
+// interface component types **************************************************************************************************************************
 
 	structure
-		COLLECTION
-			expandable = true
-
-
-		GLOBAL
-			expandable = true
-
-
-// interface element types ****************************************************************************************************************************
-
 
 		DRAWING_BOUNDARY // limits the area where things can be drawn to the given rectangle. all drawings which are in the component array of the DRAWING_BOUNDARY get cut off at the edge of the rectangle and only display inside
 			x
@@ -76,7 +67,7 @@ english
 			text
 			// font           // a string, may contain several ; separated font settings (in arbitrary order, but later settings override earlier ones) : font face (Arial), font size (10pt) and font style (plain, bold, italic), e.g. "Arial;10pt;plain" or "bold;italic;Courier New;12pt". if style is omitted, plain is used. if font face or font size is omitted, the current settings are used, not the settings from the parent view element
 			// color          // a color, using the html color format #rrggbb
-			
+
 
 		TEXTFIELD
 			expandable = true

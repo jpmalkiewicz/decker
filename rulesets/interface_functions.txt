@@ -1,4 +1,10 @@
 english
+	ENGINE.addScreenOverlay = FUNCTION (overlay)
+		if ENGINE.screen_overlays == UNDEFINED
+			ENGINE.screen_overlays = ARRAY
+		ENGINE.screen_overlays[] = overlay
+
+
 	ENGINE.addTableRow = FUNCTION (table)
 		// create the new table row
 		LOCAL.row = ARRAY
@@ -41,142 +47,25 @@ english
 		// adjust the table size
 		table.rows = table.cell.size
 		table.height = table.cell_height * table.rows
-		
-		
-	// creates a border with the given values
-	ENGINE.createBorder = FUNCTION (bx, by, bwidth, bheight, bbackground_color, binverted, bcolor1, bcolor2)
-		return_value = BORDER
-			x        = &bx
-			y        = &by
-			width    = &bwidth
-			height   = &bheight
-			background_color = &bbackground_color
-			inverted = binverted == true
-			if &bcolor1 != UNDEFINED
-				top_color = &bcolor1
-			if &bcolor2 != UNDEFINED
-				bottom_color = &bcolor2
-			
-	
-	ENGINE.createScrollbar = FUNCTION (_x, _y, _width, _height, _vertical, _slider, _slider_max, _up_left_arrow, _down_right_arrow, _slider_stepping, _slider_position)
-		return_value = SCROLLBAR
-			x = _x
-			y = _y
-			width = _width
-			height = _height
-			vertical = _vertical != false
-			if _slider_stepping != UNDEFINED
-				slider_stepping = _slider_stepping
-			if _slider_max != UNDEFINED
-				slider_max = _slider_max
-			// add the slider and the optional arrow buttons
-			if value_type(_slider) == "STRING"      // it's the name of an image. we need to turn it into a button
-// !!
-//				debug("a")
-				LOCAL.b = _slider
-//				debug("b")
-// !! end
-				_slider = BUTTON
-					idle = b
-//					idle = _slider
-//				debug(_slider)
-			if vertical
-				_slider.x = CENTER
-				_slider.y = 0   // the y position is adjusted every time the SCROLLBAR is drawn. this way it can adjust to mods with different sized buttons
-			else
-				_slider.x = 0
-				_slider.y = CENTER  // the x position is adjusted every time the SCROLLBAR is drawn. this way it can adjust to mods with different sized buttons
-			_slider.on_mouse_down = FUNCTION (mouse_x, mouse_y)
-				SCROLLBAR.slider_dragging = vertical ? mouse_y : mouse_x
-			component[0] = _slider
-			if _up_left_arrow != UNDEFINED
-				if value_type(_up_left_arrow) == "STRING"      // it's the name of an image. we need to turn it into a button
-					_up_left_arrow = BUTTON
-						idle = _up_left_arrow
-				if vertical
-					_up_left_arrow.x = CENTER
-					_up_left_arrow.y = 0
-				else
-					_up_left_arrow.x = 0
-					_up_left_arrow.y = CENTER
-				_up_left_arrow.on_mouse_down = FUNCTION
-					setSliderPosition(SCROLLBAR.this, slider_position - slider_stepping)
-				component[1] = _up_left_arrow
-			if _down_right_arrow != UNDEFINED
-				if value_type(_down_right_arrow) == "STRING"      // it's the name of an image. we need to turn it into a button
-					_down_right_arrow = BUTTON
-						idle = _down_right_arrow
-				if vertical
-					_down_right_arrow.x = CENTER
-					_down_right_arrow.y = BOTTOM
-				else
-					_down_right_arrow.x = RIGHT
-					_down_right_arrow.y = CENTER
-				_down_right_arrow.on_mouse_down = FUNCTION
-					setSliderPosition(SCROLLBAR.this, slider_position + slider_stepping)
-				component[2] = _down_right_arrow
 
 
-	// image_array must contain 1-3 entries : [0] the slider, [1] the up/left arrow, [2] the down/right arrow
-	ENGINE.createSimpleScrollbar = FUNCTION (boundingwidth, boundingheight, image_array, vertical)
-		if vertical
-			return_value = createScrollbar(RIGHT, 0, , boundingheight, true, image_array[0], 0, image_array[1], image_array[2])
-		else
-			return_value = createScrollbar(0, BOTTOM, boundingwidth, , false, image_array[0], 0, image_array[1], image_array[2])
-				
-
-	ENGINE.createTable = FUNCTION (pcolumns, pcell_height, pcell_width)
-		return_value = TABLE
-			columns = &pcolumns
-			cell_height = &pcell_height
-			if argument.size == 3
-				cell_width = pcell_width
-			else
-				cell_width = ARRAY
-				LOCAL.i = 2
-				while i < argument.size
-					width = width + argument[i]  // the width of the table
-					cell_width[] = &argument[i]
-					i = i + 1
-				columns = cell_width.size
+	ENGINE.displayScreen = FUNCTION (screen, remember_old_screen)
+		if screen.structure_type != UNDEFINED && screen != displayed_screen
+			if remember_old_screen
+				previous_displayed_screen[] = displayed_screen
+			displayed_screen = screen
+			screen_overlays = UNDEFINED  // remove the screen overlays which have been displayed on top of the old screen
 
 
-	// returns a new TEXT with the default settings as defined in the TEXT stored in TEXT_STYLE
-	ENGINE.createText = FUNCTION (text, x, y, color, font, h_align, v_align, width, height)
-		return_value = copy(@TEXT_STYLE)
-		// for all settings which are not defined, the default settings will be used
-		if text != UNDEFINED
-			return_value.text = &text
-		if x != UNDEFINED
-			return_value.x = &x
-		if y != UNDEFINED
-			return_value.y = &y
-		if color != UNDEFINED
-			return_value.color = &color
-		if font != UNDEFINED
-			return_value.font = &font
-		if h_align != UNDEFINED
-			return_value.h_align = &h_align
-		if v_align != UNDEFINED
-			return_value.v_align = &v_align
-		if width != UNDEFINED
-			return_value.v_align = &width
-		if height != UNDEFINED
-			return_value.v_align = &height
-			
-	
-	// returns a new TEXT with the default settings as defined in the TEXT stored in TEXT_STYLE
-	ENGINE.createTextBold = FUNCTION (text, x, y, color, font)
-		return_value = copy(@TEXT_STYLE_BOLD)
-		// for all settings which are not defined, the default settings will be used
-		if x != UNDEFINED
-			return_value.x = &x
-		if y != UNDEFINED
-			return_value.y = &y
-		if color != UNDEFINED
-			return_value.color = &color
-		if font != UNDEFINED
-			return_value.font = &font
+	ENGINE.displayPreviousScreen = FUNCTION
+		if previous_displayed_screen.size > 0
+			displayed_screen = delete(previous_displayed_screen, previous_displayed_screen.size-1)
+			screen_overlays = UNDEFINED  // remove the screen overlays which have been displayed on top of the old screen
+
+
+	ENGINE.getPreviousScreen = FUNCTION
+		if previous_displayed_screen.size > 0
+			return_value = previous_displayed_screen[previous_displayed_screen.size-1]
 
 
 	// returns the name of the image to be displayed, deducing it from the state "0" image. e.g. deduceImageName("my_button0", "1") will return "my_button1" if an image "my_button1.*" exists, otherwise it returns "my_button0"
@@ -201,6 +90,12 @@ english
 							return_value = substring(base_name,0,k) + new_suffix
 
 
+	ENGINE.removeScreenOverlay = FUNCTION (overlay)
+		LOCAL.index = indexof(overlay, ENGINE.screen_overlays)
+		if index != UNDEFINED
+			delete(ENGINE.screen_overlays, index)
+
+
 	ENGINE.scrollbarDrawFunction = FUNCTION (_scrollbar)
 		if _scrollbar.vertical
 			LOCAL.physical_range = _scrollbar.height - pixelheight(_scrollbar.component[0]) - pixelheight(_scrollbar.component[1]) - pixelheight(_scrollbar.component[2])
@@ -208,15 +103,6 @@ english
 		else
 			LOCAL.physical_range = _scrollbar.width - pixelwidth(_scrollbar.component[0]) - pixelwidth(_scrollbar.component[1]) - pixelwidth(_scrollbar.component[2])
 			_scrollbar.component[0].x = pixelwidth(_scrollbar.component[1]) + (physical_range * _scrollbar.slider_position + _scrollbar.slider_max/2) / _scrollbar.slider_max
-	
-	
-	// sets a line to the given values. this function purely exists to simplify scripts
-	ENGINE.setLine = FUNCTION (line, x, y, x2, y2, color)
-		line.x     = &x
-		line.y     = &y
-		line.x2    = &x2
-		line.y2    = &y2
-		line.color = &color
 
 
 	// moves the slider of a scrollbar to a new logical position
@@ -265,7 +151,7 @@ english
 					content.h_align = table.cell_h_align
 				else
 					content.h_align = table.cell_h_align[i]
-				
-				
+
+
 	ENGINE.getTableCell = FUNCTION (table, row, column)
 		return_value = table.cell[row][column]
