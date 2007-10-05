@@ -26,7 +26,7 @@ public final class Ruleset
 		final Structure structure_types = new Structure("SET");
 		data.add("STRUCTURE_TYPES").set(structure_types);
 		if (ruleset_name.equals("")) { // if this is the engine ruleset, add the standard structure type ARRAY
-			final String[] expandable_structure_types = {"ENGINE", "LOCAL", "RULESET"};
+			final String[] expandable_structure_types = { "COLLECTION", "ENGINE", "GLOBAL", "LOCAL", "RULESET", "SET" };
 			for (int i = 0; i < expandable_structure_types.length; i++) {
 				final Structure s = new Structure(expandable_structure_types[i]);
 				s.addDirectly("expandable").set(true);

@@ -1,0 +1,6 @@
+english
+	ENGINE.DEFAULT_BORDER_THICKNESS = 2
+
+	ENGINE.displayed_screen = UNDEFINED         // the currently displayed screen
+
+	ENGINE.previous_displayed_screen = ARRAY    // this is the array of previously displayed screens. it is maintained by the different screen setter / getter functions

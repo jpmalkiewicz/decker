@@ -1,3 +1,6 @@
+2007-10-05
+  some general code testing and debugging / optimizing
+  in the process of adding screen overlays (for tooltips and popups) (event forwarding not done yet, createPopup unfinished)
 2007-10-03
   added a trashcan image
   deckscreen now has a trashcan button while a program is selected
