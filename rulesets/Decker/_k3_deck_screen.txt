@@ -1,10 +1,10 @@
 english
 	RULESET.deck_screen = COMPONENT
 		title = "Decker - Deck"
-				
+
 		LOCAL.screen_width = 540
 		LOCAL.screen_height = 445
-				
+
 		back_button = BORDER_BUTTON
 			x = screen_width - 18 - 24
 			y = screen_height - 18 - 24
@@ -22,7 +22,7 @@ english
 				"scroller_up_blue0"
 				"scroller_down_blue0"
 			displayed_element = test_table
-			
+
 		LOCAL.createTableButton = FUNCTION (_text, _width, _x, _sorting_order_function)
 			return_value = BORDER_BUTTON
 				x = _x[0]
@@ -39,14 +39,14 @@ english
 		LOCAL.table_button_x = ARRAY
 			scrollpane.x - 1
 			scrollpane.y
-			
+
 		current_load_text = createText("", scrollpane.x+100, screen_height-68)
 		load_0_text = createText("", scrollpane.x+scrollpane.width, current_load_text.y, , , LEFT)
 		load_1_text = createText("", scrollpane.x+scrollpane.width, current_load_text.y+18, , , LEFT)
 		load_2_text = createText("", scrollpane.x+scrollpane.width, current_load_text.y+18*2, , , LEFT)
 		optional_hardware = COLLECTION
 		trashcan_wrapper = COMPONENT
-			
+
 		component = ARRAY
 			SCREEN_BACKGROUND
 				width = screen_width
@@ -80,7 +80,7 @@ english
 			createTableButton("Loaded",  54, table_button_x, &compareProgramsLoaded)
 			createTableButton("Default", 54, table_button_x, &compareProgramsDefault)
 			optional_hardware   // the optional hardware texts will be stored in optional_hardware.component
-			
+
 			// the current load section
 			createText("Current Load", scrollpane.x, current_load_text.y)
 			current_load_text
@@ -90,7 +90,7 @@ english
 			load_1_text
 			createText(LOAD_TEXT[2]+" Load", load_2_text.x-155, load_2_text.y)
 			load_2_text
-					
+
 		chip_text = ARRAY
 		LOCAL.i = 0
 		while i < 6
@@ -98,8 +98,8 @@ english
 			chip_text[i].h_align = LEFT
 			component[] = chip_text[i]
 			i = i + 1
-			
-			
+
+
 		setup = FUNCTION
 			updateBackButton(deck_screen.back_button)
 			deck_screen.chip_text[0].text = player.deck.cpu
@@ -129,7 +129,7 @@ english
 				while i < player.deck.optional_hardware.size
 					deck_screen.optional_hardware.component[] = createText(player.deck.optional_hardware[i].name, xoff+160, 17+(i+1-second_column)*16)
 					i = i + 1
-			
+
 			// create the new software table ***********************************************************************************************************
 			LOCAL.t = createTable ( , 18, 19, 116, 54, 54, 54, 54, 54)
 			t.cell_x = createArray (CENTER, 8, CENTER, CENTER, CENTER, CENTER, CENTER)
@@ -154,18 +154,35 @@ english
 				if new_selected_row >= 0 && new_selected_row < table.rows
 					if trashcan_wrapper.component == UNDEFINED
 						trashcan_wrapper.component = BORDER_BUTTON
-							x = scrollpane.x-3
+							x = scrollpane.x-2
 							y = back_button.y
 							idle = "trashcan0"
 							on_mouse_up = FUNCTION
-								trashcan_wrapper.component = UNDEFINED
+								LOCAL.button_ok = createBorderButton("ok0")
+								button_ok.on_mouse_up = FUNCTION
+									LOCAL.index = deck_screen.scrollpane.displayed_element.selected_row
+									setProgramState(player.deck, player.deck.program[index], INSTALLED)
+									delete(player.deck.program, index)
+									deleteTableRow(deck_screen.scrollpane.displayed_element, index)
+									deleteScreenOverlay(popup)
+									deck_screen.trashcan_wrapper.component = UNDEFINED
+									deck_screen.current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
+									return_value = true
+								LOCAL.button_cancel = createBorderButton("cancel0")
+								button_cancel.on_mouse_up = FUNCTION
+									deleteScreenOverlay(popup)
+									return_value = true
+								LOCAL.popup = createPopup("Really delete "+player.deck.program[deck_screen.scrollpane.displayed_element.selected_row].name+"?", button_cancel, button_ok)
+								button_ok.popup = popup
+								button_cancel.popup = popup
+								addScreenOverlay(popup)
 				else
 					trashcan_wrapper.component = UNDEFINED
-					
+
 			LOCAL.p = player.deck.program
 			LOCAL.state = UNDEFINED
 			LOCAL.loaded = UNDEFINED
-			
+
 			LOCAL.default_function = FUNCTION
 				if prog.state == DEFAULT
 					setProgramState(player.deck, prog, LOADED)
@@ -183,7 +200,7 @@ english
 					setProgramState(player.deck, prog, DEFAULT)
 					idle = "status_on"
 					deck_screen.current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
-				
+
 			LOCAL.load_function = FUNCTION
 				if prog.state == DEFAULT
 					LOCAL.index = indexof(prog, player.deck.program)
@@ -191,7 +208,7 @@ english
 				setProgramState(player.deck, prog, prog.state != INSTALLED ? INSTALLED : LOADED)
 				idle = prog.state == INSTALLED ? "status_off" : "status_on"
 				deck_screen.current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
-			
+
 			i = 0
 			while i < p.size
 				loaded = BUTTON
@@ -205,7 +222,7 @@ english
 						on_mouse_down = &default_function
 				else
 					state = createText("")
-				
+
 				addTableRow(t, p[i].type.image, createText(p[i].name,,,@TABLE_TEXT_COLOR), createText(p[i].type.name,,,@TABLE_TEXT_COLOR), createText(p[i].rating,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR), loaded, state)
 				i = i + 1
 			deck_screen.scrollpane.displayed_element = t

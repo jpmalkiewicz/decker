@@ -318,6 +318,8 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 			// if this is a BUTTON, use the definition for the idle state instead
 			if (type.equals("BUTTON") && !d.get("idle").equalsConstant("UNDEFINED"))
 				return height(d.get("idle"));
+			if (type.equals("BORDER_BUTTON") && !d.get("idle").equalsConstant("UNDEFINED"))
+				return height(d.get("idle")) + 2*ScriptNode.getValue("DEFAULT_BORDER_THICKNESS").integer();
 			// if this is a STRING, determine its height
 			if (type.equals("TEXT")) {
 				if ((v=d.get("font")) != null && v.type() == Value.STRING)
@@ -384,6 +386,8 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 			// if this is a BUTTON, use the definition for the idle state instead
 			if (type.equals("BUTTON") && !d.get("idle").equalsConstant("UNDEFINED"))
 				return width(d.get("idle"));
+			if (type.equals("BORDER_BUTTON") && !d.get("idle").equalsConstant("UNDEFINED"))
+				return width(d.get("idle")) + 2*ScriptNode.getValue("DEFAULT_BORDER_THICKNESS").integer();
 			// if this is a STRING, calculate its width
 			if (type.equals("TEXT")) {
 				FontMetrics fm;

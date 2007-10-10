@@ -1,3 +1,8 @@
+2007-10-10
+  fixed lots of bugs
+  the event system now supports event consumption
+  and screen overlays can process events
+  it's possible to delete programs and the deck screen has a confirmation popup
 2007-10-05
   some general code testing and debugging / optimizing
   in the process of adding screen overlays (for tooltips and popups) (event forwarding not done yet, createPopup unfinished)
