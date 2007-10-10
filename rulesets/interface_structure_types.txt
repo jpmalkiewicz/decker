@@ -136,31 +136,6 @@ english
 			thickness = 2
 
 
-		SCREEN_BACKGROUND
-			x = 0
-			y = 0
-			width
-			height
-			component
-			initializer = FUNCTION
-				component = ARRAY
-					createBorder(0,0)
-			on_draw = FUNCTION
-				component[0].width = width
-				component[0].height = height
-				if BACKGROUND_COLOR2 == UNDEFINED
-					component[0].background_color = @BACKGROUND_COLOR
-					if component[1] != UNDEFINED
-						component[1] = UNDEFINED
-				else
-					if component[1] == UNDEFINED
-						component[1] = createBorder(5, 5, 0, 0)
-					component[1].width = width-10
-					component[1].height = height-10
-					component[1].background_color = @BACKGROUND_COLOR
-					component[0].background_color = @BACKGROUND_COLOR2
-
-
 		BORDER_BUTTON
 			expandable = true
 			x
@@ -220,26 +195,42 @@ english
 					component[1].y = 2 + padding/2
 
 
-		TABLE
-			expandable = true
-			rows = 0                 // number of rows in this table
-			columns                  // number of columns in this table
-			cell                     // two dimensional array containing the cells
-			selected_row             // 0 - (rows-1) = row selected, all other values = no row selected
-			selected_row_background  // if this is non-UNDEFINED, rows can be selected
-			can_drag_rows            // set this to true to enable rearranging the table by dragging rows. will be set to the y value of the current drag point while a row is getting dragged
-			cell_height              // all rows have the same height
-			cell_width               // array containing the width for each column
-			//cell_h_align           // default horizontal alignment of cell content. if it's defined in an ARRAY it's entries are used as the default horizontal alignment of cell content for each column. this value will only be used if the cell content doesn't have a valid value for v_align. watch out, the alignment setting gets set for the cell content. if the same thing is displayed in different cells (even from different tables), the cell that gets displayed first determines its alignment, if cell_alignment_x is set
-			//cell_v_align           // default vertical alignment of cell content, works like cell_h_align
-			//cell_x // x value of cell content. works like cell_h_align
-			//cell_y // y value of cell content. works like cell_h_align
-			// on_row_drag           // put an event handler function here if you want to react to rows getting dragged
-			// on_selection_change   // put an event handler function here if you want to react to rows getting selected or deselected by the player
-			width = 0
-			height = 0
+		EVENT_BLOCKER    // the event handler will stop at this component with all input events. on_draw events pass through
+			on_draw
+			on_key_down      = &trueFunction
+			on_mouse_down    = &trueFunction
+			on_mouse_dragged = &trueFunction
+			on_mouse_moved   = &trueFunction
+			on_mouse_up      = &trueFunction
+			x = -900000
+			y = x
+			width = -2*x
+			height = -2*x
+
+
+		SCREEN_BACKGROUND
+			x = 0
+			y = 0
+			width
+			height
+			component
 			initializer = FUNCTION
-				cell = ARRAY
+				component = ARRAY
+					createBorder(0,0)
+			on_draw = FUNCTION
+				component[0].width = width
+				component[0].height = height
+				if BACKGROUND_COLOR2 == UNDEFINED
+					component[0].background_color = @BACKGROUND_COLOR
+					if component[1] != UNDEFINED
+						component[1] = UNDEFINED
+				else
+					if component[1] == UNDEFINED
+						component[1] = createBorder(5, 5, 0, 0)
+					component[1].width = width-10
+					component[1].height = height-10
+					component[1].background_color = @BACKGROUND_COLOR
+					component[0].background_color = @BACKGROUND_COLOR2
 
 
 		SCROLLBAR  // a vertical scrollbar
@@ -396,3 +387,25 @@ english
 				component[0].component.x = hscrollbar == false ? 0 : -hscrollbar.slider_position
 				component[0].component.y = vscrollbar == false ? 0 : -vscrollbar.slider_position
 				component[0].component.component = displayed_element
+
+
+		TABLE
+			expandable = true
+			rows = 0                 // number of rows in this table
+			columns                  // number of columns in this table
+			cell                     // two dimensional array containing the cells
+			selected_row             // 0 - (rows-1) = row selected, all other values = no row selected
+			selected_row_background  // if this is non-UNDEFINED, rows can be selected
+			can_drag_rows            // set this to true to enable rearranging the table by dragging rows. will be set to the y value of the current drag point while a row is getting dragged
+			cell_height              // all rows have the same height
+			cell_width               // array containing the width for each column
+			//cell_h_align           // default horizontal alignment of cell content. if it's defined in an ARRAY it's entries are used as the default horizontal alignment of cell content for each column. this value will only be used if the cell content doesn't have a valid value for v_align. watch out, the alignment setting gets set for the cell content. if the same thing is displayed in different cells (even from different tables), the cell that gets displayed first determines its alignment, if cell_alignment_x is set
+			//cell_v_align           // default vertical alignment of cell content, works like cell_h_align
+			//cell_x // x value of cell content. works like cell_h_align
+			//cell_y // y value of cell content. works like cell_h_align
+			// on_row_drag           // put an event handler function here if you want to react to rows getting dragged
+			// on_selection_change   // put an event handler function here if you want to react to rows getting selected or deselected by the player
+			width = 0
+			height = 0
+			initializer = FUNCTION
+				cell = ARRAY

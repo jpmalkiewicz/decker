@@ -49,6 +49,21 @@ english
 		table.height = table.cell_height * table.rows
 
 
+	ENGINE.deleteScreenOverlay = FUNCTION (overlay)
+		LOCAL.index = indexof(overlay, ENGINE.screen_overlays)
+		if index != UNDEFINED
+			delete(ENGINE.screen_overlays, index)
+
+
+	ENGINE.deleteTableRow = FUNCTION (table, row_index)
+		if row_index >= 0 && row_index < table.rows
+			table.rows = table.rows - 1
+			table.height = table.cell_height * table.rows
+			delete(table.cell, row_index)
+			if row_index == table.selected_row
+				table.selected_row = UNDEFINED     // this will not trigger the "on_selection_change" event
+
+
 	ENGINE.displayScreen = FUNCTION (screen, remember_old_screen)
 		if screen.structure_type != UNDEFINED && screen != displayed_screen
 			if remember_old_screen
@@ -88,12 +103,6 @@ english
 					if file_type == ".gif" || file_type == ".png" || file_type == ".bmp" ||file_type == ".jpg" || file_type == ".jpeg"
 						if image_exists(substring(base_name,0,k) + new_suffix)
 							return_value = substring(base_name,0,k) + new_suffix
-
-
-	ENGINE.removeScreenOverlay = FUNCTION (overlay)
-		LOCAL.index = indexof(overlay, ENGINE.screen_overlays)
-		if index != UNDEFINED
-			delete(ENGINE.screen_overlays, index)
 
 
 	ENGINE.scrollbarDrawFunction = FUNCTION (_scrollbar)

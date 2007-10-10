@@ -7,13 +7,13 @@ english
 			i = i + 1
 
 
-	// returns the maximum value from a list of parameters. min(1) returns 1, min(4,5,6,7) returns 7
+	// returns the maximum value from a list of parameters. max(1) returns 1, max(4,5,6,7) returns 7
 	ENGINE.max = FUNCTION
 		LOCAL.i = 1
-		LOCAL.args = argument.length
+		LOCAL.args = argument.size
 		return_value = argument[0]
 		while i < args
-			if return_value > argument[i]
+			if return_value < argument[i]
 				return_value = argument[i]
 			i = i + 1
 
@@ -21,10 +21,14 @@ english
 	// returns the minimum value from a list of parameters. min(1) returns 1, min(4,5,6,7) returns 4
 	ENGINE.min = FUNCTION
 		LOCAL.i = 1
-		LOCAL.args = argument.length
+		LOCAL.args = argument.size
 		return_value = argument[0]
 		while i < args
 			if return_value > argument[i]
 				return_value = argument[i]
 			i = i + 1
 
+
+	// this function will always return true. used by EVENT_EATER
+	ENGINE.trueFunction = FUNCTION
+		return_value = true
