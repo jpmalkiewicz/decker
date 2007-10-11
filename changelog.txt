@@ -1,4 +1,6 @@
 2007-10-10
+  added the rest screen
+  finished up the layout of the deck screen
   fixed lots of bugs
   the event system now supports event consumption
   and screen overlays can process events

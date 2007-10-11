@@ -1,19 +1,22 @@
 english
 	RULESET.character_screen = COMPONENT
 		title = "Decker - Character"
-		
+
+		width = 430
+		height = 300
+
 		lifestyle_text = ARRAY
 			"Poverty"
 			"Lower Class"
 			"Middle Class"
 			"Upper Class"
 			"Elite"
-		
+
 		char_name       = createText("", 130,  15)
 		char_reputation = createText("", 130,  35)
 		char_money      = createText("", 130,  55)
 		char_health     = createText("", 130,  75)
-		date            = createText("",   0,  15)
+		date            = createText("", width-18, 15, , , LEFT)
 
 		attack_points      = createText("", RIGHT,   0)
 		defense_points     = createText("", RIGHT,  20)
@@ -42,7 +45,7 @@ english
 				programming_points
 				chip_design_points
 				skill_points
-			
+
 		lifestyle         = createText("", RIGHT,   0)
 		monthly_cost      = createText("", RIGHT,  20)
 		monthly_cost_due  = createText("", RIGHT,  40)
@@ -81,7 +84,7 @@ english
 						if player.lifestyle + 1 < LIFESTYLE_COST.size && player.money >= LIFESTYLE_UPGRADE_COST[player.lifestyle]
 							component[0] = lifestyle_upgrade_button
 						else
-							component[0] = UNDEFINED				
+							component[0] = UNDEFINED
 		lifestyle_panel_border = createBorder(lifestyle_panel.x-10, lifestyle_panel.y-9, lifestyle_panel.width+20, lifestyle_panel.height+20, UNDEFINED, true)
 		back_button = BORDER_BUTTON
 			x = 430 - 18 - 24
@@ -89,7 +92,7 @@ english
 			idle = "home/home"
 			on_mouse_up = FUNCTION
 				displayPreviousScreen()
-			
+
 		component = ARRAY
 			SCREEN_BACKGROUND
 				width = 430
@@ -98,10 +101,10 @@ english
 			skill_panel
 			lifestyle_panel_border
 			lifestyle_panel
-			createText("Name",            20, 15)
-			createText("Reputation",      20, 35)
-			createText("Money",           20, 55)
-			createText("Physical Health", 20, 75)
+			createText("Name",            15, 15)
+			createText("Reputation",      15, 35)
+			createText("Money",           15, 55)
+			createText("Physical Health", 15, 75)
 			char_name
 			char_reputation
 			char_money
@@ -163,7 +166,7 @@ english
 				if player.skill_points >= player.chip_design
 					player.skill_points = player.skill_points - player.chip_design
 					player.chip_design = player.chip_design + 1
-			
+
 		skill_panel.component[] = COMPONENT
 			x = skill_panel.width-pixelwidth(createText("20"))*3/2 - 18
 			y = 0
@@ -190,7 +193,6 @@ english
 			char_money.text         = player.money
 			char_health.text        = HEALTH_INCREMENT * (LETHAL_DAMAGE - player.physical_damage) + "%"
 			date.text               = date_text(2132,0,player.age)
-			date.x                  = pixelwidth(character_screen) - pixelwidth(date) - 18
 
 			attack_points.text      = player.attack
 			defense_points.text     = player.defense
@@ -199,9 +201,9 @@ english
 			programming_points.text = player.programming
 			chip_design_points.text = player.chip_design
 			skill_points.text       = player.skill_points
-			
+
 			updateBackButton(back_button)
-			
+
 			lifestyle.text         = lifestyle_text[player.lifestyle]
 			monthly_cost.text      = LIFESTYLE_COST[player.lifestyle]
 			LOCAL.d = date_days_in_month(2132,0,player.age) - date_day_of_month(2132,0,player.age) + 1

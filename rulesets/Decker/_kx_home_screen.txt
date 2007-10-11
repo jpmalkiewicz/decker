@@ -19,7 +19,7 @@ english
 		addEntry("home/contract", "View Contracts",        character_screen, component, 2)
 		addEntry("home/shop",     "Buy Hardware/Software", character_screen, component, 3)
 		addEntry("home/project",  "Projects",              character_screen, component, 4)
-		addEntry("home/rest",     "Rest and Recuperate",   character_screen, component, 5)
+		addEntry("home/rest",     "Rest and Recuperate",   rest_screen,      component, 5)
 		addEntry("home/matrix",   "Enter the Matrix",      character_screen, component, 6)
 		addEntry("home/options",  "Options",               character_screen, component, 7)
 

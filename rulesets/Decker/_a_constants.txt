@@ -2,28 +2,29 @@ english
 	RULESET.LETHAL_DAMAGE = 20
 	RULESET.HEALTH_INCREMENT = 5
 	RULESET.MAX_LIFESTYLE = 4
-	
-	
+	RULESET.HOSPITAL_COSTS = 100   // per day
+
+
 	RULESET.DECK_LOAD_MODIFIER = ARRAY
 		1
 		0
 		-2
-		
-		
+
+
 	RULESET.LIFESTYLE_COST = ARRAY
 		500
 		1000
 		2000
 		4000
 		10000
-	
+
 	RULESET.LIFESTYLE_UPGRADE_COST = ARRAY
 		3*1000
 		3*2000
 		3*4000
 		3*10000
-		
-	
+
+
 	RULESET.LOAD_TEXT = ARRAY
 		"Light"
 		"Normal"
@@ -71,8 +72,8 @@ english
 		10
 		5
 		1
-		
-		
+
+
 	// IDs for categories in which programs can be used as the default program
 	RULESET.DEFAULT_ATTACK = 0
 	RULESET.DEFAULT_ARMOR  = 1
@@ -91,13 +92,13 @@ english
 		YELLOW
 		RED
 		SHUTDOWN
-		
+
 		USELESS           // file types
 		VALUABLE
 		CLUE
 		PASSWORD
 		MISSION_TARGET
-	
+
 		PROGRAM           // thing types
 		HARDWARE
 		CHIP
@@ -107,7 +108,7 @@ english
 		LOADED
 		DEFAULT
 		RUNNING
-		
+
 		ANALYSIS_BOOST    // program types
 		ANALYZE
 		ARMOR
@@ -137,7 +138,7 @@ english
 		STEALTH_BOOST
 		VIRUS
 		WEAKEN
-		
+
 		COPROCESSOR       // chip types
 		// CPU            // this is also a node type
 		// ATTACK         // this is also a program type
@@ -154,7 +155,7 @@ english
 		PROXIMITY_MAPPER
 		DESIGN_ASSISTANT
 		ANTI_TRACE_PROXY
-		
+
 		CPU               // node types
 		SPU
 		DATASTORE

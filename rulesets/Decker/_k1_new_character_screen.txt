@@ -165,10 +165,11 @@ english
 							chip_design = 2
 						money = bonus_name[selected_bonus] == "money" ? 2000 : 100
 // debug stuff START
-						money = money + 10000
+						physical_damage = 3
+						money = money + 9100
 						skill_points = 8
 						LOCAL.i = 6
-						while i < 12
+						while i < 15
 							deck.optional_hardware[] = createHardware(HARDWARE_TYPES[i], random(1,HARDWARE_TYPES[i].max_rating))
 							i = i + 1
 // create the new character END
@@ -188,7 +189,7 @@ english
 				id = i
 				idle = createText(bonus_text[i], CENTER, CENTER)
 				pressed = createText(bonus_text[i], CENTER, CENTER)
-				hover = pressed	
+				hover = pressed
 				on_mouse_up = &bonus_button_function
 			component[] = bonus_button_group[i]
 			adjust_button(bonus_button_group[i], i==0)
