@@ -1,0 +1,104 @@
+english
+	RULESET.rest_screen = COMPONENT
+		title = "Decker - Rest & Recuperate"
+		width = 350
+		height = 300
+
+		char_health       = createText("", 120, 15)
+		char_money        = createText("", 120, 35)
+		monthly_cost      = createText("", 120, 55)
+		date              = createText("", width-15, 15, , , LEFT)
+
+		createSpecialButton = FUNCTION (_y, _image, _text, _text2, _time, _heal_all, _costs)
+			LOCAL.content_width = rest_screen.width - 2 * 14 - 4 * DEFAULT_BORDER_THICKNESS
+			return_value = BORDER_BUTTON
+				x = CENTER
+				y = _y
+				heal_all = _heal_all
+				costs = _costs
+				time = _time
+				idle = COMPONENT
+					width = content_width
+					height = 40
+					component = ARRAY
+						COMPONENT
+							x = 20
+							y = 20
+							width = 0
+							height = 0
+							component = COMPONENT
+								x = CENTER
+								y = CENTER
+								component = _image
+						COMPONENT
+							x = content_width - 20
+							y = 20
+							width = 0
+							height = 0
+							component = COMPONENT
+								x = CENTER
+								y = CENTER
+								component = _image
+						createText(_text, CENTER, _text2 != UNDEFINED ? 4 : 12)
+					if _text2 != UNDEFINED
+						component[] = createText(_text2, CENTER, 21)
+				on_mouse_up = FUNCTION
+					if heal_all != UNDEFINED    // otherwise it's the goof off button
+						player.money = player.money - costs
+						player.physical_damage = heal_all ? 0 : player.physical_damage-1
+					advanceDate(time)
+
+
+		buttons_panel = COMPONENT
+			width = 350
+			y = 90
+
+		component = ARRAY
+			SCREEN_BACKGROUND
+				width = COMPONENT.width
+				height = COMPONENT.height
+			char_health
+			char_money
+			monthly_cost
+			date
+			createText("Physical Health", 18, char_health.y)
+			createText("Money",           18, char_money.y)
+			createText("Monthly Costs",   18, monthly_cost.y)
+			buttons_panel
+			BORDER_BUTTON
+				x = COMPONENT.width-15
+				h_align = LEFT
+				y = 75
+				v_align = TOP
+				idle = "home/home"
+				on_mouse_up = FUNCTION
+					displayInitializedScreen(home_screen, false)
+
+
+		setup = FUNCTION
+			rest_screen.char_health.text   = HEALTH_INCREMENT * (LETHAL_DAMAGE - player.physical_damage) + "%"
+			rest_screen.char_money.text    = player.money
+			rest_screen.date.text          = date_text(2132,0,player.age)
+			LOCAL.d = date_days_in_month(2132,0,player.age) - date_day_of_month(2132,0,player.age) + 1
+			rest_screen.monthly_cost.text  = LIFESTYLE_COST[player.lifestyle] + "    ( due in " + d + " " + ( d == 1 ? "day" : "days" ) + " )"
+
+			LOCAL.a = ARRAY
+			rest_screen.buttons_panel.component = a
+			LOCAL.yoff = 0
+			if player.physical_damage > 0
+				if healingTime1(player) < healingTimeAll(player)
+					a[] = rest_screen.createSpecialButton(yoff, "rest_screen/heal_home", "regain 5% health at home", "stay in bed for " + healingTime1(player) + " days", healingTime1(player), false, 0)
+					yoff = yoff + 60
+				if ( healingTime1(player, true) < healingTimeAll(player, true) ) && healingTime1(player, true) < healingTime1(player) && player.money >= healingTime1(player, true)*HOSPITAL_COSTS
+					a[] = rest_screen.createSpecialButton(yoff, "rest_screen/heal_hospital", "regain 5% health at a hospital", "pay "+(healingTime1(player, true)*HOSPITAL_COSTS)+" and stay there for " + healingTime1(player, true) + " days", healingTime1(player, true), false, healingTime1(player, true)*HOSPITAL_COSTS)
+					yoff = yoff + 60
+				if healingTime1(player) >= healingTimeAll(player) || player.physical_damage > 1
+					a[] = rest_screen.createSpecialButton(yoff, "rest_screen/heal_home", "heal up completely at home", "stay in bed for " + healingTimeAll(player) + " day" + (healingTimeAll(player)>1 ? "s" : ""), healingTimeAll(player), true, 0)
+					yoff = yoff + 60
+				if ( healingTime1(player, true) >= healingTimeAll(player, true) || player.physical_damage > 1 ) && healingTimeAll(player, true) < healingTimeAll(player) && player.money >= healingTimeAll(player, true)*HOSPITAL_COSTS
+					a[] = rest_screen.createSpecialButton(yoff, "rest_screen/heal_hospital", "heal up completely at a hospital", "pay "+(healingTimeAll(player, true)*HOSPITAL_COSTS)+" and stay there for " + healingTimeAll(player, true) + " day" + (healingTimeAll(player, true)>1 ? "s" : ""), healingTimeAll(player, true), true, healingTimeAll(player, true)*HOSPITAL_COSTS)
+					yoff = yoff + 60
+			if player.physical_damage == 0 || healingTime1(player) > 1
+				a[] = rest_screen.createSpecialButton(yoff, "rest_screen/goof_off", "goof off for a day", , 1)
+			rest_screen.height = 90 + a.size*60
+			rest_screen.component[0].height = rest_screen.height

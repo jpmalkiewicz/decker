@@ -1,0 +1,17 @@
+english
+	RULESET.advanceDate = FUNCTION (day_count)
+		player.age = player.age + day_count
+		if value_type(displayed_screen.setup) == "FUNCTION"
+			displayed_screen.setup()
+
+
+	RULESET.healingTime1 = FUNCTION (human, use_hospital = false)
+		return_value = human.physical_damage
+		if use_hospital
+			return_value = ( return_value + 1 ) / 2
+
+
+	RULESET.healingTimeAll = FUNCTION (human, use_hospital = false)
+		return_value = human.physical_damage * (human.physical_damage+2) / 3
+		if use_hospital
+			return_value = ( return_value + 1 ) / 2
