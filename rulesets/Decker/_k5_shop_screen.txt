@@ -1,0 +1,17 @@
+english
+	RULESET.shop_screen = COMPONENT
+		title = "Decker - Thrifty Electronics"
+		width = 350
+		height = 300
+
+		char_money = createText("", 120, 35)
+
+		component = ARRAY
+			SCREEN_BACKGROUND
+				width = COMPONENT.width
+				height = COMPONENT.width
+			char_money
+
+
+		setup = FUNCTION
+			shop_screen.char_money.text = player.money

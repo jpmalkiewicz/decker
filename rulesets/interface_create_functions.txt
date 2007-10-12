@@ -160,6 +160,15 @@ english
 				component[2] = _down_right_arrow
 
 
+	ENGINE.createSelectedRowBackground = FUNCTION (_color, _padding_left=0, _padding_right=0, _padding_top=0, _padding_bottom=0)
+		return_value = SELECTED_ROW_BACKGROUND
+			color = _color
+			padding_left   = _padding_left
+			padding_right  = _padding_right
+			padding_top    = _padding_top
+			padding_bottom = _padding_bottom
+
+
 	// image_array must contain 1-3 entries : [0] the slider, [1] the up/left arrow, [2] the down/right arrow
 	ENGINE.createSimpleScrollbar = FUNCTION (boundingwidth, boundingheight, image_array, vertical)
 		if vertical

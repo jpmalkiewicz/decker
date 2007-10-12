@@ -43,118 +43,62 @@ final class ScriptParser extends ScriptReader
 	}
 
 
-	private Script parseScript ()  {
-		final Script ret = new Script(script_name);
-		// parse the script script
-System.out.print(script_name);
-		while(previewElement() != null)
-			parseLocalizedScript(ret);
-		if(ret.localizationCount() == 0)
-			throwException("Every script script must contain at least one localized script");
-System.out.println(" parsed");
-		return ret;
-	}
-
-
-	private void parseLocalizedScript (final Script script)  {
-		final int line = getLine(), column = getColumn();
-		// check whether it's a valid language
-		String language = readElement();
-		if(language.length() <= 2)
-			throwException("Unknown language : "+language);
-		Locale locale = new Locale(language.substring(0,2));
-		if(locale.getDisplayLanguage(locale).length() <= 2 || !locale.getDisplayLanguage(locale).equalsIgnoreCase(language))
-			throwException("Unknown language : "+language);
-		if(script.getLocalization(locale.getDisplayLanguage(locale)) != null)
-			throwException("Duplicate language localization : "+language);
-		// create the localzed script
-		// check whether this localization of the script is defined explicitly or by replacing string constants from another version
+	private Expression parseArrayDefinition (final int command_column, final Expression[] expression_stack, final int[] expression_stack_top)  {
+		final ArrayDefinition array_definition = new ArrayDefinition(script_name, getLine(), getColumn(), expression_stack, expression_stack_top);
+		// check whether there are any entries
+		last_expression_line = getLine();
 		String s = previewElement();
-		if(s != null) {
-			if(s.equals("extends"))
-				parseReplacementScript(locale, script, line, column);
-			else  {
-				final Block localized_script = new Block(script_name, line, column);
-				parseBlock(localized_script, line, column);
-				script.addLocalization(locale.getDisplayLanguage(locale), localized_script);
-			}
-			// make sure there is only one loalization on each line - prefent lines like       english deutsch francais
+		final int array_entry_column = getColumn();
+		if (array_entry_column <= command_column)
+			return array_definition;
+
+		// read the elements of the array definition
+		final Expression[] es = new Expression[Global.PARSER_EXPRESSION_STACK_SIZE];
+		final int[] est = { -1 };
+		while (s != null && getColumn() == array_entry_column) {
+			last_expression_line = getLine();
+			// parse the expression that defines the next array entry
+			array_definition.addExpression(parseExpression(getLine(), array_entry_column, new int[]{ -1 }, es, est, true));
 			s = previewElement();
-			if (s != null && getLine() == line)
-				throwException("there must not be more than one localization per script line. Put "+s+" on a different line");
 		}
+		// make sure the next element doesn't start in an illegal column
+		if (s != null && getColumn() != array_entry_column && getColumn() > command_column)
+			throwException(s+" should start in column "+array_entry_column + ", or in column "+command_column+" or further left");
+		block_column = array_entry_column;
+		return array_definition;
 	}
 
 
-	private void parseReplacementScript (final Locale new_locale, final Script script, final int enclosing_line, final int enclosing_column)  {
-		// discard the "extends" tag
-		readElement();
-		// clone the original localization we will derive the new localization from
-		final String original_language = readElement();
-		final Locale original_locale = new Locale(original_language.substring(0,2));
-		if(original_language.length() <= 2 || !original_locale.getDisplayLanguage(original_locale).equalsIgnoreCase(original_language))
-			throwException("Unknown language : "+original_language);
-		final Block original_localization = script.getLocalization(original_locale.getDisplayLanguage(original_locale)); // the localization our new localization will be derived from
-		if(original_localization == null)
-			throwException("The localization "+original_locale.getDisplayLanguage(original_locale)+" is not defined yet. It cannot be used to define the localization "+new_locale.getDisplayLanguage(new_locale));
-		final Block localized_script = new Block(script_name, enclosing_line, enclosing_column);
-
-		// replace strings if there is a replacement block
+	private ScriptNode parseAssignmentCommandOrExpression (final int block_column, final boolean allow_non_function_call_expressions)  {
+		final int line = getLine(); // so we can tell the AssignmentCommand where it started, if this is one
+		// parse the expression that will sit on the left side of the = or by itself if it's a function call
+		final Expression x = parseExpression(line, block_column, false);
 		String s = previewElement();
-		if (getLine() == enclosing_line)
-			throwException("whatever follows \""+original_locale.getDisplayLanguage(original_locale)+" extends "+new_locale.getDisplayLanguage(new_locale)+"\" must not sit on the same line");
-
-		final int column = getColumn();
-		if (column > enclosing_column) {
-			while(s != null && getColumn() == column) {
-				parseReplacement(localized_script, column);
-				s = previewElement();
-			}
-			// make sure all block entries start in the same column
-			if (s != null && getColumn() > enclosing_column && getColumn() != column) {
-				if (s.equals("replace"))
-					throwException("the replace command starts in column "+getColumn()+". it should start in column "+column);
-				else
-					throwException(previewElement() +" starts in column "+getColumn()+". it should start in column "+enclosing_column+((enclosing_column==1)?"":" or left of it"));
-			}
+		// check whether it's an assignment command
+		if (s != null && s.equals("=")) {
+			readElement();
+			final AssignmentCommand ac = new AssignmentCommand(false, script_name, line, block_column);
+			ac.setVariableExpression(x); // the stuff that sits on the left side of the =
+			s = previewElement();
+			if(s == null)
+				throwException("Expression of FUNCTION definition on the right side of the = expected but end of script found");
+			if (getLine() != line)
+				throwException("Expression of FUNCTION definition on the right side of the = must start on the same line as the expression on the left side did");
+			if(s.equals("FUNCTION"))
+				ac.setValueExpression(parseFunctionDefinition(line, getColumn(), line, block_column));
+			else
+				ac.setValueExpression(parseExpression(line, block_column, true));
+			return ac;
 		}
-
-		// finally add the new localization to the script script
-		script.addLocalization(new_locale.getDisplayLanguage(new_locale), localized_script);
-	}
-
-
-	private void parseReplacement (final Block ls, final int enclosing_column)  {
-		readElement(); // just discard the 'replace' tag - it has already been checked
-		final int tag_line = getLine();
-
-		String original = readElement();
-		if(original == null || !original.startsWith("\""))
-			throwException("Original string expected but "+((original==null)?"end of script":original)+" found");
-		if (getColumn() <= enclosing_column)
-			throwException("the original string must begin right of column "+enclosing_column);
-		final int original_line = getLine();
-		if (original_line == tag_line)
-			throwException("the original string must sit on a line by itself");
-		original = original.substring(1, original.length()-1);
-		if(original.length() == 0)
-			throwException("The string to be replaced must not be the empty string \"\"");
-
-		final boolean dots = original.endsWith("...");
-		if(dots)
-			original = original.substring(0, original.length()-3);
-		if(original.length() == 0)
-			throwException("The string to be replaced must contain at least one character in front of the ... (a space qualifies)");
-
-		String replacement = readElement();
-		if(replacement == null || !replacement.startsWith("\""))
-			throwException("Replacement string expected but "+((replacement==null)?"end of script":replacement)+" found");
-		if (getLine() == original_line)
-			throwException("the replacement string must sit on a line by itself");
-		if (getColumn() != getPreviousLineStart())
-			throwException("original string and replacement string must start in the same column");
-
-		ls.replace(original, dots, replacement.substring(1,replacement.length()-1));
+		else if (s.equals("--") || s.equals("++")) {
+			readElement();
+			return new IncrementDecrementCommand(s, false, x, script_name, line, block_column);
+		}
+		else {
+			if (!allow_non_function_call_expressions && !(x instanceof FunctionCall))
+				throwException("function call or assignment command expected but "+x+" found");
+			return x;
+		}
 	}
 
 
@@ -164,19 +108,24 @@ System.out.println(" parsed");
 		// check whether the block contains any commands
 		if (s != null && column > enclosing_column && getLine() != enclosing_line) {
 			while(s != null && getColumn() == column)  {
+				final int line = getLine();
 				if(s.equals("if") || s.equals("while"))
-					block.addScriptNode(parseConditionalCommand(getLine(), column));
-				else if(s.equals("print"))
+					block.addScriptNode(parseConditionalCommand(line, column));
+				else if (s.equals("print"))
 					block.addScriptNode(parsePrintCommand());
-				else if(s.equals("constant"))
-					block.addScriptNode(parseConstantDefinitionCommand(getLine(), column));
-				else if(s.equals("global"))
-					block.addScriptNode(parseGlobalDefinitionCommand(getLine(), column));
-				else if(s.equals("structure"))
-					block.addScriptNode(parseTypeDefinitionCommand(getLine(), column));
-				else if(s.equals("else") || s.equals("elseif"))
+				else if (s.equals("constant"))
+					block.addScriptNode(parseConstantDefinitionCommand(line, column));
+				else if (s.equals("global"))
+					block.addScriptNode(parseGlobalDefinitionCommand(line, column));
+				else if (s.equals("structure"))
+					block.addScriptNode(parseTypeDefinitionCommand(line, column));
+				else if (s.equals("with"))
+					block.addScriptNode(parseWithCommand(line, column));
+				else if (s.equals("else") || s.equals("elseif"))
 					throwException(s+" without if found");
-				else if(Expression.operatorID(s) == Expression.VARIABLE)
+				else if (s.equals("++") || s.equals("--"))
+					block.addScriptNode(new IncrementDecrementCommand(readElement(), true, parseExpression(line, column, false), script_name, line, column));
+				else if (Expression.operatorID(s) == Expression.VARIABLE)
 					block.addScriptNode(parseAssignmentCommandOrExpression(column, false));
 				else
 					throwException("Command expected but "+s+" found");
@@ -190,6 +139,44 @@ System.out.println(" parsed");
 		else
 			block_column = -1; // the block was empty
 		return block;
+	}
+
+
+	private Expression parseBracket (final String opening_bracket, final int current_line, final int command_column, final int[] expression_column, final Expression[] expression_stack, final int[] expression_stack_top) {
+		// if the expression inside the brackets contains an indented block, the ) or ] must sit on the start of a new line
+		// otherwise it must follow the expression inside the bracket on the same line
+		final Expression ret = new Expression(opening_bracket, script_name, getLine(), getColumn(), expression_stack, expression_stack_top);
+		// parse the expression inside the brackets
+		final int l = current_line;
+		final int b = block_column;
+		block_column = -1;
+		ret.addExpression(parseExpression(current_line, command_column, expression_column, new Expression[Global.PARSER_EXPRESSION_STACK_SIZE], new int[]{ -1 }, true));
+		final String s2 = readElement();
+		if(s2 == null ||( opening_bracket.equals("(") && !s2.equals(")") )||( opening_bracket.equals("[") && !s2.equals("]") ))
+			throwException((opening_bracket.equals("(")?")":"]")+" expected but "+((opening_bracket==null)?"end of script":s2)+" found");
+		// check whether the ) or ] sits on the beginning of a new line
+		if (getColumn() == getLineStart()) {
+			if (block_column == -1 || getPreviousLineStart() != block_column)
+				throwException(s2+" can only sit at the start of a new line if it comes right after an indented block (for example an array definition block) inside the brackets");
+			else if (getColumn() >= block_column)
+				throwException(s2+" must sit left of the last indented block inside the brackets");
+			else if (expression_column[0] != -1) {
+				if (getColumn() != expression_column[0])
+					throwException(s2+" should sit in column "+expression_column[0]+", not in column "+getColumn());
+			}
+			else if (getColumn() <= command_column)
+				throwException(s2+" should sit right of column "+command_column);
+			else
+				expression_column[0] = getColumn();
+			last_expression_line = getLine();
+		}
+		// the closing bracket sits on the end of a line. make sure it doesn't sit on the last line of an enclosed block
+		else if (block_column > -1 && getLineStart() == block_column)
+			throwException(s2+" should sit on the next line, not on the end of a line that belongs to an indented block inside the brackets");
+		// clean up
+		block_column = b;
+		last_expression_line = getLine();
+		return ret;
 	}
 
 
@@ -258,236 +245,6 @@ System.out.println(" parsed");
 		final String[] constant_list = new String[count];
 		System.arraycopy(constant, 0, constant_list, 0, count);
 		return new ConstantDefinitionCommand(constant_list, script_name, command_line, command_column);
-	}
-
-
-	private GlobalDefinitionCommand parseGlobalDefinitionCommand (final int command_line, final int command_column)  {
-		readElement(); // discard the "global" tag
-		int count = 0;
-		AssignmentCommand[] globals = new AssignmentCommand[10];
-		// determine whether it's a single line definition or a block definition
-		String s = previewElement();
-		if (s != null) {
-			if (getLine() == command_line)
-				throwException("cannot have anything on the line where the \"global\" command stands. put the global definitions in the block that follows the command");
-			final int column = getColumn();
-			if (column > command_column)  {
-				do {
-					// make sure the list of globals can hold another item
-					if (count == globals.length) {
-						final AssignmentCommand[] c = globals;
-						globals = new AssignmentCommand[globals.length*2];
-						System.arraycopy(c, 0, globals, 0, count);
-					}
-					// add the next definition of a global to the list
-					final int line = getLine(); // so we can tell the AssignmentCommand where it started, if this is one
-					// parse the expression that will sit on the left side of the = or by itself if it's a function call
-					final Expression x = parseExpression(line, column, false);
-					if (x.getOperator() != Expression.VARIABLE)
-						throwException("can only have simple variable names on the left side of a = in \"global\" blocks");
-					s = readElement();
-					// check whether it's an assignment command
-					if (s == null || !s.equals("="))
-						throwException("= expected but "+((s==null)?"end of script":s)+" found");
-					final AssignmentCommand ac = new AssignmentCommand(true, script_name, line, column);
-					ac.setVariableExpression(x); // the stuff that sits on the left side of the =
-					s = previewElement();
-					if(s == null)
-						throwException("Expression of FUNCTION definition on the right side of the = expected but end of script found");
-					if (getLine() != line)
-						throwException("Expression of FUNCTION definition on the right side of the = must start on the same line as the expression on the left side did");
-					if(s.equals("FUNCTION"))
-						ac.setValueExpression(parseFunctionDefinition(line, getColumn(), line, column));
-					else
-						ac.setValueExpression(parseExpression(line, column, true));
-					globals[count++] = ac;
-					// check whether there's another global definition following this one
-					s = previewElement();
-				} while (s != null && getColumn() == column);
-			}
-			if (s != null && getColumn() > command_column)
-				throwException(s + " should be starting in column "+column+", column "+command_column+" or further left");
-		}
-		if (count == 0)
-			throwException("the globals command must be followed by at least one global value");
-		// create and return the corresponding ConstantDefinitionCommand
-		final AssignmentCommand[] global_list = new AssignmentCommand[count];
-		System.arraycopy(globals, 0, global_list, 0, count);
-		return new GlobalDefinitionCommand(global_list, script_name, command_line, command_column);
-	}
-
-
-	private PrintCommand parsePrintCommand ()  {
-		final int line = getLine(), column = getColumn();
-		readElement(); // discard the print command tag
-		final PrintCommand pc = new PrintCommand(script_name, line, column);
-		pc.setDisplayedExpression(parseExpression(line, column, true));
-		return pc;
-	}
-
-
-	private TypeDefinitionCommand parseTypeDefinitionCommand (final int command_line, final int command_column)  {
-		readElement();
-		int count = 0;
-		TypeDefinition[] type = new TypeDefinition[10];
-		previewElement();
-		final int column = getColumn();
-		if (getLine() == command_line)  {
-			// the structure type name is on the same line as the type tag. this means only that one structure type is defined
-			type[count++] = parseTypeDefinition();
-		}
-		else if (getColumn() <= command_column)
-			throwException("the type command must be followed by at least one structure type to be defined");
-		else {
-			// the command is followed by a block containing structure type definitions
-			do {
-				// make sure the the list of structure types is big enough to hold another entry
-				if (type.length == count) {
-					final TypeDefinition[] t = type;
-					type = new TypeDefinition[count*2];
-					System.arraycopy(t, 0, type, 0, count);
-				}
-				type[count++] = parseTypeDefinition();
-				previewElement();
-			} while (getColumn() == column);
-		}
-		// create and return the new TypeDefinitionCommand
-		final TypeDefinition[] t = new TypeDefinition[count];
-		System.arraycopy(type, 0, t, 0, count);
-		return new TypeDefinitionCommand(t, script_name, command_line, command_column);
-	}
-
-
-	private TypeDefinition parseTypeDefinition ()  {
-		final int line = getLine(), column = getColumn();
-		final String structure_type = readElement();
-		String s;
-		// check whether it's a structure definition that extends some other type
-		String extended_type = null;
-		s = previewElement();
-		if (getLine() == line && s.equals("extends")) {
-			readElement();
-			extended_type = readElement();
-			if (extended_type == null || Expression.operatorID(extended_type) != Expression.VARIABLE)
-				throwException("name of the structure type to be extended expected but "+((extended_type==null)?"end of script":extended_type)+" found");
-			if (line != getLine())
-				throwException("the name of the structure type to be extended must follow immediately after the 'extends' on the same line");
-			s = previewElement();
-		}
-		TypeDefinition sd = new TypeDefinition(structure_type, extended_type, script_name, line, column);
-		// check whether the structure definition has a body
-		final int col = getColumn();
-		if (s == null || col <= column || Expression.operatorID(s) != Expression.VARIABLE)
-			return sd;
-		// parse the structure definition body
-		Object[] variable = new Object[10];
-		int count = 0;
-		do {
-			// make sure the list of variables is big enough
-			if (count == variable.length)  {
-				final Object[] v = variable;
-				variable = new Object[count*2];
-				System.arraycopy(v, 0, variable, 0, count);
-			}
-			// add the new variable
-			readElement(); // the variable name is already stored in s
-			variable[count] = s;
-			final int current_line = getLine();
-			// check whether the variable has a default value
-			s = previewElement();
-			if (s != null && s.equals("=") && current_line == getLine()) {
-				readElement();
-				s = previewElement();
-				if (current_line != getLine())
-					throwException("assigned expression must start on the line of the =");
-				if (s.equals("FUNCTION"))
-					variable[count] = new Object[]{ variable[count], parseFunctionDefinition(current_line, getColumn(), current_line, col) };
-				else {
-					final Expression e = parseExpression(current_line, col, new int[]{ -1 }, new Expression[Global.PARSER_EXPRESSION_STACK_SIZE], new int[]{ -1 }, true);
-					variable[count] = new Object[]{ variable[count], e };
-				}
-				s = previewElement();
-			}
-			count++;
-		} while (s != null && getColumn() == col && Expression.operatorID(s) == Expression.VARIABLE);
-		last_expression_line = getPreviousElementLine();
-		// add the body to the StructureDefinition object
-		final Object[] v = new Object[count];
-		System.arraycopy(variable, 0, v, 0, count);
-		sd.setDefinitionBody(v);
-		return sd;
-	}
-
-
-	private ScriptNode parseAssignmentCommandOrExpression (final int block_column, final boolean allow_non_function_call_expressions)  {
-		final int line = getLine(); // so we can tell the AssignmentCommand where it started, if this is one
-		// parse the expression that will sit on the left side of the = or by itself if it's a function call
-		final Expression x = parseExpression(line, block_column, false);
-		String s = previewElement();
-		// check whether it's an assignment command
-		if (s != null && s.equals("=")) {
-			readElement();
-			final AssignmentCommand ac = new AssignmentCommand(false, script_name, line, block_column);
-			ac.setVariableExpression(x); // the stuff that sits on the left side of the =
-			s = previewElement();
-			if(s == null)
-				throwException("Expression of FUNCTION definition on the right side of the = expected but end of script found");
-			if (getLine() != line)
-				throwException("Expression of FUNCTION definition on the right side of the = must start on the same line as the expression on the left side did");
-			if(s.equals("FUNCTION"))
-				ac.setValueExpression(parseFunctionDefinition(line, getColumn(), line, block_column));
-			else
-				ac.setValueExpression(parseExpression(line, block_column, true));
-			return ac;
-		}
-		else {
-			if (!allow_non_function_call_expressions && !(x instanceof FunctionCall))
-				throwException("function call or assignment command expected but "+x+" found");
-			return x;
-		}
-	}
-
-
-	private ScriptNode parseFunctionDefinition (final int command_line, final int command_column, final int enclosing_line, final int enclosing_column)  {
-		readElement(); // discard the FUNCTION tag
-		final Function f = new Function(script_name, command_line, command_column);
-		String s = previewElement();
-		// if it's a function without function body and argument list at the end of the script, s will be null and we're done parsing the function
-		if(s != null) {
-			// parse the list of argument names, if there is one
-			if (getLine() == enclosing_line) {
-				if (!s.equals("("))
-					throwException("the only thing you can put behind a FUNCTION tag is the list of argument names, enclosed in ( ) brackets.\nThe function body must start on the next line, if there is one");
-				readElement(); // remove the ( from the stream
-				s = readElement();
-				while (s == null || !s.equals(")")) {
-					if (s == null)
-						throwException("variable name or ) expected but end of script found");
-					if (getLine() != enclosing_line)
-						throwException(s+" must sit on the same line as the FUNCTION tag, since it's part of the argument name list");
-					final String argname = s;
-					Expression argvalue = null;
-					s = readElement();
-					if (s != null && s.equals("=")) {
-						argvalue = parseExpression(enclosing_line, command_column, false);
-						s = readElement();
-					}
-					f.addArgument(argname, argvalue);
-					if (s == null ||( !s.equals(")") && !s.equals(",") ))
-						throwException(") or , expected but "+((s==null)?"end of script":s)+" found");
-					if (getLine() != enclosing_line)
-						throwException(s+" must sit on the same line as the FUNCTION tag, since it's part of the argument name list");
-					if (!s.equals(")"))
-						s = readElement();
-				}
-				// s contains the ) of the argument name list, make sure it sits on the same line as the FUNCTION tag
-				if (getLine() != enclosing_line)
-					throwException(s+" must sit on the same line as the FUNCTION tag, since it's part of the argument name list");
-			}
-			// parse the function body
-			parseBlock(f.getFunctionBody(), enclosing_line, enclosing_column);
-		}
-		return f;
 	}
 
 
@@ -632,70 +389,6 @@ System.out.println(" parsed");
 	}
 
 
-	private Expression parseBracket (final String opening_bracket, final int current_line, final int command_column, final int[] expression_column, final Expression[] expression_stack, final int[] expression_stack_top) {
-		// if the expression inside the brackets contains an indented block, the ) or ] must sit on the start of a new line
-		// otherwise it must follow the expression inside the bracket on the same line
-		final Expression ret = new Expression(opening_bracket, script_name, getLine(), getColumn(), expression_stack, expression_stack_top);
-		// parse the expression inside the brackets
-		final int l = current_line;
-		final int b = block_column;
-		block_column = -1;
-		ret.addExpression(parseExpression(current_line, command_column, expression_column, new Expression[Global.PARSER_EXPRESSION_STACK_SIZE], new int[]{ -1 }, true));
-		final String s2 = readElement();
-		if(s2 == null ||( opening_bracket.equals("(") && !s2.equals(")") )||( opening_bracket.equals("[") && !s2.equals("]") ))
-			throwException((opening_bracket.equals("(")?")":"]")+" expected but "+((opening_bracket==null)?"end of script":s2)+" found");
-		// check whether the ) or ] sits on the beginning of a new line
-		if (getColumn() == getLineStart()) {
-			if (block_column == -1 || getPreviousLineStart() != block_column)
-				throwException(s2+" can only sit at the start of a new line if it comes right after an indented block (for example an array definition block) inside the brackets");
-			else if (getColumn() >= block_column)
-				throwException(s2+" must sit left of the last indented block inside the brackets");
-			else if (expression_column[0] != -1) {
-				if (getColumn() != expression_column[0])
-					throwException(s2+" should sit in column "+expression_column[0]+", not in column "+getColumn());
-			}
-			else if (getColumn() <= command_column)
-				throwException(s2+" should sit right of column "+command_column);
-			else
-				expression_column[0] = getColumn();
-			last_expression_line = getLine();
-		}
-		// the closing bracket sits on the end of a line. make sure it doesn't sit on the last line of an enclosed block
-		else if (block_column > -1 && getLineStart() == block_column)
-			throwException(s2+" should sit on the next line, not on the end of a line that belongs to an indented block inside the brackets");
-		// clean up
-		block_column = b;
-		last_expression_line = getLine();
-		return ret;
-	}
-
-
-	private Expression parseArrayDefinition (final int command_column, final Expression[] expression_stack, final int[] expression_stack_top)  {
-		final ArrayDefinition array_definition = new ArrayDefinition(script_name, getLine(), getColumn(), expression_stack, expression_stack_top);
-		// check whether there are any entries
-		last_expression_line = getLine();
-		String s = previewElement();
-		final int array_entry_column = getColumn();
-		if (array_entry_column <= command_column)
-			return array_definition;
-
-		// read the elements of the array definition
-		final Expression[] es = new Expression[Global.PARSER_EXPRESSION_STACK_SIZE];
-		final int[] est = { -1 };
-		while (s != null && getColumn() == array_entry_column) {
-			last_expression_line = getLine();
-			// parse the expression that defines the next array entry
-			array_definition.addExpression(parseExpression(getLine(), array_entry_column, new int[]{ -1 }, es, est, true));
-			s = previewElement();
-		}
-		// make sure the next element doesn't start in an illegal column
-		if (s != null && getColumn() != array_entry_column && getColumn() > command_column)
-			throwException(s+" should start in column "+array_entry_column + ", or in column "+command_column+" or further left");
-		block_column = array_entry_column;
-		return array_definition;
-	}
-
-
 	private Expression parseFunctionCall (final int command_column, final int[] expression_column, final Expression[] expression_stack, final int[] expression_stack_top, final boolean allow_structure_definition_blocks)  {
 		readElement(); // remove the ( from the stream
 		if (getColumn() == getLineStart())
@@ -770,6 +463,228 @@ System.out.println(" parsed");
 	}
 
 
+	private ScriptNode parseFunctionDefinition (final int command_line, final int command_column, final int enclosing_line, final int enclosing_column)  {
+		readElement(); // discard the FUNCTION tag
+		final Function f = new Function(script_name, command_line, command_column);
+		String s = previewElement();
+		// if it's a function without function body and argument list at the end of the script, s will be null and we're done parsing the function
+		if(s != null) {
+			// parse the list of argument names, if there is one
+			if (getLine() == enclosing_line) {
+				if (!s.equals("("))
+					throwException("the only thing you can put behind a FUNCTION tag is the list of argument names, enclosed in ( ) brackets.\nThe function body must start on the next line, if there is one");
+				readElement(); // remove the ( from the stream
+				s = readElement();
+				while (s == null || !s.equals(")")) {
+					if (s == null)
+						throwException("variable name or ) expected but end of script found");
+					if (getLine() != enclosing_line)
+						throwException(s+" must sit on the same line as the FUNCTION tag, since it's part of the argument name list");
+					final String argname = s;
+					Expression argvalue = null;
+					s = readElement();
+					if (s != null && s.equals("=")) {
+						argvalue = parseExpression(enclosing_line, command_column, false);
+						s = readElement();
+					}
+					f.addArgument(argname, argvalue);
+					if (s == null ||( !s.equals(")") && !s.equals(",") ))
+						throwException(") or , expected but "+((s==null)?"end of script":s)+" found");
+					if (getLine() != enclosing_line)
+						throwException(s+" must sit on the same line as the FUNCTION tag, since it's part of the argument name list");
+					if (!s.equals(")"))
+						s = readElement();
+				}
+				// s contains the ) of the argument name list, make sure it sits on the same line as the FUNCTION tag
+				if (getLine() != enclosing_line)
+					throwException(s+" must sit on the same line as the FUNCTION tag, since it's part of the argument name list");
+			}
+			// parse the function body
+			parseBlock(f.getFunctionBody(), enclosing_line, enclosing_column);
+		}
+		return f;
+	}
+
+
+	private GlobalDefinitionCommand parseGlobalDefinitionCommand (final int command_line, final int command_column)  {
+		readElement(); // discard the "global" tag
+		int count = 0;
+		AssignmentCommand[] globals = new AssignmentCommand[10];
+		// determine whether it's a single line definition or a block definition
+		String s = previewElement();
+		if (s != null) {
+			if (getLine() == command_line)
+				throwException("cannot have anything on the line where the \"global\" command stands. put the global definitions in the block that follows the command");
+			final int column = getColumn();
+			if (column > command_column)  {
+				do {
+					// make sure the list of globals can hold another item
+					if (count == globals.length) {
+						final AssignmentCommand[] c = globals;
+						globals = new AssignmentCommand[globals.length*2];
+						System.arraycopy(c, 0, globals, 0, count);
+					}
+					// add the next definition of a global to the list
+					final int line = getLine(); // so we can tell the AssignmentCommand where it started, if this is one
+					// parse the expression that will sit on the left side of the = or by itself if it's a function call
+					final Expression x = parseExpression(line, column, false);
+					if (x.getOperator() != Expression.VARIABLE)
+						throwException("can only have simple variable names on the left side of a = in \"global\" blocks");
+					s = readElement();
+					// check whether it's an assignment command
+					if (s == null || !s.equals("="))
+						throwException("= expected but "+((s==null)?"end of script":s)+" found");
+					final AssignmentCommand ac = new AssignmentCommand(true, script_name, line, column);
+					ac.setVariableExpression(x); // the stuff that sits on the left side of the =
+					s = previewElement();
+					if(s == null)
+						throwException("Expression of FUNCTION definition on the right side of the = expected but end of script found");
+					if (getLine() != line)
+						throwException("Expression of FUNCTION definition on the right side of the = must start on the same line as the expression on the left side did");
+					if(s.equals("FUNCTION"))
+						ac.setValueExpression(parseFunctionDefinition(line, getColumn(), line, column));
+					else
+						ac.setValueExpression(parseExpression(line, column, true));
+					globals[count++] = ac;
+					// check whether there's another global definition following this one
+					s = previewElement();
+				} while (s != null && getColumn() == column);
+			}
+			if (s != null && getColumn() > command_column)
+				throwException(s + " should be starting in column "+column+", column "+command_column+" or further left");
+		}
+		if (count == 0)
+			throwException("the globals command must be followed by at least one global value");
+		// create and return the corresponding ConstantDefinitionCommand
+		final AssignmentCommand[] global_list = new AssignmentCommand[count];
+		System.arraycopy(globals, 0, global_list, 0, count);
+		return new GlobalDefinitionCommand(global_list, script_name, command_line, command_column);
+	}
+
+
+	private void parseLocalizedScript (final Script script)  {
+		final int line = getLine(), column = getColumn();
+		// check whether it's a valid language
+		String language = readElement();
+		if(language.length() <= 2)
+			throwException("Unknown language : "+language);
+		Locale locale = new Locale(language.substring(0,2));
+		if(locale.getDisplayLanguage(locale).length() <= 2 || !locale.getDisplayLanguage(locale).equalsIgnoreCase(language))
+			throwException("Unknown language : "+language);
+		if(script.getLocalization(locale.getDisplayLanguage(locale)) != null)
+			throwException("Duplicate language localization : "+language);
+		// create the localzed script
+		// check whether this localization of the script is defined explicitly or by replacing string constants from another version
+		String s = previewElement();
+		if(s != null) {
+			if(s.equals("extends"))
+				parseReplacementScript(locale, script, line, column);
+			else  {
+				final Block localized_script = new Block(script_name, line, column);
+				parseBlock(localized_script, line, column);
+				script.addLocalization(locale.getDisplayLanguage(locale), localized_script);
+			}
+			// make sure there is only one loalization on each line - prefent lines like       english deutsch francais
+			s = previewElement();
+			if (s != null && getLine() == line)
+				throwException("there must not be more than one localization per script line. Put "+s+" on a different line");
+		}
+	}
+
+
+	private PrintCommand parsePrintCommand ()  {
+		final int line = getLine(), column = getColumn();
+		readElement(); // discard the print command tag
+		final PrintCommand pc = new PrintCommand(script_name, line, column);
+		pc.setDisplayedExpression(parseExpression(line, column, true));
+		return pc;
+	}
+
+
+	private void parseReplacement (final Block ls, final int enclosing_column)  {
+		readElement(); // just discard the 'replace' tag - it has already been checked
+		final int tag_line = getLine();
+
+		String original = readElement();
+		if(original == null || !original.startsWith("\""))
+			throwException("Original string expected but "+((original==null)?"end of script":original)+" found");
+		if (getColumn() <= enclosing_column)
+			throwException("the original string must begin right of column "+enclosing_column);
+		final int original_line = getLine();
+		if (original_line == tag_line)
+			throwException("the original string must sit on a line by itself");
+		original = original.substring(1, original.length()-1);
+		if(original.length() == 0)
+			throwException("The string to be replaced must not be the empty string \"\"");
+
+		final boolean dots = original.endsWith("...");
+		if(dots)
+			original = original.substring(0, original.length()-3);
+		if(original.length() == 0)
+			throwException("The string to be replaced must contain at least one character in front of the ... (a space qualifies)");
+
+		String replacement = readElement();
+		if(replacement == null || !replacement.startsWith("\""))
+			throwException("Replacement string expected but "+((replacement==null)?"end of script":replacement)+" found");
+		if (getLine() == original_line)
+			throwException("the replacement string must sit on a line by itself");
+		if (getColumn() != getPreviousLineStart())
+			throwException("original string and replacement string must start in the same column");
+
+		ls.replace(original, dots, replacement.substring(1,replacement.length()-1));
+	}
+
+
+	private void parseReplacementScript (final Locale new_locale, final Script script, final int enclosing_line, final int enclosing_column)  {
+		// discard the "extends" tag
+		readElement();
+		// clone the original localization we will derive the new localization from
+		final String original_language = readElement();
+		final Locale original_locale = new Locale(original_language.substring(0,2));
+		if(original_language.length() <= 2 || !original_locale.getDisplayLanguage(original_locale).equalsIgnoreCase(original_language))
+			throwException("Unknown language : "+original_language);
+		final Block original_localization = script.getLocalization(original_locale.getDisplayLanguage(original_locale)); // the localization our new localization will be derived from
+		if(original_localization == null)
+			throwException("The localization "+original_locale.getDisplayLanguage(original_locale)+" is not defined yet. It cannot be used to define the localization "+new_locale.getDisplayLanguage(new_locale));
+		final Block localized_script = new Block(script_name, enclosing_line, enclosing_column);
+
+		// replace strings if there is a replacement block
+		String s = previewElement();
+		if (getLine() == enclosing_line)
+			throwException("whatever follows \""+original_locale.getDisplayLanguage(original_locale)+" extends "+new_locale.getDisplayLanguage(new_locale)+"\" must not sit on the same line");
+
+		final int column = getColumn();
+		if (column > enclosing_column) {
+			while(s != null && getColumn() == column) {
+				parseReplacement(localized_script, column);
+				s = previewElement();
+			}
+			// make sure all block entries start in the same column
+			if (s != null && getColumn() > enclosing_column && getColumn() != column) {
+				if (s.equals("replace"))
+					throwException("the replace command starts in column "+getColumn()+". it should start in column "+column);
+				else
+					throwException(previewElement() +" starts in column "+getColumn()+". it should start in column "+enclosing_column+((enclosing_column==1)?"":" or left of it"));
+			}
+		}
+
+		// finally add the new localization to the script script
+		script.addLocalization(new_locale.getDisplayLanguage(new_locale), localized_script);
+	}
+
+
+	private Script parseScript ()  {
+		final Script ret = new Script(script_name);
+		// parse the script script
+System.out.println(script_name);
+		while(previewElement() != null)
+			parseLocalizedScript(ret);
+		if(ret.localizationCount() == 0)
+			throwException("Every script script must contain at least one localized script");
+		return ret;
+	}
+
+
 	private StructureDefinition parseStructureDefinition (final String structure_type, final int command_column, final int[] expression_column, final int line, final int column, final Expression[] expression_stack, final int[] expression_stack_top, final boolean allow_structure_definition_blocks)  {
 		StructureDefinition  sd;
 		String s;
@@ -797,5 +712,107 @@ System.out.println(" parsed");
 		// parse the structure definition body
 		sd.addDefinitionBody(parseBlock(new Block(script_name, line, column), line, command_column));
 		return sd;
+	}
+
+
+	private TypeDefinition parseTypeDefinition ()  {
+		final int line = getLine(), column = getColumn();
+		final String structure_type = readElement();
+		String s;
+		// check whether it's a structure definition that extends some other type
+		String extended_type = null;
+		s = previewElement();
+		if (getLine() == line && s.equals("extends")) {
+			readElement();
+			extended_type = readElement();
+			if (extended_type == null || Expression.operatorID(extended_type) != Expression.VARIABLE)
+				throwException("name of the structure type to be extended expected but "+((extended_type==null)?"end of script":extended_type)+" found");
+			if (line != getLine())
+				throwException("the name of the structure type to be extended must follow immediately after the 'extends' on the same line");
+			s = previewElement();
+		}
+		TypeDefinition sd = new TypeDefinition(structure_type, extended_type, script_name, line, column);
+		// check whether the structure definition has a body
+		final int col = getColumn();
+		if (s == null || col <= column || Expression.operatorID(s) != Expression.VARIABLE)
+			return sd;
+		// parse the structure definition body
+		Object[] variable = new Object[10];
+		int count = 0;
+		do {
+			// make sure the list of variables is big enough
+			if (count == variable.length)  {
+				final Object[] v = variable;
+				variable = new Object[count*2];
+				System.arraycopy(v, 0, variable, 0, count);
+			}
+			// add the new variable
+			readElement(); // the variable name is already stored in s
+			variable[count] = s;
+			final int current_line = getLine();
+			// check whether the variable has a default value
+			s = previewElement();
+			if (s != null && s.equals("=") && current_line == getLine()) {
+				readElement();
+				s = previewElement();
+				if (current_line != getLine())
+					throwException("assigned expression must start on the line of the =");
+				if (s.equals("FUNCTION"))
+					variable[count] = new Object[]{ variable[count], parseFunctionDefinition(current_line, getColumn(), current_line, col) };
+				else {
+					final Expression e = parseExpression(current_line, col, new int[]{ -1 }, new Expression[Global.PARSER_EXPRESSION_STACK_SIZE], new int[]{ -1 }, true);
+					variable[count] = new Object[]{ variable[count], e };
+				}
+				s = previewElement();
+			}
+			count++;
+		} while (s != null && getColumn() == col && Expression.operatorID(s) == Expression.VARIABLE);
+		last_expression_line = getPreviousElementLine();
+		// add the body to the StructureDefinition object
+		final Object[] v = new Object[count];
+		System.arraycopy(variable, 0, v, 0, count);
+		sd.setDefinitionBody(v);
+		return sd;
+	}
+
+
+	private TypeDefinitionCommand parseTypeDefinitionCommand (final int command_line, final int command_column)  {
+		readElement();
+		int count = 0;
+		TypeDefinition[] type = new TypeDefinition[10];
+		previewElement();
+		final int column = getColumn();
+		if (getLine() == command_line)  {
+			// the structure type name is on the same line as the type tag. this means only that one structure type is defined
+			type[count++] = parseTypeDefinition();
+		}
+		else if (getColumn() <= command_column)
+			throwException("the type command must be followed by at least one structure type to be defined");
+		else {
+			// the command is followed by a block containing structure type definitions
+			do {
+				// make sure the the list of structure types is big enough to hold another entry
+				if (type.length == count) {
+					final TypeDefinition[] t = type;
+					type = new TypeDefinition[count*2];
+					System.arraycopy(t, 0, type, 0, count);
+				}
+				type[count++] = parseTypeDefinition();
+				previewElement();
+			} while (getColumn() == column);
+		}
+		// create and return the new TypeDefinitionCommand
+		final TypeDefinition[] t = new TypeDefinition[count];
+		System.arraycopy(type, 0, t, 0, count);
+		return new TypeDefinitionCommand(t, script_name, command_line, command_column);
+	}
+
+
+	private WithCommand parseWithCommand (final int command_line, final int command_column)  {
+		readElement();  // discard the command tag
+		final Expression with_expression = parseExpression(command_line, command_column, false);
+		final WithCommand wc = new WithCommand(with_expression, script_name, command_line, command_column);
+		parseBlock(wc, last_expression_line, command_column);
+		return wc;
 	}
 }

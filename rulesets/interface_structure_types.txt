@@ -220,7 +220,7 @@ english
 			on_draw = FUNCTION
 				component[0].width = width
 				component[0].height = height
-				if BACKGROUND_COLOR2 == UNDEFINED
+				if @BACKGROUND_COLOR2 == UNDEFINED
 					component[0].background_color = @BACKGROUND_COLOR
 					if component[1] != UNDEFINED
 						component[1] = UNDEFINED
@@ -387,6 +387,14 @@ english
 				component[0].component.x = hscrollbar == false ? 0 : -hscrollbar.slider_position
 				component[0].component.y = vscrollbar == false ? 0 : -vscrollbar.slider_position
 				component[0].component.component = displayed_element
+
+
+		SELECTED_ROW_BACKGROUND
+			color
+			padding_left = 0
+			padding_right = 0
+			padding_top = 0
+			padding_bottom = 0
 
 
 		TABLE

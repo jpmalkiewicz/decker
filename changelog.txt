@@ -1,10 +1,19 @@
+80%
+2007-10-11
+  added the i++, ++i, i-- and --i commands. they work with all integer and real variables, but only as stand alone commands, outside mathematical expressions
+  removed the white padding around the program table on the deck screen to make selected rows look better
+  added SELECTED_ROW_BACKGROUND
+  added the "with" command
+  SCREEN_BACKGROUND can display two borders again
+
+79%
 2007-10-10
   added the rest screen
   finished up the layout of the deck screen
   fixed lots of bugs
   the event system now supports event consumption
-  and screen overlays can process events
-  it's possible to delete programs and the deck screen has a confirmation popup
+  screen overlays can process events
+  it's possible to delete programs and the deck screen has a confirmation popup for that
 2007-10-05
   some general code testing and debugging / optimizing
   in the process of adding screen overlays (for tooltips and popups) (event forwarding not done yet, createPopup unfinished)
