@@ -225,6 +225,8 @@ try {
 			case ARRAY_INDEX :
 					if(at != Value.ARRAY)
 						throwException("The array index operator [] requires a variable containing an array in front of the brackets");
+					if(bt != Value.INTEGER && !b.toString().equals(""))
+						throwException("The array index operator [] requires an integer inside the brackets, or empty brackets, not the value "+b.toString()+" ("+b.typeName()+")");
 				return (bt==Value.INTEGER) ? a.get(b.integer()) : a.get(b.toString());
 			case GLOBAL_VALUE :
 					return_value.setGlobalValue(first_operand.toString());

@@ -95,7 +95,18 @@ abstract class ScriptReader
 		if(c == '"')
 			return readString();
 
-		// catch  . *  /  +  -  (  )  {  }  [  ] ,
+		// catch  - -- + ++
+		if(c == '-' || c == '+') {
+			if(c2 == c)  {
+				read();
+				skipWhitespace();
+				return (c=='-') ? "--" : "++";
+			}
+			skipWhitespace();
+			return (c=='-') ? "-" : "+";
+		}
+
+		// catch  . *  /  (  )  {  }  [  ] ,
 		if(SINGLE_CHARACTER_ELEMENTS.indexOf(c) > -1)  {
 			skipWhitespace();
 			return ((char)c)+"";

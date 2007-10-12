@@ -1,4 +1,5 @@
 english
+
 	RULESET.advanceDate = FUNCTION (day_count)
 		player.age = player.age + day_count
 		if value_type(displayed_screen.setup) == "FUNCTION"

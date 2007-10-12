@@ -39,14 +39,37 @@ class UITable
 		int r;
 		if ((q=d.get("selected_row")).type() == Value.INTEGER && ((r=q.integer()) >= 0) && r < rows) {
 			q = d.get("selected_row_background");
-			boolean its_a_color = false;
-			if (q.type() == Value.STRING) {
-				Color c = AbstractView.getColor(q.string());
+			Color c = null;
+			int mx = dx, my = dy+ch*r, mw = total_width, mh = ch;
+			if (q.type() == Value.STRING)
+				c = AbstractView.getColor(q.string());
+			else if (q.type() == Value.STRUCTURE && q.get("structure_type").equals("SELECTED_ROW_BACKGROUND")) {
+				Value v;
+				c = AbstractView.getColor(q.get("color").string());
 				if (c != null) {
-					its_a_color = true;
-					g.setColor(c);
-					g.fillRect(dx, dy+ch*r, total_width, ch);
+					if ((v=q.get("padding_left")).type() == Value.INTEGER) {
+						int i = v.integer();
+						mx -= i;
+						mw += i;
+					}
+					if ((v=q.get("padding_right")).type() == Value.INTEGER) {
+						int i = v.integer();
+						mw += i;
+					}
+					if ((v=q.get("padding_top")).type() == Value.INTEGER) {
+						int i = v.integer();
+						my -= i;
+						mh += i;
+					}
+					if ((v=q.get("padding_bottom")).type() == Value.INTEGER) {
+						int i = v.integer();
+						mh += i;
+					}
 				}
+			}
+			if (c != null) {
+				g.setColor(c);
+				g.fillRect(mx, my, mw, mh);
 			}
 		}
 		// draw the cells
