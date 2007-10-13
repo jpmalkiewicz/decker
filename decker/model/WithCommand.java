@@ -52,7 +52,7 @@ final class WithCommand extends Block
 			out.println("[expression not defined]");
 		else if (!variable_expression.print(out, indentation, false))
 			out.println();
-		return super.print(out, indentation+Global.BLOCK_INDENT, true);
+		return super.print(out, indentation, true);
 	}
 
 
