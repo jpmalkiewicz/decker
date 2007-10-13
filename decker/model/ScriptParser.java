@@ -373,7 +373,7 @@ final class ScriptParser extends ScriptReader
 			throwException("variable or ( expected right after the \"for\" but end of script found");
 		if (getLine() != command_line)
 			throwException(s+" must follow directly after the \"for\" on the same line");
-		if (s.equals("(")) { // it's a java style loop
+		if (s.equals("(")) { // it's a java style loop, e.g.    for (i=0; i<5; i++)
 			Expression variable = null, initial_value = null, condition = null;
 			ScriptNode increment = null;
 			readElement();
@@ -444,9 +444,44 @@ final class ScriptParser extends ScriptReader
 			parseBlock(ret, command_line, command_column);
 			return ret;
 		}
-		else {
-throwException("for i = 0 to 5 not supported yet");
-return null;
+		else { // it's a BASIC style loop, e.g.   for i = 0 to 5 step 2
+			// parse the variable expression
+			final Expression variable = parseExpression(command_line, command_column, false);
+			// remove the = from the stream
+			s = readElement();
+			if (s == null || !s.equals("="))
+				throwException("= expected but "+((s!=null)?s:"end of script")+" found");
+			if (getLine() != command_line)
+				throwException("the = must sit on the same line as the \"for\"");
+			// parse the initial value
+			final Expression initial_value = parseExpression(command_line, command_column, false);
+			// remove the "to" from the stream
+			s = readElement();
+			if (s == null || !s.equals("to"))
+				throwException("\"to\" expected but "+((s!=null)?s:"end of script")+" found");
+			if (getLine() != command_line)
+				throwException("the \"to\" must sit on the same line as the \"for\"");
+			// read the final value expression
+			final Expression final_value = parseExpression(command_line, command_column, false);
+			if (last_expression_line != command_line)
+				throwException("the definition  "+final_value+"  for the limiting value of  "+variable+"  must be on the same line as the \"for\"");
+			// check wether there's a step expression
+			Expression step = null;
+			s = previewElement();
+			if (s != null && getLine() == command_line) {
+				// remove the "step" from the stream
+				if (!s.equals("step"))
+					throwException("step  expected but  "+s+"  found");
+				readElement();
+				// read the step expression
+				step = parseExpression(command_line, command_column, false);
+				if (last_expression_line != command_line)
+					throwException("the the step expression  "+step+"  must end on the same line as the \"for\"");
+			}
+			// return the complete BASIC-style loop, with the block inside the loop parsed
+			ForLoopCommand ret = new ForLoopCommand(variable, initial_value, final_value, step, script_name, command_line, command_column);
+			parseBlock(ret, command_line, command_column);
+			return ret;
 		}
 	}
 

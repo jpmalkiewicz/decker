@@ -1,6 +1,6 @@
 80%
 2007-10-12
-  java style for loops work. BASIC style for loops are still on the ToDo list
+  all types of for loops work
 2007-10-11
   added the i++, ++i, i-- and --i commands. they work with all integer and real variables, but only as stand alone commands, outside mathematical expressions
   removed the white padding around the program table on the deck screen to make selected rows look better

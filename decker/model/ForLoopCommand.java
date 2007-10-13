@@ -15,6 +15,7 @@ final class ForLoopCommand extends Block
 	ForLoopCommand (final Expression _variable, final Expression _initial_value, final Expression _final_value, final Expression _step, final String _script_name, final int _script_line, final int _script_column) {
 		super(_script_name, _script_line, _script_column);
 		java_style = false;
+		variable = _variable;
 		initial_value = _initial_value;
 		final_value = _final_value;
 		step = _step;
@@ -60,7 +61,7 @@ final class ForLoopCommand extends Block
 
 
 	public Value execute ()  {
-		if (java_style) {
+		if (java_style) { // Java style loop, e.g. for (i = 0; i <= 5; i++)
 			// the variable section is optional, execute it if it exists
 			if (variable != null) {
 				Value v = AssignmentCommand.fetchOrCreateVariable(variable, true, this);
@@ -72,16 +73,119 @@ final class ForLoopCommand extends Block
 			final Expression c = condition;
 			final ScriptNode inc = increment;
 			while (c == null || c.execute().equals(true)) {
-				// the increment section is optional
 				super.execute();
+				// the increment section is optional
 				if (inc != null) {
 					inc.execute();
 				}
 			}
 		}
-		else {
-throwException("for a = 1 to 5 loop execution not yet implemented");
-// ********************************
+		else { // BASIC style loop, e.g. for i = 0 to 5
+			// create the loop variable and initialize it
+			Value v = AssignmentCommand.fetchOrCreateVariable(variable, true, this);
+			v.setDirectly(initial_value.execute());
+			int vt = v.type();
+			if (vt != Value.INTEGER && vt != Value.REAL) {
+				throwException("the initial value of "+variable+" must be INTEGER or REAL, not "+v+" ("+v.typeName()+")");
+			}
+			// if we have a step variable, things are easy. otherwise always move towards the limit in steps of one
+			if (step != null) {
+				{
+					// check whether the loop variable has passed the limit before the loop was even executed for the first time
+					Value vstep = step.execute();
+					int vst = vstep.type();
+					if (vst != Value.INTEGER && vst != Value.REAL) {
+						throwException("the step value of the loop must be INTEGER or REAL, not "+vstep+" ("+vstep.typeName()+")");
+					}
+					double vr = v.real();
+					double vsr = vstep.real();
+					Value vlimit = final_value.execute();
+					final int vlt = vlimit.type();
+					if (vlt != Value.INTEGER && vlt != Value.REAL) {
+						throwException("the limiting value of the loop must be INTEGER or REAL, not "+vlimit+" ("+vlimit.typeName()+")");
+					}
+					double vlr = vlimit.real();
+					if (( vlr < vr && vsr > 0 )||( vlr > vr && vsr < 0 ))
+						return null;
+				}
+				while (true) {
+					// the loop limit has not been reached yet. execute the loop body again
+					super.execute();
+					// if the loop variable is right on the limit, stop after one execution of the block
+					vt = v.type();
+					if (vt != Value.INTEGER && vt != Value.REAL) {
+						throwException("when you change the for loop variable in the looped block, you must give it an INTEGER or REAL value, not "+v+" ("+v.typeName()+")");
+					}
+					Value vlimit = final_value.execute();
+					int vlt = vlimit.type();
+					if (vlt != Value.INTEGER && vlt != Value.REAL) {
+						throwException("the limiting value of the loop must be INTEGER or REAL, not "+vlimit+" ("+vlimit.typeName()+")");
+					}
+					double vr = v.real();
+					double vlr = vlimit.real();
+					if (vr == vlr)
+						break;
+					// advance the loop variable one step
+					Value vstep = step.execute();
+					int vst = vstep.type();
+					if (vst != Value.INTEGER && vst != Value.REAL) {
+						throwException("the step value of the loop must be INTEGER or REAL, not "+vstep+" ("+vstep.typeName()+")");
+					}
+					double vsr = vstep.real();
+					if (vt == Value.INTEGER && vst == Value.INTEGER) {
+						v.set(v.integer()+vstep.integer());
+					}
+					else {
+						v.set(vr+vsr);
+					}
+					vr += vsr;
+					// stop here if the loop variable has passed the limit
+					vlimit = final_value.execute();
+					vlt = vlimit.type();
+					if (vlt != Value.INTEGER && vlt != Value.REAL) {
+						throwException("the limiting value of the loop must be INTEGER or REAL, not "+vlimit+" ("+vlimit.typeName()+")");
+					}
+					vlr = vlimit.real();
+					if (( vlr < vr && vsr > 0 )||( vlr > vr && vsr < 0 ))
+						break;
+				}
+			}
+			else {
+				while (true) {
+					// execute the loop body
+					super.execute();
+					vt = v.type();
+					if (vt != Value.INTEGER && vt != Value.REAL) {
+						throwException("when you change the for loop variable in the looped block, you must give it an INTEGER or REAL value, not "+v+" ("+v.typeName()+")");
+					}
+					// move towards the limit and determine whether the loop needs to terminate
+					Value vlimit = final_value.execute();
+					int vlt = vlimit.type();
+					if (vlt != Value.INTEGER && vlt != Value.REAL) {
+						throwException("the limiting value of the loop must be INTEGER or REAL, not "+vlimit+" ("+vlimit.typeName()+")");
+					}
+					double vlr = vlimit.real();
+					double vr = v.real();
+					if (vlr == vr) // can't determine a direction. stop here
+						break;
+					// advance the loop variable
+					if (vt == Value.INTEGER) {
+						if (vlr > vr)
+							v.set(v.integer()+1);
+						else
+							v.set(v.integer()-1);
+					}
+					else {
+						if (vlr > vr)
+							v.set(v.real()+1);
+						else
+							v.set(v.real()-1);
+					}
+					// break here if the variable has passed the limit
+					if (( vlr > vr && vlr < vr+1 )||( vlr < vr && vlr > vr-1 ))
+						break;
+				}
+			}
 		}
 		return null;
 	}
@@ -142,9 +246,9 @@ throwException("for a = 1 to 5 loop execution not yet implemented");
 			// print the section that advances the loop variable
 			if (step != null) {
 				out.print((line_start?indentation:" ") + "step ");
-				line_start = increment.print(out, indentation, false);
+				line_start = step.print(out, indentation, false);
 			}
-			if (line_start) {
+			if (!line_start) {
 				out.println();
 			}
 		}

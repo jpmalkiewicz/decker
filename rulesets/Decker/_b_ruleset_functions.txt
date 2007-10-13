@@ -1,13 +1,4 @@
 english
-	debug("debugging for loop in _b_")
-	for (i = 5; i > 0; i=i-1)
-		debug(i)
-	debug("finished the loop execution. i="+i)
-	debug(LOCAL)
-	debug("LOCAL.i = "+LOCAL.i)
-	debug("GLOBAL.i = "+GLOBAL.i)
-	debug("ENGINE.i = "+ENGINE.i)
-
 
 	RULESET.advanceDate = FUNCTION (day_count)
 		player.age = player.age + day_count
