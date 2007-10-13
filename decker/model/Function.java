@@ -118,4 +118,7 @@ public final class Function extends ScriptNode
 	public void replace (final String original, final boolean starts_with, final String replacement)  {
 		function_body.replace(original, starts_with, replacement);
 	}
+
+
+	public String toString()  { return "FUNCTION"; }
 }
