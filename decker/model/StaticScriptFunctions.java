@@ -93,10 +93,9 @@ final class StaticScriptFunctions extends ScriptNode
 			else if (v.typeDirect() == Value.STRUCTURE)
 				v.structure().print(where, "", true);
 			else if (v.typeDirect() == Value.ARRAY)
-where.println("*** NOT PRINTING ARRAYS YET IN StaticScriptFunctions.execute_debug()");
+				v.arrayWrapper().print(where, "", true);
 			else
-where.println(v);
-//				where.println(v.toString());
+				where.println(v.toStringForPrinting());
 		}
 		return DUMMY_VALUE;
 	}

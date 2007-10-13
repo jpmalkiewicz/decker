@@ -119,27 +119,24 @@ throw new RuntimeException("trying to use null as a structure type");
 				out.println(ind+"...");
 		}
 		else {
-boolean throwException = false;
 			out.println(); // gotta add a line feed behind the structure type
 			final StringTreeMap.Iterator i = members.getIterator();
 			while (i.hasNext()) {
 				final StringTreeMap.TreeNode n = i.nextNode();
-				out.print(ind + n.getKey() + " = ");
-				final Value v = (Value) n.getValue();
-if (v == null){
-out.println("*** null ***");
-throwException = true;
-}
-else
-				if (v.typeDirect() == Value.STRUCTURE)
-					v.structure().print(out, ind, false);
-				else if (v.typeDirect() == Value.FUNCTION)
-					v.function().print(out, ind, false);
-				else
-					out.println(v.toString());
+				if (!n.getKey().equals("structure_type")) {
+					out.print(ind + n.getKey() + " = ");
+					final Value v = (Value) n.getValue();
+					final int vt = v.typeDirect();
+					if (vt == Value.STRUCTURE)
+						v.structure().print(out, ind, false);
+					else if (vt == Value.FUNCTION)
+						v.function().print(out, ind, false);
+					else if (vt == Value.ARRAY)
+						v.arrayWrapper().print(out, ind, false);
+					else
+						out.println(v.toStringForPrinting());
+				}
 			}
-if (throwException)
-throw new RuntimeException("Structure member is null");
 		}
 		return true;
 	}

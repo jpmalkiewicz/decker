@@ -394,5 +394,9 @@ public final class Value
 	}
 
 
+	/** string representation of this value when displayed by a print() call. all it does it put quoates around the value if it is a STRING, otherwise it just returns the same as toString() */
+	public String toStringForPrinting () { return (type!=STRING) ? toString() : ("\""+((String)object)+"\""); }
+
+
 	public String toString ()  { return (type==INTEGER) ? (integer+"") : ( (type==BOOLEAN) ? (bool+"") : ( (type==REAL) ? (real+"") : ( (type==ARRAY) ? "ARRAY" : ( (type==GLOBAL_VALUE) ? ("@"+(String)object) : object.toString() )))); }
 }
