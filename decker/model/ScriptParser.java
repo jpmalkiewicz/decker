@@ -12,9 +12,6 @@ final class ScriptParser extends ScriptReader
 	private int block_column; // the column in which the lines of the last parsed block started. -1 if the block was empty
 
 
-// public static void main(final String[] args)  { new ParserWindow(); }
-
-
 	static Script parse (final String file_name, final Reader in)  {
 		return new ScriptParser(file_name, in).parseScript();
 	}
@@ -108,27 +105,7 @@ final class ScriptParser extends ScriptReader
 		// check whether the block contains any commands
 		if (s != null && column > enclosing_column && getLine() != enclosing_line) {
 			while(s != null && getColumn() == column)  {
-				final int line = getLine();
-				if(s.equals("if") || s.equals("while"))
-					block.addScriptNode(parseConditionalCommand(line, column));
-				else if (s.equals("print"))
-					block.addScriptNode(parsePrintCommand());
-				else if (s.equals("constant"))
-					block.addScriptNode(parseConstantDefinitionCommand(line, column));
-				else if (s.equals("global"))
-					block.addScriptNode(parseGlobalDefinitionCommand(line, column));
-				else if (s.equals("structure"))
-					block.addScriptNode(parseTypeDefinitionCommand(line, column));
-				else if (s.equals("with"))
-					block.addScriptNode(parseWithCommand(line, column));
-				else if (s.equals("else") || s.equals("elseif"))
-					throwException(s+" without if found");
-				else if (s.equals("++") || s.equals("--"))
-					block.addScriptNode(new IncrementDecrementCommand(readElement(), true, parseExpression(line, column, false), script_name, line, column));
-				else if (Expression.operatorID(s) == Expression.VARIABLE)
-					block.addScriptNode(parseAssignmentCommandOrExpression(column, false));
-				else
-					throwException("Command expected but "+s+" found");
+				block.addScriptNode(parseSingleCommand(column));
 				s = previewElement();
 			}
 			// make sure the next command isn't on an illegal column
@@ -386,6 +363,91 @@ final class ScriptParser extends ScriptReader
 			return e;
 		}
 		return ret;
+	}
+
+
+	private ForLoopCommand parseForLoop (final int command_line, final int command_column)  {
+		readElement(); // remove the for tag from the stream
+		String s = previewElement();
+		if (s == null)
+			throwException("variable or ( expected right after the \"for\" but end of script found");
+		if (getLine() != command_line)
+			throwException(s+" must follow directly after the \"for\" on the same line");
+		if (s.equals("(")) { // it's a java style loop
+			Expression variable = null, initial_value = null, condition = null;
+			ScriptNode increment = null;
+			readElement();
+			s = previewElement();
+			if (s == null)
+				throwException("variable or ; expected right after the \"for (\" but end of script found");
+			if (!s.equals(";")) {
+				// parse the expression that describes the variable
+				variable = parseExpression(command_line, command_column, false);
+				if (last_expression_line != command_line)
+					throwException("the variable definition  "+variable+"  must follow directly after the \"for (\" on the same line and must end on the same line");
+				// parse the expression for the initial value if there is one
+				s = previewElement();
+				if (s == null ||( !s.equals("=") && !s.equals(";") ))
+					throwException("; or = expected but "+((s!=null)?s:"end of script")+" found");
+				if (getLine() != command_line)
+					throwException(s+" must be on the same line as the \"for (\"");
+				if (s.equals("=")) {
+					readElement();
+					initial_value = parseExpression(command_line, command_column, false);
+					if (last_expression_line != command_line)
+						throwException("the definition  "+initial_value+"  for the initial value of  "+variable+"  must be on the same line as the \"for\"");
+					s = previewElement();
+					if (s == null || !s.equals(";"))
+						throwException("; expected but "+((s!=null)?s:"end of script")+" found");
+					if (getLine() != command_line)
+						throwException("; must be on the same line as the \"for (\"");
+				}
+			}
+			// remove the ; after the variable definition from the stream
+			readElement();
+			s = previewElement();
+			if (s == null)
+				throwException("; or conditional expression expected but end of script found");
+			if (getLine() != command_line)
+				throwException(s+" must be on the same line as the \"for (\"");
+			// parse the conditional expression if there is one
+			if (!s.equals(";")) {
+				condition = parseExpression(command_line, command_column, false);
+				if (last_expression_line != command_line)
+					throwException("the conditional expression  "+condition+"  must be on the same line as the \"for\"");
+				s = previewElement();
+				if (s == null || !s.equals(";"))
+					throwException("; expected but "+((s!=null)?s:"end of script")+" found");
+				if (getLine() != command_line)
+					throwException("; must be on the same line as the \"for (\"");
+			}
+			// remove the ; after the condition from the stream
+			readElement();
+			s = previewElement();
+			if (s == null)
+				throwException("; or increment command expected but end of script found");
+			if (getLine() != command_line)
+				throwException(s+" must be on the same line as the \"for (\"");
+			// parse the increment command
+			if (!s.equals(")")) {
+				increment = parseSingleCommand(getColumn());
+				s = previewElement();
+				if (s == null || !s.equals(")"))
+					throwException(") expected but "+((s!=null)?s:"end of script")+" found");
+				if (getLine() != command_line)
+					throwException("the closing ) around the for loop parameters must be on the same line as the \"for (\"");
+			}
+			// remove the ) after the increment command from the stream
+			readElement();
+			// return the complete java-style loop, with the block inside the loop parsed
+			ForLoopCommand ret = new ForLoopCommand(variable, initial_value, condition, increment, script_name, command_line, command_column);
+			parseBlock(ret, command_line, command_column);
+			return ret;
+		}
+		else {
+throwException("for i = 0 to 5 not supported yet");
+return null;
+		}
 	}
 
 
@@ -684,6 +746,35 @@ System.out.println(script_name);
 		return ret;
 	}
 
+
+	private ScriptNode parseSingleCommand (final int _block_column)  {
+		final int line = getLine();
+		final String s = previewElement();
+		if(s.equals("if") || s.equals("while"))
+			return parseConditionalCommand(line, _block_column);
+		else if(s.equals("for"))
+			return parseForLoop(line, _block_column);
+		else if (s.equals("print"))
+			return parsePrintCommand();
+		else if (s.equals("constant"))
+			return parseConstantDefinitionCommand(line, _block_column);
+		else if (s.equals("global"))
+			return parseGlobalDefinitionCommand(line, _block_column);
+		else if (s.equals("structure"))
+			return parseTypeDefinitionCommand(line, _block_column);
+		else if (s.equals("with"))
+			return parseWithCommand(line, _block_column);
+		else if (s.equals("else") || s.equals("elseif"))
+			throwException(s+" without if found");
+		else if (s.equals("++") || s.equals("--"))
+			return new IncrementDecrementCommand(readElement(), true, parseExpression(line, _block_column, false), script_name, line, _block_column);
+		else if (Expression.operatorID(s) == Expression.VARIABLE)
+			return parseAssignmentCommandOrExpression(_block_column, false);
+		else
+			throwException("Command expected but "+s+" found");
+		// unreachable statement
+		return null;
+	}
 
 	private StructureDefinition parseStructureDefinition (final String structure_type, final int command_column, final int[] expression_column, final int line, final int column, final Expression[] expression_stack, final int[] expression_stack_top, final boolean allow_structure_definition_blocks)  {
 		StructureDefinition  sd;

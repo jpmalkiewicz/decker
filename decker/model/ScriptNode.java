@@ -143,22 +143,33 @@ public abstract class ScriptNode
 
 
 	final public static Value getVariable (final String name)  {
+		final Structure[] st = stack;
 		// check whether the "variable" is a constant or structure type
 		Value ret;
-		if ((ret=stack[RULESET_STACK_SLOT].get("CONSTANTS").get(name)) != null)
+		if ((ret=st[RULESET_STACK_SLOT].get("CONSTANTS").get(name)) != null)
 			return ret;
-		if ((ret=stack[RULESET_STACK_SLOT].get("STRUCTURE_TYPES").get(name)) != null)
+		if ((ret=st[RULESET_STACK_SLOT].get("STRUCTURE_TYPES").get(name)) != null)
 			return ret;
-		if ((ret=stack[ENGINE_STACK_SLOT].get("CONSTANTS").get(name)) != null)
+		if ((ret=st[ENGINE_STACK_SLOT].get("CONSTANTS").get(name)) != null)
 			return ret;
-		if ((ret=stack[ENGINE_STACK_SLOT].get("STRUCTURE_TYPES").get(name)) != null)
+		if ((ret=st[ENGINE_STACK_SLOT].get("STRUCTURE_TYPES").get(name)) != null)
 			return ret;
-		// try to fetch the variable from one of the Structures in the global structures stack
+		// try to fetch the variable from the innermost LOCAL Structure on the global structures st
 		for (int i = stack_size; --i >= 0; ) {
-			try {
-				if ((ret=stack[i].get(name)) != null)
+			final Structure t = st[i];
+			if (t != null && t.get("structure_type").equals("LOCAL")) {
+				if ((ret=st[i].get(name)) != null) {
 					return ret;
-			} catch (Throwable t) {}
+				}
+				break;
+			}
+		}
+		// try to fetch the variable from one of the Structures on the global structures st
+		for (int i = stack_size; --i >= 0; ) {
+			final Structure t = st[i];
+			if (t != null && (ret=t.get(name)) != null) {
+				return ret;
+			}
 		}
 		return null;
 	}
