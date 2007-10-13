@@ -99,8 +99,12 @@ public final class Function extends ScriptNode
 		out.print((line_start?indentation:"") + "FUNCTION "+((function_body==null)?Global.FUNCTION_NAME[id]:"")+" (");
 		if (argument_name.length > 0) {
 			out.print(argument_name[0]);
-			for (int i = 1; i < argument_name.length; i++)
+			for (int i = 1; i < argument_name.length; i++) {
 				out.print(", "+argument_name[i]);
+				if (argument_default_value[i] != null) {
+					out.print(" = "+argument_default_value[i].toString());
+				}
+			}
 		}
 		out.println(")");
 		if (function_body != null)

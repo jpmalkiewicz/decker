@@ -441,6 +441,9 @@ try {
 					out.print((line_start?indentation:""));
 					ret = print(out, indentation, false, first_operand);
 				break;
+			case FUNCTION_CALL:
+					out.print((line_start?indentation:"")+toString());
+				break;
 			default :
 					line_start = print(out, indentation, line_start, first_operand);
 					out.print((line_start?indentation:" ") + operator_element.toString() + " ");
