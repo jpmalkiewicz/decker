@@ -87,7 +87,7 @@ final class ScriptParser extends ScriptReader
 				ac.setValueExpression(parseExpression(line, block_column, true));
 			return ac;
 		}
-		else if (s.equals("--") || s.equals("++")) {
+		else if (s != null &&( s.equals("--") || s.equals("++") )) {
 			readElement();
 			return new IncrementDecrementCommand(s, false, x, script_name, line, block_column);
 		}
