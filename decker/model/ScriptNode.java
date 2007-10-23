@@ -15,6 +15,7 @@ public abstract class ScriptNode
 	static int stack_size;
 	static int global_stack_size;
 	public final static Structure KEEP_STACK = new Structure("KEEP_STACK"); // when this is used for the enclosing structure when calling functionCall(), the stack will not be emptied for the function call
+	public final static Value BREAK_VALUE = new Value();
 
 
 	public final static void addStackItem (final Structure n)  { stack[stack_size++] = n; }

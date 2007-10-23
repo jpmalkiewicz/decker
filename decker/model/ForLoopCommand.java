@@ -69,14 +69,20 @@ final class ForLoopCommand extends Block
 					v.setDirectly(initial_value.execute());
 				}
 			}
-			// the condition section is optional too. if it is omitted, the loop will be infinite. use the break command to leave it then
+			// the condition section is optional too. if it is omitted, the loop will be infinite, unless it contains a break command
 			final Expression c = condition;
 			final ScriptNode inc = increment;
 			while (c == null || c.execute().equals(true)) {
-				super.execute();
+				// the loop may have been terminated by a break command
+				if (super.execute() == BREAK_VALUE) {
+					return null;
+				}
 				// the increment section is optional
 				if (inc != null) {
-					inc.execute();
+					// the increment section may contain the break command
+					if (inc.execute() == BREAK_VALUE) {
+						return null;
+					}
 				}
 			}
 		}
@@ -109,9 +115,12 @@ final class ForLoopCommand extends Block
 						return null;
 				}
 				while (true) {
-					// the loop limit has not been reached yet. execute the loop body again
-					super.execute();
-					// if the loop variable is right on the limit, stop after one execution of the block
+					// the loop limit has not been reached yet. execute the loop body (again)
+					if (super.execute() == BREAK_VALUE) {
+						// the loop has been terminated by a break command in the loop's block
+						return null;
+					}
+					// if the loop variable is right on the limit, stop right after the execution of the block
 					vt = v.type();
 					if (vt != Value.INTEGER && vt != Value.REAL) {
 						throwException("when you change the for loop variable in the looped block, you must give it an INTEGER or REAL value, not "+v+" ("+v.typeName()+")");
@@ -153,7 +162,10 @@ final class ForLoopCommand extends Block
 			else {
 				while (true) {
 					// execute the loop body
-					super.execute();
+					if (super.execute() == BREAK_VALUE) {
+						// the loop has been terminated by a break command in the loop's block
+						return null;
+					}
 					vt = v.type();
 					if (vt != Value.INTEGER && vt != Value.REAL) {
 						throwException("when you change the for loop variable in the looped block, you must give it an INTEGER or REAL value, not "+v+" ("+v.typeName()+")");

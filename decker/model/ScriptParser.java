@@ -10,6 +10,7 @@ final class ScriptParser extends ScriptReader
 
 	private int last_expression_line = -1; // the last line of the expression that has last been parsed
 	private int block_column; // the column in which the lines of the last parsed block started. -1 if the block was empty
+	private boolean inside_loop = false;
 
 
 	static Script parse (final String file_name, final Reader in)  {
@@ -157,13 +158,27 @@ final class ScriptParser extends ScriptReader
 	}
 
 
+	private BreakCommand parseBreakCommand (final int command_line, final int command_column) {
+		readElement();
+		if (!inside_loop)
+			throwException("break without enclosing loop encountered");
+		return new BreakCommand(script_name, command_line, command_column);
+	}
+
+
 	private ConditionalCommand parseConditionalCommand (final int command_line, final int command_column)  {
 		final String command = readElement();
 		final ConditionalCommand cc = new ConditionalCommand(command, script_name, command_line, command_column);
 		cc.setConditionalExpression(parseExpression(command_line, command_column, false));
-		parseBlock(cc, last_expression_line, command_column);
-		// check whether there's an else block
-		if (command.equals("if"))  {
+		if (command.equals("while"))  {
+			final boolean was_inside_loop = inside_loop;
+			inside_loop = true;
+			parseBlock(cc, last_expression_line, command_column);
+			inside_loop = was_inside_loop;
+		}
+		else { // "if" command
+			parseBlock(cc, last_expression_line, command_column);
+			// check whether there's an else block
 			String s = previewElement();
 			if (s != null && getColumn() == command_column &&( s.equals("else") || s.equals("elseif") )) {
 				final int else_line = getLine();
@@ -368,6 +383,9 @@ final class ScriptParser extends ScriptReader
 
 	private ForLoopCommand parseForLoop (final int command_line, final int command_column)  {
 		readElement(); // remove the for tag from the stream
+		// we now have an enclosing loop (important if we run into break commands)
+		final boolean was_inside_loop = inside_loop;
+		inside_loop = true;
 		String s = previewElement();
 		if (s == null)
 			throwException("variable or ( expected right after the \"for\" but end of script found");
@@ -442,6 +460,8 @@ final class ScriptParser extends ScriptReader
 			// return the complete java-style loop, with the block inside the loop parsed
 			ForLoopCommand ret = new ForLoopCommand(variable, initial_value, condition, increment, script_name, command_line, command_column);
 			parseBlock(ret, command_line, command_column);
+			// we are no longer inside this loop, although there may still be other, enclosing loops
+			inside_loop = was_inside_loop;
 			return ret;
 		}
 		else { // it's a BASIC style loop, e.g.   for i = 0 to 5 step 2
@@ -481,6 +501,8 @@ final class ScriptParser extends ScriptReader
 			// return the complete BASIC-style loop, with the block inside the loop parsed
 			ForLoopCommand ret = new ForLoopCommand(variable, initial_value, final_value, step, script_name, command_line, command_column);
 			parseBlock(ret, command_line, command_column);
+			// we are no longer inside this loop, although there may still be other, enclosing loops
+			inside_loop = was_inside_loop;
 			return ret;
 		}
 	}
@@ -566,6 +588,9 @@ final class ScriptParser extends ScriptReader
 		String s = previewElement();
 		// if it's a function without function body and argument list at the end of the script, s will be null and we're done parsing the function
 		if(s != null) {
+			// we are no longer inside a loop, if we were before
+			final boolean was_inside_loop = inside_loop;
+			inside_loop = false;
 			// parse the list of argument names, if there is one
 			if (getLine() == enclosing_line) {
 				if (!s.equals("("))
@@ -598,6 +623,8 @@ final class ScriptParser extends ScriptReader
 			}
 			// parse the function body
 			parseBlock(f.getFunctionBody(), enclosing_line, enclosing_column);
+			// the function definition is over. if it was inside a loop, we are back in that loop
+			inside_loop = was_inside_loop;
 		}
 		return f;
 	}
@@ -803,6 +830,8 @@ System.out.println(script_name);
 			throwException(s+" without if found");
 		else if (s.equals("++") || s.equals("--"))
 			return new IncrementDecrementCommand(readElement(), true, parseExpression(line, _block_column, false), script_name, line, _block_column);
+		else if (s.equals("break"))
+			return parseBreakCommand(line, _block_column);
 		else if (Expression.operatorID(s) == Expression.VARIABLE)
 			return parseAssignmentCommandOrExpression(_block_column, false);
 		else

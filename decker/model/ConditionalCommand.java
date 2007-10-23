@@ -51,14 +51,25 @@ final class ConditionalCommand extends Block
 
 	public Value execute ()  {
 		if (type == IF) {
-			if (conditional_expression.execute().equals(true))
-				super.execute();
-			else if (else_branch != null)
-				else_branch.execute();
+			if (conditional_expression.execute().equals(true)) {
+				if (super.execute() == BREAK_VALUE) {
+					return BREAK_VALUE;
+				}
+			}
+			else if (else_branch != null) {
+				if (else_branch.execute() == BREAK_VALUE) {
+					return BREAK_VALUE;
+				}
+			}
 		}
-		else // type == WHILE
-			while (conditional_expression.execute().equals(true))
-				super.execute();
+		else { // type == WHILE
+			while (conditional_expression.execute().equals(true)) {
+				// execute the loop's body. if a "break" command has been reached, stop the loop
+				if (super.execute() == BREAK_VALUE) {
+					return null;
+				}
+			}
+		}
 		return null;
 	}
 

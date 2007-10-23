@@ -42,8 +42,11 @@ class Block extends ScriptNode
 
 	public Value execute ()  {
 		final int count = child_command.length;
-		for (int i = 0; i < count; i++)
-			child_command[i].execute();
+		for (int i = 0; i < count; i++) {
+			if (child_command[i].execute() == BREAK_VALUE) {
+				return BREAK_VALUE;
+			}
+		}
 		return null;
 	}
 
