@@ -87,6 +87,11 @@ public class Expression extends ScriptNode
 	}
 
 
+	Expression (final String operator_element, final String _script_name, final int _script_line, final int _script_column)  {
+		this(operator_element, _script_name, _script_line, _script_column, false, null, null);
+	}
+
+
 	Expression (final String operator_element, final String _script_name, final int _script_line, final int _script_column, final Expression[] expression_stack, final int[] expression_stack_top)  {
 		this(operator_element, _script_name, _script_line, _script_column, false, expression_stack, expression_stack_top);
 	}
@@ -207,8 +212,8 @@ try {
 					b = new Value();
 			}
 		}
-		final int at = (a!=null)?a.typeDirect():-1;
-		final int bt = (b!=null)?b.typeDirect():-1;
+		final int at = (a!=null)?a.type():-1;
+		final int bt = (b!=null)?b.type():-1;
 
 		// now execute the operator
 		switch(operator) {
@@ -229,10 +234,12 @@ try {
 						throwException("The array index operator [] requires an integer inside the brackets, or empty brackets, not the value "+b.toString()+" ("+b.typeName()+")");
 				return (bt==Value.INTEGER) ? a.get(b.integer()) : a.get(b.toString());
 			case GLOBAL_VALUE :
-					return_value.setGlobalValue(first_operand.toString());
+					final Value gv = stack[RULESET_STACK_SLOT].get("GLOBAL_VALUES").get(first_operand.toString());
+					if (gv != null)
+						return gv;
 				break;
 			case RAW_VALUE :
-					return_value.setDirectly(a);
+					return_value.set(a);
 				break;
 			case MEMBER :
 					if (second_operand.operator != VARIABLE)

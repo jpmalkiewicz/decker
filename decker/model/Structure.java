@@ -12,7 +12,7 @@ public final class Structure
 	public Structure (final String type_name)  {
 if (type_name==null)
 throw new RuntimeException("trying to use null as a structure type");
-		addDirectly("structure_type").set(type_name);
+		add("structure_type").set(type_name);
 		// if there exists a template structure for this type, copy it
 		if (ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] != null)  {
 			Value template_value = ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT].get("STRUCTURE_TYPES").get(type_name);
@@ -30,10 +30,10 @@ throw new RuntimeException("trying to use null as a structure type");
 					if (k.equals("initializer"))
 						initializer = (Value) n.getValue();
 					else if (!k.equals("pixelwidth") && !k.equals("pixelheight") && !k.equals("expandable")) // pixelwidth and pixelheight stay with their structure type and aren't copied to the instantiated structures
-						addDirectly(k).setDirectly((Value)n.getValue());
+						add(k).set((Value)n.getValue());
 				}
 				// execute the STRUCTURE_TYPE's initializer function if there is one
-				if (initializer != null && initializer.typeDirect() == Value.FUNCTION)
+				if (initializer != null && initializer.type() == Value.FUNCTION)
 					FunctionCall.executeFunctionCall(initializer, null, this);
 			}
 		}
@@ -44,7 +44,7 @@ throw new RuntimeException("trying to use null as a structure type");
 		StringTreeMap.Iterator i = original.members.getIterator();
 		while (i.hasNext()) {
 			final StringTreeMap.TreeNode n = i.nextNode();
-			addDirectly(n.getKey()).setDirectly((Value)n.getValue());
+			add(n.getKey()).set((Value)n.getValue());
 		}
 	}
 
@@ -70,16 +70,8 @@ throw new RuntimeException("trying to use null as a structure type");
 	}
 
 
-	/** adds a new variable to this collection */
+	/** adds a new variable to this collection or replaces an old variable */
 	public Value add (String name)  {
-		final Value ret = new Value(this);
-		members.put(name, ret);
-		return ret;
-	}
-
-
-	/** adds a vriable to this Structure without doing any tests, like whether the Structure is an ARRAY and the added variable is "" */
-	public Value addDirectly (String name)  {
 		final Value ret = new Value(this);
 		members.put(name, ret);
 		return ret;
@@ -104,12 +96,6 @@ throw new RuntimeException("trying to use null as a structure type");
 	}
 
 
-	public Value getValue (final String name) {
-		final Value ret = (Value) members.get(name);
-		return (ret == null) ? null : ret.getValue();
-	}
-
-
 	public boolean print (final PrintStream out, final String indentation, boolean line_start)  {
 		final String ind = indentation+Global.BLOCK_INDENT;
 		out.print((line_start?indentation:"") + get("structure_type"));
@@ -126,7 +112,7 @@ throw new RuntimeException("trying to use null as a structure type");
 				if (!n.getKey().equals("structure_type")) {
 					out.print(ind + n.getKey() + " = ");
 					final Value v = (Value) n.getValue();
-					final int vt = v.typeDirect();
+					final int vt = v.type();
 					if (vt == Value.STRUCTURE)
 						v.structure().print(out, ind, false);
 					else if (vt == Value.FUNCTION)
@@ -150,7 +136,7 @@ throw new RuntimeException("who's putting null into a StringTreeMap ?!?");
 
 
 	void remove (final String key)  {
-		final Value overwritten_value = (Value) members.remove(key);
+		members.remove(key);
 	}
 
 
@@ -158,7 +144,4 @@ throw new RuntimeException("who's putting null into a StringTreeMap ?!?");
 
 
 	public String toString ()  { return ((Value)members.get("structure_type")).string(); }
-
-
-	boolean staticStackEntry ()  { final Object o = members.get("static_stack_entry"); return o != null && ((Value)o).equals(true); }
 }

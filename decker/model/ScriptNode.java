@@ -139,7 +139,7 @@ public abstract class ScriptNode
 
 	final public static Value getValue (final String name)  {
 		final Value ret = getVariable(name);
-		return (ret == null) ? null : ret.getValue();
+		return (ret == null) ? null : ret;
 	}
 
 

@@ -75,7 +75,7 @@ final class ScriptParser extends ScriptReader
 		// check whether it's an assignment command
 		if (s != null && s.equals("=")) {
 			readElement();
-			final AssignmentCommand ac = new AssignmentCommand(false, script_name, line, block_column);
+			final AssignmentCommand ac = new AssignmentCommand(false, false, script_name, line, block_column);
 			ac.setVariableExpression(x); // the stuff that sits on the left side of the =
 			s = previewElement();
 			if(s == null)
@@ -658,7 +658,7 @@ final class ScriptParser extends ScriptReader
 					// check whether it's an assignment command
 					if (s == null || !s.equals("="))
 						throwException("= expected but "+((s==null)?"end of script":s)+" found");
-					final AssignmentCommand ac = new AssignmentCommand(true, script_name, line, column);
+					final AssignmentCommand ac = new AssignmentCommand(true, false, script_name, line, column);
 					ac.setVariableExpression(x); // the stuff that sits on the left side of the =
 					s = previewElement();
 					if(s == null)
@@ -667,8 +667,12 @@ final class ScriptParser extends ScriptReader
 						throwException("Expression of FUNCTION definition on the right side of the = must start on the same line as the expression on the left side did");
 					if(s.equals("FUNCTION"))
 						ac.setValueExpression(parseFunctionDefinition(line, getColumn(), line, column));
-					else
-						ac.setValueExpression(parseExpression(line, column, true));
+					else {
+						final Expression value = parseExpression(line, column, true);
+						if (value.getOperator() == Expression.GLOBAL_VALUE)
+							throwException("can't assign a global value to a global value");
+						ac.setValueExpression(value);
+					}
 					globals[count++] = ac;
 					// check whether there's another global definition following this one
 					s = previewElement();
@@ -851,7 +855,7 @@ System.out.println(script_name);
 			if (s == null || !s.equals("(") || getLine() != line)
 				throwException("copy must be followed immediately by an opening bracket on the same line, like so : copy(some_variable)");
 			previewElement();
-			final Expression original_structure = parseExpression(line, command_column, new int[]{ -1 }, new Expression[Global.PARSER_EXPRESSION_STACK_SIZE], new int[]{ -1 }, true);
+			final Expression original_structure = parseExpression(line, command_column, true);
 			s = readElement();
 			if (s == null || !s.equals(")"))
 				throwException("closing bracket missing of the copy() command at line "+line+", column "+column);
@@ -908,16 +912,17 @@ System.out.println(script_name);
 			// check whether the variable has a default value
 			s = previewElement();
 			if (s != null && s.equals("=") && current_line == getLine()) {
-				readElement();
+				final AssignmentCommand ac = new AssignmentCommand(false, true, script_name, current_line, col);
+				ac.setVariableExpression(new Expression((String)variable[count], script_name, current_line, getColumn()));
+				readElement(); // remove the =
 				s = previewElement();
 				if (current_line != getLine())
 					throwException("assigned expression must start on the line of the =");
 				if (s.equals("FUNCTION"))
-					variable[count] = new Object[]{ variable[count], parseFunctionDefinition(current_line, getColumn(), current_line, col) };
-				else {
-					final Expression e = parseExpression(current_line, col, new int[]{ -1 }, new Expression[Global.PARSER_EXPRESSION_STACK_SIZE], new int[]{ -1 }, true);
-					variable[count] = new Object[]{ variable[count], e };
-				}
+					ac.setValueExpression(parseFunctionDefinition(current_line, getColumn(), current_line, col));
+				else
+					ac.setValueExpression(parseExpression(current_line, col, true));
+				variable[count] = ac;
 				s = previewElement();
 			}
 			count++;

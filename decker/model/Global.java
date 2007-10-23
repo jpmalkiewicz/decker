@@ -39,29 +39,29 @@ public static Ruleset getCurrentRuleset ()  { return current_ruleset; }
 	/** sets things up for the game to launch and load the rulesets */
 	public final static void initializeDataModel ()  {
 		// set up the data stack
-		engine.data.addDirectly("date_day_of_month").set(new Function(F_DATE_DAY_OF_MONTH, new String[]{ "year", "month", "day" }));
-		engine.data.addDirectly("date_days_in_month").set(new Function(F_DATE_DAYS_IN_MONTH, new String[]{ "year", "month", "day" }));
-		engine.data.addDirectly("date_text").set(new Function(F_DATE_TEXT, new String[]{ "year", "month", "day" }));
-		engine.data.addDirectly("exit_program").set(new Function(F_EXIT_PROGRAM, new String[0]));
-		engine.data.addDirectly("debug").set(new Function(F_DEBUG, new String[]{ "print_this", "to_console" }));
-		engine.data.addDirectly("delete").set(new Function(F_DELETE, new String[]{ "array", "index" }));
-		engine.data.addDirectly("filelist").set(new Function(F_FILELIST, new String[]{ "directory" }));
-		engine.data.addDirectly("getStructureStack").set(new Function(F_GET_STRUCTURE_STACK, new String[0]));
-		engine.data.addDirectly("hasVariable").set(new Function(F_HAS_VARIABLE, new String[]{ "structure", "variable" }));
-		engine.data.addDirectly("image_exists").set(new Function(F_IMAGE_EXISTS, new String[]{ "name" }));
-		engine.data.addDirectly("indexof").set(new Function(F_INDEXOF, new String[]{ "what", "where", "direction", "start_at" }));
-		engine.data.addDirectly("insert").set(new Function(F_INSERT, new String[]{ "array", "index" }));
-		engine.data.addDirectly("isExpandable").set(new Function(F_IS_EXPANDABLE, new String[]{ "component" }));
-		engine.data.addDirectly("pixelheight").set(new Function(F_PIXELHEIGHT, new String[]{ "component" }));
-		engine.data.addDirectly("pixelwidth").set(new Function(F_PIXELWIDTH, new String[]{ "component" }));
-		engine.data.addDirectly("random").set(new Function(F_RANDOM, new String[]{ "range_start", "range_end" }));
-		engine.data.addDirectly("repaint").set(new Function(F_REPAINT, new String[0]));
-		engine.data.addDirectly("size").set(new Function(F_SIZE, new String[]{ "thing" }));
-		engine.data.addDirectly("substring").set(new Function(F_SUBSTRING, new String[]{ "string" , "from", "to" }));
-		engine.data.addDirectly("to_lower_case").set(new Function(F_TO_LOWER_CASE, new String[]{ "text" }));
-		engine.data.addDirectly("to_upper_case").set(new Function(F_TO_UPPER_CASE, new String[]{ "text" }));
-		engine.data.addDirectly("value_type").set(new Function(F_VALUE_TYPE, new String[]{ "value" }));
-		engine.data.addDirectly("displayed_screen").set(new Structure("VIEW")); // initialized with a dummy screen to avoid errors
+		engine.data.add("date_day_of_month").set(new Function(F_DATE_DAY_OF_MONTH, new String[]{ "year", "month", "day" }));
+		engine.data.add("date_days_in_month").set(new Function(F_DATE_DAYS_IN_MONTH, new String[]{ "year", "month", "day" }));
+		engine.data.add("date_text").set(new Function(F_DATE_TEXT, new String[]{ "year", "month", "day" }));
+		engine.data.add("exit_program").set(new Function(F_EXIT_PROGRAM, new String[0]));
+		engine.data.add("debug").set(new Function(F_DEBUG, new String[]{ "print_this", "to_console" }));
+		engine.data.add("delete").set(new Function(F_DELETE, new String[]{ "array", "index" }));
+		engine.data.add("filelist").set(new Function(F_FILELIST, new String[]{ "directory" }));
+		engine.data.add("getStructureStack").set(new Function(F_GET_STRUCTURE_STACK, new String[0]));
+		engine.data.add("hasVariable").set(new Function(F_HAS_VARIABLE, new String[]{ "structure", "variable" }));
+		engine.data.add("image_exists").set(new Function(F_IMAGE_EXISTS, new String[]{ "name" }));
+		engine.data.add("indexof").set(new Function(F_INDEXOF, new String[]{ "what", "where", "direction", "start_at" }));
+		engine.data.add("insert").set(new Function(F_INSERT, new String[]{ "array", "index" }));
+		engine.data.add("isExpandable").set(new Function(F_IS_EXPANDABLE, new String[]{ "component" }));
+		engine.data.add("pixelheight").set(new Function(F_PIXELHEIGHT, new String[]{ "component" }));
+		engine.data.add("pixelwidth").set(new Function(F_PIXELWIDTH, new String[]{ "component" }));
+		engine.data.add("random").set(new Function(F_RANDOM, new String[]{ "range_start", "range_end" }));
+		engine.data.add("repaint").set(new Function(F_REPAINT, new String[0]));
+		engine.data.add("size").set(new Function(F_SIZE, new String[]{ "thing" }));
+		engine.data.add("substring").set(new Function(F_SUBSTRING, new String[]{ "string" , "from", "to" }));
+		engine.data.add("to_lower_case").set(new Function(F_TO_LOWER_CASE, new String[]{ "text" }));
+		engine.data.add("to_upper_case").set(new Function(F_TO_UPPER_CASE, new String[]{ "text" }));
+		engine.data.add("value_type").set(new Function(F_VALUE_TYPE, new String[]{ "value" }));
+		engine.data.add("displayed_screen").set(new Structure("VIEW")); // initialized with a dummy screen to avoid errors
 		ScriptNode.stack[ScriptNode.ENGINE_STACK_SLOT] = engine.data;
 		ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] = current_ruleset.data;
 		ScriptNode.stack[ScriptNode.GLOBAL_STACK_SLOT] = new Structure("GLOBAL");
@@ -141,6 +141,7 @@ System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").t
 public static void setCurrentRuleset (final Ruleset r)  {
 current_ruleset = r;
 ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] = r.data;
+Value.setGlobalValues(r.data.get("GLOBAL_VALUES").structure());
 }
 
 

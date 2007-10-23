@@ -29,7 +29,7 @@ public final class Ruleset
 			final String[] expandable_structure_types = { "COLLECTION", "ENGINE", "GLOBAL", "LOCAL", "RULESET", "SET" };
 			for (int i = 0; i < expandable_structure_types.length; i++) {
 				final Structure s = new Structure(expandable_structure_types[i]);
-				s.addDirectly("expandable").set(true);
+				s.add("expandable").set(true);
 				structure_types.add(expandable_structure_types[i]).set(s);
 			}
 		}

@@ -9,26 +9,26 @@ english
 		CRASH_SYSTEM
 			status = INCOMPLETE
 			incomplete
-			completed		
+			completed
 
 		CREATE_BACKDOOR            extends CRASH_SYSTEM
 
 		DOWNLOAD_FILE              extends CRASH_SYSTEM
 			target
-	
+
 		DOWNLOAD_AND_ERASE_FILE    extends DOWNLOAD_FILE
-	
+
 		EDIT_FILE                  extends DOWNLOAD_FILE
 
 		ERASE_FILE                 extends DOWNLOAD_FILE
 
 		MANIPULATE_IO              extends DOWNLOAD_FILE
-	
+
 		RUN_PROGRAM                extends DOWNLOAD_FILE
 			program
 			execution_time
 			remaining_execution_time
-		
+
 		NO_RED_ALARM
 			status = COMPLETED
 			completed
@@ -60,26 +60,26 @@ english
 			area
 			initializer = FUNCTION
 				area = ARRAY
-			
+
 		AREA
 			name
 			system
 			destroyed_ice
 			ice_entry_node
-			
+
 		NODE
 			name
 			area
 			smoke_level
 			objects       // ice and humans
-		
+
 		FILE
 			name
 			type
 			description
 			size
 			value = 0
-			
+
 		ICE
 			expandable = true
 			name
@@ -90,7 +90,7 @@ english
 			// phasing
 			// trace_time
 			// trace_target
-			
+
 // miscellaneous types ********************************************************************************************************************************
 
 		THING_TYPE
@@ -105,7 +105,7 @@ english
 			// effect              // a function that gets executed when things of this type are used
 			// max_rating          // some types of hardware have a max rating
 			// image               // for programs
-		
+
 		THING
 			expandable = true
 			name
@@ -114,7 +114,7 @@ english
 			size
 			// state       // for programs on the deck, this can have the values INSTALLED, LOADED, DEFAULT
 			// source_code // true if this thing is a source code
-			
+
 		DECK
 			model = "(custom built)"
 			damage = 0
@@ -156,7 +156,7 @@ english
 			reload_when_over = false
 			intializer = FUNCTION
 				goal = ARRAY
-			
+
 		HUMAN
 			expandable = true
 			name
@@ -183,7 +183,7 @@ english
 			current_target    // some ice or file
 			current_program   // the program this human is currently trying to use
 			time              // time for the current matrix run
-			
+
 // interface types ************************************************************************************************************************************
 
 		NAME_TABLE_CELL
