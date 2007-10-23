@@ -22,7 +22,7 @@ public class ArrayWrapper
 		final Value[] a = array;
 		final int al = a.length;
 		for (int i = 0; i < al; i++) {
-			final int ait = a[i].typeDirect();
+			final int ait = a[i].type();
 			if (ait == Value.STRUCTURE) {
 				if (!a[i].structure().print(out, ind, true))
 					out.println();

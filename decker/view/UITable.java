@@ -134,7 +134,7 @@ class UITable
 				cells[y/ch] = dragged_row;
 				q.set(q.integer()%ch+(y/ch)*ch);
 				// call the row drag listener function if there is one
-				if ((q=d.get("on_row_drag")) != null && q.typeDirect() == Value.FUNCTION)
+				if ((q=d.get("on_row_drag")) != null && q.type() == Value.FUNCTION)
 					FunctionCall.executeFunctionCall(q.function(), new Value[]{ new Value().set(d), new Value().set(dragged_row_index), new Value().set(y/ch) }, ScriptNode.KEEP_STACK);
 			}
 		}
@@ -216,9 +216,9 @@ class UITable
 			q = d.get("selected_row");
 			int old_selected_row = (q.type() != Value.INTEGER) ? -1 : q.integer();
 			if (old_selected_row != y/ch) {
-				Value old = new Value().setDirectly(q);
+				Value old = new Value().set(q);
 				q.set(y/ch);
-				if ((q=d.get("on_selection_change")) != null && q.typeDirect() == Value.FUNCTION)
+				if ((q=d.get("on_selection_change")) != null && q.type() == Value.FUNCTION)
 					FunctionCall.executeFunctionCall(q.function(), new Value[]{ new Value().set(d), old, new Value().set(y/ch) }, ScriptNode.KEEP_STACK);
 			}
 		}

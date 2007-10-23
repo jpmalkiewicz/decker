@@ -43,7 +43,7 @@ public final class DefaultView extends AbstractView
 			Value v = null, v2 = null;
 			Shape clip = NO_CLIP_CHANGE;
 			// if the structure has an on_draw function, execute it
-			if ((v=d.get("on_draw")) != null && v.typeDirect() == Value.FUNCTION) {
+			if ((v=d.get("on_draw")) != null && v.type() == Value.FUNCTION) {
 				// gotta store the current draw coordinates, in case they get polled by the on_draw function
 				current_dx = dx;
 				current_dy = dy;
@@ -87,7 +87,7 @@ public final class DefaultView extends AbstractView
 			}
 			else if (type.equals("BORDER")) {
 				final boolean inverted = d.get("inverted").equals(true);
-				Value vtc = d.get("top_color").evaluate(), vlc = d.get("left_color").evaluate(), vrc = d.get("right_color").evaluate(), vbc = d.get("bottom_color").evaluate();
+				Value vtc = d.get("top_color"), vlc = d.get("left_color"), vrc = d.get("right_color"), vbc = d.get("bottom_color");
 				if (vtc.equalsConstant("UNDEFINED"))
 					vtc = vlc;
 				else if (vlc.equalsConstant("UNDEFINED"))
@@ -149,18 +149,18 @@ public final class DefaultView extends AbstractView
 					}
 				}
 				// draw the background
-				if (!(v=d.get("background_color").evaluate()).equalsConstant("UNDEFINED")) {
+				if (!(v=d.get("background_color")).equalsConstant("UNDEFINED")) {
 					g.setColor(getColor(v.toString()));
 					g.fillRect(dx+thickness, dy+thickness, w-2*thickness, h-2*thickness);
 				}
 			}
 			else if (type.equals("LINE") && d.get("x2").type() == Value.INTEGER && d.get("y2").type() == Value.INTEGER) {
-				if ((v=d.get("color").evaluate()) != null)
+				if ((v=d.get("color")) != null)
 					g.setColor(getColor(v.toString()));
 				g.drawLine(dx, dy, dx+d.get("x2").integer()-x, dy+d.get("y2").integer()-y);
 			}
 			else if (type.equals("RECTANGLE")) {
-				if ((v=d.get("color").evaluate()) != null)
+				if ((v=d.get("color")) != null)
 					g.setColor(getColor(v.toString()));
 				g.fillRect(dx, dy, w, h);
 			}
@@ -251,7 +251,7 @@ public final class DefaultView extends AbstractView
 
 			// hand the key event on to the screen overlays and the displayed screen
 			Value o = ScriptNode.getStackEntry(ScriptNode.ENGINE_STACK_SLOT).get("screen_overlays");
-			if (o !=null && o.typeDirect() == Value.ARRAY) {
+			if (o !=null && o.type() == Value.ARRAY) {
 				final Value[] overlay = o.array();
 				for (int i = overlay.length; --i >= 0; ) {
 					if (overlay[i].type() == Value.STRUCTURE && eventKeyPressed(args, overlay[i].structure())) {
@@ -268,7 +268,7 @@ public final class DefaultView extends AbstractView
 		Value v;
 		ScriptNode.addStackItem(d);
 		// execute the on_key_down function if this structure has one
-		if ((v=d.get("on_key_down")) != null && v.typeDirect() == Value.FUNCTION) {
+		if ((v=d.get("on_key_down")) != null && v.type() == Value.FUNCTION) {
 			if (FunctionCall.executeFunctionCall(v.function(), args, ScriptNode.KEEP_STACK).equals(true)) {
 				ScriptNode.removeStackItem(d);
 				return true;
@@ -304,7 +304,7 @@ public final class DefaultView extends AbstractView
 			final int screen_width = width(v), screen_height = height(v);
 			// first hand the event on to any screen overlays
 			Value o = ScriptNode.getStackEntry(ScriptNode.ENGINE_STACK_SLOT).get("screen_overlays");
-			if (o !=null && o.typeDirect() == Value.ARRAY) {
+			if (o !=null && o.type() == Value.ARRAY) {
 				final Value[] overlay = o.array();
 				for (int i = overlay.length; --i >= 0; ) {
 					if (overlay[i].type() == Value.STRUCTURE && eventMouseDragged (x, y, dx, dy, overlay[i].structure(), screen_width, screen_height)) {
@@ -344,7 +344,7 @@ public final class DefaultView extends AbstractView
 			}
 		}
 		// if the component has an on_mouse_dragged function, call it
-		if ((v=d.get("on_mouse_dragged")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, w, h, d)) {
+		if ((v=d.get("on_mouse_dragged")) != null && v.type() == Value.FUNCTION && inside(x, y, w, h, d)) {
 			if (FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y), new Value().set(dx), new Value().set(dy) }, ScriptNode.KEEP_STACK).equals(true)) {
 				ScriptNode.removeStackItem(d);
 				return true;
@@ -394,7 +394,7 @@ public final class DefaultView extends AbstractView
 			final int screen_width = width(v), screen_height = height(v);
 			// first hand the event on to any screen overlays
 			Value o = ScriptNode.getStackEntry(ScriptNode.ENGINE_STACK_SLOT).get("screen_overlays");
-			if (o !=null && o.typeDirect() == Value.ARRAY) {
+			if (o !=null && o.type() == Value.ARRAY) {
 				final Value[] overlay = o.array();
 				for (int i = overlay.length; --i >= 0; ) {
 					if (overlay[i].type() == Value.STRUCTURE && eventMouseMoved (x, y, overlay[i].structure(), screen_width, screen_height)) {
@@ -475,7 +475,7 @@ public final class DefaultView extends AbstractView
 			final int screen_width = width(v), screen_height = height(v);
 			// first hand the event on to any screen overlays
 			Value o = ScriptNode.getStackEntry(ScriptNode.ENGINE_STACK_SLOT).get("screen_overlays");
-			if (o !=null && o.typeDirect() == Value.ARRAY) {
+			if (o !=null && o.type() == Value.ARRAY) {
 				final Value[] overlay = o.array();
 				for (int i = overlay.length; --i >= 0; ) {
 					if (overlay[i].type() == Value.STRUCTURE && eventMousePressed (x, y, overlay[i].structure(), screen_width, screen_height)) {
@@ -516,7 +516,7 @@ public final class DefaultView extends AbstractView
 				}
 		}
 		// if the component has an on_mouse_down function, call it
-		if ((v=d.get("on_mouse_down")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, w, h, d)) {
+		if ((v=d.get("on_mouse_down")) != null && v.type() == Value.FUNCTION && inside(x, y, w, h, d)) {
 			if (FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y) }, ScriptNode.KEEP_STACK).equals(true)) {
 				ScriptNode.removeStackItem(d);
 				return true;
@@ -566,7 +566,7 @@ public final class DefaultView extends AbstractView
 			final int screen_width = width(v), screen_height = height(v);
 			// first hand the event on to any screen overlays
 			Value o = ScriptNode.getStackEntry(ScriptNode.ENGINE_STACK_SLOT).get("screen_overlays");
-			if (o !=null && o.typeDirect() == Value.ARRAY) {
+			if (o !=null && o.type() == Value.ARRAY) {
 				final Value[] overlay = o.array();
 				for (int i = overlay.length; --i >= 0; ) {
 					if (overlay[i].type() == Value.STRUCTURE && eventMouseReleased (x, y, overlay[i].structure(), screen_width, screen_height)) {
@@ -596,7 +596,7 @@ public final class DefaultView extends AbstractView
 		if (t.equals("BUTTON") || t.equals("BORDER_BUTTON")) {
 			if (!d.get("state").equalsConstant("DISABLED")) {
 				if (inside(x, y, w, h, d)) {
-					if ((v=d.get("on_mouse_up")) != null && v.typeDirect() == Value.FUNCTION) {
+					if ((v=d.get("on_mouse_up")) != null && v.type() == Value.FUNCTION) {
 						if (FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y) }, ScriptNode.KEEP_STACK).equals(true)) {
 							ScriptNode.removeStackItem(d);
 							return true;
@@ -611,7 +611,7 @@ public final class DefaultView extends AbstractView
 				}
 			}
 		}
-		else if ((v=d.get("on_mouse_up")) != null && v.typeDirect() == Value.FUNCTION && inside(x, y, w, h, d)) {
+		else if ((v=d.get("on_mouse_up")) != null && v.type() == Value.FUNCTION && inside(x, y, w, h, d)) {
 			if (FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(x), new Value().set(y) }, ScriptNode.KEEP_STACK).equals(true)) {
 				ScriptNode.removeStackItem(d);
 				return true;

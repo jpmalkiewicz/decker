@@ -8,12 +8,13 @@ final class AssignmentCommand extends ScriptNode
 {
 	private Expression variable;
 	private ScriptNode value_definition;
-	private boolean its_a_global;
+	private boolean its_a_global, its_a_type_definition;
 
 
-	AssignmentCommand (final boolean _its_a_global, final String _script_name, final int _script_line, final int _script_column)  {
+	AssignmentCommand (final boolean _its_a_global, final boolean _its_a_type_definition, final String _script_name, final int _script_line, final int _script_column)  {
 		super(_script_name, _script_line, _script_column);
 		its_a_global = _its_a_global;
+		its_a_type_definition = _its_a_type_definition;
 	}
 
 
@@ -22,121 +23,157 @@ final class AssignmentCommand extends ScriptNode
 		variable = original.variable.copy();
 		value_definition = original.value_definition.copy();
 		its_a_global = original.its_a_global;
+		its_a_type_definition = original.its_a_type_definition;
 	}
 
 
 	ScriptNode copy ()  { return new AssignmentCommand(this); }
 
 
-	static Value fetchOrCreateVariable (final Expression e, final boolean create_in_LOCAL, final ScriptNode caller) {
-		Value ret = null;
+	static Value fetchOrCreateVariable (final Expression e, final boolean create_in_LOCAL, final ScriptNode caller, final Value replace_with_global, final boolean its_a_type_definition) {
 		final int voperator = e.getOperator();
-		// if there exists a LOCAL variable of that name, use that
+		// it's just a variable name
 		if (voperator == Expression.VARIABLE) {
-			for (int i = stack_size; --i >= 0; ) {
-				if (stack[i].get("structure_type").equals("LOCAL")) {
-					ret = stack[i].get(e.toString());
-					if (ret != null) {
-						return ret;
+			final String varname = e.toString();
+if (varname.equals("expandable"))
+System.out.println("*expandable");
+			if (!its_a_type_definition) {
+if (varname.equals("expandable"))
+System.out.println("*expandable !td");
+				// if there exists a LOCAL variable of that name, use that
+				for (int i = stack_size; --i >= 0; ) {
+					if (stack[i].get("structure_type").equals("LOCAL")) {
+						final Value ret = stack[i].get(varname);
+						if (ret != null)
+							return fetchStructureMember(stack[i], varname, ret, replace_with_global, caller);
+						break;
 					}
 				}
 			}
+if (varname.equals("expandable"))
+System.out.println("*expandable b");
+			// if the topmost structure on the stack is expandable and not of type LOCAL, add the variable to it (if it doesn't exist yet)
+			if (!create_in_LOCAL &&( its_a_type_definition || stack[stack_size-1].canHoldCustomVariables() )&& !stack[stack_size-1].get("structure_type").equals("LOCAL"))
+				return fetchStructureMember(stack[stack_size-1], varname, stack[stack_size-1].get(varname), replace_with_global, caller);
+if (varname.equals("expandable"))
+System.out.println("*expandable c");
+			// try to find it an existing variable of that name
+			for (int i = stack_size; --i >= 0; ) {
+				final Value ret = stack[i].get(varname);
+				if (ret != null)
+					return fetchStructureMember(stack[i], varname, ret, replace_with_global, caller);
+			}
+if (varname.equals("expandable"))
+System.out.println("*expandable d");
+			// add it to the innermost Structure on the stack that can hold custom variables
+			for (int i = stack_size; --i >= 0; ) {
+				if (( !create_in_LOCAL && stack[i].canHoldCustomVariables() )|| stack[i].get("structure_type").equals("LOCAL")) {
+					return fetchStructureMember(stack[i], varname, null, replace_with_global, caller);
+				}
+			}
+if (varname.equals("expandable"))
+System.out.println("*expandable e");
+			// unreachable code, because there's always an expandable structure on the stack
+			caller.throwException("failed to create e. there is no structure that can hold custom variables on the stack atm");
 		}
-		// if the topmost structure on the stack is expandable and not of type LOCAL, add the variable to it (if it doesn't exist yet)
-		if (!create_in_LOCAL && voperator == Expression.VARIABLE && stack[stack_size-1].canHoldCustomVariables() && !stack[stack_size-1].get("structure_type").equals("LOCAL")) {
-			ret = stack[stack_size-1].get(e.toString());
-			if (ret == null)
-				ret = stack[stack_size-1].add(e.toString());
+		else if (voperator == Expression.MEMBER) {
+			// find the structure our variable is or will be a member of
+			if (e.getSecondOperand().getOperator() != Expression.VARIABLE)
+				caller.throwException("failed to create variable. variable name expected but operator type "+e.getSecondOperand().getOperator()+" found:\n"+e.getSecondOperand().toString());
+			final String varname = e.getSecondOperand().toString();
+			// fetch the structure manually if the first operand is a variable name. otherwise execute the expression in the first operand to obtain the Structure
+			final Expression first_operand = e.getFirstOperand();
+			Value structure_value = null;
+			Structure structure = null;
+			if (first_operand.getOperator() != Expression.VARIABLE)
+				structure_value = e.getFirstOperand().execute();
+			else {
+				final String structurename = e.getFirstOperand().toString();
+				for (int i = stack_size; --i >= 0; ) {
+					if (stack[i].get("structure_type").equals(structurename)) {
+						structure = stack[i];
+						break;
+					}
+					if ((structure_value=stack[i].get(structurename)) != null)
+						break;
+				}
+			}
+			if (structure == null) {
+				if (structure_value == null)
+					caller.throwException("failed to create variable. structure "+e.getFirstOperand().toString()+" not found");
+				if (structure_value.type() != Value.STRUCTURE)
+					caller.throwException("failed to create variable. "+e.getFirstOperand().toString()+" gives a "+structure_value.typeName()+" instead of a structure");
+				structure = structure_value.structure();
+			}
+			final Value ret = structure.get(varname);
+			if (ret == null && !structure.canHoldCustomVariables())
+				caller.throwException("failed to create variable. the structure "+e.getFirstOperand().toString()+" of type "+structure.get("structure_type")+" cannot hold custom variables");
+			return fetchStructureMember(structure, varname, ret, replace_with_global, caller);
+		}
+		else if (voperator == Expression.ARRAY_INDEX) {
+			// fetch the array
+			final Value varray = e.getFirstOperand().execute();
+			if (varray.type() != Value.ARRAY)
+				caller.throwException("failed to fetch assigned variable. "+e.getFirstOperand().toString()+" gives a "+varray.typeName()+" instead of an array");
+			final ArrayWrapper array = varray.arrayWrapper();
+			// make sure it's a valid array index
+			final Value vindex = e.getSecondOperand().execute();
+			final int vit = vindex.type();
+			int index = Integer.MIN_VALUE;
+			if (vit == Value.INTEGER)
+				index = vindex.integer();
+			else if (vit == Value.REAL)
+				index = Math.round(vit);
+			else {
+				String s = vindex.toString();
+				if (s.length() == 0)
+					index = array.array.length;
+				else try {
+					index = Integer.parseInt(s);
+				} catch (Throwable t) {
+					caller.throwException("\""+s+"\" is no a valid array index in "+e.toString());
+				}
+			}
+			if (index < 0 || index > array.array.length)
+				caller.throwException("failed to fetch or create variable. Array index must be between 0 and "+(array.array.length-1)+" (inclusive), not "+index);
+			if (index == array.array.length)
+				array.array = (Value[]) ArrayModifier.addElement(array.array, new Value[index+1], (replace_with_global!=null)?replace_with_global:new Value());
+			// the returned variable is not a structure member, so we can't use fetchStructureMember() to handle global variables here
+			if (replace_with_global != null) {
+				array.array[index] = replace_with_global;
+				return replace_with_global;
+			}
+			else if (array.array[index].isGlobal()) {
+				final Value ret = new Value();
+				array.array[index] = ret;
+				return ret; // undo the previous replacement with a global variable
+			}
+			return array.array[index];
 		}
 		else
-			ret = e.execute();
-		// if the e doesn't exist yet, its enclosing structure is null
-		final Structure k = ret.getEnclosingStructure();
-		if (k == null) {
-			// if it's just a e name, add it to the innermost Structure on the stack that can hold custom variables
-			if (voperator == Expression.VARIABLE) {
-				final String varname = e.toString();
-				caller.testVariableName(varname);
-				for (int i = stack_size; --i >= 0; ) {
-					if (( !create_in_LOCAL && stack[i].canHoldCustomVariables() )|| stack[i].get("structure_type").equals("LOCAL")) {
-						return stack[i].add(varname);
-					}
-				}
-				// unreachable code, because there's always an expandable structure on the stack
-				caller.throwException("failed to create e. there is no structure that can hold custom variables on the stack atm");
-			}
-			else if (voperator == Expression.MEMBER) {
-				// the e gets added to some structure, find the structure
-				if (e.getSecondOperand().getOperator() != Expression.VARIABLE)
-					caller.throwException("failed to create e. e name expected but operator type "+e.getSecondOperand().getOperator()+" found:\n"+e.getSecondOperand().toString());
-				final String varname = e.getSecondOperand().toString();
-				caller.testVariableName(varname);
-				// fetch the structure manually if the first operand is a e name. otherwise execute the expression in the first operand to obtain the Structure
-				Value structure = null;
-				if (e.getFirstOperand().getOperator() != Expression.VARIABLE)
-					structure = e.getFirstOperand().execute();
-				else {
-					final String structurename = e.getFirstOperand().toString();
-					for (int i = stack_size; --i >= 0; ) {
-						if (stack[i].get("structure_type").equals(structurename)) {
-							structure = new Value().set(stack[i]);
-							break;
-						}
-						if ((structure=stack[i].get(structurename)) != null)
-							break;
-					}
-				}
-				if (structure == null)
-					caller.throwException("failed to create e. structure "+e.getFirstOperand().toString()+" not found");
-				if (structure.type() != Value.STRUCTURE)
-					caller.throwException("failed to create e. "+e.getFirstOperand().toString()+" gives a "+structure.typeName()+" instead of a structure");
-				if (!structure.structure().canHoldCustomVariables())
-					caller.throwException("failed to create e. the structure "+e.getFirstOperand().toString()+" of type "+structure.get("structure_type")+" cannot hold custom variables");
-				ret = structure.structure().add(varname);
-			}
-			else if (voperator == Expression.ARRAY_INDEX) {
-				// fetch the array
-				final Value varray = e.getFirstOperand().execute();
-				if (varray.type() != Value.ARRAY)
-					caller.throwException("failed to fetch assigned e. "+e.getFirstOperand().toString()+" gives a "+varray.typeName()+" instead of an array");
-				final ArrayWrapper array = varray.arrayWrapper();
-				// make sure it's a valid array index
-				final Value vindex = e.getSecondOperand().execute();
-				final int vit = vindex.type();
-				int index = Integer.MIN_VALUE;
-				if (vit == Value.INTEGER)
-					index = vindex.integer();
-				else if (vit == Value.REAL)
-					index = Math.round(vit);
-				else {
-					String s = vindex.toString();
-					if (s.length() == 0)
-						index = array.array.length;
-					else try {
-						index = Integer.parseInt(s);
-					} catch (Throwable t) {
-						caller.throwException("\""+s+"\" is no a valid array index in "+e.toString());
-					}
-				}
-				if (index < 0 || index > array.array.length)
-					caller.throwException("failed to fetch or create e. Array index must be between 0 and "+(array.array.length-1)+" (inclusive), not "+index);
-				else if (index < array.array.length)
-					ret = array.array[index]; // array entries don't have an enclosing variable, so we need this special case
-				else {
-					ret = new Value();
-					array.array = (Value[]) ArrayModifier.addElement(array.array, new Value[index+1], ret);
-				}
-			}
-			else
-				caller.throwException("failed to create e. unable to handle expressions whose top level operator is "+e.getOperatorElement().toString());
+			caller.throwException("failed to create variable. unable to handle expressions whose top level operator is "+e.getOperatorElement().toString());
+		throw new RuntimeException("unreachable statement");
+	}
+
+
+	private static Value fetchStructureMember (final Structure s, final String varname, final Value current_variable, final Value replace_with_global, final ScriptNode caller) {
+		// the variable may have become, or no longer is a reference to a global
+		if (replace_with_global != null) {
+			s.putDirectlyIntoStringTreeMap(varname, replace_with_global);
+			return replace_with_global;
 		}
-		return ret;
+		else if (current_variable == null || current_variable.isGlobal()) {
+			if (current_variable == null)
+				caller.testVariableName(varname);
+			return s.add(varname); // undo the previous replacement with a global variable
+		}
+		return current_variable;
 	}
 
 
 	public Value execute ()  {
 		// fetch the variable
-		Value ret = null, v;
+		Value ret = null;
 		if (its_a_global) {
 			// since it's a global value it must be a variable from the set of global variables
 			ret = ((Value)stack[RULESET_STACK_SLOT].get("GLOBAL_VALUES")).get(variable.toString());
@@ -144,19 +181,22 @@ final class AssignmentCommand extends ScriptNode
 				ret = ((Value)stack[RULESET_STACK_SLOT].get("GLOBAL_VALUES")).structure().add(variable.toString());
 		}
 		else {
-			ret = fetchOrCreateVariable(variable, false, this);
+			// check whether we're replacing a variable with a global value
+			Value replacement = null;
+			if (value_definition != null && value_definition instanceof Expression && ((Expression)value_definition).getOperator() == Expression.GLOBAL_VALUE) {
+				final String value_name = ((Expression)value_definition).getFirstOperand().toString();
+				replacement = ((Value)stack[RULESET_STACK_SLOT].get("GLOBAL_VALUES")).get(value_name);
+				if (replacement == null)
+					replacement = ((Value)stack[RULESET_STACK_SLOT].get("GLOBAL_VALUES")).structure().add(value_name);
+			}
+			ret = fetchOrCreateVariable(variable, false, this, replacement, its_a_type_definition);
 		}
 
 		// assign the value to the variable *************************************************************************************************************
+		if (value_definition == null ||(value_definition instanceof Expression && ((Expression)value_definition).getOperator() == Expression.GLOBAL_VALUE))
+			return ret;
 		if (value_definition instanceof Function)
 			return ret.set((Function)value_definition);
-		else if (value_definition instanceof Expression) {
-			final int operator = ((Expression)value_definition).getOperator();
-			if (operator == Expression.GLOBAL_VALUE)
-				return ret.setDirectly(value_definition.execute());
-			if (operator == Expression.RAW_VALUE)
-				return ret.setDirectly(value_definition.execute());
-		}
 		return ret.set(value_definition.execute());
 	}
 

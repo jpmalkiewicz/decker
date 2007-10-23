@@ -330,7 +330,7 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 			// if its structure type has a special pixelheight function, call it
 			final Value t = ScriptNode.getStructureType(type);
 			if (t != null) {
-				if ((v=t.get("pixelheight")) != null && v.typeDirect() == Value.FUNCTION) {
+				if ((v=t.get("pixelheight")) != null && v.type() == Value.FUNCTION) {
 					v = FunctionCall.executeFunctionCall(v, null, (Structure) visible_object);
 					if (v.type() == Value.INTEGER)
 						return v.integer();
@@ -400,7 +400,7 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 			// if its structure type has a special pixelwidth function, call it
 			final Value t = ScriptNode.getStructureType(type);
 			if (t != null) {
-				if ((v=t.get("pixelwidth")) != null && v.typeDirect() == Value.FUNCTION) {
+				if ((v=t.get("pixelwidth")) != null && v.type() == Value.FUNCTION) {
 					v = FunctionCall.executeFunctionCall(v, null, (Structure) visible_object);
 					if (v.type() == Value.INTEGER)
 						return v.integer();

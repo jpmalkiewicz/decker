@@ -42,32 +42,23 @@ final class TypeDefinition extends ScriptNode
 		// create the new structure
 		final Structure k = (extends_structure_type!=null) ? new Structure(extends_structure_type) : new Structure(""); // using "" will keep the Structure that holds the new structure type definition from instantiating the old type definition (if there is one for this type)
 		k.get("structure_type").set(structure_type);
+if (structure_type.equals("THING_TYPE"))
+System.out.println("*THING_TYPE");
 		// execute the definition body if there is one
 		if (definition_body != null) {
 			addStackItem(k); // in case the structure is referenced by Expressions in the definition body
 			for (int i = 0; i < definition_body.length; i++) {
-				final String varname = (String) ((definition_body[i] instanceof String) ? definition_body[i] : ((Object[])definition_body[i])[0]);
-				final Value v = k.add(varname);
-				if (definition_body[i] instanceof Object[]) {
-					Object o = ((Object[])definition_body[i])[1];
-					if (o instanceof Expression) {
-						final Expression e = (Expression)((Object[])definition_body[i])[1];
-						final int operator = e.getOperator();
-						if (operator == Expression.GLOBAL_VALUE)
-							v.setDirectly(e.execute());
-						else if (operator == Expression.RAW_VALUE)
-							v.setDirectly(e.execute());
-						else
-							v.set(e.execute());
-					}
-					else // (o instanceof Function)
-						v.set((Function)o);
-				}
+				if (definition_body[i] instanceof String)
+					k.add((String)definition_body[i]);
+				else
+					((AssignmentCommand)definition_body[i]).execute();
 			}
 			removeStackItem(k, this);
 		}
 		// add the structure type to the ruleset
 		stack[RULESET_STACK_SLOT].get("STRUCTURE_TYPES").structure().add(structure_type).set(k);
+if (structure_type.equals("THING_TYPE"))
+System.out.println("*THING_TYPE   ENDE");
 		return null;
 	}
 

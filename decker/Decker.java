@@ -32,8 +32,8 @@ System.out.println();
 		Global.initializeDataModel();
 		Global.loadRulesets();
 		// center the game window on the screen by default
-		Global.getEngineData().addDirectly("display_center_x").set(ss.getToolkit().getScreenSize().width/2);
-		Global.getEngineData().addDirectly("display_center_y").set(ss.getToolkit().getScreenSize().height/2);
+		Global.getEngineData().add("display_center_x").set(ss.getToolkit().getScreenSize().width/2);
+		Global.getEngineData().add("display_center_y").set(ss.getToolkit().getScreenSize().height/2);
 Global.initializeRulesets();
 Global.setCurrentRuleset(decker.model.Global.ruleset[0]);
 		ss.setVisible(false);

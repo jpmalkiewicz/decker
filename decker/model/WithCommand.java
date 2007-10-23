@@ -28,17 +28,17 @@ final class WithCommand extends Block
 
 	public Value execute ()  {
 		final Value v = variable_expression.execute();
-		if (v.typeDirect() == Value.STRUCTURE)
+		if (v.type() == Value.STRUCTURE)
 			addStackItem(v.structure());
 		else {
 			System.err.println("Error in "+getScriptName()+" line "+getScriptLine()+" column "+getScriptColumn()+" :");
-			System.err.println(Global.BLOCK_INDENT + "expression does not describe a structure, instead it has the value "+v.toString()+" ("+v.typeNameDirect()+")");
+			System.err.println(Global.BLOCK_INDENT + "expression does not describe a structure, instead it has the value "+v.toString()+" ("+v.typeName()+")");
 			if (!print(System.err, Global.BLOCK_INDENT, true)) {
 				System.err.println();
 			}
 		}
 		final Value ret = super.execute();
-		if (v.typeDirect() == Value.STRUCTURE)
+		if (v.type() == Value.STRUCTURE)
 			removeStackItem(v.structure());
 		return ret;
 	}

@@ -64,9 +64,9 @@ final class ForLoopCommand extends Block
 		if (java_style) { // Java style loop, e.g. for (i = 0; i <= 5; i++)
 			// the variable section is optional, execute it if it exists
 			if (variable != null) {
-				Value v = AssignmentCommand.fetchOrCreateVariable(variable, true, this);
+				Value v = AssignmentCommand.fetchOrCreateVariable(variable, true, this, null, false);
 				if (initial_value != null) {
-					v.setDirectly(initial_value.execute());
+					v.set(initial_value.execute());
 				}
 			}
 			// the condition section is optional too. if it is omitted, the loop will be infinite, unless it contains a break command
@@ -88,8 +88,8 @@ final class ForLoopCommand extends Block
 		}
 		else { // BASIC style loop, e.g. for i = 0 to 5
 			// create the loop variable and initialize it
-			Value v = AssignmentCommand.fetchOrCreateVariable(variable, true, this);
-			v.setDirectly(initial_value.execute());
+			Value v = AssignmentCommand.fetchOrCreateVariable(variable, true, this, null, false);
+			v.set(initial_value.execute());
 			int vt = v.type();
 			if (vt != Value.INTEGER && vt != Value.REAL) {
 				throwException("the initial value of "+variable+" must be INTEGER or REAL, not "+v+" ("+v.typeName()+")");

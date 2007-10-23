@@ -35,7 +35,7 @@ final class StaticScriptFunctions extends ScriptNode
 			case Global.F_SUBSTRING : return execute_substring(args);
 			case Global.F_TO_LOWER_CASE : return (args.length==0) ? new Value() : new Value().set(args[0].toString().toLowerCase());
 			case Global.F_TO_UPPER_CASE : return (args.length==0) ? new Value() : new Value().set(args[0].toString().toUpperCase());
-			case Global.F_VALUE_TYPE : return (args.length==0) ? new Value() : new Value().set(args[0].typeNameDirect());
+			case Global.F_VALUE_TYPE : return (args.length==0) ? new Value() : new Value().set(args[0].typeName());
 		}
 		return null;
 	}
@@ -88,11 +88,11 @@ final class StaticScriptFunctions extends ScriptNode
 		else {
 			final PrintStream where = (args.length >= 2 && args[1] != null && args[1].equals(false)) ? System.err : System.out;
 			final Value v = args[0];
-			if (v.typeDirect() == Value.FUNCTION)
+			if (v.type() == Value.FUNCTION)
 				v.function().print(where, "", true);
-			else if (v.typeDirect() == Value.STRUCTURE)
+			else if (v.type() == Value.STRUCTURE)
 				v.structure().print(where, "", true);
-			else if (v.typeDirect() == Value.ARRAY)
+			else if (v.type() == Value.ARRAY)
 				v.arrayWrapper().print(where, "", true);
 			else
 				where.println(v.toStringForPrinting());
