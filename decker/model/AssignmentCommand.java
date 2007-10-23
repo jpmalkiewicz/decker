@@ -35,11 +35,7 @@ final class AssignmentCommand extends ScriptNode
 		// it's just a variable name
 		if (voperator == Expression.VARIABLE) {
 			final String varname = e.toString();
-if (varname.equals("expandable"))
-System.out.println("*expandable");
 			if (!its_a_type_definition) {
-if (varname.equals("expandable"))
-System.out.println("*expandable !td");
 				// if there exists a LOCAL variable of that name, use that
 				for (int i = stack_size; --i >= 0; ) {
 					if (stack[i].get("structure_type").equals("LOCAL")) {
@@ -50,29 +46,21 @@ System.out.println("*expandable !td");
 					}
 				}
 			}
-if (varname.equals("expandable"))
-System.out.println("*expandable b");
 			// if the topmost structure on the stack is expandable and not of type LOCAL, add the variable to it (if it doesn't exist yet)
 			if (!create_in_LOCAL &&( its_a_type_definition || stack[stack_size-1].canHoldCustomVariables() )&& !stack[stack_size-1].get("structure_type").equals("LOCAL"))
 				return fetchStructureMember(stack[stack_size-1], varname, stack[stack_size-1].get(varname), replace_with_global, caller);
-if (varname.equals("expandable"))
-System.out.println("*expandable c");
 			// try to find it an existing variable of that name
 			for (int i = stack_size; --i >= 0; ) {
 				final Value ret = stack[i].get(varname);
 				if (ret != null)
 					return fetchStructureMember(stack[i], varname, ret, replace_with_global, caller);
 			}
-if (varname.equals("expandable"))
-System.out.println("*expandable d");
 			// add it to the innermost Structure on the stack that can hold custom variables
 			for (int i = stack_size; --i >= 0; ) {
 				if (( !create_in_LOCAL && stack[i].canHoldCustomVariables() )|| stack[i].get("structure_type").equals("LOCAL")) {
 					return fetchStructureMember(stack[i], varname, null, replace_with_global, caller);
 				}
 			}
-if (varname.equals("expandable"))
-System.out.println("*expandable e");
 			// unreachable code, because there's always an expandable structure on the stack
 			caller.throwException("failed to create e. there is no structure that can hold custom variables on the stack atm");
 		}
