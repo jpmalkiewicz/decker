@@ -37,10 +37,10 @@ final class WithCommand extends Block
 				System.err.println();
 			}
 		}
-		super.execute();
+		final Value ret = super.execute();
 		if (v.typeDirect() == Value.STRUCTURE)
 			removeStackItem(v.structure());
-		return null;
+		return ret;
 	}
 
 
