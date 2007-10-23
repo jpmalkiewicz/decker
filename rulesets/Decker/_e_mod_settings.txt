@@ -30,4 +30,3 @@ english
 		NCS_PRESSED_OPTION_TEXT_COLOR = "#ffffff"   // for the tooltips and ironman button texts
 		NCS_ON_COLOR = "#88ff88"                    // for the tooltips and ironman button texts
 		NCS_OFF_COLOR = "#ff0000"                   // for the tooltips and ironman button texts
-	debug(GLOBAL_VALUES.TEXT_STYLE)

@@ -42,8 +42,6 @@ final class TypeDefinition extends ScriptNode
 		// create the new structure
 		final Structure k = (extends_structure_type!=null) ? new Structure(extends_structure_type) : new Structure(""); // using "" will keep the Structure that holds the new structure type definition from instantiating the old type definition (if there is one for this type)
 		k.get("structure_type").set(structure_type);
-if (structure_type.equals("THING_TYPE"))
-System.out.println("*THING_TYPE");
 		// execute the definition body if there is one
 		if (definition_body != null) {
 			addStackItem(k); // in case the structure is referenced by Expressions in the definition body
@@ -57,8 +55,6 @@ System.out.println("*THING_TYPE");
 		}
 		// add the structure type to the ruleset
 		stack[RULESET_STACK_SLOT].get("STRUCTURE_TYPES").structure().add(structure_type).set(k);
-if (structure_type.equals("THING_TYPE"))
-System.out.println("*THING_TYPE   ENDE");
 		return null;
 	}
 
