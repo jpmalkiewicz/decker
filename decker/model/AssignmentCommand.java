@@ -160,6 +160,10 @@ final class AssignmentCommand extends ScriptNode
 
 
 	public Value execute ()  {
+		// determine the new value of the variable
+		Value assigned_value = null;
+		if (value_definition != null && value_definition instanceof Expression && ((Expression)value_definition).getOperator() != Expression.GLOBAL_VALUE)
+			assigned_value = ((Expression)value_definition).execute();
 		// fetch the variable
 		Value ret = null;
 		if (its_a_global) {
@@ -185,7 +189,7 @@ final class AssignmentCommand extends ScriptNode
 			return ret;
 		if (value_definition instanceof Function)
 			return ret.set((Function)value_definition);
-		return ret.set(value_definition.execute());
+		return ret.set(assigned_value);
 	}
 
 
