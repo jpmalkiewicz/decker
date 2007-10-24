@@ -75,18 +75,15 @@ System.out.println(ruleset.length+" rulesets");
 		final Ruleset r = current_ruleset;
 		// first run the global scripts
 System.out.println("running global scripts");
-		current_ruleset = engine;
-		ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] = current_ruleset.data;
+		setCurrentRuleset(engine);
 		current_ruleset.initialize(accepted_locales);
 		// then run the scripts of each ruleset
 		for (int i = 0; i < ruleset.length; i++)  {
 System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").toString());
-			current_ruleset = ruleset[i];
-			ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] = current_ruleset.data;
+			setCurrentRuleset(ruleset[i]);
 			current_ruleset.initialize(accepted_locales);
 		}
-		current_ruleset = r;
-		ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] = r.data;
+		setCurrentRuleset(r);
 // print all ENGINE level structure types
 // engine.data.get("STRUCTURE_TYPES").structure().print(System.err, "", true);
 	}
@@ -138,11 +135,11 @@ System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").t
 	}
 
 
-public static void setCurrentRuleset (final Ruleset r)  {
-current_ruleset = r;
-ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] = r.data;
-Value.setGlobalValues(r.data.get("GLOBAL_VALUES").structure());
-}
+	public static void setCurrentRuleset (final Ruleset r)  {
+		current_ruleset = r;
+		ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] = r.data;
+		Value.setGlobalValues(r.data.get("GLOBAL_VALUES").structure());
+	}
 
 
 // view methods ***************************************************************************************************************************************
