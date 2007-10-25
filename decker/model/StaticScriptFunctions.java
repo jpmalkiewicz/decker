@@ -86,16 +86,19 @@ final class StaticScriptFunctions extends ScriptNode
 				System.out.println();
 		}
 		else {
+			boolean new_line = true;
 			final PrintStream where = (args.length >= 2 && args[1] != null && args[1].equals(false)) ? System.err : System.out;
 			final Value v = args[0];
 			if (v.type() == Value.FUNCTION)
-				v.function().print(where, "", true);
+				new_line = v.function().print(where, "", true);
 			else if (v.type() == Value.STRUCTURE)
-				v.structure().print(where, "", true);
+				new_line = v.structure().print(where, "", true);
 			else if (v.type() == Value.ARRAY)
-				v.arrayWrapper().print(where, "", true);
+				new_line = v.arrayWrapper().print(where, "", true);
 			else
 				where.println(v.toStringForPrinting());
+			if (!new_line)
+				where.println();
 		}
 		return DUMMY_VALUE;
 	}

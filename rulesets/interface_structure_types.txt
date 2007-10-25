@@ -154,7 +154,7 @@ english
 					UNDEFINED    // placeholder for the button face
 				component[0].background_color = @BACKGROUND_COLOR
 			on_draw = FUNCTION
-				LOCAL.c = UNDEFINED
+				LOCAL.c
 				if state == IDLE
 					c = idle
 				if state == PRESSED

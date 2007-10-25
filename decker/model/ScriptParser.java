@@ -67,10 +67,12 @@ final class ScriptParser extends ScriptReader
 	}
 
 
-	private ScriptNode parseAssignmentCommandOrExpression (final int block_column, final boolean allow_non_function_call_expressions)  {
+	private ScriptNode parseAssignmentCommandOrExpression (final int block_column)  {
 		final int line = getLine(); // so we can tell the AssignmentCommand where it started, if this is one
 		// parse the expression that will sit on the left side of the = or by itself if it's a function call
 		final Expression x = parseExpression(line, block_column, false);
+		if (x instanceof FunctionCall)
+			return x;
 		String s = previewElement();
 		// check whether it's an assignment command
 		if (s != null && s.equals("=")) {
@@ -92,10 +94,10 @@ final class ScriptParser extends ScriptReader
 			readElement();
 			return new IncrementDecrementCommand(s, false, x, script_name, line, block_column);
 		}
-		else {
-			if (!allow_non_function_call_expressions && !(x instanceof FunctionCall))
-				throwException("function call or assignment command expected but "+x+" found");
-			return x;
+		else { // it's probably a "create variable" command without an initial value
+			final AssignmentCommand ac = new AssignmentCommand(false, false, script_name, line, block_column);
+			ac.setVariableExpression(x);
+			return ac;
 		}
 	}
 
@@ -837,7 +839,7 @@ System.out.println(script_name);
 		else if (s.equals("break"))
 			return parseBreakCommand(line, _block_column);
 		else if (Expression.operatorID(s) == Expression.VARIABLE)
-			return parseAssignmentCommandOrExpression(_block_column, false);
+			return parseAssignmentCommandOrExpression(_block_column);
 		else
 			throwException("Command expected but "+s+" found");
 		// unreachable statement
