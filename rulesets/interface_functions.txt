@@ -9,11 +9,10 @@ english
 		// create the new table row
 		LOCAL.row = ARRAY
 		table.cell[] = row
-		LOCAL.i = 0
 		LOCAL.columns = table.columns
-		LOCAL.k = UNDEFINED
-		LOCAL.can_expand = UNDEFINED
-		while i < columns
+		LOCAL.k
+		LOCAL.can_expand
+		for i = 0 to columns-1
 			k = argument[i+1]
 			// if it's not a structure, wrap a COMPONENT around it so we can set its position within the table cell
 			if value_type(k) != "STRUCTURE" && k != UNDEFINED
@@ -43,7 +42,6 @@ english
 						k.h_align = table.cell_h_align
 					else
 						k.h_align = table.cell_h_align[i]
-			i = i + 1
 		// adjust the table size
 		table.rows = table.cell.size
 		table.height = table.cell_height * table.rows

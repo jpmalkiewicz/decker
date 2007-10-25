@@ -16,16 +16,16 @@ english
 
 	ENGINE.createBorderButton = FUNCTION (_face, _x, _y)
 		return_value = BORDER_BUTTON
-			idle = _face
-			x = _x
-			y = _y
+			idle = &_face
+			x = &_x
+			y = &_y
 
 
 	ENGINE.createButton = FUNCTION (_face, _x, _y)
 		return_value = BUTTON
-			idle = _face
-			x = _x
-			y = _y
+			idle = &_face
+			x = &_x
+			y = &_y
 
 
 	// the first argument must be a component or the text (as a string) that is to be displayed in the popup (or leave it out, if your popup doesn't have a content section)
@@ -52,14 +52,14 @@ english
 			if argument.size >= 2 && value_type(argument[2]) == "INTEGER"
 				i = 3
 				content_to_buttons_padding = argument[1]
+			// add the buttons
 			LOCAL.w = padding     // this will be the padding on the right side of the last button
 			LOCAL.max_button_height = 0
-			while i < argument.size
+			for ( ; i < argument.size; i++)
 				argument[i].x = w + DEFAULT_BORDER_THICKNESS
 				w = w + padding + pixelwidth(argument[i])
 				max_button_height = max(max_button_height, pixelheight(argument[i]))
 				component[] = argument[i]
-				i = i + 1
 			width = max(w, _content == UNDEFINED ? padding : pixelwidth(_content) + 2*padding) + 2 * DEFAULT_BORDER_THICKNESS    // the default border width
 			height = max_button_height + padding + ( max_button_height > 0 ? padding : 0 ) + ( _content != UNDEFINED ? pixelheight(_content)+padding : 0 ) + 2 * DEFAULT_BORDER_THICKNESS         // the brackets adds the padding needed when content and / or question buttons are present
 			// replace the padding between content and buttons with the special padding
@@ -80,10 +80,9 @@ english
 					argument[0].h_align = UNDEFINED
 			// place the buttons
 			LOCAL.button_y = height - DEFAULT_BORDER_THICKNESS - padding       // minus the height of the button
-			i = 2
 			LOCAL.extra_pixels = width - w - 2 * DEFAULT_BORDER_THICKNESS
 			LOCAL.count = component.size - 2
-			while i < component.size
+			for i = 2 to component.size-1    // component[0] is the SCREEN_BACKGROUND and component[1] is the content above the buttons
 				if component[i] != UNDEFINED
 					component[i].y = button_y - pixelheight(component[i])
 					if extra_pixels > 0
@@ -96,7 +95,6 @@ english
 						component[i].v_align = UNDEFINED
 					if component[i].h_align != UNDEFINED
 						component[i].h_align = UNDEFINED
-				i = i + 1
 			// add the event blocker to keep input events from reaching the underlying screen
 			component[] = EVENT_BLOCKER
 
@@ -114,15 +112,8 @@ english
 				slider_max = _slider_max
 			// add the slider and the optional arrow buttons
 			if value_type(_slider) == "STRING"      // it's the name of an image. we need to turn it into a button
-// !!
-//				debug("a")
-				LOCAL.b = _slider
-//				debug("b")
-// !! end
 				_slider = BUTTON
-					idle = b
-//					idle = _slider
-//				debug(_slider)
+					idle = _slider
 			if vertical
 				_slider.x = CENTER
 				_slider.y = 0   // the y position is adjusted every time the SCROLLBAR is drawn. this way it can adjust to mods with different sized buttons
@@ -185,11 +176,9 @@ english
 				cell_width = pcell_width
 			else
 				cell_width = ARRAY
-				LOCAL.i = 2
-				while i < argument.size
+				for i = 2 to argument.size-1
 					width = width + argument[i]  // the width of the table
 					cell_width[] = &argument[i]
-					i = i + 1
 				columns = cell_width.size
 
 

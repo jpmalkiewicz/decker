@@ -1,5 +1,9 @@
 80%
 2007-10-24
+  simplified the engine scripts
+  fixed a bug in Function.print() related to hard coded functions, and added the missing "getStructureStack" to the list of hard coded function names in Global.java
+  added the missing linefeed in debug(<empty array>)
+  variables can now be created everywhere without an initial value
   fixed the remaining problems with variables which contain global values
 2007-10-23
   the a = @b operator now puts the global Variable b in the place where a was, no more looking things up required

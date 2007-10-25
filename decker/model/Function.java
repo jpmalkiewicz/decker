@@ -101,7 +101,7 @@ public final class Function extends ScriptNode
 			out.print(argument_name[0]);
 			for (int i = 1; i < argument_name.length; i++) {
 				out.print(", "+argument_name[i]);
-				if (argument_default_value[i] != null) {
+				if (i < argument_default_value.length && argument_default_value[i] != null) {
 					out.print(" = "+argument_default_value[i].toString());
 				}
 			}
