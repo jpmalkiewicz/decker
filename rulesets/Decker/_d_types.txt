@@ -114,6 +114,7 @@ english
 			size
 			// state       // for programs on the deck, this can have the values INSTALLED, LOADED, DEFAULT
 			// source_code // true if this thing is a source code
+			// value       // the sale / purchase price
 
 		DECK
 			model = "(custom built)"
@@ -183,15 +184,3 @@ english
 			current_target    // some ice or file
 			current_program   // the program this human is currently trying to use
 			time              // time for the current matrix run
-
-// interface types ************************************************************************************************************************************
-
-		NAME_TABLE_CELL
-			expandable = true
-			component
-			width
-			height
-			initializer = FUNCTION
-				component = ARRAY
-					UNDEFINED   // the image
-					UNDEFINED   // the text

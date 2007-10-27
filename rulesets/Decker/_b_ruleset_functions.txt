@@ -9,6 +9,9 @@ english
 				// stop advancing the date if the player has run into debts. the game is over then
 				if player.money < 0
 					break
+				// update the shop contents every 7 days
+				if player.age-(player.age/7)*7 == 1
+					updateShopInventory()
 		if value_type(displayed_screen.setup) == "FUNCTION"
 			displayed_screen.setup()
 
@@ -23,3 +26,23 @@ english
 		return_value = human.physical_damage * (human.physical_damage+2) / 3
 		if use_hospital
 			return_value = ( return_value + 1 ) / 2
+
+	RULESET.updateShopInventory = FUNCTION
+		LOCAL.c = ARRAY
+		player.shop_inventory = c
+		LOCAL.x
+		// make programs
+		for i = random(1,4) + random(1,4) + random(1,4) to 1
+			x = createProgram(PROGRAM_TYPES[random(0,PROGRAM_TYPES.size-1)], random(1,6)+2*player.lifestyle)
+			x.average_value = getThingValue(x)
+			x.value = ( x.average_value * (8500+random(0,3000)) + 5000 ) / 10000      // default value +/- up to 15%
+			c[] = x
+
+		// sort the shop inventory by item type order
+		LOCAL.swap
+		for a = c.size-2 to 0 step -1
+			for b = 0 to a
+				if c[b].type.id > c[b+1].type.id ||( c[b].type.id == c[b+1].type.id &&( c[b].rating < c[b+1].rating ||( c[b].rating == c[b+1].rating && c[b].value > c[b+1].value )))
+					swap = c[b]
+					c[b] = c[b+1]
+					c[b+1] = swap
