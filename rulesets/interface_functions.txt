@@ -47,6 +47,45 @@ english
 		table.height = table.cell_height * table.rows
 
 
+	// after calling this function, all column cells are right aligned, but the resulting column is centered
+	ENGINE.centerRightAlignedTableColumn = FUNCTION (table, column)
+		if table.rows > 0
+			// determine the maximum width of the column entries
+			LOCAL.max_width = 0
+			for y = table.rows-1 to 0
+				max_width = max(max_width, pixelwidth(table.cell[y][column]))
+			// calculate the x-offset for the right edge of the column content
+			LOCAL.adjusted_x = ( ( value_type(table.cell_width) == "INTEGER" ? table.cell_width : table.cell_width[column] ) + max_width + 1 ) / 2
+			// manually set the x coordinate for all table cells in the column
+			for y = table.rows-1 to 0
+				LOCAL.c = table.cell[y][column]
+				if value_type(c) == "STRUCTURE"
+					c.h_align = LEFT
+					c.x = adjusted_x
+
+
+	// returns the name of the image to be displayed, deducing it from the state "0" image. e.g. deduceImageName("my_button0", "1") will return "my_button1" if an image "my_button1.*" exists, otherwise it returns "my_button0"
+	ENGINE.deduceImageName = FUNCTION (base_name, new_suffix)
+		return_value = base_name
+		// make sure it's not a structure. if it's a structure, just return it
+		if base_name.structure_type == UNDEFINED
+			base_name = base_name + ""    // turns it into a string
+			LOCAL.k = indexof("0", base_name, false)
+			return_value = base_name
+			// check whether there's a "0" suffix, possibly followed by a supported image file type extension
+			if k != UNDEFINED
+				if k == size(base_name)-1
+					// the "0" sits at the end of the string
+					if image_exists(substring(base_name,0,k) + new_suffix)
+						return_value = substring(base_name,0,k) + new_suffix
+				else
+					// check whether there's a file type extension after the "0", otherwise the "0" is not a suffix and we'll just return the base_name
+					LOCAL.file_type = to_lower_case(base_name.substring(k+1))
+					if file_type == ".gif" || file_type == ".png" || file_type == ".bmp" ||file_type == ".jpg" || file_type == ".jpeg"
+						if image_exists(substring(base_name,0,k) + new_suffix)
+							return_value = substring(base_name,0,k) + new_suffix
+
+
 	ENGINE.deleteScreenOverlay = FUNCTION (overlay)
 		LOCAL.index = indexof(overlay, ENGINE.screen_overlays)
 		if index != UNDEFINED
@@ -79,28 +118,6 @@ english
 	ENGINE.getPreviousScreen = FUNCTION
 		if previous_displayed_screen.size > 0
 			return_value = previous_displayed_screen[previous_displayed_screen.size-1]
-
-
-	// returns the name of the image to be displayed, deducing it from the state "0" image. e.g. deduceImageName("my_button0", "1") will return "my_button1" if an image "my_button1.*" exists, otherwise it returns "my_button0"
-	ENGINE.deduceImageName = FUNCTION (base_name, new_suffix)
-		return_value = base_name
-		// make sure it's not a structure. if it's a structure, just return it
-		if base_name.structure_type == UNDEFINED
-			base_name = base_name + ""    // turns it into a string
-			LOCAL.k = indexof("0", base_name, false)
-			return_value = base_name
-			// check whether there's a "0" suffix, possibly followed by a supported image file type extension
-			if k != UNDEFINED
-				if k == size(base_name)-1
-					// the "0" sits at the end of the string
-					if image_exists(substring(base_name,0,k) + new_suffix)
-						return_value = substring(base_name,0,k) + new_suffix
-				else
-					// check whether there's a file type extension after the "0", otherwise the "0" is not a suffix and we'll just return the base_name
-					LOCAL.file_type = to_lower_case(base_name.substring(k+1))
-					if file_type == ".gif" || file_type == ".png" || file_type == ".bmp" ||file_type == ".jpg" || file_type == ".jpeg"
-						if image_exists(substring(base_name,0,k) + new_suffix)
-							return_value = substring(base_name,0,k) + new_suffix
 
 
 	ENGINE.scrollbarDrawFunction = FUNCTION (_scrollbar)

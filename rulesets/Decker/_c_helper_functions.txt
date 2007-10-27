@@ -1,22 +1,28 @@
 english
+	RULESET.compareNumbers = FUNCTION (row_a, row_b, table, column)
+		LOCAL.a = table.cell[row_a][column].text
+		LOCAL.b = table.cell[row_b][column].text
+		if ( value_type(a) == "INTEGER" || value_type(a) == "REAL" )&&( value_type(b) == "INTEGER" || value_type(b) == "REAL" )
+			return_value = a - b
+		else  // at least one of them is not a number
+			return_value = b < a ? -1 : ( b > a ? 1 : 0 )
+
+
+	RULESET.compareNumbersInverted = FUNCTION (row_a, row_b, table, column)
+		LOCAL.a = table.cell[row_a][column].text
+		LOCAL.b = table.cell[row_b][column].text
+		if ( value_type(a) == "INTEGER" || value_type(a) == "REAL" )&&( value_type(b) == "INTEGER" || value_type(b) == "REAL" )
+			return_value = b - a
+		else  // at least one of them is not a number
+			return_value = b < a ? -1 : ( b > a ? 1 : 0 )
+
+
 	RULESET.compareProgramsPreset = FUNCTION (a, b)
 		return_value = player.deck.program[b].type.id - player.deck.program[a].type.id
 
 
-	RULESET.compareProgramsName = FUNCTION (a, b)
-		return_value = player.deck.program[b].name < player.deck.program[a].name ? -1 : ( player.deck.program[b].name > player.deck.program[a].name ? 1 : 0 )
-
-
-	RULESET.compareProgramsRating = FUNCTION (a, b)
-		return_value = player.deck.program[a].rating - player.deck.program[b].rating
-
-
-	RULESET.compareProgramsSize = FUNCTION (a, b)
-		return_value = player.deck.program[a].size - player.deck.program[b].size
-
-
-	RULESET.compareProgramsType = FUNCTION (a, b)
-		return_value = player.deck.program[b].type.name < player.deck.program[a].type.name ? -1 : ( player.deck.program[b].type.name > player.deck.program[a].type.name ? 1 : 0 )
+	RULESET.compareShopItemsPreset = FUNCTION (a, b)
+		return_value = player.shop_inventory[b].type.id - player.shop_inventory[a].type.id
 
 
 	RULESET.compareProgramsLoaded = FUNCTION (a, b)
@@ -25,6 +31,12 @@ english
 
 	RULESET.compareProgramsDefault = FUNCTION (a, b)
 		return_value = ( player.deck.program[b].type.default_category == UNDEFINED ? 2 : ( player.deck.program[b].state == DEFAULT ? 0 : 1 )) - ( player.deck.program[a].type.default_category == UNDEFINED ? 2 : ( player.deck.program[a].state == DEFAULT ? 0 : 1 ))
+
+
+	RULESET.compareText = FUNCTION (row_a, row_b, table, column)
+		LOCAL.a = table.cell[row_a][column].text
+		LOCAL.b = table.cell[row_b][column].text
+		return_value = b < a ? -1 : ( b > a ? 1 : 0 )
 
 
 	RULESET.createDeck = FUNCTION (hardware_rating, program_rating)
@@ -232,7 +244,7 @@ english
 
 
 	// comparator must return a value below zero if the compared rows are in the wrong order, 0 if they are identical, a positive value if they are in the correct order
-	RULESET.sortTable = FUNCTION (table, comparator)
+	RULESET.sortTable = FUNCTION (table, comparator, column, displayed_array)
 		LOCAL.c = table.cell
 		LOCAL.swap
 		LOCAL.reverse = true
@@ -241,19 +253,20 @@ english
 			selected_row = table.cell[table.selected_row]
 		// determine if the table is already in order
 		for a = c.size-2 to 0 step -1
-			reverse = reverse && comparator(a, a+1) >= 0
+			reverse = reverse && comparator(a, a+1, table, column) >= 0
 		reverse = reverse ? -1 : 1
 		// perform a bubblesort on the table rows
 		for a = c.size-2 to 0 step -1
 			for b = 0 to a
-				if reverse * comparator(b, b+1) < 0
+				if reverse * comparator(b, b+1, table, column) < 0
 					swap = c[b+1]
 					c[b+1] = c[b]
 					c[b] = swap
-					// swap the programs on the deck
-					swap = player.deck.program[b+1]
-					player.deck.program[b+1] = player.deck.program[b]
-					player.deck.program[b] = swap
+					// swap the corresponding entries in the displayed array, if there is one
+					if displayed_array != UNDEFINED
+						swap = displayed_array[b+1]
+						displayed_array[b+1] = displayed_array[b]
+						displayed_array[b] = swap
 		// move the row selection
 		if selected_row != UNDEFINED
 			for a = table.rows-1 to 0 step -1

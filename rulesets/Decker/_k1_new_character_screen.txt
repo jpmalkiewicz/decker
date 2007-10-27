@@ -172,6 +172,7 @@ english
 						while i < 15
 							deck.optional_hardware[] = createHardware(HARDWARE_TYPES[i], random(1,HARDWARE_TYPES[i].max_rating))
 							i = i + 1
+					updateShopInventory()
 // create the new character END
 					displayScreen(home_screen)
 			BORDER_BUTTON
