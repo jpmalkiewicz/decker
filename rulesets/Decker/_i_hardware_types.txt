@@ -102,8 +102,6 @@ english
 			max_rating = 1
 
 	// add the default sorting order IDs
-	LOCAL.i = HARDWARE_TYPES.size - 1
 	LOCAL.offset = PROGRAM_TYPES.size
-	while i >= 0
+	for i = HARDWARE_TYPES.size-1 to 0
 		HARDWARE_TYPES[i].id = i + offset
-		i = i - 1

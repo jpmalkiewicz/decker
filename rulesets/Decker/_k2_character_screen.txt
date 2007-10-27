@@ -207,7 +207,7 @@ english
 			lifestyle.text         = lifestyle_text[player.lifestyle]
 			monthly_cost.text      = LIFESTYLE_COST[player.lifestyle]
 			LOCAL.d = date_days_in_month(2132,0,player.age) - date_day_of_month(2132,0,player.age) + 1
-			monthly_cost_due.text  = d + " " + ( d == 1 ? "day" : "days" )
+			monthly_cost_due.text  = d == 1 ? "1 day" : d + "days"
 			if player.lifestyle + 1 < LIFESTYLE_COST.size
 				lifestyle_upgrade_text.text = "Cost To Upgrade"
 				lifestyle_upgrade.text = LIFESTYLE_UPGRADE_COST[player.lifestyle]

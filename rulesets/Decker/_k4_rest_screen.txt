@@ -80,7 +80,7 @@ english
 			rest_screen.char_money.text    = player.money
 			rest_screen.date.text          = date_text(2132,0,player.age)
 			LOCAL.d = date_days_in_month(2132,0,player.age) - date_day_of_month(2132,0,player.age) + 1
-			rest_screen.monthly_cost.text  = LIFESTYLE_COST[player.lifestyle] + "    ( due in " + d + " " + ( d == 1 ? "day" : "days" ) + " )"
+			rest_screen.monthly_cost.text  = LIFESTYLE_COST[player.lifestyle] + "    ( due " + ( d == 1 ? "tomorrow" : "in " + d + " days" ) + " )"
 
 			LOCAL.a = ARRAY
 			rest_screen.buttons_panel.component = a
