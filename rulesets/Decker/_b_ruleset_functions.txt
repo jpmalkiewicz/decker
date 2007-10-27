@@ -60,7 +60,7 @@ english
 
 		// make hardware
 		LOCAL.type
-		for i = random(1,4)+6 to 1
+		for i = random(1,4) to 1
 			while x == UNDEFINED || duplicateShopItem(x, c)
 				type = HARDWARE_TYPES[random(0,HARDWARE_TYPES.size-1)]
 				x = createChip(type, min(random(1,1+player.lifestyle),type.max_rating))
