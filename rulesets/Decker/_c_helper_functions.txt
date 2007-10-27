@@ -1,4 +1,22 @@
 english
+	RULESET.compareCurrentRatings = FUNCTION (row_a, row_b, table, column)
+		LOCAL.a = table.cell[row_a][column]
+		LOCAL.b = table.cell[row_b][column]
+		if a.structure_type == "TEXT"
+			a = a.text + 1
+		else if a == UNDEFINED
+			a = 0
+		else
+			a = 1
+		if b.structure_type == "TEXT"
+			b = b.text + 1
+		else if b == UNDEFINED
+			b = 0
+		else
+			b = 1
+		return_value = a - b
+
+
 	RULESET.compareNumbers = FUNCTION (row_a, row_b, table, column)
 		LOCAL.a = table.cell[row_a][column].text
 		LOCAL.b = table.cell[row_b][column].text
@@ -15,7 +33,6 @@ english
 					return_value = 1
 				else
 					return_value = b < a ? -1 : ( b > a ? 1 : 0 )
-
 
 	RULESET.compareNumbersInverted = FUNCTION (row_a, row_b, table, column)
 		LOCAL.a = table.cell[row_a][column].text
@@ -312,6 +329,40 @@ english
 						swap = displayed_array[b+1]
 						displayed_array[b+1] = displayed_array[b]
 						displayed_array[b] = swap
+		// move the row selection
+		if selected_row != UNDEFINED
+			for a = table.rows-1 to 0 step -1
+				if c[a] == selected_row
+					table.selected_row = a
+					break
+
+
+	// comparator must return a value below zero if the compared rows are in the wrong order, 0 if they are identical, a positive value if they are in the correct order
+	RULESET.sortTableInShop = FUNCTION (table, comparator, column, displayed_array)
+		LOCAL.c = table.cell
+		LOCAL.swap
+		LOCAL.reverse = true
+		LOCAL.selected_row
+		if table.selected_row >= 0 && table.selected_row < table.rows
+			selected_row = table.cell[table.selected_row]
+		// determine if the table is already in order
+		for a = c.size-2 to 0 step -1
+			if displayed_array[a].type.category[0] == displayed_array[a+1].type.category[0]
+				reverse = reverse && comparator(a, a+1, table, column) >= 0
+		reverse = reverse ? -1 : 1
+		// perform a bubblesort on the table rows
+		for a = c.size-2 to 0 step -1
+			for b = 0 to a
+				if displayed_array[b].type.category[0] == displayed_array[b+1].type.category[0]
+					if reverse * comparator(b, b+1, table, column) < 0
+						swap = c[b+1]
+						c[b+1] = c[b]
+						c[b] = swap
+						// swap the corresponding entries in the displayed array, if there is one
+						if displayed_array != UNDEFINED
+							swap = displayed_array[b+1]
+							displayed_array[b+1] = displayed_array[b]
+							displayed_array[b] = swap
 		// move the row selection
 		if selected_row != UNDEFINED
 			for a = table.rows-1 to 0 step -1

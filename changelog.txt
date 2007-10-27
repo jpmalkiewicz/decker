@@ -1,5 +1,6 @@
 80%
 2007-10-27
+  the sorting buttons for the shop now work by category
   the shop screen now shows the current ratings, and offers all item types
   the shop inventory now contains programs, and changes every 7 days
   table columns can now be right aligned, with the resulting content column being centered horizontally in the column area

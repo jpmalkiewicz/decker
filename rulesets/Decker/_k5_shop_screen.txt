@@ -2,10 +2,10 @@ english
 	RULESET.shop_screen = COMPONENT
 		title = "Decker - Thrifty Electronics"
 		width = 560
-		height = 350
+		height = 400
 
-		char_money_caption = createText("Money", 20, 15)
-		char_money = createText("", 20+pixelwidth(char_money_caption)+20, 15)
+		char_money_caption = createText("Money", 20, height-70)
+		char_money = createText("", 20+pixelwidth(char_money_caption)+20, char_money_caption.y)
 		item_table_caption = createTextBold("Items for sale", CENTER, 15)
 		scrollpane = SCROLLPANE
 			x = 20
@@ -29,7 +29,7 @@ english
 				sorting_order_function = _sorting_order_function
 				column = _column
 				on_mouse_up = FUNCTION
-					sortTable(scrollpane.displayed_element, sorting_order_function, column, player.shop_inventory)
+					sortTableInShop(scrollpane.displayed_element, sorting_order_function, column, player.shop_inventory)
 
 		LOCAL.table_button_x = ARRAY
 			scrollpane.x
@@ -46,14 +46,14 @@ english
 			// the software section
 			createBorder(scrollpane.x-2, scrollpane.y-22, scrollpane.width+4, scrollpane.height+24, @TABLE_BACKGROUND_COLOR, true)
 			scrollpane
-			createTableButton(0, "",        19, table_button_x, &compareShopItemsPreset)
-			createTableButton(1, "Name",   141, table_button_x, &compareText)
-			createTableButton(2, "Type",   100, table_button_x, &compareText)
-			createTableButton(3, "Rating",  50, table_button_x, &compareNumbers)
-			createTableButton(4, "Current", 50, table_button_x, &compareNumbers)
-			createTableButton(5, "Cost",  50, table_button_x, &compareNumbersInverted)
-			createTableButton(6, "Avg Cost",  60, table_button_x, &compareNumbersInverted)
-			createTableButton(7, "Size",    50, table_button_x, &compareNumbersInverted)
+			createTableButton(0, "",         19, table_button_x, &compareShopItemsPreset)
+			createTableButton(1, "Name",    141, table_button_x, &compareText)
+			createTableButton(2, "Type",    100, table_button_x, &compareText)
+			createTableButton(3, "Rating",   50, table_button_x, &compareNumbers)
+			createTableButton(4, "Current",  50, table_button_x, &compareCurrentRatings)
+			createTableButton(5, "Cost",     50, table_button_x, &compareNumbersInverted)
+			createTableButton(6, "Avg Cost", 60, table_button_x, &compareNumbersInverted)
+			createTableButton(7, "Size",     50, table_button_x, &compareNumbersInverted)
 
 		setup = FUNCTION
 			shop_screen.char_money.text = player.money
@@ -63,7 +63,6 @@ english
 			t.cell_x = createArray (CENTER, 8, CENTER, CENTER, CENTER, CENTER, CENTER, CENTER)
 			t.cell_y = CENTER
 			t.selected_row_background = @TABLE_SELECTED_ROW_BACKGROUND
-			t.can_drag_rows = true
 			t.selected_row = scrollpane.displayed_element.selected_row
 			t.on_row_drag = FUNCTION (table, old_row_index, new_row_index)
 				// rearrange the programs in the player deck accordingly
