@@ -6,7 +6,7 @@ english
 		THING_TYPE
 			name = "Attack"
 			complexity = 2
-			image = "program/attack"
+			image = "shop_item/attack"
 			default_category = DEFAULT_ATTACK          // this type of program can be used as the default attack program
 			category = ARRAY
 				PROGRAM
@@ -44,7 +44,7 @@ english
 		THING_TYPE
 			name = "Area Attack"
 			complexity = 3
-			image = "program/area_attack"
+			image = "shop_item/area_attack"
 			default_category = DEFAULT_ATTACK
 			category = ARRAY
 				PROGRAM
@@ -75,7 +75,7 @@ english
 		THING_TYPE
 			name = "Piercing Attack"
 			complexity = 3
-			image = "program/piercing_attack"
+			image = "shop_item/piercing_attack"
 			default_category = DEFAULT_ATTACK
 			category = ARRAY
 				PROGRAM
@@ -106,7 +106,7 @@ english
 		THING_TYPE
 			name = "Slow"
 			complexity = 2
-			image = "program/slow"
+			image = "shop_item/slow"
 			category = ARRAY
 				PROGRAM
 				SLOW
@@ -135,7 +135,7 @@ english
 		THING_TYPE
 			name = "Virus"
 			complexity = 3
-			image = "program/virus"
+			image = "shop_item/virus"
 			category = ARRAY
 				PROGRAM
 				VIRUS
@@ -164,7 +164,7 @@ english
 		THING_TYPE
 			name = "Confuse"
 			complexity = 4
-			image = "program/confuse"
+			image = "shop_item/confuse"
 			category = ARRAY
 				PROGRAM
 				CONFUSE
@@ -193,7 +193,7 @@ english
 		THING_TYPE
 			name = "Weaken"
 			complexity = 2
-			image = "program/weaken"
+			image = "shop_item/weaken"
 			category = ARRAY
 				PROGRAM
 				WEAKEN
@@ -222,7 +222,7 @@ english
 		THING_TYPE
 			name = "Silence"
 			complexity = 3
-			image = "program/silence"
+			image = "shop_item/silence"
 			category = ARRAY
 				PROGRAM
 				SILENCE
@@ -251,7 +251,7 @@ english
 		THING_TYPE
 			name = "Smoke"
 			complexity = 1
-			image = "program/smoke"
+			image = "shop_item/smoke"
 			category = ARRAY
 				PROGRAM
 				SMOKE
@@ -280,7 +280,7 @@ english
 		THING_TYPE
 			name = "Decoy"
 			complexity = 4
-			image = "program/decoy"
+			image = "shop_item/decoy"
 			category = ARRAY
 				PROGRAM
 				DECOY
@@ -309,7 +309,7 @@ english
 		THING_TYPE
 			name = "Armor"
 			complexity = 3
-			image = "program/armor"
+			image = "shop_item/armor"
 			default_category = DEFAULT_ARMOR
 			category = ARRAY
 				PROGRAM
@@ -339,7 +339,7 @@ english
 		THING_TYPE
 			name = "Shield"
 			complexity = 3
-			image = "program/shield"
+			image = "shop_item/shield"
 			category = ARRAY
 				PROGRAM
 				SHIELD
@@ -368,7 +368,7 @@ english
 		THING_TYPE
 			name = "Medic"
 			complexity = 4
-			image = "program/medic"
+			image = "shop_item/medic"
 			category = ARRAY
 				PROGRAM
 				MEDIC
@@ -397,7 +397,7 @@ english
 		THING_TYPE
 			name = "Hide"
 			complexity = 3
-			image = "program/hide"
+			image = "shop_item/hide"
 			default_category = DEFAULT_HIDE
 			category = ARRAY
 				PROGRAM
@@ -427,7 +427,7 @@ english
 		THING_TYPE
 			name = "Deceive"
 			complexity = 2
-			image = "program/deceive"
+			image = "shop_item/deceive"
 			category = ARRAY
 				PROGRAM
 				DECEIVE
@@ -456,7 +456,7 @@ english
 		THING_TYPE
 			name = "Relocate"
 			complexity = 2
-			image = "program/relocate"
+			image = "shop_item/relocate"
 			category = ARRAY
 				PROGRAM
 				RELOCATE
@@ -485,7 +485,7 @@ english
 		THING_TYPE
 			name = "Analyze"
 			complexity = 1
-			image = "program/analyze"
+			image = "shop_item/analyze"
 			category = ARRAY
 				PROGRAM
 				SCANNER
@@ -515,7 +515,7 @@ english
 		THING_TYPE
 			name = "Scan"
 			complexity = 1
-			image = "program/scan"
+			image = "shop_item/scan"
 			category = ARRAY
 				PROGRAM
 				SCANNER
@@ -546,7 +546,7 @@ english
 		THING_TYPE
 			name = "Evaluate"
 			complexity = 1
-			image = "program/evaluate"
+			image = "shop_item/evaluate"
 			category = ARRAY
 				PROGRAM
 				SCANNER
@@ -577,7 +577,7 @@ english
 		THING_TYPE
 			name = "Decrypt"
 			complexity = 2
-			image = "program/decrypt"
+			image = "shop_item/decrypt"
 			category = ARRAY
 				PROGRAM
 				DECRYPT
@@ -606,7 +606,7 @@ english
 		THING_TYPE
 			name = "Reflect"
 			complexity = 4
-			image = "program/reflect"
+			image = "shop_item/reflect"
 			category = ARRAY
 				PROGRAM
 				REFLECT
@@ -635,7 +635,7 @@ english
 		THING_TYPE
 			name = "Attack Boost"
 			complexity = 3
-			image = "program/attack_boost"
+			image = "shop_item/attack_boost"
 			category = ARRAY
 				PROGRAM
 				BOOST
@@ -665,7 +665,7 @@ english
 		THING_TYPE
 			name = "Defense Boost"
 			complexity = 3
-			image = "program/defense_boost"
+			image = "shop_item/defense_boost"
 			category = ARRAY
 				PROGRAM
 				BOOST
@@ -695,7 +695,7 @@ english
 		THING_TYPE
 			name = "Stealth Boost"
 			complexity = 3
-			image = "program/stealth_boost"
+			image = "shop_item/stealth_boost"
 			category = ARRAY
 				PROGRAM
 				BOOST
@@ -725,7 +725,7 @@ english
 		THING_TYPE
 			name = "Analysis Boost"
 			complexity = 3
-			image = "program/analysis_boost"
+			image = "shop_item/analysis_boost"
 			category = ARRAY
 				PROGRAM
 				BOOST

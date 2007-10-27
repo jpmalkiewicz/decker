@@ -16,6 +16,15 @@ english
 			displayed_screen.setup()
 
 
+	RULESET.duplicateShopItem = FUNCTION (item, shop_list)
+		return_value = false
+		for i = shop_list.size-1 to 0 step -1
+			if shop_list[i].type == item.type && shop_list[i].rating == item.rating
+				return_value = true
+				debug("duplicate shop item "+item.type.name+" "+item.rating)
+				break
+
+
 	RULESET.healingTime1 = FUNCTION (human, use_hospital = false)
 		return_value = human.physical_damage
 		if use_hospital
@@ -33,10 +42,32 @@ english
 		LOCAL.x
 		// make programs
 		for i = random(1,4) + random(1,4) + random(1,4) to 1
-			x = createProgram(PROGRAM_TYPES[random(0,PROGRAM_TYPES.size-1)], random(1,6)+2*player.lifestyle)
+			while x == UNDEFINED || duplicateShopItem(x, c)
+				x = createProgram(PROGRAM_TYPES[random(0,PROGRAM_TYPES.size-1)], random(1,6)+2*player.lifestyle)
 			x.average_value = getThingValue(x)
 			x.value = ( x.average_value * (8500+random(0,3000)) + 5000 ) / 10000      // default value +/- up to 15%
 			c[] = x
+			x = UNDEFINED
+
+		// make chips
+		for i = random(1,4) + random(1,4) to 1
+			while x == UNDEFINED || duplicateShopItem(x, c)
+				x = createChip(CHIP_TYPES[random(0,CHIP_TYPES.size-1)], 1+random(1,6)+2*player.lifestyle)
+			x.average_value = getThingValue(x)
+			x.value = ( x.average_value * (8500+random(0,3000)) + 5000 ) / 10000      // default value +/- up to 15%
+			c[] = x
+			x = UNDEFINED
+
+		// make hardware
+		LOCAL.type
+		for i = random(1,4)+6 to 1
+			while x == UNDEFINED || duplicateShopItem(x, c)
+				type = HARDWARE_TYPES[random(0,HARDWARE_TYPES.size-1)]
+				x = createChip(type, min(random(1,1+player.lifestyle),type.max_rating))
+			x.average_value = getThingValue(x)
+			x.value = ( x.average_value * (8500+random(0,3000)) + 5000 ) / 10000      // default value +/- up to 15%
+			c[] = x
+			x = UNDEFINED
 
 		// sort the shop inventory by item type order
 		LOCAL.swap
