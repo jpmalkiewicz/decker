@@ -188,6 +188,8 @@ english
 		// for all settings which are not defined, the default settings will be used
 		if text != UNDEFINED
 			return_value.text = &text
+		else
+			return_value.text = ""
 		if x != UNDEFINED
 			return_value.x = &x
 		if y != UNDEFINED
@@ -209,6 +211,10 @@ english
 	// returns a new TEXT with the default settings as defined in the TEXT stored in TEXT_STYLE
 	ENGINE.createTextBold = FUNCTION (text, x, y, color, font)
 		return_value = copy(@TEXT_STYLE_BOLD)
+		if text != UNDEFINED
+			return_value.text = &text
+		else
+			return_value.text = ""
 		// for all settings which are not defined, the default settings will be used
 		if x != UNDEFINED
 			return_value.x = &x

@@ -54,19 +54,17 @@ english
 			while a >= 0
 				setProgramState(return_value, return_value.program[a], return_value.program[a].type.default_category != UNDEFINED ? DEFAULT : LOADED)
 				a = a - 1
-				
+
 
 	RULESET.createHardware = FUNCTION (_type, _rating)
 		// find the hardware type
 		if value_type(_type) == "CONSTANT"
-			LOCAL.i = 0
-			LOCAL.c = UNDEFINED
-			while i < HARDWARE_TYPES.size
+			LOCAL.c
+			for i = 0 to HARDWARE_TYPES.size-1
 				c = HARDWARE_TYPES[i].category
 				if c[c.size-1] == _type
 					_type = HARDWARE_TYPES[i]
-					i = HARDWARE_TYPES.size  // to exit the while loop
-				i = i + 1
+					break
 		if _type.structure_type == "THING_TYPE"
 			// create the piece of hardware
 			return_value = THING
@@ -90,14 +88,12 @@ english
 	RULESET.createProgram = FUNCTION (_type, _rating)
 		// find the program type
 		if value_type(_type) == "CONSTANT"
-			LOCAL.i = 0
-			LOCAL.c = UNDEFINED
-			while i < PROGRAM_TYPES.size
+			LOCAL.c
+			for i = 0 to PROGRAM_TYPES.size-1
 				c = PROGRAM_TYPES[i].category
 				if c[c.size-1] == _type
 					_type = PROGRAM_TYPES[i]
-					i = PROGRAM_TYPES.size  // to exit the while loop
-				i = i + 1
+					break
 		if _type.structure_type == "THING_TYPE"
 			// create the program
 			return_value = THING
@@ -124,19 +120,17 @@ english
 	// calculates the mission rating for missions which have a target system
 	RULESET.defaultMissionRating = FUNCTION
 		if target_system.structure_type == "SYSTEM"
-			special_condition = 0
-			target_count = 0
+			LOCAL.special_condition = 0
+			LOCAL.target_count = 0
 			// there's either one goal or an array of goals
-			if value_type(goal) != "ARRAY" &&( goal.structure_type == "NO_RED_ALARM" || goal.structure_type == "CREATE_BACKDOOR" || goal.structure_type == "CRASH_SYSTEM" || goal.structure_type == "TIME_RESTRICTION" )	
+			if value_type(goal) != "ARRAY" &&( goal.structure_type == "NO_RED_ALARM" || goal.structure_type == "CREATE_BACKDOOR" || goal.structure_type == "CRASH_SYSTEM" || goal.structure_type == "TIME_RESTRICTION" )
 				special_condition = goal.structure_type == "TIME_RESTRICTION" ? 2 : 1
 			if value_type(goal) == "ARRAY"
 				target_count = goal.size
-				i = 0
-				while i < goal.size
+				for i = goal.size-1 to 0 step -1
 					if goal[i].structure_type == "NO_RED_ALARM" || goal[i].structure_type == "CREATE_BACKDOOR" || goal[i].structure_type == "CRASH_SYSTEM" || goal[i].structure_type == "TIME_RESTRICTION"
 						special_condition = special_condition + ( goal.structure_type == "TIME_RESTRICTION" ? 2 : 1 )
 						target_count = target_count - 1
-					i = i + 1
 			return_value = target_system.rating + target_count / 2 + special_condition
 
 
@@ -153,8 +147,7 @@ english
 	// returns the roman number string for the given number. only works for numbers up to 4999. the format for the resulting numbers is intended for easy reading
 	RULESET.getRomanNumber = FUNCTION (x)
 		return_value = ""
-		LOCAL.i = 0
-		while x > 0
+		for (i = 0; x > 0; i++)
 			while x >= ROMAN_NUMBER_VALUE[i]
 				x = x - ROMAN_NUMBER_VALUE[i]
 				return_value = return_value + ROMAN_NUMBER_LETTER[i]
@@ -165,7 +158,6 @@ english
 			if i + 1 < ROMAN_NUMBER_VALUE.size && substring(ROMAN_NUMBER_VALUE[i+1]+"", 0, 1) == "1" && ROMAN_NUMBER_VALUE[i]-ROMAN_NUMBER_VALUE[i+1] <= x
 				x = x - (ROMAN_NUMBER_VALUE[i]-ROMAN_NUMBER_VALUE[i+1])
 				return_value = return_value + ROMAN_NUMBER_LETTER[i+1] + ROMAN_NUMBER_LETTER[i]
-			i = i + 1
 
 
 	// this function only makes sense for stuff that can be downloaded during a run or loaded onto a deck
@@ -173,6 +165,7 @@ english
 		LOCAL.type = thing.type
 		if thing.source_code
 // calculate the size of a source code here
+			debug("getThingSize(<source_code>) RETURNS UNDEFINED")
 		else
 			if type.size_function != UNDEFINED
 				return_value = type.size_function(thing)
@@ -184,6 +177,7 @@ english
 		LOCAL.type = thing.type
 		if thing.source_code
 // calculate the value of a source code here
+			debug("getThingValue(<source_code>) RETURNS UNDEFINED")
 		else
 			if type.size_function != UNDEFINED
 				return_value = type.size_function(thing)
@@ -199,9 +193,8 @@ english
 	// returns a ^ b. be must be a non-negative integer
 	RULESET.pow = FUNCTION (a, b)
 		return_value = 1
-		while b > 0
+		for ( ; b > 0; b--)
 			return_value = return_value * a
-			b = b - 1
 
 
 	RULESET.rollDice = FUNCTION (target_number)
@@ -216,8 +209,8 @@ english
 			return_value = 1 + (x-target_number)/4
 			if return_value > 5
 				return_value = 5
-				
-				
+
+
 	RULESET.setProgramState = FUNCTION (deck, program, state)
 		if state != program.state
 			LOCAL.max_load = getMaxLoad(deck)
@@ -240,45 +233,35 @@ english
 
 	// comparator must return a value below zero if the compared rows are in the wrong order, 0 if they are identical, a positive value if they are in the correct order
 	RULESET.sortTable = FUNCTION (table, comparator)
-		LOCAL.a = 0
-		LOCAL.b = 0
 		LOCAL.c = table.cell
-		LOCAL.d = 0
-		LOCAL.swap = false
+		LOCAL.swap
 		LOCAL.reverse = true
-		LOCAL.selected_row = UNDEFINED
+		LOCAL.selected_row
 		if table.selected_row >= 0 && table.selected_row < table.rows
 			selected_row = table.cell[table.selected_row]
 		// determine if the table is already in order
-		while a+1 < c.size
+		for a = c.size-2 to 0 step -1
 			reverse = reverse && comparator(a, a+1) >= 0
-			a = a + 1
 		reverse = reverse ? -1 : 1
 		// perform a bubblesort on the table rows
-		a = 0
-		while a+1 < c.size
-			b = c.size - 1
-			while b > a
-				if reverse * comparator(a, b) < 0
-					swap = c[a]
-					c[a] = c[b]
+		for a = c.size-2 to 0 step -1
+			for b = 0 to a
+				if reverse * comparator(b, b+1) < 0
+					swap = c[b+1]
+					c[b+1] = c[b]
 					c[b] = swap
 					// swap the programs on the deck
-					swap = player.deck.program[a]
-					player.deck.program[a] = player.deck.program[b]
+					swap = player.deck.program[b+1]
+					player.deck.program[b+1] = player.deck.program[b]
 					player.deck.program[b] = swap
-				b = b - 1
-			a = a + 1
 		// move the row selection
 		if selected_row != UNDEFINED
-			a = table.rows-1
-			while a >= 0
+			for a = table.rows-1 to 0 step -1
 				if c[a] == selected_row
 					table.selected_row = a
-					a = -1
-				a = a - 1
+					break
 
-	
+
 	// sets the back button's image to whereever it currently leads back to
 	RULESET.updateBackButton = FUNCTION (button)
 		LOCAL.previous_screen = getPreviousScreen()
@@ -297,12 +280,11 @@ english
 		return_value = DECK_LOAD_MODIFIER[human.deck] - human.deck.damage/8 - min(human.physical_damage,human.mental_damage)/4
 		if human.current_node.smoke_level > 0
 			return_value = return_value + ( stealth_action ? 4 : -4 )
-		
-	
+
+
 	RULESET.humanRatingAttack = FUNCTION (human)
 		return_value = humanActionModifier(human) + min(human.deck.attack,human.deck.cpu) + human.attack
-		i = human.deck.program.size-1
-		while i >= 0
+		for (i = human.deck.program.size-1; i>=0; i--)
 			if human.deck.program[i].attack_modifier != UNDEFINED
 				return_value = return_value + human.deck.program[i].attack_modifier
 
@@ -317,8 +299,9 @@ english
 			if ice.damage >= LETHAL_DAMAGE
 				actionCrashICE(human,ice)
 		human.time = human.time + 1       // an action has been taken, advance the time
+		debug("actionHumanAttackICE() : advance the mission time")
 
-	
+
 	RULESET.actionCrashICE = FUNCTION (ice)
 		if ice.node == PLAYER.node
 			print "<#success>" + ice.name + " has crashed"
@@ -330,6 +313,6 @@ english
 				delete(ice)
 			else
 				ice.node.area.destroyed_ice[] = ice
-			
+
 
 

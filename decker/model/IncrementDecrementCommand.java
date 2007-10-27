@@ -15,8 +15,6 @@ final class IncrementDecrementCommand extends ScriptNode
 		modifier = _command.equals("++") ? 1 : -1;
 		prefix = _prefix;
 		variable = _variable;
-		print(System.out, "", true);
-		System.out.println("****");
 	}
 
 

@@ -1,7 +1,14 @@
 english
 
 	RULESET.advanceDate = FUNCTION (day_count)
-		player.age = player.age + day_count
+		for i = 1 to day_count
+			player.age++
+			if date_day_of_month(2132,0,player.age) == 1
+				// a new month has started. deduce the living costs
+				player.money = player.money - LIFESTYLE_COST[player.lifestyle]
+				// stop advancing the date if the player has run into debts. the game is over then
+				if player.money < 0
+					break
 		if value_type(displayed_screen.setup) == "FUNCTION"
 			displayed_screen.setup()
 

@@ -1,4 +1,8 @@
 80%
+2007-10-27
+  finished simplifying all scripts
+  monthly costs are now deduced
+  continued work on the shop screen
 2007-10-24
   simplified the engine scripts
   fixed a bug in Function.print() related to hard coded functions, and added the missing "getStructureStack" to the list of hard coded function names in Global.java

@@ -91,12 +91,10 @@ english
 			load_2_text
 
 		chip_text = ARRAY
-		LOCAL.i = 0
-		while i < 6
+		for i = 0 to 5
 			chip_text[i] = createText("1", 130, 32+i*16, UNDEFINED, UNDEFINED, RIGHT)
 			chip_text[i].h_align = LEFT
 			component[] = chip_text[i]
-			i = i + 1
 
 
 		setup = FUNCTION
@@ -122,13 +120,10 @@ english
 					if h.size > 6
 						optional_hardware.component[0].x = xoff+140
 						optional_hardware.component[0].h_align = CENTER
-					i = 0
-					while i < second_column
+					for (i = 0; i < second_column; i++)
 						optional_hardware.component[] = createText(player.deck.optional_hardware[i].name, xoff, 17+(i+1)*16)
-						i = i + 1
-					while i < player.deck.optional_hardware.size
+					for ( ; i < player.deck.optional_hardware.size; i++)
 						optional_hardware.component[] = createText(player.deck.optional_hardware[i].name, xoff+160, 17+(i+1-second_column)*16)
-						i = i + 1
 
 				// create the new software table ***********************************************************************************************************
 				LOCAL.t = createTable ( , 18, 19, 136, 109, 59, 59, 59, 59)
@@ -141,15 +136,12 @@ english
 					// rearrange the programs in the player deck accordingly
 					LOCAL.p = player.deck.program
 					LOCAL.backup = p[old_row_index]
-					LOCAL.i = old_row_index
 					if old_row_index > new_row_index
-						while i > new_row_index
+						for (i = old_row_index; i > new_row_index; i--)
 							p[i] = p[i-1]
-							i = i - 1
 					else
-						while i < new_row_index
+						for (i = old_row_index; i < new_row_index; i++)
 							p[i] = p[i+1]
-							i = i + 1
 					p[new_row_index] = backup
 				t.on_selection_change = FUNCTION (table, old_selected_row, new_selected_row)
 					with deck_screen
@@ -211,8 +203,7 @@ english
 					idle = prog.state == INSTALLED ? "status_off" : "status_on"
 					deck_screen.current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
 
-				i = 0
-				while i < p.size
+				for (i = 0; i < p.size; i++)
 					loaded = BUTTON
 						idle = p[i].state != INSTALLED ?  "status_on"  :  "status_off"
 						prog = p[i]
@@ -226,5 +217,4 @@ english
 						state = createText("")
 
 					addTableRow(t, p[i].type.image, createText(p[i].name,,,@TABLE_TEXT_COLOR), createText(p[i].type.name,,,@TABLE_TEXT_COLOR), createText(p[i].rating,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR), loaded, state)
-					i = i + 1
 				scrollpane.displayed_element = t

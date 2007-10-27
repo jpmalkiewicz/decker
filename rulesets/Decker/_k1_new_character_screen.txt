@@ -179,8 +179,7 @@ english
 				y = 219
 				idle = "cancel0"
 				on_mouse_up = &exit_program
-		LOCAL.i = 0
-		while i < bonus_name.size
+		for i = 0 to bonus_name.size-1
 			bonus_button_group[] = BUTTON
 				x = 145
 				y = 105+i*18
@@ -193,4 +192,3 @@ english
 				on_mouse_up = &bonus_button_function
 			component[] = bonus_button_group[i]
 			adjust_button(bonus_button_group[i], i==0)
-			LOCAL.i = i + 1
