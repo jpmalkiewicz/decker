@@ -4,14 +4,44 @@ english
 		width = 560
 		height = 400
 
-		char_money_caption = createText("Money", 20, height-70)
-		char_money = createText("", 20+pixelwidth(char_money_caption)+20, char_money_caption.y)
+		char_money_caption = createText("Money", 20, height-45, , , , CENTER)
+		char_money = createText("", 20+pixelwidth(char_money_caption)+20, char_money_caption.y, , , , CENTER)
 		item_table_caption = createTextBold("Items for sale", CENTER, 15)
+		home_button = BORDER_BUTTON
+			x = COMPONENT.width-18
+			v_align = CENTER
+			h_align = LEFT
+			y = char_money_caption.y
+			idle = "home/home"
+			on_mouse_up = FUNCTION
+				displayInitializedScreen(home_screen, false)
+		purchase_button_wrapper = SET
+			x = COMPONENT.width*36/100
+			y = home_button.y
+		purchase_button = BORDER_BUTTON
+			v_align = CENTER
+			h_align = CENTER
+			height = 24
+			idle = createText("Purchase")
+			width = pixelwidth(idle)*13/10
+			text_padding = 3
+		purchase_button_wrapper.component = purchase_button
+
+		special_order_button = BORDER_BUTTON
+			x = COMPONENT.width*67/100
+			y = home_button.y
+			v_align = CENTER
+			h_align = CENTER
+			height = 24
+			idle = createText("Special Order")
+			width = pixelwidth(idle)*13/10
+			text_padding = 3
+
 		scrollpane = SCROLLPANE
 			x = 20
 			y = 60
 			width = COMPONENT.width - 2 * 20
-			height = COMPONENT.height - y - 80    // make the height relative to the screenheight
+			height = COMPONENT.height - y - 75    // make the height relative to the screenheight
 			vertical_scrollbar = ARRAY
 				"scroller_vertical_blue0"
 				"scroller_up_blue0"
@@ -42,6 +72,9 @@ english
 			char_money_caption
 			char_money
 			item_table_caption
+			home_button
+			special_order_button
+			purchase_button_wrapper
 
 			// the software section
 			createBorder(scrollpane.x-2, scrollpane.y-22, scrollpane.width+4, scrollpane.height+24, @TABLE_BACKGROUND_COLOR, true)
