@@ -45,7 +45,7 @@ english
 
 	// add the default sorting order IDs
 	LOCAL.offset = PROGRAM_TYPES.size
-	for i = CHIP_TYPES.size-1 to 0
+	for i = CHIP_TYPES.size-1 downto 0
 		CHIP_TYPES[i].id = i + offset
 
 
@@ -125,5 +125,5 @@ english
 
 	// add the default sorting order IDs
 	LOCAL.offset = PROGRAM_TYPES.size + CHIP_TYPES.size
-	for i = HARDWARE_TYPES.size-1 to 0
+	for i = HARDWARE_TYPES.size-1 downto 0
 		HARDWARE_TYPES[i].id = i + offset

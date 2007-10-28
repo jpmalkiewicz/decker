@@ -1,4 +1,29 @@
 english
+	RULESET.actionHumanAttackICE = FUNCTION (ice,program,target_number)
+		successes = rollDice(target_number)
+		if successes < 0
+			print program.name + " program missed"
+		else
+			print program.name + " program does " + successes*successes*HEALTH_INCREMENT + "% damage to " + ice.name
+			ice.damage = ice.damage + successes*successes
+			if ice.damage >= LETHAL_DAMAGE
+				actionCrashICE(human,ice)
+		human.time = human.time + 1       // an action has been taken, advance the time
+		debug("actionHumanAttackICE() : advance the mission time")
+
+
+	RULESET.actionCrashICE = FUNCTION (ice)
+		if ice.node == PLAYER.node
+			print "<#success>" + ice.name + " has crashed"
+			if PLAYER.current_target == ice
+				PLAYER.current_target = UNDEFINED
+			delete(ice.node.objects,ARRAY_INDEX(ice.node.objects,ice))
+			// if the ice is a tapeworm it dies never to come back. otherwise it goes to the ice respawn list
+			if ice.guards != UNDEFINED && ice.guards.structure_type == "FILE"
+				delete(ice)
+			else
+				ice.node.area.destroyed_ice[] = ice
+
 
 	RULESET.advanceDate = FUNCTION (day_count)
 		for i = 1 to day_count
@@ -18,10 +43,9 @@ english
 
 	RULESET.duplicateShopItem = FUNCTION (item, shop_list)
 		return_value = false
-		for i = shop_list.size-1 to 0 step -1
+		for i = shop_list.size-1 downto 0
 			if shop_list[i].type == item.type && shop_list[i].rating == item.rating
 				return_value = true
-				debug("duplicate shop item "+item.type.name+" "+item.rating)
 				break
 
 
@@ -36,12 +60,26 @@ english
 		if use_hospital
 			return_value = ( return_value + 1 ) / 2
 
+
+	RULESET.humanActionModifier = FUNCTION (human,stealth_action)        // if stealth_action is false it can be omitted
+		return_value = DECK_LOAD_MODIFIER[human.deck] - human.deck.damage/8 - min(human.physical_damage,human.mental_damage)/4
+		if human.current_node.smoke_level > 0
+			return_value = return_value + ( stealth_action ? 4 : -4 )
+
+
+	RULESET.humanRatingAttack = FUNCTION (human)
+		return_value = humanActionModifier(human) + min(human.deck.attack,human.deck.cpu) + human.attack
+		for i = human.deck.program.size-1 downto 0
+			if human.deck.program[i].attack_modifier != UNDEFINED
+				return_value = return_value + human.deck.program[i].attack_modifier
+
+
 	RULESET.updateShopInventory = FUNCTION
 		LOCAL.c = ARRAY
 		player.shop_inventory = c
 		LOCAL.x
 		// make programs
-		for i = random(1,4) + random(1,4) + random(1,4) to 1
+		for i = random(1,4) + random(1,4) + random(1,4) downto 1
 			while x == UNDEFINED || duplicateShopItem(x, c)
 				x = createProgram(PROGRAM_TYPES[random(0,PROGRAM_TYPES.size-1)], random(1,6)+2*player.lifestyle)
 			x.average_value = getThingValue(x)
@@ -50,7 +88,7 @@ english
 			x = UNDEFINED
 
 		// make chips
-		for i = random(1,4) + random(1,4) to 1
+		for i = random(1,4) + random(1,4) downto 1
 			while x == UNDEFINED || duplicateShopItem(x, c)
 				x = createChip(CHIP_TYPES[random(0,CHIP_TYPES.size-1)], 1+random(1,6)+2*player.lifestyle)
 			x.average_value = getThingValue(x)
@@ -60,7 +98,7 @@ english
 
 		// make hardware
 		LOCAL.type
-		for i = random(1,4) to 1
+		for i = random(1,4) downto 1
 			while x == UNDEFINED || duplicateShopItem(x, c)
 				type = HARDWARE_TYPES[random(0,HARDWARE_TYPES.size-1)]
 				x = createChip(type, min(random(1,1+player.lifestyle),type.max_rating))
@@ -71,7 +109,7 @@ english
 
 		// sort the shop inventory by item type order
 		LOCAL.swap
-		for a = c.size-2 to 0 step -1
+		for a = c.size-2 downto 0
 			for b = 0 to a
 				if c[b].type.id > c[b+1].type.id ||( c[b].type.id == c[b+1].type.id &&( c[b].rating < c[b+1].rating ||( c[b].rating == c[b+1].rating && c[b].value > c[b+1].value )))
 					swap = c[b]
