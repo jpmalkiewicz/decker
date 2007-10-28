@@ -754,5 +754,5 @@ english
 				"Analysis Boost 6.0"
 
 	// add the default sorting order IDs
-	for i = PROGRAM_TYPES.size - 1 to 0
+	for i = PROGRAM_TYPES.size - 1 downto 0
 		PROGRAM_TYPES[i].id = i

@@ -56,6 +56,43 @@ english
 		return_value = player.deck.program[b].type.id - player.deck.program[a].type.id
 
 
+	RULESET.compareRatings = FUNCTION (row_a, row_b, table, column)
+		LOCAL.a = player.shop_inventory[row_a]
+		if a.type.category == HARDWARE
+			LOCAL.b = player.shop_inventory[row_b]
+			if a.type.max_rating == 1
+				a = 0
+			else
+				a = a.rating
+			if b.type.max_rating == 1
+				b = 0
+			else
+				b = b.rating
+			return_value = a - b
+			if return_value == 0
+				return_value = player.shop_inventory[row_b].type.max_rating - player.shop_inventory[row_a].type.max_rating
+		else
+			return_value = compareNumbers(row_a, row_b, table, column)
+
+
+		LOCAL.a = table.cell[row_a][column].text
+		LOCAL.b = table.cell[row_b][column].text
+
+		if ( value_type(a) == "INTEGER" || value_type(a) == "REAL" )&&( value_type(b) == "INTEGER" || value_type(b) == "REAL" )
+			return_value = a - b
+		else  // at least one of them is not a number
+			if a == UNDEFINED || a == ""
+				if b != UNDEFINED && b != ""
+					return_value = -1
+				else
+					return_value = b < a ? -1 : ( b > a ? 1 : 0 )
+			else
+				if b == UNDEFINED || b == ""
+					return_value = 1
+				else
+					return_value = b < a ? -1 : ( b > a ? 1 : 0 )
+
+
 	RULESET.compareShopItemsPreset = FUNCTION (a, b)
 		return_value = player.shop_inventory[b].type.id - player.shop_inventory[a].type.id
 
@@ -126,7 +163,7 @@ english
 				createProgram(SCAN, program_rating)
 				createProgram(EVALUATE, program_rating)
 				createProgram(DECRYPT, program_rating)
-			for a = return_value.program.size - 1 to 0 step -1
+			for a = return_value.program.size - 1 downto 0
 				setProgramState(return_value, return_value.program[a], return_value.program[a].type.default_category != UNDEFINED ? DEFAULT : LOADED)
 
 
@@ -201,7 +238,7 @@ english
 				special_condition = goal.structure_type == "TIME_RESTRICTION" ? 2 : 1
 			if value_type(goal) == "ARRAY"
 				target_count = goal.size
-				for i = goal.size-1 to 0 step -1
+				for i = goal.size-1 downto 0
 					if goal[i].structure_type == "NO_RED_ALARM" || goal[i].structure_type == "CREATE_BACKDOOR" || goal[i].structure_type == "CRASH_SYSTEM" || goal[i].structure_type == "TIME_RESTRICTION"
 						special_condition = special_condition + ( goal.structure_type == "TIME_RESTRICTION" ? 2 : 1 )
 						target_count = target_count - 1
@@ -264,10 +301,10 @@ english
 
 
 
-	// returns a ^ b. be must be a non-negative integer
+	// returns a ^ b. be must be a non-negative number. if b is a REAL, then its fraction gets ignored
 	RULESET.pow = FUNCTION (a, b)
 		return_value = 1
-		for ( ; b > 0; b--)
+		for ( ; b >= 1; b--)
 			return_value = return_value * a
 
 
@@ -314,11 +351,11 @@ english
 		if table.selected_row >= 0 && table.selected_row < table.rows
 			selected_row = table.cell[table.selected_row]
 		// determine if the table is already in order
-		for a = c.size-2 to 0 step -1
+		for a = c.size-2 downto 0
 			reverse = reverse && comparator(a, a+1, table, column) >= 0
 		reverse = reverse ? -1 : 1
 		// perform a bubblesort on the table rows
-		for a = c.size-2 to 0 step -1
+		for a = c.size-2 downto 0
 			for b = 0 to a
 				if reverse * comparator(b, b+1, table, column) < 0
 					swap = c[b+1]
@@ -331,7 +368,7 @@ english
 						displayed_array[b] = swap
 		// move the row selection
 		if selected_row != UNDEFINED
-			for a = table.rows-1 to 0 step -1
+			for a = table.rows-1 downto 0
 				if c[a] == selected_row
 					table.selected_row = a
 					break
@@ -346,12 +383,12 @@ english
 		if table.selected_row >= 0 && table.selected_row < table.rows
 			selected_row = table.cell[table.selected_row]
 		// determine if the table is already in order
-		for a = c.size-2 to 0 step -1
+		for a = c.size-2 downto 0
 			if displayed_array[a].type.category[0] == displayed_array[a+1].type.category[0]
 				reverse = reverse && comparator(a, a+1, table, column) >= 0
 		reverse = reverse ? -1 : 1
 		// perform a bubblesort on the table rows
-		for a = c.size-2 to 0 step -1
+		for a = c.size-2 downto 0
 			for b = 0 to a
 				if displayed_array[b].type.category[0] == displayed_array[b+1].type.category[0]
 					if reverse * comparator(b, b+1, table, column) < 0
@@ -365,7 +402,7 @@ english
 							displayed_array[b] = swap
 		// move the row selection
 		if selected_row != UNDEFINED
-			for a = table.rows-1 to 0 step -1
+			for a = table.rows-1 downto 0
 				if c[a] == selected_row
 					table.selected_row = a
 					break
@@ -378,50 +415,3 @@ english
 			button.idle = "home/home"
 		else
 			button.idle = "home/matrix"
-
-
-//*****************************************************************************************************************************************************
-// action functions ***********************************************************************************************************************************
-//*****************************************************************************************************************************************************
-
-
-	RULESET.humanActionModifier = FUNCTION (human,stealth_action)        // if stealth_action is false it can be omitted
-		return_value = DECK_LOAD_MODIFIER[human.deck] - human.deck.damage/8 - min(human.physical_damage,human.mental_damage)/4
-		if human.current_node.smoke_level > 0
-			return_value = return_value + ( stealth_action ? 4 : -4 )
-
-
-	RULESET.humanRatingAttack = FUNCTION (human)
-		return_value = humanActionModifier(human) + min(human.deck.attack,human.deck.cpu) + human.attack
-		for (i = human.deck.program.size-1; i>=0; i--)
-			if human.deck.program[i].attack_modifier != UNDEFINED
-				return_value = return_value + human.deck.program[i].attack_modifier
-
-
-	RULESET.actionHumanAttackICE = FUNCTION (ice,program,target_number)
-		successes = rollDice(target_number)
-		if successes < 0
-			print program.name + " program missed"
-		else
-			print program.name + " program does " + successes*successes*HEALTH_INCREMENT + "% damage to " + ice.name
-			ice.damage = ice.damage + successes*successes
-			if ice.damage >= LETHAL_DAMAGE
-				actionCrashICE(human,ice)
-		human.time = human.time + 1       // an action has been taken, advance the time
-		debug("actionHumanAttackICE() : advance the mission time")
-
-
-	RULESET.actionCrashICE = FUNCTION (ice)
-		if ice.node == PLAYER.node
-			print "<#success>" + ice.name + " has crashed"
-			if PLAYER.current_target == ice
-				PLAYER.current_target = UNDEFINED
-			delete(ice.node.objects,ARRAY_INDEX(ice.node.objects,ice))
-			// if the ice is a tapeworm it dies never to come back. otherwise it goes to the ice respawn list
-			if ice.guards != UNDEFINED && ice.guards.structure_type == "FILE"
-				delete(ice)
-			else
-				ice.node.area.destroyed_ice[] = ice
-
-
-

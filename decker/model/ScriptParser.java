@@ -477,12 +477,13 @@ final class ScriptParser extends ScriptReader
 				throwException("the = must sit on the same line as the \"for\"");
 			// parse the initial value
 			final Expression initial_value = parseExpression(command_line, command_column, false);
-			// remove the "to" from the stream
+			// remove the "to"/"downto" from the stream
 			s = readElement();
-			if (s == null || !s.equals("to"))
-				throwException("\"to\" expected but "+((s!=null)?s:"end of script")+" found");
+			if (s == null ||( !s.equals("to") && !s.equals("downto")))
+				throwException("\"to\" or \"downto\" expected but "+((s!=null)?s:"end of script")+" found");
 			if (getLine() != command_line)
-				throwException("the \"to\" must sit on the same line as the \"for\"");
+				throwException("the \""+s+"\" must sit on the same line as the \"for\"");
+			final boolean go_up = s.equals("to");
 			// read the final value expression
 			final Expression final_value = parseExpression(command_line, command_column, false);
 			if (last_expression_line != command_line)
@@ -501,7 +502,7 @@ final class ScriptParser extends ScriptReader
 					throwException("the the step expression  "+step+"  must end on the same line as the \"for\"");
 			}
 			// return the complete BASIC-style loop, with the block inside the loop parsed
-			ForLoopCommand ret = new ForLoopCommand(variable, initial_value, final_value, step, script_name, command_line, command_column);
+			ForLoopCommand ret = new ForLoopCommand(variable, initial_value, go_up, final_value, step, script_name, command_line, command_column);
 			parseBlock(ret, command_line, command_column);
 			// we are no longer inside this loop, although there may still be other, enclosing loops
 			inside_loop = was_inside_loop;

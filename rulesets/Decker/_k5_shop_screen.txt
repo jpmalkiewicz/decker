@@ -49,7 +49,7 @@ english
 			createTableButton(0, "",         19, table_button_x, &compareShopItemsPreset)
 			createTableButton(1, "Name",    141, table_button_x, &compareText)
 			createTableButton(2, "Type",    100, table_button_x, &compareText)
-			createTableButton(3, "Rating",   50, table_button_x, &compareNumbers)
+			createTableButton(3, "Rating",   50, table_button_x, &compareRatings)
 			createTableButton(4, "Current",  50, table_button_x, &compareCurrentRatings)
 			createTableButton(5, "Cost",     50, table_button_x, &compareNumbersInverted)
 			createTableButton(6, "Avg Cost", 60, table_button_x, &compareNumbersInverted)
@@ -69,10 +69,10 @@ english
 				LOCAL.p = player.deck.program
 				LOCAL.backup = p[old_row_index]
 				if old_row_index > new_row_index
-					for (i = old_row_index; i > new_row_index; i--)
+					for i = old_row_index downto new_row_index+1
 						p[i] = p[i-1]
 				else
-					for (i = old_row_index; i < new_row_index; i++)
+					for i = old_row_index to new_row_index-1
 						p[i] = p[i+1]
 				p[new_row_index] = backup
 			t.on_selection_change = FUNCTION (table, old_selected_row, new_selected_row)
@@ -84,11 +84,11 @@ english
 			LOCAL.pp = player.deck.program
 			LOCAL.ph = player.deck.optional_hardware
 			LOCAL.rating
-			for (i = 0; i < p.size; i++)
+			for i = 0 to p.size-1
 				// determine the current max rating the player has of the item we want to add to the list
 				m = -1
 				if p[i].type.category[0] == PROGRAM
-					for (j = pp.size-1; j >= 0; j--)
+					for j = pp.size-1 downto 0
 						if p[i].type == pp[j].type
 							m = max(m, pp[j].rating)
 				else if p[i].type.category[0] == CHIP
@@ -106,7 +106,7 @@ english
 					else if chip_type == ANALYSIS
 						m = player.deck.analysis
 				else if p[i].type.category[0] == HARDWARE
-					for (j = ph.size-1; j >= 0; j--)
+					for j = ph.size-1 downto 0
 						if p[i].type == ph[j].type
 							m = max(m, ph[j].rating)
 				if m == -1

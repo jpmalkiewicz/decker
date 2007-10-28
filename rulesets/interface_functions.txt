@@ -52,12 +52,12 @@ english
 		if table.rows > 0
 			// determine the maximum width of the column entries
 			LOCAL.max_width = 0
-			for y = table.rows-1 to 0
+			for y = table.rows-1 downto 0
 				max_width = max(max_width, pixelwidth(table.cell[y][column]))
 			// calculate the x-offset for the right edge of the column content
 			LOCAL.adjusted_x = ( ( value_type(table.cell_width) == "INTEGER" ? table.cell_width : table.cell_width[column] ) + max_width + 1 ) / 2
 			// manually set the x coordinate for all table cells in the column
-			for y = table.rows-1 to 0
+			for y = table.rows-1 downto 0
 				LOCAL.c = table.cell[y][column]
 				if value_type(c) == "STRUCTURE"
 					c.h_align = LEFT

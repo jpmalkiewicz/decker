@@ -1,5 +1,8 @@
 80%
 2007-10-27
+  optimized the way hardware in the shop is sorted by rating
+  added "for i = 5 downto 0", changed "for i = 0 to 5" and applied the change to the scripts
+2007-10-27
   the sorting buttons for the shop now work by category
   the shop screen now shows the current ratings, and offers all item types
   the shop inventory now contains programs, and changes every 7 days

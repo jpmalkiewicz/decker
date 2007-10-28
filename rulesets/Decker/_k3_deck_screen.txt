@@ -138,10 +138,10 @@ english
 					LOCAL.p = player.deck.program
 					LOCAL.backup = p[old_row_index]
 					if old_row_index > new_row_index
-						for (i = old_row_index; i > new_row_index; i--)
+						for i = old_row_index downto new_row_index+1
 							p[i] = p[i-1]
 					else
-						for (i = old_row_index; i < new_row_index; i++)
+						for i = old_row_index to new_row_index-1
 							p[i] = p[i+1]
 					p[new_row_index] = backup
 				t.on_selection_change = FUNCTION (table, old_selected_row, new_selected_row)
@@ -206,7 +206,7 @@ english
 					idle = prog.state == INSTALLED ? "status_off" : "status_on"
 					deck_screen.current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
 
-				for (i = 0; i < p.size; i++)
+				for i = 0 to p.size-1
 					loaded = BUTTON
 						idle = p[i].state != INSTALLED ?  "status_on"  :  "status_off"
 						prog = p[i]
