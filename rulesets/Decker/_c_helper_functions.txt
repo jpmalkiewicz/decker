@@ -251,6 +251,34 @@ english
 			screen.setup()
 
 
+	RULESET.getCurrentMaxRating = FUNCTION (deck, item_type)
+		return_value = 0
+		if item_type.category[0] == PROGRAM
+			LOCAL.p = deck.program
+			for j = p.size-1 downto 0
+				if item_type == p[j].type
+					return_value = max(return_value, p[j].rating)
+		else if item_type.category[0] == CHIP
+			LOCAL.chip_type = item_type.category[item_type.category.size-1]
+			if chip_type == CPU
+				return_value = deck.cpu
+			else if chip_type == COPROCESSOR
+				return_value = deck.coprocessor
+			else if chip_type == ATTACK
+				return_value = deck.cpu
+			else if chip_type == DEFENSE
+				return_value = deck.defense
+			else if chip_type == STEALTH
+				return_value = deck.stealth
+			else if chip_type == ANALYSIS
+				return_value = deck.analysis
+		else if item_type.category[0] == HARDWARE
+			LOCAL.h = deck.optional_hardware
+			for j = h.size-1 downto 0
+				if item_type == h[j].type
+					return_value = max(return_value, h[j].rating)
+
+
 	RULESET.getMaxLoad = FUNCTION (deck)
 		return_value = 30 * ( deck.cpu + ( deck.cpu < deck.coprocessor ? deck.cpu : deck.coprocessor ) )
 
