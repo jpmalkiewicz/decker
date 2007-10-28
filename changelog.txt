@@ -1,7 +1,9 @@
 80%
 2007-10-27
+  you can purchase everything at the shop
   added the shop screen buttons
   changed the chip image slightly
+  fixed a glitch in BORDER_BUTTON.on_draw
   optimized the way hardware in the shop is sorted by rating
   added "for i = 5 downto 0", changed "for i = 0 to 5" and applied the change to the scripts
 2007-10-27

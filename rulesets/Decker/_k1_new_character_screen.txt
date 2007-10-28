@@ -166,10 +166,8 @@ english
 						money = bonus_name[selected_bonus] == "money" ? 2000 : 100
 // debug stuff START
 						physical_damage = 3
-						money = money + 9100
+						money = money + 2000
 						skill_points = 8
-						for i = 0 to HARDWARE_TYPES.size*3/4
-							deck.optional_hardware[] = createHardware(HARDWARE_TYPES[i], random(1,HARDWARE_TYPES[i].max_rating))
 					updateShopInventory()
 // create the new character END
 					displayScreen(home_screen)
