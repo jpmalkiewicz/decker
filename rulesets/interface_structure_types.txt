@@ -189,7 +189,7 @@ english
 				// if the button has an explicitly defined height, set the border height to the same value and center the button image / text vertically
 				if BORDER_BUTTON.height != UNDEFINED
 					component[0].height = height
-					component[1].y = CENTER
+					component[1].y = text_padding == UNDEFINED ? CENTER : 2 + text_padding
 				else     // otherwise, wrap a border around the content
 					component[0].height = pixelheight(c) + 4 + 2*padding
 					component[1].y = 2 + padding/2

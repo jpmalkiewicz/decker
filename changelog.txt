@@ -1,5 +1,7 @@
 80%
 2007-10-27
+  added the shop screen buttons
+  changed the chip image slightly
   optimized the way hardware in the shop is sorted by rating
   added "for i = 5 downto 0", changed "for i = 0 to 5" and applied the change to the scripts
 2007-10-27
