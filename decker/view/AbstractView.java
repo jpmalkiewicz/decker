@@ -286,13 +286,7 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 	public void eventMouseReleased (final int x, final int y)  {}
 
 
-	public int getDrawOffsetX ()  { return 0; }
-
-
-	public int getDrawOffsetY ()  { return 0; }
-
-
-	public final int height (Object visible_object) {
+	public final static int height (Object visible_object) {
 		Value v;
 		if (visible_object instanceof Value) {
 			v = (Value) visible_object;
@@ -360,7 +354,7 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 	}
 
 
-	public final int width (Object visible_object) {
+	public final static int width (Object visible_object) {
 		Value v;
 		if (visible_object instanceof Value) {
 			v = (Value) visible_object;

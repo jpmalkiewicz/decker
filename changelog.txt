@@ -1,5 +1,7 @@
 80%
-2007-10-27
+2007-10-30
+  started to replace the display / eventhandler system with something fast
+2007-10-28
   you can purchase everything at the shop
   added the shop screen buttons
   changed the chip image slightly
