@@ -655,12 +655,6 @@ public final class DefaultView extends AbstractView
 	}
 
 
-	public int getDrawOffsetX ()  { return current_dx; }
-
-
-	public int getDrawOffsetY ()  { return current_dy; }
-
-
 // private methods **************************************************************************************************************************************
 
 
@@ -682,7 +676,7 @@ public final class DefaultView extends AbstractView
 	}
 
 
-	private int x (Object visible_object, final int parent_width)  {
+	static int x (Object visible_object, final int parent_width)  {
 		int ret = 0;
 		// if it's the top level view (parent==null) it automatically sits at (0,0)
 		if (parent_width > Integer.MIN_VALUE &&( visible_object instanceof Structure ||( visible_object instanceof Value && ((Value)visible_object).type() == Value.STRUCTURE ))) {
@@ -736,7 +730,7 @@ public final class DefaultView extends AbstractView
 	}
 
 
-	private int y (Object visible_object, final int parent_height)  {
+	static int y (Object visible_object, final int parent_height)  {
 		int ret = 0;
 		// if it's the top level view (parent==null) it automatically sits at (0,0)
 		if (parent_height > Integer.MIN_VALUE &&( visible_object instanceof Structure ||( visible_object instanceof Value && ((Value)visible_object).type() == Value.STRUCTURE ))) {
