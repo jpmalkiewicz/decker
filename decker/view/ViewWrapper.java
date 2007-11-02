@@ -175,10 +175,10 @@ public final class ViewWrapper extends Canvas implements ComponentListener
 		try {
 			handleUserInput();
 
-			if (view != null) {
+//			if (view != null) {
 				final Value scr = Global.getDisplayedScreen();
 				if (scr != null) {
-					final int w = view.width(scr), h = view.height(scr);
+					final int w = AbstractView.width(scr), h = AbstractView.height(scr);
 
 					if (w > 0 && h > 0) {
 						// draw the next frame
@@ -207,7 +207,8 @@ System.out.println("FAILED TO CREATE screen buffer o_O");
 							}
 						}
 						bg.setColor(getForeground());
-						view.drawContent(bg); // call drawContent() instead of paint(), because the coordinate system already sits where it should
+						DisplayedComponent.drawScreen(bg);
+//						view.drawContent(bg); // call drawContent() instead of paint(), because the coordinate system already sits where it should
 						g.drawImage(buffer, 0, 0, this);
 						if (w != old_width || h != old_height) {
 							old_width = w;
@@ -216,7 +217,7 @@ System.out.println("FAILED TO CREATE screen buffer o_O");
 						}
 					}
 				}
-			}
+//			}
 		} catch (Throwable t) {
 			t.printStackTrace();
 System.out.println("exiting from program instead of trying to repaint after error");
