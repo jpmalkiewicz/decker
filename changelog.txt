@@ -1,6 +1,6 @@
 80%
 2007-11-02
-  continued work on the display system. image and border are hard coded. working on button
+  continued work on the display system. image and border are hard coded. working on button. idle button face displays and is centered horizontically if it has no x coordinate
 2007-10-30
   started to replace the display / eventhandler system with something fast
 2007-10-28
