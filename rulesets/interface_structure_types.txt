@@ -33,31 +33,6 @@ english
 			// disabled
 			// hover
 			// on_mouse_up    // put the function with the button effect here, for a standard button
-			initializer = FUNCTION
-				component = ARRAY
-					UNDEFINED
-			on_draw = FUNCTION
-				if state == IDLE
-					if component[0] != idle
-						component[0] = idle
-				if state == PRESSED
-					LOCAL.p = BUTTON.pressed  // using "BUTTON." to make sure we're not using the "pressed" variable from some other structure
-					if p == UNDEFINED
-						p = deduceImageName(idle, "1")    // deduces the name of the image for the pressed state from the name of the idle state image
-					if component[0] != p
-						component[0] = p
-				if state == DISABLED
-					LOCAL.p = BUTTON.disabled
-					if p == UNDEFINED
-						p = deduceImageName(idle, "2")
-					if component[0] != p
-						component[0] = p
-				if state == HOVER
-					LOCAL.p = BUTTON.hover
-					if p == UNDEFINED
-						p = deduceImageName(idle, "3")
-					if component[0] != p
-						component[0] = p
 
 
 		TEXT

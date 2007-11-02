@@ -123,7 +123,8 @@ english
 				pressed = createText("Ironman Mode", 0, 0, @NCS_PRESSED_OPTION_TEXT_COLOR)
 				hover = pressed
 				on_off_text = createTextBold(UNDEFINED, RIGHT, 0)
-				component[] = on_off_text
+				component = ARRAY
+					on_off_text
 				on_mouse_up = FUNCTION
 					ironman = !ironman
 					adjust_on_off_text(on_off_text,ironman)
@@ -137,7 +138,8 @@ english
 				pressed = createText("Tooltips", 0, 0, @NCS_PRESSED_OPTION_TEXT_COLOR)
 				hover = pressed
 				on_off_text = createTextBold(UNDEFINED, RIGHT, 0)
-				component[] = on_off_text
+				component = ARRAY
+					on_off_text
 				on_mouse_up = FUNCTION
 					tooltips = !tooltips
 					adjust_on_off_text(on_off_text,tooltips)

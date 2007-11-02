@@ -4,14 +4,14 @@ import java.awt.image.BufferedImage;
 import java.awt.*;
 
 
-public final class DisplayedComponent
+public class DisplayedComponent
 {
 	// the displayed component
 	private Value component;
 	// the parent Structure of this component
 	private DisplayedComponent parent;
 	// the bounding rectangle
-	private int x, y, w, h;
+	int x, y, w, h;
 	// the clipped bounding rectangle. if the component is invisible w is <= 0, h possibly too
 	private int cx, cy, cw, ch;
 	// true if the last mouse event was inside the component
@@ -25,8 +25,8 @@ public final class DisplayedComponent
 	// the shape of the component, if it's a STRUCTURE
 	private BufferedImage shape;
 	// child structures of this component
-	private DisplayedComponent[] child;
-	private int child_count;
+	DisplayedComponent[] child;
+	int child_count;
 	// the event functions, if they exist
 	private Function keyDown;
 	private Function mouseDragged;
@@ -46,39 +46,23 @@ public final class DisplayedComponent
 		ch = -2*cx;
 		child = new DisplayedComponent[5];  // for the current screen and its overlays
 		child_count = 1;
-		child[0] = new DisplayedComponent(_component, this, this);
+		child[0] = createDisplayedComponent(_component, this, this);
 	}
 
 
-	private DisplayedComponent (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
+	DisplayedComponent (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
 		component = _component;
 		parent = _parent;
+		child_count = -1; // the -1 will tell createDisplayedComponent() that the children still need to be added
 		update(current_clip_source);
-		// add the child components
-		if (_component.type() == Value.STRUCTURE) {
-			final Value v = _component.get("component");
-			if (v != null && !v.equalsConstant("UNDEFINED")) {
-				if (v.type() != Value.ARRAY) {
-					child = new DisplayedComponent[]{ new DisplayedComponent(v, this, current_clip_source) };
-					child_count = 1;
-				}
-				else {
-					final Value[] c = v.array();
-					final int clength = c.length;
-					child = new DisplayedComponent[clength];
-					for (int i = 0; i < clength; i++) {
-						if (!c[i].equalsConstant("UNDEFINED")) {
-							child[child_count] = new DisplayedComponent(c[i], this, current_clip_source);
-							child_count++;
-						}
-					}
-				}
-			}
-		}
 	}
 
 
-	private void drawComponent (final Graphics g) {
+	void customDraw (final Graphics g)  {}
+
+
+	void draw (final Graphics g) {
+		customDraw(g);
 		final Value display_this = component;
 		if (display_this.type() != Value.STRUCTURE) {
 			if (image == null)
@@ -233,6 +217,7 @@ public final class DisplayedComponent
 		}
 		// if the displayed component is a Structure, set the structure specific variables
 		else { // (component.type() == Value.STRUCTURE)
+image = null;
 			final Structure s = component.structure();
 			// determine the bounding rectangle
 			x = parent.x + DefaultView.x(s, parent.w);
@@ -377,6 +362,32 @@ public final class DisplayedComponent
 	}
 
 
+	void updateChildren (final DisplayedComponent current_clip_source) {
+		child_count = 0;
+		// add the child components
+		if (component.type() == Value.STRUCTURE) {
+			final Value v = component.get("component");
+			if (v != null && !v.equalsConstant("UNDEFINED")) {
+				if (v.type() != Value.ARRAY) {
+					child = new DisplayedComponent[]{ createDisplayedComponent(v, this, current_clip_source) };
+					child_count = 1;
+				}
+				else {
+					final Value[] c = v.array();
+					final int clength = c.length;
+					child = new DisplayedComponent[clength];
+					for (int i = 0; i < clength; i++) {
+						if (!c[i].equalsConstant("UNDEFINED")) {
+							child[child_count] = createDisplayedComponent(c[i], this, current_clip_source);
+							child_count++;
+						}
+					}
+				}
+			}
+		}
+	}
+
+
 // static part of the class *********************************************************************************************
 
 	private static DisplayedComponent currentScreen;
@@ -399,9 +410,24 @@ public final class DisplayedComponent
 
 
 
+	final static DisplayedComponent createDisplayedComponent (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
+		DisplayedComponent ret = null;
+		if (_component.type() == Value.STRUCTURE) {
+		}
+		if (ret == null) {
+System.out.print("(generic) ");
+			ret = new DisplayedComponent(_component, _parent, current_clip_source);
+		}
+		if (ret.child_count == -1) {
+			ret.updateChildren(current_clip_source);
+		}
+		return ret;
+	}
 
-	public static void draw (final Graphics g) {
-		currentScreen.child[0].drawComponent(g);
+
+	public final static void drawScreen (final Graphics g) {
+		if (currentScreen != null)
+			currentScreen.child[0].draw(g);
 	}
 
 
@@ -513,5 +539,7 @@ System.out.println(mouseExitedListenerCount);
 System.out.println(mouseMovedListenerCount);
 System.out.println(mouseDownListenerCount);
 System.out.println(mouseUpListenerCount);
+System.out.println(currentScreen!=null);
+
 	}
 }
