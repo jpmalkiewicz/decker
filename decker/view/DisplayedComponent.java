@@ -40,7 +40,10 @@ public class DisplayedComponent
 
 	final static DisplayedComponent createDisplayedComponent (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
 		DisplayedComponent ret = null;
-		if (_component.type() == Value.STRUCTURE) {
+		if (_component.type() != Value.STRUCTURE) {
+			ret = new UIImage(_component, _parent, current_clip_source);
+		}
+		else { // it's a structure
 			final String t = _component.get("structure_type").string();
 			if (t.equals("BUTTON") || t.equals("BORDER_BUTTON"))
 				ret = new UIButton(_component, _parent, current_clip_source);
@@ -82,13 +85,7 @@ System.out.print("(generic) ");
 
 	void draw (final Graphics g) {
 		final Value display_this = component;
-		if (display_this.type() != Value.STRUCTURE) {
-			if (image == null)
-				image = AbstractView.getImage(display_this.toString());
-			if (image != null)
-				g.drawImage(image, x, y, null);
-		}
-		else {
+		if (display_this.type() == Value.STRUCTURE) {
 			final Structure d = display_this.structure();
 			ScriptNode.addStackItem(d);
 			Value v = null, v2 = null;
@@ -348,7 +345,7 @@ image = null;
 	void updateChildren (final DisplayedComponent current_clip_source) {
 		child_count = 0;
 		// add the child components
-		if (component.type() == Value.STRUCTURE) {
+		if (component != null && component.type() == Value.STRUCTURE) {
 			final Value v = component.get("component");
 			if (v != null && !v.equalsConstant("UNDEFINED")) {
 				if (v.type() != Value.ARRAY) {

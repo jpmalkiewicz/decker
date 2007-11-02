@@ -57,7 +57,6 @@ final class UIButton extends DisplayedComponent
 
 	private int state; // 0 = IDLE, 1 = PRESSED, 2 = DISABLED, 3 = HOVER
 	private final DisplayedComponent[] face = new DisplayedComponent[BUTTON_STATE_CONSTANT.length]; // one for each state
-	private boolean fixed_width, fixed_height;
 	private int[] sx, sy, sw, sh; // the button may change its size and position depending on its state. these are the values for each state
 	private UIBorder border;
 	private DisplayedComponent clip_source;
@@ -66,27 +65,65 @@ final class UIButton extends DisplayedComponent
 	UIButton (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
 		super(_component, _parent, current_clip_source);
 		clip_source = current_clip_source;
-		Value v;
+		Value v, k;
 		// determine the type. it may be a BORDER_BUTTON
 		final String type = _component.get("structure_type").string();
 		// add the border if it's a BORDER_BUTTON
 		if (type.equals("BORDER_BUTTON"))
 			border = new UIBorder(this, current_clip_source, true);
+		// save the position and size, the values will need to be overwritten with "fixed" values during the button face creation
+		final int base_x = x, base_y = y, base_w = w, base_h = h;
 		// determine the width and height of the button for each state, if they are not fixed
-		fixed_width = w != 0 ||( (v=_component.get("width")) == null && !v.equalsConstant("UNDEFINED") );
-System.out.println("fixed_width="+fixed_width);
-		if (!fixed_width) {
+		final boolean variable_width = w == 0 &&( (v=_component.get("width")) == null || v.equalsConstant("UNDEFINED") );
+		final int border_thickness = type.equals("BORDER_BUTTON") ? ScriptNode.getValue("DEFAULT_BORDER_THICKNESS").integer() : 0;
+		if (variable_width) {
 			sx = new int[BUTTON_STATE_CONSTANT.length];
 			sw = new int[BUTTON_STATE_CONSTANT.length];
-final int base_width = type.equals("BORDER_BUTTON") ? (ScriptNode.getValue("DEFAULT_BORDER_THICKNESS").integer()*2) : 0;
+			// create the layout and face for the idle state
 			if (!(v=_component.get("idle")).equalsConstant("UNDEFINED")) {
-				sw[0] = AbstractView.width(v) + base_width;
-				w = sw[0];
+				sw[0] = AbstractView.width(v) + 2*border_thickness;
 				sx[0] = DefaultView.x(_component, _parent.w);
-				x = sx[0];
+			}
+			else {
+				sw[0] = w;
+				sx[0] = x;
 			}
 		}
-		fixed_height = h != 0 || (v=_component.get("height")) == null || !v.equalsConstant("UNDEFINED");
+		final boolean variable_height = h == 0 &&( (v=_component.get("height")) == null || v.equalsConstant("UNDEFINED") );
+		// add the button faces
+		if (!(v=_component.get("idle")).equalsConstant("UNDEFINED")) {
+			if (variable_width) {
+				w = sw[0];
+				x = sx[0];
+			}
+			else {
+				w = base_w;
+				x = base_x;
+			}
+			if (variable_height) {
+				h = sh[0];
+				y = sy[0];
+			}
+			else {
+				h = base_h;
+				y = base_y;
+			}
+			// the area where the face can be displayed is smaller than the actual button if the button has a border
+			x += border_thickness;
+			w -= 2*border_thickness;
+			y += border_thickness;
+			h -= 2*border_thickness;
+			face[0] = DisplayedComponent.createDisplayedComponent(v, this, current_clip_source);
+			// center the face horizontically if it doesn't have a defined x coordinage
+			if (v.type() != Value.STRUCTURE ||(( (k=v.get("x")) == null || k.equalsConstant("UNDEFINED") )&&( (k=v.get("h_align")) == null || k.equalsConstant("UNDEFINED") ))) {
+				face[0].x = base_x + (base_w-face[0].w)/2;
+			}
+		}
+		// set x, y, w and h back to their old values
+		x = base_x;
+		y = base_y;
+		w = base_w;
+		h = base_h;
 		// set the initial state of the button
 		state = 3;
 		updateButtonState();
