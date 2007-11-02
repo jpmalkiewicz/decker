@@ -7,7 +7,7 @@ import java.awt.*;
 public class DisplayedComponent
 {
 	// the displayed component
-	private Value component;
+	Value component;
 	// the parent Structure of this component
 	private DisplayedComponent parent;
 	// the bounding rectangle
@@ -37,8 +37,29 @@ public class DisplayedComponent
 	private Function mouseUp;
 
 
+
+	final static DisplayedComponent createDisplayedComponent (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
+		DisplayedComponent ret = null;
+		if (_component.type() == Value.STRUCTURE) {
+			final String t = _component.get("structure_type").string();
+			if (t.equals("BUTTON") || t.equals("BORDER_BUTTON"))
+				ret = new UIButton(_component, _parent, current_clip_source);
+			else if (t.equals("BORDER"))
+				ret = new UIBorder(_component, _parent, current_clip_source);
+		}
+		if (ret == null) {
+System.out.print("(generic) ");
+			ret = new DisplayedComponent(_component, _parent, current_clip_source);
+		}
+		if (ret.child_count == -1) {
+			ret.updateChildren(current_clip_source);
+		}
+		return ret;
+	}
+
+
 	/** this constructor is solely used for the dummy parent component of the current screen */
-	private DisplayedComponent (final Value _component) {
+	DisplayedComponent (final Value _component) {
 		component = new Value();
 		cx = -100000;
 		cy = cx;
@@ -54,15 +75,12 @@ public class DisplayedComponent
 		component = _component;
 		parent = _parent;
 		child_count = -1; // the -1 will tell createDisplayedComponent() that the children still need to be added
-		update(current_clip_source);
+		if (_component != null)
+			update(current_clip_source);
 	}
 
 
-	void customDraw (final Graphics g)  {}
-
-
 	void draw (final Graphics g) {
-		customDraw(g);
 		final Value display_this = component;
 		if (display_this.type() != Value.STRUCTURE) {
 			if (image == null)
@@ -110,7 +128,7 @@ public class DisplayedComponent
 				clip = g.getClip();
 				g.clipRect(x, y, w, h);
 			}
-			else if (type.equals("BORDER")) {
+/*			else if (type.equals("BORDER")) {
 				final boolean inverted = d.get("inverted").equals(true);
 				Value vtc = d.get("top_color"), vlc = d.get("left_color"), vrc = d.get("right_color"), vbc = d.get("bottom_color");
 				if (vtc.equalsConstant("UNDEFINED"))
@@ -179,7 +197,7 @@ public class DisplayedComponent
 					g.fillRect(x+thickness, y+thickness, w-2*thickness, h-2*thickness);
 				}
 			}
-			else if (type.equals("LINE") && d.get("x2").type() == Value.INTEGER && d.get("y2").type() == Value.INTEGER) {
+*/			else if (type.equals("LINE") && d.get("x2").type() == Value.INTEGER && d.get("y2").type() == Value.INTEGER) {
 				if ((v=d.get("color")) != null)
 					g.setColor(AbstractView.getColor(v.toString()));
 				g.drawLine(x, y, x+d.get("x2").integer()-(x-parent.x), y+d.get("y2").integer()-(y-parent.y));
@@ -255,107 +273,72 @@ image = null;
 			// the event handler functions
 			if ((v=s.get("on_key_down")) != null && v.type() == Value.FUNCTION) {
 				if (keyDown == null) {
-					if (keyDownListener.length == keyDownListenerCount) {
-						final DisplayedComponent[] dc = keyDownListener;
-						keyDownListener = new DisplayedComponent[dc.length*2];
-						System.arraycopy(dc, 0, keyDownListener, 0, dc.length);
-					}
-					keyDownListener[keyDownListenerCount++] = this;
+					DisplayedScreen.addKeyDownListener(this);
 				}
 				keyDown = v.function();
 			}
 			else if (keyDown != null) {
-				removeKeyDownListener(this);
+				DisplayedScreen.removeKeyDownListener(this);
 				keyDown = null;
 			}
 			if ((v=s.get("on_mouse_down")) != null && v.type() == Value.FUNCTION) {
 				if (mouseDown == null) {
-					if (mouseDownListener.length == mouseDownListenerCount) {
-						final DisplayedComponent[] dc = mouseDownListener;
-						mouseDownListener = new DisplayedComponent[dc.length*2];
-						System.arraycopy(dc, 0, mouseDownListener, 0, dc.length);
-					}
-					mouseDownListener[mouseDownListenerCount++] = this;
+					DisplayedScreen.addMouseDownListener(this);
 				}
 				mouseDown = v.function();
 			}
 			else if (mouseDown != null) {
-				removeMouseDownListener(this);
+				DisplayedScreen.removeMouseDownListener(this);
 				mouseDown = null;
 			}
 			if ((v=s.get("on_mouse_dragged")) != null && v.type() == Value.FUNCTION) {
 				if (mouseDragged == null) {
-					if (mouseDraggedListener.length == mouseDraggedListenerCount) {
-						final DisplayedComponent[] dc = mouseDraggedListener;
-						mouseDraggedListener = new DisplayedComponent[dc.length*2];
-						System.arraycopy(dc, 0, mouseDraggedListener, 0, dc.length);
-					}
-					mouseDraggedListener[mouseDraggedListenerCount++] = this;
+					DisplayedScreen.addMouseDraggedListener(this);
 				}
 				mouseDragged = v.function();
 			}
 			else if (mouseDragged != null) {
-				removeMouseDraggedListener(this);
+				DisplayedScreen.removeMouseDraggedListener(this);
 				mouseDragged = null;
 			}
 			if ((v=s.get("on_mouse_entered")) != null && v.type() == Value.FUNCTION) {
 				if (mouseEntered == null) {
-					if (mouseEnteredListener.length == mouseEnteredListenerCount) {
-						final DisplayedComponent[] dc = mouseEnteredListener;
-						mouseEnteredListener = new DisplayedComponent[dc.length*2];
-						System.arraycopy(dc, 0, mouseEnteredListener, 0, dc.length);
-					}
-					mouseEnteredListener[mouseEnteredListenerCount++] = this;
+					DisplayedScreen.addMouseEnteredListener(this);
 				}
 				mouseEntered = v.function();
 			}
 			else if (mouseEntered != null) {
-				removeMouseEnteredListener(this);
+				DisplayedScreen.removeMouseEnteredListener(this);
 				mouseEntered = null;
 			}
 			if ((v=s.get("on_mouse_exited")) != null && v.type() == Value.FUNCTION) {
 				if (mouseExited == null) {
-					if (mouseExitedListener.length == mouseExitedListenerCount) {
-						final DisplayedComponent[] dc = mouseExitedListener;
-						mouseExitedListener = new DisplayedComponent[dc.length*2];
-						System.arraycopy(dc, 0, mouseExitedListener, 0, dc.length);
-					}
-					mouseExitedListener[mouseExitedListenerCount++] = this;
+					DisplayedScreen.addMouseExitedListener(this);
 				}
 				mouseExited = v.function();
 			}
 			else if (mouseExited != null) {
-				removeMouseExitedListener(this);
+				DisplayedScreen.removeMouseExitedListener(this);
 				mouseExited = null;
 			}
 			if ((v=s.get("on_mouse_moved")) != null && v.type() == Value.FUNCTION) {
 				if (mouseMoved == null) {
-					if (mouseMovedListener.length == mouseMovedListenerCount) {
-						final DisplayedComponent[] dc = mouseMovedListener;
-						mouseMovedListener = new DisplayedComponent[dc.length*2];
-						System.arraycopy(dc, 0, mouseMovedListener, 0, dc.length);
-					}
-					mouseMovedListener[mouseMovedListenerCount++] = this;
+					DisplayedScreen.addMouseMovedListener(this);
 				}
 				mouseMoved = v.function();
 			}
 			else if (mouseMoved != null) {
-				removeMouseMovedListener(this);
+				DisplayedScreen.removeMouseMovedListener(this);
 				mouseMoved = null;
 			}
 			if ((v=s.get("on_mouse_up")) != null && v.type() == Value.FUNCTION) {
 				if (mouseUp == null) {
-					if (mouseUpListener.length == mouseUpListenerCount) {
-						final DisplayedComponent[] dc = mouseUpListener;
-						mouseUpListener = new DisplayedComponent[dc.length*2];
-						System.arraycopy(dc, 0, mouseUpListener, 0, dc.length);
-					}
-					mouseUpListener[mouseUpListenerCount++] = this;
+					DisplayedScreen.addMouseUpListener(this);
 				}
 				mouseUp = v.function();
 			}
 			else if (mouseUp != null) {
-				removeMouseUpListener(this);
+				DisplayedScreen.removeMouseUpListener(this);
 				mouseUp = null;
 			}
 		}
@@ -385,161 +368,5 @@ image = null;
 				}
 			}
 		}
-	}
-
-
-// static part of the class *********************************************************************************************
-
-	private static DisplayedComponent currentScreen;
-	private static DisplayedComponent[] keyDownListener = new DisplayedComponent[5];
-	private static int keyDownListenerCount;
-	private static DisplayedComponent[] mouseDraggedListener = new DisplayedComponent[5];
-	private static int mouseDraggedListenerCount;
-	private static DisplayedComponent[] mouseEnteredListener = new DisplayedComponent[5];
-	private static int mouseEnteredListenerCount;
-	private static DisplayedComponent[] mouseExitedListener = new DisplayedComponent[5];
-	private static int mouseExitedListenerCount;
-	private static DisplayedComponent[] mouseMovedListener = new DisplayedComponent[5];
-	private static int mouseMovedListenerCount;
-	private static DisplayedComponent[] mouseDownListener = new DisplayedComponent[5];
-	private static int mouseDownListenerCount;
-	private static DisplayedComponent[] mouseUpListener = new DisplayedComponent[5];
-	private static int mouseUpListenerCount;
-
-	private static String oldScreenTitle;
-
-
-
-	final static DisplayedComponent createDisplayedComponent (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
-		DisplayedComponent ret = null;
-		if (_component.type() == Value.STRUCTURE) {
-		}
-		if (ret == null) {
-System.out.print("(generic) ");
-			ret = new DisplayedComponent(_component, _parent, current_clip_source);
-		}
-		if (ret.child_count == -1) {
-			ret.updateChildren(current_clip_source);
-		}
-		return ret;
-	}
-
-
-	public final static void drawScreen (final Graphics g) {
-		if (currentScreen != null)
-			currentScreen.child[0].draw(g);
-	}
-
-
-	private static void removeKeyDownListener (final DisplayedComponent k) {
-		final DisplayedComponent[] dc = keyDownListener;
-		for (int i = keyDownListenerCount; --i >= 0; ) {
-			if (dc[i] == k) {
-				System.arraycopy(dc, i+1, dc, i, keyDownListenerCount-i-1);
-				keyDownListenerCount--;
-				break;
-			}
-		}
-	}
-
-
-	private static void removeMouseDraggedListener (final DisplayedComponent k) {
-		final DisplayedComponent[] dc = mouseDraggedListener;
-		for (int i = mouseDraggedListenerCount; --i >= 0; ) {
-			if (dc[i] == k) {
-				System.arraycopy(dc, i+1, dc, i, mouseDraggedListenerCount-i-1);
-				mouseDraggedListenerCount--;
-				break;
-			}
-		}
-	}
-
-
-	private static void removeMouseEnteredListener (final DisplayedComponent k) {
-		final DisplayedComponent[] dc = mouseEnteredListener;
-		for (int i = mouseEnteredListenerCount; --i >= 0; ) {
-			if (dc[i] == k) {
-				System.arraycopy(dc, i+1, dc, i, mouseEnteredListenerCount-i-1);
-				mouseEnteredListenerCount--;
-				break;
-			}
-		}
-	}
-
-
-	private static void removeMouseExitedListener (final DisplayedComponent k) {
-		final DisplayedComponent[] dc = mouseExitedListener;
-		for (int i = mouseExitedListenerCount; --i >= 0; ) {
-			if (dc[i] == k) {
-				System.arraycopy(dc, i+1, dc, i, mouseExitedListenerCount-i-1);
-				mouseExitedListenerCount--;
-				break;
-			}
-		}
-	}
-
-
-	private static void removeMouseMovedListener (final DisplayedComponent k) {
-		final DisplayedComponent[] dc = mouseMovedListener;
-		for (int i = mouseMovedListenerCount; --i >= 0; ) {
-			if (dc[i] == k) {
-				System.arraycopy(dc, i+1, dc, i, mouseMovedListenerCount-i-1);
-				mouseMovedListenerCount--;
-				break;
-			}
-		}
-	}
-
-
-	private static void removeMouseDownListener (final DisplayedComponent k) {
-		final DisplayedComponent[] dc = mouseDownListener;
-		for (int i = mouseDownListenerCount; --i >= 0; ) {
-			if (dc[i] == k) {
-				System.arraycopy(dc, i+1, dc, i, mouseDownListenerCount-i-1);
-				mouseDownListenerCount--;
-				break;
-			}
-		}
-	}
-
-
-	private static void removeMouseUpListener (final DisplayedComponent k) {
-		final DisplayedComponent[] dc = mouseUpListener;
-		for (int i = mouseUpListenerCount; --i >= 0; ) {
-			if (dc[i] == k) {
-				System.arraycopy(dc, i+1, dc, i, mouseUpListenerCount-i-1);
-				mouseUpListenerCount--;
-				break;
-			}
-		}
-	}
-
-
-	public static void setDisplayedScreen (final Value screen) {
-		// clear the listener lists
-		while (keyDownListenerCount > 0)
-			keyDownListener[--keyDownListenerCount] = null;
-		while (mouseDraggedListenerCount > 0)
-			mouseDraggedListener[--mouseDraggedListenerCount] = null;
-		while (mouseEnteredListenerCount > 0)
-			mouseEnteredListener[--mouseEnteredListenerCount] = null;
-		while (mouseExitedListenerCount > 0)
-			mouseExitedListener[--mouseExitedListenerCount] = null;
-		while (mouseMovedListenerCount > 0)
-			mouseMovedListener[--mouseMovedListenerCount] = null;
-		while (mouseDownListenerCount > 0)
-			mouseDownListener[--mouseDownListenerCount] = null;
-		while (mouseUpListenerCount > 0)
-			mouseUpListener[--mouseUpListenerCount] = null;
-		currentScreen = new DisplayedComponent(screen);
-System.out.println(keyDownListenerCount);
-System.out.println(mouseDraggedListenerCount);
-System.out.println(mouseEnteredListenerCount);
-System.out.println(mouseExitedListenerCount);
-System.out.println(mouseMovedListenerCount);
-System.out.println(mouseDownListenerCount);
-System.out.println(mouseUpListenerCount);
-System.out.println(currentScreen!=null);
-
 	}
 }

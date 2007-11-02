@@ -207,7 +207,7 @@ System.out.println("FAILED TO CREATE screen buffer o_O");
 							}
 						}
 						bg.setColor(getForeground());
-						DisplayedComponent.drawScreen(bg);
+						DisplayedScreen.drawScreen(bg);
 //						view.drawContent(bg); // call drawContent() instead of paint(), because the coordinate system already sits where it should
 						g.drawImage(buffer, 0, 0, this);
 						if (w != old_width || h != old_height) {

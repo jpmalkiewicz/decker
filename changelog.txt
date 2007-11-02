@@ -1,6 +1,6 @@
 80%
 2007-11-02
-  continued work on the display system
+  continued work on the display system. image and border are hard coded. working on button
 2007-10-30
   started to replace the display / eventhandler system with something fast
 2007-10-28

@@ -123,51 +123,6 @@ english
 			// hover
 			// on_mouse_up    // put the function with the button effect here, for a standard button
 			// text_padding    // put a value here if you want the text to be shifted a different number of pixels than 4 from the top
-			initializer = FUNCTION
-				component = ARRAY
-					createBorder(0,0)
-					UNDEFINED    // placeholder for the button face
-				component[0].background_color = @BACKGROUND_COLOR
-			on_draw = FUNCTION
-				LOCAL.c
-				if state == IDLE
-					c = idle
-				if state == PRESSED
-					c = BUTTON.pressed  // using "BUTTON." to make sure we're not using the "pressed" variable from some other structure
-					if c == UNDEFINED
-						c = deduceImageName(idle, "1")    // deduces the name of the image for the pressed state from the name of the idle state image
-				if state == DISABLED
-					LOCAL.c = BUTTON.disabled
-					if c == UNDEFINED
-						c = deduceImageName(idle, "2")
-				if state == HOVER
-					LOCAL.c = BUTTON.hover
-					if c == UNDEFINED
-						c = deduceImageName(idle, "3")
-				// if it's the name of an image, put a wrapper around it so we can position it within the button area
-				if value_type(c) != "STRING"
-					component[1] = c
-				else if component[1].structure_type == COMPONENT
-					component[1].component = c
-				else
-					component[1] = COMPONENT
-						component = c
-				component[0].inverted = state == PRESSED
-				LOCAL.padding = BORDER_BUTTON.text_padding != UNDEFINED && component[1].structure_type == "TEXT" ? text_padding : 0
-				// if the button has an explicitly defined width, set the border width to the same value and center the button image / text horizontally
-				if BORDER_BUTTON.width != UNDEFINED
-					component[0].width = width
-					component[1].x = CENTER
-				else
-					component[0].width = pixelwidth(c) + 4 + 2*padding
-					component[1].x = 2 + padding
-				// if the button has an explicitly defined height, set the border height to the same value and center the button image / text vertically
-				if BORDER_BUTTON.height != UNDEFINED
-					component[0].height = height
-					component[1].y = text_padding == UNDEFINED ? CENTER : 2 + text_padding
-				else     // otherwise, wrap a border around the content
-					component[0].height = pixelheight(c) + 4 + 2*padding
-					component[1].y = 2 + padding/2
 
 
 		EVENT_BLOCKER    // the event handler will stop at this component with all input events. on_draw events pass through
