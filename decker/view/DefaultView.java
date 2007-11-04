@@ -49,8 +49,8 @@ public final class DefaultView extends AbstractView
 				current_dy = dy;
 				FunctionCall.executeFunctionCall(v.function(), null, ScriptNode.KEEP_STACK);
 			}
-			final int x = x(d, parent_width);
-			final int y = y(d, parent_height);
+			final int x = x(d, parent_width, -1);
+			final int y = y(d, parent_height, -1);
 			// adjust the Frame if this is the top level view
 			if (parent_width == Integer.MIN_VALUE)  {
 				// set the window title - it may have changed during code execution
@@ -324,8 +324,8 @@ public final class DefaultView extends AbstractView
 		// put the current data object on the stack, in case there are function calls for nested objects
 		ScriptNode.addStackItem(d);
 		// we have to adjust the event coordinates if d is not the top level view object
-		x -= x(d, parent_width);
-		y -= y(d, parent_height);
+		x -= x(d, parent_width, -1);
+		y -= y(d, parent_height, -1);
 		// determine the width and height of the structure
 		final int w = width(d);
 		final int h = height(d);
@@ -414,8 +414,8 @@ public final class DefaultView extends AbstractView
 		// put the current data object on the stack, in case there are function calls for nested objects
 		ScriptNode.addStackItem(d);
 		// we have to adjust the event coordinates if d is not the top level view object
-		x -= x(d, parent_width);
-		y -= y(d, parent_height);
+		x -= x(d, parent_width, -1);
+		y -= y(d, parent_height, -1);
 		// determine the width and height of the structure
 		final int w = width(d);
 		final int h = height(d);
@@ -495,8 +495,8 @@ public final class DefaultView extends AbstractView
 		// put the current data object on the stack, in case there are function calls for nested objects
 		ScriptNode.addStackItem(d);
 		// we have to adjust the event coordinates if d is not the top level view object
-		x -= x(d, parent_width);
-		y -= y(d, parent_height);
+		x -= x(d, parent_width, -1);
+		y -= y(d, parent_height, -1);
 		// determine the width and height of the structure
 		final int w = width(d);
 		final int h = height(d);
@@ -586,8 +586,8 @@ public final class DefaultView extends AbstractView
 		// put the current data object on the stack, in case there are function calls for nested objects
 		ScriptNode.addStackItem(d);
 		// we have to adjust the event coordinates if d is not the top level view object
-		x -= x(d, parent_width);
-		y -= y(d, parent_height);
+		x -= x(d, parent_width, -1);
+		y -= y(d, parent_height, -1);
 		// determine the width and height of the structure
 		final int w = width(d);
 		final int h = height(d);
@@ -676,7 +676,7 @@ public final class DefaultView extends AbstractView
 	}
 
 
-	static int x (Object visible_object, final int parent_width)  {
+	static int x (Object visible_object, final int parent_width, int object_width)  {
 		int ret = 0;
 		// if it's the top level view (parent==null) it automatically sits at (0,0)
 		if (parent_width > Integer.MIN_VALUE &&( visible_object instanceof Structure ||( visible_object instanceof Value && ((Value)visible_object).type() == Value.STRUCTURE ))) {
@@ -696,13 +696,13 @@ public final class DefaultView extends AbstractView
 				else if (v.type() == Value.CONSTANT) {
 					if (v.equalsConstant("RIGHT")) {
 						if (a == null || a.equalsConstant("UNDEFINED")) // if the visible_object has no explicit horizontal alignment, treat it as LEFT aligned, i.e. sitting left of (x,y)
-							ret = parent_width-width(visible_object);
+							ret = parent_width-((object_width>=0)?object_width:width(visible_object));
 						else
 							ret = parent_width;
 					}
 					else if (v.equalsConstant("CENTER")) {
 						if (a == null || a.equalsConstant("UNDEFINED")) // if the visible_object has no explicit horizontal alignment, treat it as CENTER aligned, i.e. sitting centered on (x,y)
-							ret = (parent_width-width(visible_object))/2;
+							ret = (parent_width-((object_width>=0)?object_width:width(visible_object)))/2;
 						else
 							ret = parent_width/2;
 					}
@@ -730,7 +730,7 @@ public final class DefaultView extends AbstractView
 	}
 
 
-	static int y (Object visible_object, final int parent_height)  {
+	static int y (Object visible_object, final int parent_height, final int object_height)  {
 		int ret = 0;
 		// if it's the top level view (parent==null) it automatically sits at (0,0)
 		if (parent_height > Integer.MIN_VALUE &&( visible_object instanceof Structure ||( visible_object instanceof Value && ((Value)visible_object).type() == Value.STRUCTURE ))) {
@@ -750,13 +750,13 @@ public final class DefaultView extends AbstractView
 				else if (v.type() == Value.CONSTANT) {
 					if (v.equalsConstant("BOTTOM")) {
 						if (a == null || a.equalsConstant("UNDEFINED")) // if the visible_object has no explicit vertical alignment, treat it as TOP aligned, i.e. sitting above (x,y)
-							ret = parent_height-height(visible_object);
+							ret = parent_height-((object_height>=0)?object_height:height(visible_object));
 						else
 							ret = parent_height;
 					}
 					else if (v.equalsConstant("CENTER")) {
 						if (a == null || a.equalsConstant("UNDEFINED")) // if the visible_object has no explicit vertical alignment, treat it as CENTER aligned, i.e. sitting centered on (x,y)
-							ret = (parent_height-height(visible_object))/2;
+							ret = (parent_height-((object_height>=0)?object_height:height(visible_object)))/2;
 						else
 							ret = parent_height/2;
 					}

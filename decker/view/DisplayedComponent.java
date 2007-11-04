@@ -13,14 +13,11 @@ public class DisplayedComponent
 	// the bounding rectangle
 	int x, y, w, h;
 	// the clipped bounding rectangle. if the component is invisible w is <= 0, h possibly too
-	private int cx, cy, cw, ch;
+	int cx, cy, cw, ch;
 	// true if the last mouse event was inside the component
 	private boolean last_mouse_event_inside;
 	// true if the component itself has changed in any way
 	private boolean has_changed;
-
-	// if the component is an image, this is it
-	private Image image;
 
 	// the shape of the component, if it's a STRUCTURE
 	private BufferedImage shape;
@@ -228,15 +225,13 @@ System.out.print("(generic) ");
 		if (component.type() != Value.STRUCTURE) {
 			x = parent.x;
 			y = parent.y;
-			image = AbstractView.getImage(component.toString());
 		}
 		// if the displayed component is a Structure, set the structure specific variables
 		else { // (component.type() == Value.STRUCTURE)
-image = null;
 			final Structure s = component.structure();
 			// determine the bounding rectangle
-			x = parent.x + DefaultView.x(s, parent.w);
-			y = parent.y + DefaultView.y(s, parent.h);
+			x = parent.x + DefaultView.x(s, parent.w, -1);
+			y = parent.y + DefaultView.y(s, parent.h, -1);
 			w = DefaultView.width(s);
 			h = DefaultView.height(s);
 			// calculate the bounding rectangle of the visible area
@@ -259,6 +254,20 @@ image = null;
 					cw = current_clip_source.cw;
 					if (x+w < cx+cw) {
 						cw = x+w-cx;
+					}
+				}
+				if (current_clip_source.cy <= y) {
+					cy = y;
+					ch = cy + current_clip_source.ch - y;
+					if (ch > h) {
+						ch = h;
+					}
+				}
+				else {
+					cy = current_clip_source.cy;
+					ch = current_clip_source.ch;
+					if (y+h < cy+ch) {
+						ch = y+h-cy;
 					}
 				}
 			}

@@ -2,64 +2,37 @@ package decker.view;
 import decker.model.*;
 import java.awt.*;
 
-/*
-			initializer = FUNCTION
-				component = ARRAY
-					createBorder(0,0)
-					UNDEFINED    // placeholder for the button face
-				component[0].background_color = @BACKGROUND_COLOR
-			on_draw = FUNCTION
-				LOCAL.c
-				if state == IDLE
-					c = idle
-				if state == PRESSED
-					c = BUTTON.pressed  // using "BUTTON." to make sure we're not using the "pressed" variable from some other structure
-					if c == UNDEFINED
-						c = deduceImageName(idle, "1")    // deduces the name of the image for the pressed state from the name of the idle state image
-				if state == DISABLED
-					LOCAL.c = BUTTON.disabled
-					if c == UNDEFINED
-						c = deduceImageName(idle, "2")
-				if state == HOVER
-					LOCAL.c = BUTTON.hover
-					if c == UNDEFINED
-						c = deduceImageName(idle, "3")
-				// if it's the name of an image, put a wrapper around it so we can position it within the button area
-				if value_type(c) != "STRING"
-					component[1] = c
-				else if component[1].structure_type == COMPONENT
-					component[1].component = c
-				else
-					component[1] = COMPONENT
-						component = c
-				component[0].inverted = state == PRESSED
-				LOCAL.padding = BORDER_BUTTON.text_padding != UNDEFINED && component[1].structure_type == "TEXT" ? text_padding : 0
-				// if the button has an explicitly defined width, set the border width to the same value and center the button image / text horizontally
-				if BORDER_BUTTON.width != UNDEFINED
-					component[0].width = width
-					component[1].x = CENTER
-				else
-					component[0].width = pixelwidth(c) + 4 + 2*padding
-					component[1].x = 2 + padding
-				// if the button has an explicitly defined height, set the border height to the same value and center the button image / text vertically
-				if BORDER_BUTTON.height != UNDEFINED
-					component[0].height = height
-					component[1].y = text_padding == UNDEFINED ? CENTER : 2 + text_padding
-				else     // otherwise, wrap a border around the content
-					component[0].height = pixelheight(c) + 4 + 2*padding
-					component[1].y = 2 + padding/2
-*/
+
 
 final class UIButton extends DisplayedComponent
 {
 	public final static String[] BUTTON_STATE_CONSTANT = { "IDLE", "PRESSED", "DISABLED", "HOVER" };
-
+	public final static String[] BUTTON_STATE_FACE_VARIABLE = new String[BUTTON_STATE_CONSTANT.length];
+	private final static Value NO_FACE = new Value();
 
 	private int state; // 0 = IDLE, 1 = PRESSED, 2 = DISABLED, 3 = HOVER
 	private final DisplayedComponent[] face = new DisplayedComponent[BUTTON_STATE_CONSTANT.length]; // one for each state
-	private int[] sx, sy, sw, sh; // the button may change its size and position depending on its state. these are the values for each state
 	private UIBorder border;
 	private DisplayedComponent clip_source;
+	// the button may change its size and position depending on its state. these are the values for each state
+	private final int[] sx = new int[BUTTON_STATE_CONSTANT.length];
+	private final int[] sw = new int[BUTTON_STATE_CONSTANT.length];
+	private final int[] sy = new int[BUTTON_STATE_CONSTANT.length];
+	private final int[] sh = new int[BUTTON_STATE_CONSTANT.length];
+	// and this is the clipped area for each state
+	private final int[] scx = new int[BUTTON_STATE_CONSTANT.length];
+	private final int[] scw = new int[BUTTON_STATE_CONSTANT.length];
+	private final int[] scy = new int[BUTTON_STATE_CONSTANT.length];
+	private final int[] sch = new int[BUTTON_STATE_CONSTANT.length];
+
+
+
+	static {
+		for (int i = BUTTON_STATE_CONSTANT.length; --i >= 0; ) {
+			BUTTON_STATE_FACE_VARIABLE[i] = BUTTON_STATE_CONSTANT[i].toLowerCase();
+		}
+	}
+
 
 
 	UIButton (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
@@ -71,59 +44,156 @@ final class UIButton extends DisplayedComponent
 		// add the border if it's a BORDER_BUTTON
 		if (type.equals("BORDER_BUTTON"))
 			border = new UIBorder(this, current_clip_source, true);
-		// save the position and size, the values will need to be overwritten with "fixed" values during the button face creation
-		final int base_x = x, base_y = y, base_w = w, base_h = h;
-		// determine the width and height of the button for each state, if they are not fixed
-		final boolean variable_width = w == 0 &&( (v=_component.get("width")) == null || v.equalsConstant("UNDEFINED") );
 		final int border_thickness = type.equals("BORDER_BUTTON") ? ScriptNode.getValue("DEFAULT_BORDER_THICKNESS").integer() : 0;
-		if (variable_width) {
-			sx = new int[BUTTON_STATE_CONSTANT.length];
-			sw = new int[BUTTON_STATE_CONSTANT.length];
-			// create the layout and face for the idle state
-			if (!(v=_component.get("idle")).equalsConstant("UNDEFINED")) {
-				sw[0] = AbstractView.width(v) + 2*border_thickness;
-				sx[0] = DefaultView.x(_component, _parent.w);
+
+		// fetch the button face for each state
+		final Value[] state_value = new Value[BUTTON_STATE_CONSTANT.length];
+		int count = 0;
+		for (int i = BUTTON_STATE_CONSTANT.length; --i >= 0; ) {
+			state_value[i] = _component.get(BUTTON_STATE_FACE_VARIABLE[i]);
+			if (state_value[i] != null && !state_value[i].equalsConstant("UNDEFINED"))
+				count++;
+			else
+				state_value[i] = NO_FACE; // use a dummy value to avoid NullPointerException
+		}
+		// if one or more button faces are undefined, and we have a button face for the idle state, fill the missing faces in
+		if (count < BUTTON_STATE_CONSTANT.length && state_value[0] != NO_FACE) {
+			// if the idle face is an image name with the syntax "<name>0" or "<name>0<file extension", try to deduce the missing image names from it
+			if (state_value[0].type() != Value.STRUCTURE) { // state_value[0] cannot be UNDEFINED here, otherwise we would have to check for that
+				final String image_name = state_value[0].toString();
+				if (image_name.endsWith("0")) {
+					final String prefix = image_name.substring(0, image_name.length()-1);
+					for (int i = BUTTON_STATE_CONSTANT.length; --i >= 1; ) {
+						if (state_value[i] == NO_FACE && AbstractView.getImage(prefix+i) != null) {
+							state_value[i] = new Value().set(prefix+i);
+						}
+					}
+				}
+				else {
+					final int suffix_offset = image_name.lastIndexOf('0');
+					if (suffix_offset > -1 && suffix_offset == image_name.length()-5) {
+						final String suffix = image_name.substring(suffix_offset+1).trim();
+						if (suffix.length() == 4 && AbstractView.SUPPORTED_IMAGE_TYPES.indexOf(suffix.toLowerCase()) > -1) {
+							final String prefix = image_name.substring(0, suffix_offset);
+							for (int i = BUTTON_STATE_CONSTANT.length; --i >= 1; ) {
+								if (state_value[i] == NO_FACE && AbstractView.getImage(prefix+i+suffix) != null) {
+									state_value[i] = new Value().set(prefix+i+suffix);
+								}
+							}
+						}
+					}
+				}
 			}
-			else {
-				sw[0] = w;
-				sx[0] = x;
+			// replace all remaining missing faces with the idle face
+			for (int i = BUTTON_STATE_CONSTANT.length; --i >= 1; ) {
+				if (state_value[i] == NO_FACE) {
+					state_value[i] = state_value[0];
+				}
 			}
 		}
-		final boolean variable_height = h == 0 &&( (v=_component.get("height")) == null || v.equalsConstant("UNDEFINED") );
+
+		// if the width or height is not fixed, determine the button position and size for each individual state. also determine the clipping area
+		final boolean variable_width  = w == 0 &&( (v=_component.get("width"))  == null || !v.equals(0) );
+		final boolean variable_height = h == 0 &&( (v=_component.get("height")) == null || !v.equals(0) );
+		// if the width and height are fixed, things are easy
+		if (!variable_width) {
+			for (int i = BUTTON_STATE_CONSTANT.length; --i >= 0; ) {
+				sw[i] = w;
+				sx[i] = x;
+				scw[i] = cw;
+				scx[i] = cx;
+			}
+		}
+		if (!variable_height) {
+			for (int i = BUTTON_STATE_CONSTANT.length; --i >= 0; ) {
+				sh[i] = h;
+				sy[i] = y;
+				sch[i] = ch;
+				scy[i] = cy;
+			}
+		}
+		if (variable_width || variable_height) {
+			for (int i = 0; i < BUTTON_STATE_CONSTANT.length; i++) {
+				// just copy the values if this face is identical to the idle face
+				if (i > 0 &&( state_value[i] == state_value[0] || state_value[i].equals(state_value[0]) )) {
+					sw[i] = sw[0];
+					sx[i] = sx[0];
+					sh[i] = sh[0];
+					sy[i] = sy[0];
+					scw[i] = scw[0];
+					scx[i] = scx[0];
+					sch[i] = sch[0];
+					scy[i] = scy[0];
+				}
+				// otherwise calculate the values for it
+				else {
+					if (variable_width) {
+						sw[i] = AbstractView.width(state_value[i]) + 2*border_thickness;
+						sx[i] = DefaultView.x(_component, _parent.w, sw[i]);
+						if (current_clip_source.cw > 0) {
+							if (current_clip_source.cx <= sx[i]) {
+								scx[i] = sx[i];
+								scw[i] = scx[i] + current_clip_source.cw - sx[i];
+								if (scw[i] > sw[i]) {
+									scw[i] = sw[i];
+								}
+							}
+							else {
+								scx[i] = current_clip_source.cx;
+								scw[i] = current_clip_source.cw;
+								if (sx[i]+sw[i] < scx[i]+scw[i]) {
+									scw[i] = sx[i]+sw[i]-scx[i];
+								}
+							}
+						}
+					}
+					if (variable_height) {
+						sh[i] = AbstractView.height(state_value[i]) + 2*border_thickness;
+						sy[i] = DefaultView.y(_component, _parent.h, sh[i]);
+						if (current_clip_source.ch > 0) {
+							if (current_clip_source.cy <= sy[i]) {
+								scy[i] = sy[i];
+								sch[i] = scy[i] + current_clip_source.ch - sy[i];
+								if (sch[i] > sh[i]) {
+									sch[i] = sh[i];
+								}
+							}
+							else {
+								scy[i] = current_clip_source.cy;
+								sch[i] = current_clip_source.ch;
+								if (sy[i]+sh[i] < scy[i]+sch[i]) {
+									sch[i] = sy[i]+sh[i]-scy[i];
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 		// add the button faces
-		if (!(v=_component.get("idle")).equalsConstant("UNDEFINED")) {
-			if (variable_width) {
-				w = sw[0];
-				x = sx[0];
-			}
-			else {
-				w = base_w;
-				x = base_x;
-			}
-			if (variable_height) {
-				h = sh[0];
-				y = sy[0];
-			}
-			else {
-				h = base_h;
-				y = base_y;
-			}
-			// the area where the face can be displayed is smaller than the actual button if the button has a border
-			x += border_thickness;
-			w -= 2*border_thickness;
-			y += border_thickness;
-			h -= 2*border_thickness;
-			face[0] = DisplayedComponent.createDisplayedComponent(v, this, current_clip_source);
-			// center the face horizontically if it doesn't have a defined x coordinage
-			if (v.type() != Value.STRUCTURE ||(( (k=v.get("x")) == null || k.equalsConstant("UNDEFINED") )&&( (k=v.get("h_align")) == null || k.equalsConstant("UNDEFINED") ))) {
-				face[0].x = base_x + (base_w-face[0].w)/2;
+		for (int i = 0; i < BUTTON_STATE_CONSTANT.length; i++) {
+			if (state_value[i] != NO_FACE) {
+				// just reuse it if this face is identical to the idle face
+				if (i > 0 &&( state_value[i] == state_value[0] || state_value[i].equals(state_value[0]) )) {
+					face[i] = face[0];
+				}
+				else {
+					// create the DisplayedComponent that represents this face
+					x = sx[i] + border_thickness;
+					w = sw[i] - 2*border_thickness;
+					y = sy[i] + border_thickness;
+					h = sh[i] - 2*border_thickness;
+					face[i] = DisplayedComponent.createDisplayedComponent(state_value[i], this, current_clip_source);
+					// center the face if it doesn't have a defined position
+					if (state_value[i].type() != Value.STRUCTURE ||(( (k=state_value[i].get("x")) == null || k.equalsConstant("UNDEFINED") )&&( (k=state_value[i].get("h_align")) == null || k.equalsConstant("UNDEFINED") ))) {
+						face[0].x = sx[0] + (sw[0]-face[0].w)/2;
+					}
+					if (state_value[i].type() != Value.STRUCTURE ||(( (k=state_value[i].get("y")) == null || k.equalsConstant("UNDEFINED") )&&( (k=state_value[i].get("v_align")) == null || k.equalsConstant("UNDEFINED") ))) {
+						face[0].y = sy[0] + (sh[0]-face[0].h)/2;
+					}
+				}
 			}
 		}
-		// set x, y, w and h back to their old values
-		x = base_x;
-		y = base_y;
-		w = base_w;
-		h = base_h;
 		// set the initial state of the button
 		state = 3;
 		updateButtonState();
@@ -131,18 +201,13 @@ final class UIButton extends DisplayedComponent
 			state = 0;
 			updateButtonState();
 		}
-if (border != null)
-System.out.println("x="+x+" w="+w+"   "+"bx="+border.x+" bw="+border.w+"    "+_component.get("state"));
 	}
 
 
 	void draw (final Graphics g) {
 		// draw the border
 		if (border != null)
-{
-System.out.print("("+border.w+" "+border.h+") ");
 			border.draw(g);
-}
 		// draw the button face
 		if (face[state] != null)
 			face[state].draw(g);
@@ -165,7 +230,14 @@ System.out.print("("+border.w+" "+border.h+") ");
 				if (i == 0 || s.equals(BUTTON_STATE_CONSTANT[i])) {
 					if (state != i) {
 						state = i;
-// update the clipping area if the button shape has changed
+						x = sx[i];
+						y = sy[i];
+						w = sw[i];
+						h = sh[i];
+						cx = scx[i];
+						cy = scy[i];
+						cw = scw[i];
+						ch = sch[i];
 						// update the border size
 						if (border != null) {
 							border.x = x;
