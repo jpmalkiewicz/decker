@@ -45,6 +45,7 @@ public final class ViewWrapper extends Canvas implements ComponentListener
 	private int mouse_x, mouse_y;
 	private int frame_x, frame_y;
 	private int old_width = -1, old_height = -1;
+	private String oldScreenTitle = "";
 
 
 	public void componentHidden (ComponentEvent e)  {}
@@ -174,6 +175,16 @@ public final class ViewWrapper extends Canvas implements ComponentListener
 	}
 
 
+	private void setTitle (final String new_title)  {
+		// the Frame should be the top-most parent object of the ViewWrapper
+		Component parent = Global.getViewWrapper().getParent();
+		while (parent.getParent() != null)
+			parent = parent.getParent();
+		if (parent != null && parent instanceof Frame)
+			((Frame)parent).setTitle(new_title);
+	}
+
+
 	private void synchronizedUpdate (final Graphics g) {
 		if (!isVisible()) {
 			return;
@@ -185,44 +196,52 @@ public final class ViewWrapper extends Canvas implements ComponentListener
 //			if (view != null) {
 				final Value scr = Global.getDisplayedScreen();
 				if (scr != null) {
-					final int w = AbstractView.width(scr), h = AbstractView.height(scr);
+final int w = Math.max(11, DisplayedComponent.getScreenWidth()), h = Math.max(11, DisplayedComponent.getScreenHeight());
 
-					if (w > 0 && h > 0) {
-						// draw the next frame
-						if (buffer == null || buffer.getWidth(this) != w || buffer.getHeight(this) != h) {
-							try {
-								buffer = createImage(w, h);
-							} catch (Throwable t) {
-								// this ought to be extremely rare
+					// draw the next frame
+					if (buffer == null || buffer.getWidth(this) != w || buffer.getHeight(this) != h) {
+						try {
+							buffer = createImage(w, h);
+						} catch (Throwable t) {
+							// this ought to be extremely rare
 System.out.println("FAILED TO CREATE screen buffer o_O");
-								painting = false;
-								return;
-							}
-						}
-
-						final Graphics bg = buffer.getGraphics();
-						bg.setFont(getFont());
-
-						// fetch the background color
-						final Value bgcolor_string = ScriptNode.getValue("BACKGROUND_COLOR");
-						if (bgcolor_string != null && bgcolor_string.type() == Value.STRING) {
-							final Color bgcolor = AbstractView.getColor(bgcolor_string.string());
-							if (bgcolor != null) {
-								setBackground(bgcolor);
-								bg.setColor(bgcolor);
-								bg.fillRect(0, 0, w, h);
-							}
-						}
-						bg.setColor(getForeground());
-						DisplayedScreen.drawScreen(bg);
-//						view.drawContent(bg); // call drawContent() instead of paint(), because the coordinate system already sits where it should
-						g.drawImage(buffer, 0, 0, this);
-						if (w != old_width || h != old_height) {
-							old_width = w;
-							old_height = h;
-							setScreenSize(w, h);
+							painting = false;
+							return;
 						}
 					}
+
+					final Graphics bg = buffer.getGraphics();
+					bg.setFont(getFont());
+
+					// fetch the background color
+/*						final Value bgcolor_string = ScriptNode.getValue("BACKGROUND_COLOR");
+					if (bgcolor_string != null && bgcolor_string.type() == Value.STRING) {
+						final Color bgcolor = AbstractView.getColor(bgcolor_string.string());
+						if (bgcolor != null) {
+							setBackground(bgcolor);
+							bg.setColor(bgcolor);
+							bg.fillRect(0, 0, w, h);
+						}
+					}
+					bg.setColor(getForeground());
+*/
+					DisplayedComponent.drawScreen(bg);
+//						view.drawContent(bg); // call drawContent() instead of paint(), because the coordinate system already sits where it should
+					if (w != old_width || h != old_height) {
+						old_width = w;
+						old_height = h;
+						setScreenSize(w, h);
+					}
+					// update the title
+					if (scr.type() == Value.STRUCTURE) {
+						final Value title = scr.get("title");
+						String s;
+						if (title != null && !title.equalsConstant("UNDEFINED") && !(s=title.toString()).equals(oldScreenTitle)) {
+							setTitle(s);
+							oldScreenTitle = s;
+						}
+					}
+					g.drawImage(buffer, 0, 0, this);
 				}
 //			}
 		} catch (Throwable t) {

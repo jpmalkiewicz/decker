@@ -52,7 +52,7 @@ Global.getDisplayedScreen().set(Global.getCurrentRuleset().data.get("initial_scr
 Global.getViewWrapper().repaint();
 Global.getViewWrapper().requestFocus();
 System.out.println("a");
-DisplayedScreen.setDisplayedScreen(Global.getCurrentRuleset().data.get("initial_screen"));
+DisplayedComponent.setDisplayedScreen(Global.getCurrentRuleset().data.get("initial_screen"));
 System.out.println("b");
 //		ViewAccess.setView(new Interface());
 //		ViewAccess.setImagePath("resources/images/");

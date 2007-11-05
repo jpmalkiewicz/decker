@@ -1,5 +1,6 @@
 80%
 2007-11-05
+  on_resize now gets clled right after the DisplayedComponent of a component was created
   events work again
 2007-11-03
   UIButton complete

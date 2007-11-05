@@ -286,7 +286,7 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 	public void eventMouseReleased (final int x, final int y)  {}
 
 
-	public final static int height (Object visible_object) {
+	public final static int height (Object visible_object, final int parent_height) {
 		Value v;
 		if (visible_object instanceof Value) {
 			v = (Value) visible_object;
@@ -307,14 +307,25 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 			final String type = d.get("structure_type").string();
 			// check whether the height is explicitly defined
 			v = d.get("height");
-			if (v != null && v.type() == Value.INTEGER)
-				return v.integer();
+			if (v != null) {
+				if (v.type() == Value.INTEGER)
+					return v.integer();
+				// check whether it's a percentage value
+				if (v.type() == Value.STRING) {
+					final String s = v.string();
+					if (s.endsWith("%")) {
+						try {
+							return (Integer.parseInt(s.substring(0, s.length()-1)) * parent_height + 50)/100;
+						} catch (NumberFormatException ex) {}
+					}
+				}
+			}
 			// if this is a BUTTON, use the definition for the idle state instead
-			if (type.equals("BUTTON") && !d.get("idle").equalsConstant("UNDEFINED"))
+/*			if (type.equals("BUTTON") && !d.get("idle").equalsConstant("UNDEFINED"))
 				return height(d.get("idle"));
 			if (type.equals("BORDER_BUTTON") && !d.get("idle").equalsConstant("UNDEFINED"))
 				return height(d.get("idle")) + 2*ScriptNode.getValue("DEFAULT_BORDER_THICKNESS").integer();
-			// if this is a STRING, determine its height
+*/			// if this is a STRING, determine its height
 			if (type.equals("TEXT")) {
 				if ((v=d.get("font")) != null && v.type() == Value.STRING)
 					return getFontMetrics(getFont(v.string())).getAscent();
@@ -331,30 +342,19 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 				}
 			}
 			// if not, use the height of the first sub-component
-			if ((v=d.get("component")) != null) {
+/*			if ((v=d.get("component")) != null) {
 				if (v.type() == Value.ARRAY && v.array().length > 0)
 					return height(v.get(0));
 				else
 					return height(v);
 			}
-		}
+*/		}
 		// everything has failed, assume a height of 0 for the structure
 		return 0;
 	}
 
 
-	/** sets the text in the title bar of the Frame */
-	public void setTitle (final String new_title)  {
-		// the Frame should be the top-most parent object of the ViewWrapper
-		Component parent = Global.getViewWrapper().getParent();
-		while (parent.getParent() != null)
-			parent = parent.getParent();
-		if (parent != null && parent instanceof Frame)
-			((Frame)parent).setTitle(new_title);
-	}
-
-
-	public final static int width (Object visible_object) {
+	public final static int width (Object visible_object, final int parent_width) {
 		Value v;
 		if (visible_object instanceof Value) {
 			v = (Value) visible_object;
@@ -375,14 +375,25 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 			final String type = d.get("structure_type").string();
 			// check whether the width is explicitly defined
 			v = d.get("width");
-			if (v != null && v.type() == Value.INTEGER)
-				return v.integer();
+			if (v != null) {
+				if (v.type() == Value.INTEGER)
+					return v.integer();
+				// check whether it's a percentage value
+				if (v.type() == Value.STRING) {
+					final String s = v.string();
+					if (s.endsWith("%")) {
+						try {
+							return (Integer.parseInt(s.substring(0, s.length()-1)) * parent_width + 50)/100;
+						} catch (NumberFormatException ex) {}
+					}
+				}
+			}
 			// if this is a BUTTON, use the definition for the idle state instead
-			if (type.equals("BUTTON") && !d.get("idle").equalsConstant("UNDEFINED"))
+/*			if (type.equals("BUTTON") && !d.get("idle").equalsConstant("UNDEFINED"))
 				return width(d.get("idle"));
 			if (type.equals("BORDER_BUTTON") && !d.get("idle").equalsConstant("UNDEFINED"))
 				return width(d.get("idle")) + 2*ScriptNode.getValue("DEFAULT_BORDER_THICKNESS").integer();
-			// if this is a STRING, calculate its width
+*/			// if this is a STRING, calculate its width
 			if (type.equals("TEXT")) {
 				FontMetrics fm;
 				if ((v=d.get("font")) != null && v.type() == Value.STRING)
@@ -401,12 +412,12 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 				}
 			}
 			// if not, use the width of the first sub-component
-			if ((v=d.get("component")) != null) {
+/*			if ((v=d.get("component")) != null) {
 				if (v.type() == Value.ARRAY && v.array().length > 0)
 					return width(v.get(0));
 				return width(v);
 			}
-		}
+*/		}
 		// everything has failed, assume a width of 0 for the structure
 		return 0;
 	}

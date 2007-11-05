@@ -265,12 +265,12 @@ final class StaticScriptFunctions extends ScriptNode
 
 
 	private final static Value execute_pixelheight (final Value[] args)  {
-		return new Value().set((args.length == 0 || args[0] == null) ? 0 : Global.getViewWrapper().getView().height(args[0]));
+		return new Value().set((args.length == 0 || args[0] == null) ? 0 : Global.getViewWrapper().getView().height(args[0], 0));
 	}
 
 
 	private final static Value execute_pixelwidth (final Value[] args)  {
-		return new Value().set((args.length == 0 || args[0] == null) ? 0 : Global.getViewWrapper().getView().width(args[0]));
+		return new Value().set((args.length == 0 || args[0] == null) ? 0 : Global.getViewWrapper().getView().width(args[0], 0));
 	}
 
 

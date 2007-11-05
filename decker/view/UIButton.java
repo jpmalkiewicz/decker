@@ -128,7 +128,7 @@ final class UIButton extends DisplayedComponent
 				// otherwise calculate the values for it
 				else {
 					if (variable_width) {
-						sw[i] = AbstractView.width(state_value[i]) + 2*border_thickness;
+						sw[i] = AbstractView.width(state_value[i], _parent.w) + 2*border_thickness;
 						sx[i] = DefaultView.x(_component, _parent.w, sw[i]);
 						if (current_clip_source.cw > 0) {
 							if (current_clip_source.cx <= sx[i]) {
@@ -148,7 +148,7 @@ final class UIButton extends DisplayedComponent
 						}
 					}
 					if (variable_height) {
-						sh[i] = AbstractView.height(state_value[i]) + 2*border_thickness;
+						sh[i] = AbstractView.height(state_value[i], _parent.h) + 2*border_thickness;
 						sy[i] = DefaultView.y(_component, _parent.h, sh[i]);
 						if (current_clip_source.ch > 0) {
 							if (current_clip_source.cy <= sy[i]) {
