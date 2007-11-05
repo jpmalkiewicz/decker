@@ -1,6 +1,8 @@
 english
 	RULESET.new_character_screen = COMPONENT
 		title = "Decker - New Character"
+		width = 260
+		height = 260
 		//**************************** data for the character image selector *****************************
 		char_images = filelist("artwork/character_image/")   // this variable stores the list of available character images, the screen display class doesn't recognize it
 		char_image_index = 0
@@ -76,8 +78,10 @@ english
 		//************************************************************************************************
 		component = ARRAY
 			SCREEN_BACKGROUND
-				width = 260
-				height = 260
+// not needed
+//				width = 260
+//				height = 260
+// not needed END
 			BORDER
 				x = 29
 				y =  121

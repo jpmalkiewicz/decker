@@ -139,17 +139,18 @@ english
 
 
 		SCREEN_BACKGROUND
-			x = 0
-			y = 0
+			x = "100%"
+			y = "100%"
 			width
 			height
 			component
 			initializer = FUNCTION
 				component = ARRAY
 					createBorder(0,0)
-			on_draw = FUNCTION
-				component[0].width = width
-				component[0].height = height
+					createBorder(0,0)
+			on_resize = FUNCTION (new_width, new_height)
+				component[0].width = new_width
+				component[0].height = new_height
 				if @BACKGROUND_COLOR2 == UNDEFINED
 					component[0].background_color = @BACKGROUND_COLOR
 					if component[1] != UNDEFINED
@@ -157,8 +158,8 @@ english
 				else
 					if component[1] == UNDEFINED
 						component[1] = createBorder(5, 5, 0, 0)
-					component[1].width = width-10
-					component[1].height = height-10
+					component[1].width = new_width-10
+					component[1].height = new_height-10
 					component[1].background_color = @BACKGROUND_COLOR
 					component[0].background_color = @BACKGROUND_COLOR2
 

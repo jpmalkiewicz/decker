@@ -26,8 +26,8 @@ public final class DefaultView extends AbstractView
 
 
 	public void drawContent (final Value display_this, int dx, int dy, final int parent_width, final int parent_height)  {
-		final int w = width(display_this);
-		final int h = height(display_this);
+		final int w = width(display_this, parent_width);
+		final int h = height(display_this, parent_height);
 		if (display_this.type() != Value.STRUCTURE) {
 			if (!display_this.equalsConstant("UNDEFINED")) {
 				// treat it as a string and fetch the corresponding image
@@ -297,7 +297,7 @@ public final class DefaultView extends AbstractView
 		return false;
 	}
 
-
+/*
 	public void eventMouseDragged (final int x, final int y, final int dx, final int dy)  {
 		final Value v = Global.getDisplayedScreen();
 		if (v != null && v.type() == Value.STRUCTURE) {
@@ -318,7 +318,6 @@ public final class DefaultView extends AbstractView
 	}
 
 
-	/** returns true iff the event has been consumed */
 	boolean eventMouseDragged (int x, int y, final int dx, final int dy, final Structure d, final int parent_width, final int parent_height)  {
 		Value v;
 		// put the current data object on the stack, in case there are function calls for nested objects
@@ -408,7 +407,6 @@ public final class DefaultView extends AbstractView
 	}
 
 
-	/** returns true iff the event has been consumed */
 	boolean eventMouseMoved (int x, int y, final Structure d, final int parent_width, final int parent_height)  {
 		Value v;
 		// put the current data object on the stack, in case there are function calls for nested objects
@@ -489,7 +487,6 @@ public final class DefaultView extends AbstractView
 	}
 
 
-	/** returns true iff the event has been consumed */
 	boolean eventMousePressed (int x, int y, final Structure d, final int parent_width, final int parent_height)  {
 		Value v;
 		// put the current data object on the stack, in case there are function calls for nested objects
@@ -580,7 +577,6 @@ public final class DefaultView extends AbstractView
 	}
 
 
-	/** returns true iff the event has been consumed */
 	boolean eventMouseReleased (int x, int y, final Structure d, final int parent_width, final int parent_height)  {
 		Value v;
 		// put the current data object on the stack, in case there are function calls for nested objects
@@ -653,7 +649,7 @@ public final class DefaultView extends AbstractView
 		ScriptNode.removeStackItem(d);
 		return false;
 	}
-
+*/
 
 // private methods **************************************************************************************************************************************
 
@@ -677,6 +673,7 @@ public final class DefaultView extends AbstractView
 
 
 	static int x (Object visible_object, final int parent_width, int object_width)  {
+System.out.println("X");
 		int ret = 0;
 		// if it's the top level view (parent==null) it automatically sits at (0,0)
 		if (parent_width > Integer.MIN_VALUE &&( visible_object instanceof Structure ||( visible_object instanceof Value && ((Value)visible_object).type() == Value.STRUCTURE ))) {
@@ -696,13 +693,13 @@ public final class DefaultView extends AbstractView
 				else if (v.type() == Value.CONSTANT) {
 					if (v.equalsConstant("RIGHT")) {
 						if (a == null || a.equalsConstant("UNDEFINED")) // if the visible_object has no explicit horizontal alignment, treat it as LEFT aligned, i.e. sitting left of (x,y)
-							ret = parent_width-((object_width>=0)?object_width:width(visible_object));
+							ret = parent_width-((object_width>=0)?object_width:width(visible_object, parent_width));
 						else
 							ret = parent_width;
 					}
 					else if (v.equalsConstant("CENTER")) {
 						if (a == null || a.equalsConstant("UNDEFINED")) // if the visible_object has no explicit horizontal alignment, treat it as CENTER aligned, i.e. sitting centered on (x,y)
-							ret = (parent_width-((object_width>=0)?object_width:width(visible_object)))/2;
+							ret = (parent_width-((object_width>=0)?object_width:width(visible_object, parent_width)))/2;
 						else
 							ret = parent_width/2;
 					}
@@ -718,9 +715,9 @@ public final class DefaultView extends AbstractView
 					ret += (int) (a.real()+0.5);
 				else if (atype == Value.CONSTANT) {
 					if (a.equalsConstant("CENTER"))
-						ret -= width(visible_object)/2;
+						ret -= width(visible_object, parent_width)/2;
 					else if (a.equalsConstant("LEFT"))
-						ret -= width(visible_object);
+						ret -= width(visible_object, parent_width);
 //					else if (a.equalsConstant("RIGHT"))  // this has no effect apart from keeping x=CENTER and x=RIGHT from assuming a h_align value that differs from RIGHT
 //						ret -= 0;
 				}
@@ -750,13 +747,13 @@ public final class DefaultView extends AbstractView
 				else if (v.type() == Value.CONSTANT) {
 					if (v.equalsConstant("BOTTOM")) {
 						if (a == null || a.equalsConstant("UNDEFINED")) // if the visible_object has no explicit vertical alignment, treat it as TOP aligned, i.e. sitting above (x,y)
-							ret = parent_height-((object_height>=0)?object_height:height(visible_object));
+							ret = parent_height-((object_height>=0)?object_height:height(visible_object, parent_height));
 						else
 							ret = parent_height;
 					}
 					else if (v.equalsConstant("CENTER")) {
 						if (a == null || a.equalsConstant("UNDEFINED")) // if the visible_object has no explicit vertical alignment, treat it as CENTER aligned, i.e. sitting centered on (x,y)
-							ret = (parent_height-((object_height>=0)?object_height:height(visible_object)))/2;
+							ret = (parent_height-((object_height>=0)?object_height:height(visible_object, parent_height)))/2;
 						else
 							ret = parent_height/2;
 					}
@@ -772,9 +769,9 @@ public final class DefaultView extends AbstractView
 					ret += (int) (a.real()+0.5);
 				else if (atype == Value.CONSTANT) {
 					if (a.equalsConstant("CENTER"))
-						ret -= height(visible_object)/2;
+						ret -= height(visible_object, parent_height)/2;
 					else if (a.equalsConstant("TOP"))
-						ret -= height(visible_object);
+						ret -= height(visible_object, parent_height);
 //					else if (a.equalsConstant("BOTTOM"))  // this has no effect apart from keeping y=CENTER and y=BOTTOM from assuming a v_align value that differs from BOTTOM
 //						ret -= 0;
 				}

@@ -11,6 +11,7 @@ public class DisplayedComponent
 	final static int                               ON_KEY_DOWN = 0, ON_MOUSE_DOWN = 1, ON_MOUSE_DRAGGED = 2, ON_MOUSE_ENTERED = 3, ON_MOUSE_EXITED = 4, ON_MOUSE_MOVED = 5, ON_MOUSE_UP =6;
 	private final static DisplayedComponent[][] eventListener = new DisplayedComponent[EVENT_FUNCTION_NAME.length][5];
 	private final static int[] eventListenerCount = new int[EVENT_FUNCTION_NAME.length];
+	private static DisplayedComponent currentScreen;
 
 
 
@@ -62,7 +63,18 @@ System.out.print("(generic) ");
 		if (ret.child_count == -1) {
 			ret.updateChildren(current_clip_source);
 		}
+		// call the "on_resize" function if there is one
+		final Value v;
+		if (_component.type() == Value.STRUCTURE && (v=_component.get("on_resize")) != null && v.type() == Value.FUNCTION) {
+			FunctionCall.executeFunctionCall(v.function(), new Value[]{ new Value().set(ret.w), new Value().set(ret.h) }, _component.structure());
+		}
 		return ret;
+	}
+
+
+	public final static void drawScreen (final Graphics g) {
+		if (currentScreen != null)
+			currentScreen.child[0].draw(g);
 	}
 
 
@@ -72,6 +84,20 @@ System.out.print("handleKeyDown() not implemented");
 
 		}
 //		v.eventKeyPressed(((KeyEvent)e).getKeyChar(), ((KeyEvent)e).getKeyCode(), ((KeyEvent)e).isAltDown());
+	}
+
+
+	final static int getScreenHeight () {
+		if (currentScreen != null)
+			return currentScreen.child[0].h;
+		return 0;
+	}
+
+
+	final static int getScreenWidth () {
+		if (currentScreen != null)
+			return currentScreen.child[0].w;
+		return 0;
 	}
 
 
@@ -128,6 +154,19 @@ System.out.println("mouse up END");
 		return false;
 	}
 
+
+	public static void setDisplayedScreen (final Value screen) {
+		// remove the old event listeners
+		for (int i = eventListener.length; --i >= 0; ) {
+			final DisplayedComponent[] el = eventListener[i];
+			for (int j = eventListenerCount[i]; --j >= 0; ) {
+				el[j] = null;
+			}
+			eventListenerCount[i] = 0;
+		}
+		// create the data for the new screen
+		currentScreen = new DisplayedComponent(screen);
+	}
 
 
 // ******************************************************************************************************************************************************
@@ -263,8 +302,8 @@ System.out.println("mouse up END");
 			// determine the bounding rectangle
 			x = parent.x + DefaultView.x(s, parent.w, -1);
 			y = parent.y + DefaultView.y(s, parent.h, -1);
-			w = DefaultView.width(s);
-			h = DefaultView.height(s);
+			w = DefaultView.width(s, 0);
+			h = DefaultView.height(s, 0);
 			// calculate the bounding rectangle of the visible area
 			if (current_clip_source.cw <= 0) {
 				cx = 0;
