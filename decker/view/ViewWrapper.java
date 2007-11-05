@@ -76,7 +76,13 @@ public final class ViewWrapper extends Canvas implements ComponentListener
 			if (v != null) {
 				discardEvent = false;
 				try {
-					// if it is a mouse event, remember the old mouse position
+					if (e instanceof MouseEvent) {
+						mouse_x = ((MouseEvent)e).getX();
+						mouse_y = ((MouseEvent)e).getY();
+					}
+					discardEvent = DisplayedComponent.handleUserInput(e, mouse_x, mouse_y, mouse_x-mx, mouse_y-my);
+//					discardEvent = DisplayedComponent.;
+/*					// if it is a mouse event, remember the old mouse position
 					if (e instanceof MouseEvent) {
 						mouse_x = ((MouseEvent)e).getX();
 						mouse_y = ((MouseEvent)e).getY();
@@ -111,6 +117,7 @@ public final class ViewWrapper extends Canvas implements ComponentListener
 						default :
 							discardEvent = true;
 					}
+*/
 				} catch (Throwable t) {
 					t.printStackTrace();
 				}

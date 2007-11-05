@@ -149,28 +149,29 @@ english
 				y = 219
 				idle = "ok0"
 				on_mouse_up = FUNCTION
+					with new_character_screen
 // create the new character START
-					GLOBAL.tooltips = tooltips
-					GLOBAL.ironman = ironman
-					GLOBAL.player = HUMAN
-						name = char_name.user_input.text
-						image = char_image.component[0]
-						LOCAL.slvl = bonus_name[selected_bonus] == "software" ? 2 : 1
-						LOCAL.hlvl = bonus_name[selected_bonus] == "hardware" ? 2 : 1
-						deck = createDeck(hlvl, slvl)
-						if bonus_name[selected_bonus] == "skills"
-							attack = 2
-							defense = 2
-							stealth = 2
-							analysis = 2
-							programming = 2
-							chip_design = 2
-						money = bonus_name[selected_bonus] == "money" ? 2000 : 100
+						GLOBAL.tooltips = tooltips
+						GLOBAL.ironman = ironman
+						GLOBAL.player = HUMAN
+							name = char_name.user_input.text
+							image = char_image.component[0]
+							LOCAL.slvl = bonus_name[selected_bonus] == "software" ? 2 : 1
+							LOCAL.hlvl = bonus_name[selected_bonus] == "hardware" ? 2 : 1
+							deck = createDeck(hlvl, slvl)
+							if bonus_name[selected_bonus] == "skills"
+								attack = 2
+								defense = 2
+								stealth = 2
+								analysis = 2
+								programming = 2
+								chip_design = 2
+							money = bonus_name[selected_bonus] == "money" ? 2000 : 100
 // debug stuff START
-						physical_damage = 3
-						money = money + 2000
-						skill_points = 8
-					updateShopInventory()
+							physical_damage = 3
+							money = money + 2000
+							skill_points = 8
+						updateShopInventory()
 // create the new character END
 					displayScreen(home_screen)
 			BORDER_BUTTON
