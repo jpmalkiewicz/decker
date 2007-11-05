@@ -1,11 +1,19 @@
 package decker.view;
 import decker.model.*;
-import java.awt.image.BufferedImage;
 import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
 
 
 public class DisplayedComponent
 {
+	final static String[] EVENT_FUNCTION_NAME = { "on_key_down",   "on_mouse_down",   "on_mouse_dragged",   "on_mouse_entered",   "on_mouse_exited",   "on_mouse_moved",   "on_mouse_up" };
+	final static int                               ON_KEY_DOWN = 0, ON_MOUSE_DOWN = 1, ON_MOUSE_DRAGGED = 2, ON_MOUSE_ENTERED = 3, ON_MOUSE_EXITED = 4, ON_MOUSE_MOVED = 5, ON_MOUSE_UP =6;
+	private final static DisplayedComponent[][] eventListener = new DisplayedComponent[EVENT_FUNCTION_NAME.length][5];
+	private final static int[] eventListenerCount = new int[EVENT_FUNCTION_NAME.length];
+
+
+
 	// the displayed component
 	Value component;
 	// the parent Structure of this component
@@ -25,13 +33,13 @@ public class DisplayedComponent
 	DisplayedComponent[] child;
 	int child_count;
 	// the event functions, if they exist
-	private Function keyDown;
-	private Function mouseDragged;
-	private Function mouseEntered;
-	private Function mouseExited;
-	private Function mouseMoved;
-	private Function mouseDown;
-	private Function mouseUp;
+	private final Function[] eventFunction = new Function[EVENT_FUNCTION_NAME.length];
+
+
+
+// ******************************************************************************************************************************************************
+// static methods ***************************************************************************************************************************************
+// ******************************************************************************************************************************************************
 
 
 
@@ -58,6 +66,76 @@ System.out.print("(generic) ");
 	}
 
 
+	private final static void handleKeyDown (final KeyEvent e) {
+System.out.print("handleKeyDown() not implemented");
+		for (int i = eventListenerCount[ON_KEY_DOWN]; --i >= 0; ) {
+
+		}
+//		v.eventKeyPressed(((KeyEvent)e).getKeyChar(), ((KeyEvent)e).getKeyCode(), ((KeyEvent)e).isAltDown());
+	}
+
+
+	final static boolean handleUserInput (final AWTEvent e, final int mouse_x, final int mouse_y, final int mouse_dx, final int mouse_dy) {
+		int eventID = -1;
+		switch (e.getID()) {
+			case MouseEvent.MOUSE_DRAGGED :
+				eventID = ON_MOUSE_DRAGGED;
+				break;
+			case MouseEvent.MOUSE_ENTERED :
+			case MouseEvent.MOUSE_MOVED :
+			case MouseEvent.MOUSE_EXITED :
+				eventID = ON_MOUSE_MOVED;
+//				mouse_x = -100000;
+//				mouse_y = -100000;
+				break;
+			case MouseEvent.MOUSE_PRESSED :
+				eventID = ON_MOUSE_DOWN;
+				break;
+			case MouseEvent.MOUSE_RELEASED :
+				eventID = ON_MOUSE_UP;
+				break;
+			case KeyEvent.KEY_PRESSED :
+				handleKeyDown((KeyEvent)e);
+				return false;
+			case KeyEvent.KEY_RELEASED :
+				return false;
+			default:
+				return true;
+		}
+		// it's a mouse event
+// tell all the listeners from the last event about it, if the mouse has left their area
+		final int listenerCount = eventListenerCount[eventID];
+		DisplayedComponent[] parent_list = new DisplayedComponent[10];
+System.out.println(listenerCount + " listeners");
+		if (listenerCount > 0) {
+			final DisplayedComponent[] el = eventListener[eventID];
+System.out.println("mouse at ("+mouse_x+" "+mouse_y+")");
+			for (int i = listenerCount; --i >= 0; ) {
+				final DisplayedComponent c = el[i];
+System.out.println("("+c.cx+" "+c.cy+"   "+c.cw+" "+c.ch+")");
+				if (mouse_x >= c.cx && mouse_x < c.cx+c.cw && mouse_y >= c.cy && mouse_y < c.cy+c.ch &&( c.shape == null || (c.shape.getRGB(mouse_x-c.x, mouse_y-c.y)&0xff000000) != 0 )) {
+
+					if (eventID != ON_MOUSE_MOVED && eventID != ON_MOUSE_DRAGGED)
+						FunctionCall.executeFunctionCall(c.eventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(true) }, c.component.structure());
+					else
+						FunctionCall.executeFunctionCall(c.eventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(mouse_dx), new Value().set(mouse_dy), new Value().set(true) }, c.component.structure());
+System.out.println("mouse event inside "+c.getClass().getName());
+				}
+			}
+		}
+if (eventID == ON_MOUSE_UP)
+System.out.println("mouse up END");
+		return false;
+	}
+
+
+
+// ******************************************************************************************************************************************************
+// object methods ***************************************************************************************************************************************
+// ******************************************************************************************************************************************************
+
+
+
 	/** this constructor is solely used for the dummy parent component of the current screen */
 	DisplayedComponent (final Value _component) {
 		component = new Value();
@@ -77,6 +155,16 @@ System.out.print("(generic) ");
 		child_count = -1; // the -1 will tell createDisplayedComponent() that the children still need to be added
 		if (_component != null)
 			update(current_clip_source);
+	}
+
+
+	private void addEventListener (final int eventID) {
+		if (eventListener[eventID].length == eventListenerCount[eventID]) {
+			final DisplayedComponent[] dc = eventListener[eventID];
+			eventListener[eventID] = new DisplayedComponent[dc.length*2];
+			System.arraycopy(dc, 0, eventListener[eventID], 0, dc.length);
+		}
+		eventListener[eventID][eventListenerCount[eventID]++] = this;
 	}
 
 
@@ -122,76 +210,7 @@ System.out.print("(generic) ");
 				clip = g.getClip();
 				g.clipRect(x, y, w, h);
 			}
-/*			else if (type.equals("BORDER")) {
-				final boolean inverted = d.get("inverted").equals(true);
-				Value vtc = d.get("top_color"), vlc = d.get("left_color"), vrc = d.get("right_color"), vbc = d.get("bottom_color");
-				if (vtc.equalsConstant("UNDEFINED"))
-					vtc = vlc;
-				else if (vlc.equalsConstant("UNDEFINED"))
-					vlc = vtc;
-				if (vrc.equalsConstant("UNDEFINED")) {
-					if (!vbc.equalsConstant("UNDEFINED"))
-						vrc = vbc;
-					else
-						vrc = vlc;
-				}
-				if (vbc.equalsConstant("UNDEFINED"))
-					vbc = vrc;
-				// determine the line thickness
-				int thickness = 2;
-				if ((v=d.get("thickness")).type() == Value.INTEGER)
-					thickness = v.integer();
-				else if ((v=ScriptNode.getValue("DEFAULT_BORDER_THICKNESS")).type() == Value.INTEGER)
-					thickness = v.integer();
-
-				// if we have enough colors, draw the border
-				if (!vlc.equalsConstant("UNDEFINED")) {
-					final int w1 = w-1;
-					final int h1 = h-1;
-					if (!inverted) {
-						// draw the top border
-						g.setColor(AbstractView.getColor(vtc.toString()));
-						for (int i = thickness; --i >= 0; )
-							g.drawLine(x+i, y+i, x+w1-i, y+i);
-						// draw the left border
-						g.setColor(AbstractView.getColor(vlc.toString()));
-						for (int i = thickness; --i >= 0; )
-							g.drawLine(x+i, y+i+1, x+i, y+h1-i);
-						// draw the right border
-						g.setColor(AbstractView.getColor(vrc.toString()));
-						for (int i = thickness; --i >= 0; )
-							g.drawLine(x+w1-i, y+i+1, x+w1-i, y+h1-i);
-						// draw the bottom border
-						g.setColor(AbstractView.getColor(vbc.toString()));
-						for (int i = thickness; --i >= 0; )
-							g.drawLine(x+i+1, y+h1-i, x+w1-i-1, y+h1-i);
-					}
-					else {
-						// draw the bottom border
-						g.setColor(AbstractView.getColor(vtc.toString()));
-						for (int i = thickness; --i >= 0; )
-							g.drawLine(x+i, y+h1-i, x+w1-i, y+h1-i);
-						// draw the right border
-						g.setColor(AbstractView.getColor(vlc.toString()));
-						for (int i = thickness; --i >= 0; )
-							g.drawLine(x+w1-i, y+i, x+w1-i, y+h1-i-1);
-						// draw the left border
-						g.setColor(AbstractView.getColor(vrc.toString()));
-						for (int i = thickness; --i >= 0; )
-							g.drawLine(x+i, y+i+1, x+i, y+h1-i-1);
-						// draw the top border
-						g.setColor(AbstractView.getColor(vbc.toString()));
-						for (int i = thickness; --i >= 0; )
-							g.drawLine(x+i, y+i, x+w1-i-1, y+i);
-					}
-				}
-				// draw the background
-				if (!(v=d.get("background_color")).equalsConstant("UNDEFINED")) {
-					g.setColor(AbstractView.getColor(v.toString()));
-					g.fillRect(x+thickness, y+thickness, w-2*thickness, h-2*thickness);
-				}
-			}
-*/			else if (type.equals("LINE") && d.get("x2").type() == Value.INTEGER && d.get("y2").type() == Value.INTEGER) {
+			else if (type.equals("LINE") && d.get("x2").type() == Value.INTEGER && d.get("y2").type() == Value.INTEGER) {
 				if ((v=d.get("color")) != null)
 					g.setColor(AbstractView.getColor(v.toString()));
 				g.drawLine(x, y, x+d.get("x2").integer()-(x-parent.x), y+d.get("y2").integer()-(y-parent.y));
@@ -214,6 +233,18 @@ System.out.print("(generic) ");
 			// restore the clipping area if the currently displayed element has changed it, e.g. a DRAWING_BOUNDARY structure
 			if (clip != null)
 				g.setClip(clip);
+		}
+	}
+
+
+	private void removeEventListener (final int eventID) {
+		final DisplayedComponent[] dc = eventListener[eventID];
+		for (int i = eventListenerCount[eventID]; --i >= 0; ) {
+			if (dc[i] == this) {
+				System.arraycopy(dc, i+1, dc, i, eventListenerCount[eventID]-i-1);
+				eventListenerCount[eventID]--;
+				break;
+			}
 		}
 	}
 
@@ -277,75 +308,18 @@ System.out.print("(generic) ");
 				shape = (BufferedImage) AbstractView.getImage(v.string(), true);
 			}
 			// the event handler functions
-			if ((v=s.get("on_key_down")) != null && v.type() == Value.FUNCTION) {
-				if (keyDown == null) {
-					DisplayedScreen.addKeyDownListener(this);
+			for (int i = EVENT_FUNCTION_NAME.length; --i >= 0; ) {
+				final Value e = s.get(EVENT_FUNCTION_NAME[i]);
+				if (e != null && e.type() == Value.FUNCTION) {
+					if (eventFunction[i] == null) {
+						addEventListener(i);
+					}
+					eventFunction[i] = e.function();
 				}
-				keyDown = v.function();
-			}
-			else if (keyDown != null) {
-				DisplayedScreen.removeKeyDownListener(this);
-				keyDown = null;
-			}
-			if ((v=s.get("on_mouse_down")) != null && v.type() == Value.FUNCTION) {
-				if (mouseDown == null) {
-					DisplayedScreen.addMouseDownListener(this);
+				else if (eventFunction[i] != null) {
+					removeEventListener(i);
+					eventFunction[i] = null;
 				}
-				mouseDown = v.function();
-			}
-			else if (mouseDown != null) {
-				DisplayedScreen.removeMouseDownListener(this);
-				mouseDown = null;
-			}
-			if ((v=s.get("on_mouse_dragged")) != null && v.type() == Value.FUNCTION) {
-				if (mouseDragged == null) {
-					DisplayedScreen.addMouseDraggedListener(this);
-				}
-				mouseDragged = v.function();
-			}
-			else if (mouseDragged != null) {
-				DisplayedScreen.removeMouseDraggedListener(this);
-				mouseDragged = null;
-			}
-			if ((v=s.get("on_mouse_entered")) != null && v.type() == Value.FUNCTION) {
-				if (mouseEntered == null) {
-					DisplayedScreen.addMouseEnteredListener(this);
-				}
-				mouseEntered = v.function();
-			}
-			else if (mouseEntered != null) {
-				DisplayedScreen.removeMouseEnteredListener(this);
-				mouseEntered = null;
-			}
-			if ((v=s.get("on_mouse_exited")) != null && v.type() == Value.FUNCTION) {
-				if (mouseExited == null) {
-					DisplayedScreen.addMouseExitedListener(this);
-				}
-				mouseExited = v.function();
-			}
-			else if (mouseExited != null) {
-				DisplayedScreen.removeMouseExitedListener(this);
-				mouseExited = null;
-			}
-			if ((v=s.get("on_mouse_moved")) != null && v.type() == Value.FUNCTION) {
-				if (mouseMoved == null) {
-					DisplayedScreen.addMouseMovedListener(this);
-				}
-				mouseMoved = v.function();
-			}
-			else if (mouseMoved != null) {
-				DisplayedScreen.removeMouseMovedListener(this);
-				mouseMoved = null;
-			}
-			if ((v=s.get("on_mouse_up")) != null && v.type() == Value.FUNCTION) {
-				if (mouseUp == null) {
-					DisplayedScreen.addMouseUpListener(this);
-				}
-				mouseUp = v.function();
-			}
-			else if (mouseUp != null) {
-				DisplayedScreen.removeMouseUpListener(this);
-				mouseUp = null;
 			}
 		}
 	}
