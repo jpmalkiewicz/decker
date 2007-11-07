@@ -149,6 +149,7 @@ english
 					createBorder(0,0)
 					createBorder(0,0)
 			on_resize = FUNCTION (new_width, new_height)
+				debug("SCREEN_BACKGROUND.on_resize")
 				component[0].width = new_width
 				component[0].height = new_height
 				if @BACKGROUND_COLOR2 == UNDEFINED
