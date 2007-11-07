@@ -56,7 +56,7 @@ public final class DefaultView extends AbstractView
 				// set the window title - it may have changed during code execution
 				if ( (v=d.get("title")) != null && !v.equalsConstant("UNDEFINED") && !v.equals(old_title))  {
 					old_title = v.toString();
-					setTitle(old_title);
+//					setTitle(old_title);
 				}
 			}
 			else { // only change the coordinate offset if this is not the top level screen element
@@ -673,7 +673,6 @@ public final class DefaultView extends AbstractView
 
 
 	static int x (Object visible_object, final int parent_width, int object_width)  {
-System.out.println("X");
 		int ret = 0;
 		// if it's the top level view (parent==null) it automatically sits at (0,0)
 		if (parent_width > Integer.MIN_VALUE &&( visible_object instanceof Structure ||( visible_object instanceof Value && ((Value)visible_object).type() == Value.STRUCTURE ))) {

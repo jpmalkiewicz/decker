@@ -7,6 +7,8 @@ import decker.util.*;
 public final class Structure
 {
 	private final StringTreeMap members = new StringTreeMap();
+	private ValueListener[] valueListener;
+	private int valueListenerCount;
 
 
 	public Structure (final String type_name)  {
@@ -74,7 +76,26 @@ throw new RuntimeException("trying to use null as a structure type");
 	public Value add (String name)  {
 		final Value ret = new Value(this);
 		members.put(name, ret);
+		if (valueListenerCount>0) {
+			for (int i = valueListenerCount; --i >= 0; ) {
+				valueListener[i].valueChanged(name, this, null, ret);
+			}
+		}
 		return ret;
+	}
+
+
+	/** this value listener will automatically be called for all value changes of variables in this Structure */
+	public void addListener (final ValueListener vl) {
+		if (valueListener == null) {
+			valueListener = new ValueListener[1];
+		}
+		else if (valueListenerCount == valueListener.length) {
+			final ValueListener[] newList = new ValueListener[valueListenerCount*2];
+			System.arraycopy(valueListener, 0, newList, 0, valueListenerCount);
+			valueListener = newList;
+		}
+		valueListener[valueListenerCount++] = vl;
 	}
 
 
