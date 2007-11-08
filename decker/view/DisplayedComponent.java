@@ -5,7 +5,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 
 
-public class DisplayedComponent
+public class DisplayedComponent implements ValueListener
 {
 	final static String[] EVENT_FUNCTION_NAME = { "on_key_down",   "on_mouse_down",   "on_mouse_dragged",   "on_mouse_entered",   "on_mouse_exited",   "on_mouse_moved",   "on_mouse_up" };
 	final static int                               ON_KEY_DOWN = 0, ON_MOUSE_DOWN = 1, ON_MOUSE_DRAGGED = 2, ON_MOUSE_ENTERED = 3, ON_MOUSE_EXITED = 4, ON_MOUSE_MOVED = 5, ON_MOUSE_UP =6;
@@ -193,8 +193,12 @@ System.out.println("mouse up END");
 		component = _component;
 		parent = _parent;
 		child_count = -1; // the -1 will tell createDisplayedComponent() that the children still need to be added
-		if (_component != null)
+		if (_component != null) {
 			update(current_clip_source);
+			if (_component.type() == Value.STRUCTURE) {
+				_component.structure().addValueListener(this);
+			}
+		}
 	}
 
 
@@ -319,6 +323,25 @@ System.out.println("relative to parent size : "+component.toString());
 	}
 
 
+	public void eventValueChanged (final String variable_name, final Structure container, final Value old_value, final Value new_value) {
+System.out.println("eVC() updating "+getClass().getName()+" "+parent.component.toString());
+System.out.println(x+","+y+" "+w+","+h);
+		final DisplayedComponent clip_source = findCurrentClipSource();
+		update(clip_source);
+		updateChildren(clip_source);
+System.out.println(x+","+y+" "+w+","+h);
+	}
+
+
+	private DisplayedComponent findCurrentClipSource () {
+		DisplayedComponent source = parent;
+		while ( source.parent != null )
+//		while ( source.component != null && !(source instanceof UIDrawingBoundary) )
+			source = source.parent;
+		return source;
+	}
+
+
 	private void removeEventListener (final int eventID) {
 		final DisplayedComponent[] dc = eventListener[eventID];
 		for (int i = eventListenerCount[eventID]; --i >= 0; ) {
@@ -409,6 +432,8 @@ System.out.println("relative to parent size : "+component.toString());
 
 	void updateChildren (final DisplayedComponent current_clip_source) {
 		child_count = 0;
+		children_relativ_to_width = 0;
+		children_relativ_to_height = 0;
 		// add the child components
 		if (component != null && component.type() == Value.STRUCTURE) {
 			final Value v = component.get("component");
