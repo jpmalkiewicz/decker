@@ -78,7 +78,7 @@ public final class Structure
 		members.put(name, ret);
 		if (valueListenerCount>0) {
 			for (int i = valueListenerCount; --i >= 0; ) {
-				valueListener[i].valueChanged(name, this, null, ret);
+				valueListener[i].eventValueChanged(name, this, null, ret);
 			}
 		}
 		return ret;
@@ -86,7 +86,7 @@ public final class Structure
 
 
 	/** this value listener will automatically be called for all value changes of variables in this Structure */
-	public void addListener (final ValueListener vl) {
+	public void addValueListener (final ValueListener vl) {
 		if (valueListener == null) {
 			valueListener = new ValueListener[1];
 		}
@@ -112,9 +112,9 @@ public final class Structure
 
 
 	/** called whenever a variable stored in this Structure changes its value */
-	void eventValueChanged (final String varname, final Value old_value) {
+	void eventValueChanged (final String varname, final Value old_value, final Value new_value) {
 		for (int i = valueListenerCount; --i >= 0; ) {
-			valueListener[i].valueChanged(varname, this, old_value, (Value)members.get(varname));
+			valueListener[i].eventValueChanged(varname, this, old_value, new_value);
 		}
 	}
 

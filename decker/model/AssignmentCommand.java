@@ -41,24 +41,24 @@ final class AssignmentCommand extends ScriptNode
 					if (stack[i].get("structure_type").equals("LOCAL")) {
 						final Value ret = stack[i].get(varname);
 						if (ret != null)
-							return new Object[]{ stack[i], fetchStructureMember(stack[i], varname, ret, replace_with_global, caller), ret };
+							return new Object[]{ stack[i], varname, fetchStructureMember(stack[i], varname, ret, replace_with_global, caller), ret };
 						break;
 					}
 				}
 			}
 			// if the topmost structure on the stack is expandable and not of type LOCAL, add the variable to it (if it doesn't exist yet)
 			if (!create_in_LOCAL &&( its_a_type_definition || stack[stack_size-1].canHoldCustomVariables() )&& !stack[stack_size-1].get("structure_type").equals("LOCAL"))
-				return new Object[]{ stack[stack_size-1], fetchStructureMember(stack[stack_size-1], varname, stack[stack_size-1].get(varname), replace_with_global, caller), stack[stack_size-1].get(varname) };
+				return new Object[]{ stack[stack_size-1], varname, fetchStructureMember(stack[stack_size-1], varname, stack[stack_size-1].get(varname), replace_with_global, caller), stack[stack_size-1].get(varname) };
 			// try to find it an existing variable of that name
 			for (int i = stack_size; --i >= 0; ) {
 				final Value ret = stack[i].get(varname);
 				if (ret != null)
-					return new Object[]{ stack[i], fetchStructureMember(stack[i], varname, ret, replace_with_global, caller), ret };
+					return new Object[]{ stack[i], varname, fetchStructureMember(stack[i], varname, ret, replace_with_global, caller), ret };
 			}
 			// add it to the innermost Structure on the stack that can hold custom variables
 			for (int i = stack_size; --i >= 0; ) {
 				if (( !create_in_LOCAL && stack[i].canHoldCustomVariables() )|| stack[i].get("structure_type").equals("LOCAL")) {
-					return new Object[]{ stack[i], fetchStructureMember(stack[i], varname, null, replace_with_global, caller), null };
+					return new Object[]{ stack[i], varname, fetchStructureMember(stack[i], varname, null, replace_with_global, caller), null };
 				}
 			}
 			// unreachable code, because there's always an expandable structure on the stack
@@ -96,7 +96,7 @@ final class AssignmentCommand extends ScriptNode
 			final Value ret = structure.get(varname);
 			if (ret == null && !structure.canHoldCustomVariables())
 				caller.throwException("failed to create variable. the structure "+e.getFirstOperand().toString()+" of type "+structure.get("structure_type")+" cannot hold custom variables");
-			return new Object[]{ structure, fetchStructureMember(structure, varname, ret, replace_with_global, caller), ret };
+			return new Object[]{ structure, varname, fetchStructureMember(structure, varname, ret, replace_with_global, caller), ret };
 		}
 		else if (voperator == Expression.ARRAY_INDEX) {
 			// fetch the array
@@ -130,14 +130,14 @@ final class AssignmentCommand extends ScriptNode
 			final Value old_value = array.array[index];
 			if (replace_with_global != null) {
 				array.array[index] = replace_with_global;
-				return new Object[]{ array, replace_with_global, old_value, new Value().set(index) };
+				return new Object[]{ array, new Value().set(index), replace_with_global, old_value };
 			}
 			else if (array.array[index].isGlobal()) {
 				final Value ret = new Value();
 				array.array[index] = ret; // undo the previous replacement with a global variable
-				return new Object[]{ array, ret, old_value, new Value().set(index) };
+				return new Object[]{ array, new Value().set(index), ret, old_value };
 			}
-			return new Object[]{ array, array.array[index], old_value, new Value().set(index) };
+			return new Object[]{ array, new Value().set(index), array.array[index], old_value };
 		}
 		else
 			caller.throwException("failed to create variable. unable to handle expressions whose top level operator is "+e.getOperatorElement().toString());
@@ -177,7 +177,7 @@ final class AssignmentCommand extends ScriptNode
 			ret = old_value;
 			if (ret == null)
 				ret = ((Value)stack[RULESET_STACK_SLOT].get("GLOBAL_VALUES")).structure().add(variable.toString());
-			data = new Object[]{ global_values, ret, old_value, varname };
+			data = new Object[]{ global_values, varname, ret, old_value, varname };
 		}
 		else {
 			// check whether we're replacing a variable with a global value
@@ -189,7 +189,7 @@ final class AssignmentCommand extends ScriptNode
 					replacement = ((Value)stack[RULESET_STACK_SLOT].get("GLOBAL_VALUES")).structure().add(value_name);
 			}
 			data = fetchOrCreateVariable(variable, false, this, replacement, its_a_type_definition);
-			ret = (Value) data[1];
+			ret = (Value) data[2];
 		}
 
 		// assign the value to the variable *************************************************************************************************************
@@ -197,10 +197,11 @@ final class AssignmentCommand extends ScriptNode
 			ret.set((Function)value_definition);
 		if (value_definition != null && value_definition instanceof Expression && ((Expression)value_definition).getOperator() != Expression.GLOBAL_VALUE)
 			ret.set(assigned_value);
-		if (data[2] == null || !ret.equals(data[2])) {
+		if (data[3] == null || !ret.equals(data[3])) {
 if (data[0] instanceof Structure)
-((Structure)data[0]).eventValueChanged(null, (Value)data[2]);
-System.out.println("value changed");
+((Structure)data[0]).eventValueChanged((String)data[1], (Value)data[3], ret);
+else
+System.out.println("value changed in array");
 		}
 		return ret;
 	}
