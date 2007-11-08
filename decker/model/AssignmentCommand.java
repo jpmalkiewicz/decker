@@ -30,7 +30,7 @@ final class AssignmentCommand extends ScriptNode
 	ScriptNode copy ()  { return new AssignmentCommand(this); }
 
 
-	static Value fetchOrCreateVariable (final Expression e, final boolean create_in_LOCAL, final ScriptNode caller, final Value replace_with_global, final boolean its_a_type_definition) {
+	static Object[] fetchOrCreateVariable (final Expression e, final boolean create_in_LOCAL, final ScriptNode caller, final Value replace_with_global, final boolean its_a_type_definition) {
 		final int voperator = e.getOperator();
 		// it's just a variable name
 		if (voperator == Expression.VARIABLE) {
@@ -41,28 +41,28 @@ final class AssignmentCommand extends ScriptNode
 					if (stack[i].get("structure_type").equals("LOCAL")) {
 						final Value ret = stack[i].get(varname);
 						if (ret != null)
-							return fetchStructureMember(stack[i], varname, ret, replace_with_global, caller);
+							return new Object[]{ stack[i], fetchStructureMember(stack[i], varname, ret, replace_with_global, caller), ret };
 						break;
 					}
 				}
 			}
 			// if the topmost structure on the stack is expandable and not of type LOCAL, add the variable to it (if it doesn't exist yet)
 			if (!create_in_LOCAL &&( its_a_type_definition || stack[stack_size-1].canHoldCustomVariables() )&& !stack[stack_size-1].get("structure_type").equals("LOCAL"))
-				return fetchStructureMember(stack[stack_size-1], varname, stack[stack_size-1].get(varname), replace_with_global, caller);
+				return new Object[]{ stack[stack_size-1], fetchStructureMember(stack[stack_size-1], varname, stack[stack_size-1].get(varname), replace_with_global, caller), stack[stack_size-1].get(varname) };
 			// try to find it an existing variable of that name
 			for (int i = stack_size; --i >= 0; ) {
 				final Value ret = stack[i].get(varname);
 				if (ret != null)
-					return fetchStructureMember(stack[i], varname, ret, replace_with_global, caller);
+					return new Object[]{ stack[i], fetchStructureMember(stack[i], varname, ret, replace_with_global, caller), ret };
 			}
 			// add it to the innermost Structure on the stack that can hold custom variables
 			for (int i = stack_size; --i >= 0; ) {
 				if (( !create_in_LOCAL && stack[i].canHoldCustomVariables() )|| stack[i].get("structure_type").equals("LOCAL")) {
-					return fetchStructureMember(stack[i], varname, null, replace_with_global, caller);
+					return new Object[]{ stack[i], fetchStructureMember(stack[i], varname, null, replace_with_global, caller), null };
 				}
 			}
 			// unreachable code, because there's always an expandable structure on the stack
-			caller.throwException("failed to create e. there is no structure that can hold custom variables on the stack atm");
+			caller.throwException("failed to create variable. there is no structure that can hold custom variables on the stack atm");
 		}
 		else if (voperator == Expression.MEMBER) {
 			// find the structure our variable is or will be a member of
@@ -96,7 +96,7 @@ final class AssignmentCommand extends ScriptNode
 			final Value ret = structure.get(varname);
 			if (ret == null && !structure.canHoldCustomVariables())
 				caller.throwException("failed to create variable. the structure "+e.getFirstOperand().toString()+" of type "+structure.get("structure_type")+" cannot hold custom variables");
-			return fetchStructureMember(structure, varname, ret, replace_with_global, caller);
+			return new Object[]{ structure, fetchStructureMember(structure, varname, ret, replace_with_global, caller), ret };
 		}
 		else if (voperator == Expression.ARRAY_INDEX) {
 			// fetch the array
@@ -127,16 +127,17 @@ final class AssignmentCommand extends ScriptNode
 			if (index == array.array.length)
 				array.array = (Value[]) ArrayModifier.addElement(array.array, new Value[index+1], (replace_with_global!=null)?replace_with_global:new Value());
 			// the returned variable is not a structure member, so we can't use fetchStructureMember() to handle global variables here
+			final Value old_value = array.array[index];
 			if (replace_with_global != null) {
 				array.array[index] = replace_with_global;
-				return replace_with_global;
+				return new Object[]{ array, replace_with_global, old_value, new Value().set(index) };
 			}
 			else if (array.array[index].isGlobal()) {
 				final Value ret = new Value();
-				array.array[index] = ret;
-				return ret; // undo the previous replacement with a global variable
+				array.array[index] = ret; // undo the previous replacement with a global variable
+				return new Object[]{ array, ret, old_value, new Value().set(index) };
 			}
-			return array.array[index];
+			return new Object[]{ array, array.array[index], old_value, new Value().set(index) };
 		}
 		else
 			caller.throwException("failed to create variable. unable to handle expressions whose top level operator is "+e.getOperatorElement().toString());
@@ -160,6 +161,8 @@ final class AssignmentCommand extends ScriptNode
 
 
 	public Value execute ()  {
+		Object[] data;
+//		Value old_value = variable.execute();
 		// determine the new value of the variable
 		Value assigned_value = null;
 		if (value_definition != null && value_definition instanceof Expression && ((Expression)value_definition).getOperator() != Expression.GLOBAL_VALUE)
@@ -168,9 +171,13 @@ final class AssignmentCommand extends ScriptNode
 		Value ret = null;
 		if (its_a_global) {
 			// since it's a global value it must be a variable from the set of global variables
-			ret = ((Value)stack[RULESET_STACK_SLOT].get("GLOBAL_VALUES")).get(variable.toString());
+			final Structure global_values = ((Value)stack[RULESET_STACK_SLOT].get("GLOBAL_VALUES")).structure();
+			final String varname = variable.toString();
+			final Value old_value = global_values.get(varname);
+			ret = old_value;
 			if (ret == null)
 				ret = ((Value)stack[RULESET_STACK_SLOT].get("GLOBAL_VALUES")).structure().add(variable.toString());
+			data = new Object[]{ global_values, ret, old_value, varname };
 		}
 		else {
 			// check whether we're replacing a variable with a global value
@@ -181,15 +188,21 @@ final class AssignmentCommand extends ScriptNode
 				if (replacement == null)
 					replacement = ((Value)stack[RULESET_STACK_SLOT].get("GLOBAL_VALUES")).structure().add(value_name);
 			}
-			ret = fetchOrCreateVariable(variable, false, this, replacement, its_a_type_definition);
+			data = fetchOrCreateVariable(variable, false, this, replacement, its_a_type_definition);
+			ret = (Value) data[1];
 		}
 
 		// assign the value to the variable *************************************************************************************************************
-		if (value_definition == null ||(value_definition instanceof Expression && ((Expression)value_definition).getOperator() == Expression.GLOBAL_VALUE))
-			return ret;
 		if (value_definition instanceof Function)
-			return ret.set((Function)value_definition);
-		return ret.set(assigned_value);
+			ret.set((Function)value_definition);
+		if (value_definition != null && value_definition instanceof Expression && ((Expression)value_definition).getOperator() != Expression.GLOBAL_VALUE)
+			ret.set(assigned_value);
+		if (data[2] == null || !ret.equals(data[2])) {
+if (data[0] instanceof Structure)
+((Structure)data[0]).eventValueChanged(null, (Value)data[2]);
+System.out.println("value changed");
+		}
+		return ret;
 	}
 
 
