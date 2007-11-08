@@ -147,7 +147,7 @@ english
 			initializer = FUNCTION
 				component = ARRAY
 					createBorder(0,0)
-					createBorder(0,0)
+					UNDEFINED
 			on_resize = FUNCTION (new_width, new_height)
 				debug("SCREEN_BACKGROUND.on_resize  "+new_width+" "+new_height+" "+width+" "+height)
 				component[0].width = new_width

@@ -1,5 +1,6 @@
 80%
 2007-11-06
+  SCREEN_BACKGROUND.width = 100% correctly sets its width relative to the parent width
   value changes are detected by the interface, unless they occur in an array entry or a global value
   working on on_resize and related stuff
 2007-11-05

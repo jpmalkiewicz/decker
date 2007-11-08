@@ -324,7 +324,7 @@ System.out.println("relative to parent size : "+component.toString());
 
 
 	public void eventValueChanged (final String variable_name, final Structure container, final Value old_value, final Value new_value) {
-System.out.println("eVC() updating "+getClass().getName()+" "+parent.component.toString());
+System.out.println("eVC() updating "+getClass().getName()+" "+parent.component.toString()+" "+parent.parent.w+" "+parent.parent.h+" "+parent.w+" "+parent.h);
 System.out.println(x+","+y+" "+w+","+h);
 		final DisplayedComponent clip_source = findCurrentClipSource();
 		update(clip_source);
@@ -354,7 +354,7 @@ System.out.println(x+","+y+" "+w+","+h);
 	}
 
 
-	private void update (final DisplayedComponent current_clip_source) {
+	void update (final DisplayedComponent current_clip_source) {
 		relativ_to_parent_width = false;
 		relativ_to_parent_height = false;
 		// if the displayed component is an image, fetch it
@@ -368,8 +368,10 @@ System.out.println(x+","+y+" "+w+","+h);
 			// determine the bounding rectangle
 			x = parent.x + DefaultView.x(s, parent.w, -1);
 			y = parent.y + DefaultView.y(s, parent.h, -1);
-			w = DefaultView.width(s, 0);
-			h = DefaultView.height(s, 0);
+			w = DefaultView.width(s, parent.w);
+			h = DefaultView.height(s, parent.h);
+if (s.get("structure_type").equals("SCREEN_BACKGROUND"))
+System.out.println("DC.update() SCREEN_BACKGROUND "+w+" "+h+" "+parent.w+" "+parent.h);
 			// calculate the bounding rectangle of the visible area
 			if (current_clip_source.cw <= 0) {
 				cx = 0;
