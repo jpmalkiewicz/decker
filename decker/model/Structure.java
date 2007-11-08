@@ -12,8 +12,8 @@ public final class Structure
 
 
 	public Structure (final String type_name)  {
-if (type_name==null)
-throw new RuntimeException("trying to use null as a structure type");
+		if (type_name == null)
+			throw new RuntimeException("trying to use null as a structure type");
 		add("structure_type").set(type_name);
 		// if there exists a template structure for this type, copy it
 		if (ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] != null)  {
@@ -109,6 +109,14 @@ throw new RuntimeException("trying to use null as a structure type");
 
 	/** removes all members from the structure */
 	public void clear ()  { members.clear(); }
+
+
+	/** called whenever a variable stored in this Structure changes its value */
+	void eventValueChanged (final String varname, final Value old_value) {
+		for (int i = valueListenerCount; --i >= 0; ) {
+			valueListener[i].valueChanged(varname, this, old_value, (Value)members.get(varname));
+		}
+	}
 
 
 	/** returns a member variable from this collection but doesn't add it if it doesn't exist yet */
