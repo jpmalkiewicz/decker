@@ -29,33 +29,7 @@ final class UIBorder extends DisplayedComponent
 
 	UIBorder (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
 		super(_component, _parent, current_clip_source);
-		Value v;
-		inverted = _component.get("inverted").equals(true);
-		if ((v=_component.get("background_color")) != null)
-			background = AbstractView.getColor(v.toString());
-		Value vtc = _component.get("top_color"), vlc = _component.get("left_color"), vrc = _component.get("right_color"), vbc = _component.get("bottom_color");
-		if (vtc.equalsConstant("UNDEFINED"))
-			vtc = vlc;
-		else if (vlc.equalsConstant("UNDEFINED"))
-			vlc = vtc;
-		if (vrc.equalsConstant("UNDEFINED")) {
-			if (!vbc.equalsConstant("UNDEFINED"))
-				vrc = vbc;
-			else
-				vrc = vlc;
-		}
-		if (vbc.equalsConstant("UNDEFINED"))
-			vbc = vrc;
-		left = AbstractView.getColor(vlc.toString());
-		top = AbstractView.getColor(vtc.toString());
-		right = AbstractView.getColor(vrc.toString());
-		bottom = AbstractView.getColor(vbc.toString());
-		// determine the line thickness
-		thickness = 2;
-		if ((v=_component.get("thickness")).type() == Value.INTEGER)
-			thickness = v.integer();
-		else if ((v=ScriptNode.getValue("DEFAULT_BORDER_THICKNESS")).type() == Value.INTEGER)
-			thickness = v.integer();
+		updateBorder();
 	}
 
 
@@ -103,6 +77,46 @@ final class UIBorder extends DisplayedComponent
 			g.setColor(bottom);
 			for (int i = t; --i >= 0; )
 				g.drawLine(x+i, y+i, x+w1-i-1, y+i);
+		}
+	}
+
+
+	void update (final DisplayedComponent current_clip_source) {
+		super.update(current_clip_source);
+		updateBorder();
+	}
+
+
+	private void updateBorder () {
+		if (component != null) {
+			Value v;
+			inverted = component.get("inverted").equals(true);
+System.out.println("UIBorder.uB() : "+component.get("background_color").toString());
+component.structure().print(System.out, "", false);
+			background = AbstractView.getColor(component.get("background_color").toString());
+			Value vtc = component.get("top_color"), vlc = component.get("left_color"), vrc = component.get("right_color"), vbc = component.get("bottom_color");
+			if (vtc.equalsConstant("UNDEFINED"))
+				vtc = vlc;
+			else if (vlc.equalsConstant("UNDEFINED"))
+				vlc = vtc;
+			if (vrc.equalsConstant("UNDEFINED")) {
+				if (!vbc.equalsConstant("UNDEFINED"))
+					vrc = vbc;
+				else
+					vrc = vlc;
+			}
+			if (vbc.equalsConstant("UNDEFINED"))
+				vbc = vrc;
+			left = AbstractView.getColor(vlc.toString());
+			top = AbstractView.getColor(vtc.toString());
+			right = AbstractView.getColor(vrc.toString());
+			bottom = AbstractView.getColor(vbc.toString());
+			// determine the line thickness
+			thickness = 2;
+			if ((v=component.get("thickness")).type() == Value.INTEGER)
+				thickness = v.integer();
+			else if ((v=ScriptNode.getValue("DEFAULT_BORDER_THICKNESS")).type() == Value.INTEGER)
+				thickness = v.integer();
 		}
 	}
 }

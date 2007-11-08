@@ -382,6 +382,8 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 				if (v.type() == Value.STRING) {
 					final String s = v.string();
 					if (s.endsWith("%")) {
+System.err.println("AbstractView.width() : could be a % width : "+s+" x "+parent_width);
+new Throwable().printStackTrace();
 						try {
 							return (Integer.parseInt(s.substring(0, s.length()-1)) * parent_width + 50)/100;
 						} catch (NumberFormatException ex) {}
