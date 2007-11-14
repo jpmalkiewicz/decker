@@ -1,4 +1,6 @@
 80%
+2007-11-07
+  fixed a bug in AbstractView.getColor(). the function returned last_color after generating a new color
 2007-11-06
   SCREEN_BACKGROUND.width = 100% correctly sets its width relative to the parent width
   value changes are detected by the interface, unless they occur in an array entry or a global value

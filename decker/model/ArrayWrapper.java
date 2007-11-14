@@ -2,13 +2,53 @@ package decker.model;
 import java.io.PrintStream;
 
 
-public class ArrayWrapper
+public final class ArrayWrapper
 {
 	public Value[] array;
+	private ValueListener[] valueListener;
+	private int[] valueListenerAddCount; // if the same ValueListener gets added to this array again, this number counts the times
+	private int valueListenerCount;
 
 
-	public ArrayWrapper(final Value[] _array)  {
+	public ArrayWrapper (final Value[] _array)  {
 		array = _array;
+	}
+
+
+	public void addValueListener (final ValueListener vl) {
+		// check whether the listener is already listed
+		for (int i = valueListenerCount; --i >= 0; ) {
+			if (valueListener[i] == vl) {
+				valueListenerAddCount[i]++;
+				return;
+			}
+		}
+		// if there have been no value listeners so far, make a new list
+		if (valueListener == null) {
+			valueListener = new ValueListener[1];
+			valueListenerAddCount = new int[1];
+		}
+		else {
+			// if the lists are too small to hold another value listener, make them larger
+			if (valueListenerCount == valueListener.length) {
+				final int size = valueListenerCount;
+				final ValueListener[] vl_new = new ValueListener[size*2];
+				System.arraycopy(valueListener, 0, vl_new, 0, size);
+				valueListener = vl_new;
+				final int[] vlac_new = new int[size*2];
+				System.arraycopy(valueListenerAddCount, 0, vlac_new, 0, size);
+				valueListenerAddCount = vlac_new;
+			}
+		}
+		// apend the new listener to the lists
+		valueListener[valueListenerCount] = vl;
+		valueListenerAddCount[valueListenerCount] = 1;
+		valueListenerCount++;
+	}
+
+
+	public Object[] getValueListenerData () {
+		return new Object[]{ valueListener, valueListenerAddCount, new Value().set(valueListenerCount) };
 	}
 
 
@@ -39,5 +79,25 @@ public class ArrayWrapper
 				out.println(ind+a[i].toStringForPrinting());
 		}
 		return true;
+	}
+
+
+	public void removeValueListener (final ValueListener vl) {
+		for (int i = valueListenerCount; --i >= 0; ) {
+			if (valueListener[i] == vl) {
+				// if the listener has been added more than once, reduce the number of times by one, otherwise remove it
+				if (valueListenerAddCount[i] > 1) {
+					valueListenerAddCount[i]--;
+				}
+				else {
+					// remove the listener from the list by closing the gap it would leave
+					System.arraycopy(valueListener, i+1, valueListener, i, valueListenerCount-i-1);
+					System.arraycopy(valueListenerAddCount, i+1, valueListenerAddCount, i, valueListenerCount-i-1);
+					valueListenerCount--;
+					valueListener[valueListenerCount] = null;
+				}
+				return;
+			}
+		}
 	}
 }
