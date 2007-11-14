@@ -21,9 +21,9 @@ System.out.println("is Global.setCurrentRuleset() safe? what happens if the rule
 System.out.println("AbstractView.getImage() : need to put localized images back in, no support for mod images yet, loaded images aren't stored for later reuse yet");
 		System.out.println("Errors are written to ERROR.JAVA for testing purposes");
 System.out.println();
-		try{
+		try {
 			System.setErr(new PrintStream(new FileOutputStream("ERROR.JAVA",false)));
-		} catch(FileNotFoundException ex) {
+		} catch (FileNotFoundException ex) {
 			System.exit(1);
 		}
 		// load the rulesets

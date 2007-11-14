@@ -149,7 +149,6 @@ english
 					createBorder(0,0)
 					UNDEFINED
 			on_resize = FUNCTION (new_width, new_height)
-				debug("SCREEN_BACKGROUND.on_resize  "+new_width+" "+new_height+" "+width+" "+height)
 				component[0].width = new_width
 				component[0].height = new_height
 				if @BACKGROUND_COLOR2 == UNDEFINED
@@ -163,7 +162,6 @@ english
 					component[1].height = new_height-10
 					component[1].background_color = @BACKGROUND_COLOR
 					component[0].background_color = @BACKGROUND_COLOR2
-				debug(component[0])
 
 
 		SCROLLBAR  // a vertical scrollbar

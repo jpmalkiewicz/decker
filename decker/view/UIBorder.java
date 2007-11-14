@@ -30,6 +30,7 @@ final class UIBorder extends DisplayedComponent
 	UIBorder (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
 		super(_component, _parent, current_clip_source);
 		updateBorder();
+		updateChildren(current_clip_source);
 	}
 
 
@@ -78,6 +79,11 @@ final class UIBorder extends DisplayedComponent
 			for (int i = t; --i >= 0; )
 				g.drawLine(x+i, y+i, x+w1-i-1, y+i);
 		}
+		// draw the child components
+		final DisplayedComponent[] c = child;
+		final int cc = child_count;
+		for (int i = 0; i < cc; i++)
+			c[i].draw(g);
 	}
 
 
@@ -91,8 +97,6 @@ final class UIBorder extends DisplayedComponent
 		if (component != null) {
 			Value v;
 			inverted = component.get("inverted").equals(true);
-System.out.println("UIBorder.uB() : "+component.get("background_color").toString());
-component.structure().print(System.out, "", false);
 			background = AbstractView.getColor(component.get("background_color").toString());
 			Value vtc = component.get("top_color"), vlc = component.get("left_color"), vrc = component.get("right_color"), vbc = component.get("bottom_color");
 			if (vtc.equalsConstant("UNDEFINED"))

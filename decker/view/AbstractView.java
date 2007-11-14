@@ -30,21 +30,32 @@ public final static int ABSOLUTE_MIN_VALUE = Integer.MIN_VALUE+6; // coordinate 
 
 
 	public final static Color getColor (String color) {
-		if (color.length() == 7)
-			color = color.substring(0,1) + "ff" + color.substring(1);
+		// remove the alpha if it is 100%
+		if (color.length() == 9 && color.substring(1,3).equalsIgnoreCase("ff"))
+			color = color.substring(0,1) + color.substring(3);
 		Color ret = (Color) COLORS.get(color);
 		if (ret == null) {
 			try {
-				if (color.charAt(0) == '#' && color.length() == 9) {
-					final int a = Integer.parseInt(color.substring(1,3),16);
-					final int r = Integer.parseInt(color.substring(3,5),16);
-					final int g = Integer.parseInt(color.substring(5,7),16);
-					final int b = Integer.parseInt(color.substring(7,9),16);
-					ret = new Color(r,g,b,a);
-					COLORS.put(color, ret);
+				if (color.charAt(0) == '#') {
+					if (color.length() == 7) {
+						final int r = Integer.parseInt(color.substring(1,3),16);
+						final int g = Integer.parseInt(color.substring(3,5),16);
+						final int b = Integer.parseInt(color.substring(5,7),16);
+						ret = new Color(r,g,b);
+						COLORS.put(color, ret);
+					}
+					else if (color.length() == 9) {
+						final int a = Integer.parseInt(color.substring(1,3),16);
+						final int r = Integer.parseInt(color.substring(3,5),16);
+						final int g = Integer.parseInt(color.substring(5,7),16);
+						final int b = Integer.parseInt(color.substring(7,9),16);
+						ret = new Color(r,g,b,a);
+						COLORS.put(color, ret);
+					}
 				}
-			} catch (Throwable t) {}
-			ret = last_color;
+			} catch (Throwable t) {
+				ret = last_color;
+			}
 		}
 		return ret;
 	}
@@ -382,8 +393,6 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 				if (v.type() == Value.STRING) {
 					final String s = v.string();
 					if (s.endsWith("%")) {
-System.err.println("AbstractView.width() : could be a % width : "+s+" x "+parent_width);
-new Throwable().printStackTrace();
 						try {
 							return (Integer.parseInt(s.substring(0, s.length()-1)) * parent_width + 50)/100;
 						} catch (NumberFormatException ex) {}

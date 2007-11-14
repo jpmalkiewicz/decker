@@ -154,7 +154,10 @@ final class AssignmentCommand extends ScriptNode
 		else if (current_variable == null || current_variable.isGlobal()) {
 			if (current_variable == null)
 				caller.testVariableName(varname);
-			return s.add(varname); // undo the previous replacement with a global variable
+			final Value ret = new Value();
+			// using putDirectlyIntoStringTreeMap() here to avoid calling the ValueListeners twice
+			s.putDirectlyIntoStringTreeMap(varname, ret); // undo the previous replacement with a global variable, or add a new variable
+			return ret;
 		}
 		return current_variable;
 	}
