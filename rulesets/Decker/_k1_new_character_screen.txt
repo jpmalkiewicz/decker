@@ -78,10 +78,6 @@ english
 		//************************************************************************************************
 		component = ARRAY
 			SCREEN_BACKGROUND
-// not needed
-//				width = 260
-//				height = 260
-// not needed END
 			BORDER
 				x = 29
 				y =  121
@@ -100,7 +96,6 @@ english
 							else
 								char_image_index = char_image_index - 1
 							char_image.component[1] = "character_image/"+char_images[char_image_index]
-					UNDEFINED
 					BORDER_BUTTON
 						x = 56
 						y = 2

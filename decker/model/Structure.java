@@ -4,7 +4,7 @@ import decker.util.*;
 
 
 
-public final class Structure
+public final class Structure implements Comparable
 {
 	private final StringTreeMap members = new StringTreeMap();
 	private ValueListener[] valueListener;
@@ -111,6 +111,25 @@ public final class Structure
 	public void clear ()  { members.clear(); }
 
 
+	public int compareTo (Object o) {
+		if (o == null)
+			return 1;
+		int ret = o.hashCode() - hashCode();
+		if (ret != 0 || o == this)
+			return ret;
+System.out.println("Structure : hash compare failed");
+		if (o instanceof Structure) {
+			ret = get("structure_type").string().compareTo(((Structure)o).get("structure_type").string());
+			if (ret != 0)
+				return ret;
+		}
+		else {
+			return 1;
+		}
+		throw new RuntimeException("identical hash code for different Structures");
+	}
+
+
 	/** called whenever a variable stored in this Structure changes its value */
 	void eventValueChanged (final String varname, final Value old_value, final Value new_value) {
 		for (int i = valueListenerCount; --i >= 0; ) {
@@ -122,6 +141,24 @@ public final class Structure
 	/** returns a member variable from this collection but doesn't add it if it doesn't exist yet */
 	public Value get (final String name) {
 		return (Value) members.get(name);
+	}
+
+
+	String getKey (final Value v) {
+		StringTreeMap.Iterator i = members.getIterator();
+		StringTreeMap.TreeNode n;
+		while ((n=i.nextNode()) != null) {
+			if (v == n.getValue()) {
+				return n.getKey();
+			}
+		}
+		return null;
+	}
+
+
+	/** Global.setCurrentRuleset() uses this to replaces global values in ENGINE when replacing the ruleset */
+	StringTreeMap.Iterator getStringTreeMapIterator () {
+		return members.getIterator();
 	}
 
 

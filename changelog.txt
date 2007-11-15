@@ -1,4 +1,8 @@
-80%
+81%
+2007-11-15
+  remapping globals when changing ruleset works sometimes
+2007-11-14
+  UIButton coordinates are now relative to its parent component
 2007-11-07
   fixed a bug in AbstractView.getColor(). the function returned last_color after generating a new color
 2007-11-06
@@ -14,6 +18,8 @@
   continued work on the display system. image and border are hard coded. working on button. idle button face displays and is centered horizontically if it has no x coordinate
 2007-10-30
   started to replace the display / eventhandler system with something fast
+
+80%
 2007-10-28
   you can purchase everything at the shop
   added the shop screen buttons
