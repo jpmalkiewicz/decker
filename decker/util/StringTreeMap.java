@@ -449,7 +449,7 @@ public class StringTreeMap
 
 
 		public Object next () {
-			return nextNode().value;
+			return (nextElement != null) ? nextNode().value : null;
 		}
 
 

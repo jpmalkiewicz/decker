@@ -2,7 +2,7 @@ package decker.model;
 import java.io.PrintStream;
 
 
-public final class ArrayWrapper
+public final class ArrayWrapper implements Comparable
 {
 	public Value[] array;
 	private ValueListener[] valueListener;
@@ -47,8 +47,23 @@ public final class ArrayWrapper
 	}
 
 
-	public Object[] getValueListenerData () {
-		return new Object[]{ valueListener, valueListenerAddCount, new Value().set(valueListenerCount) };
+
+	public int compareTo (Object o) {
+		if (o == null)
+			return 1;
+		int ret = o.hashCode() - hashCode();
+		if (ret != 0 || o == this)
+			return ret;
+		if (o instanceof ArrayWrapper) {
+			ret = ((ArrayWrapper)o).array.hashCode() - array.hashCode();
+			if (ret != 0) {
+				return ret;
+			}
+		}
+		else {
+			return -1; // the comparator will only be used to compare ArrayWrappers and Structures, so this should work fine
+		}
+		throw new RuntimeException("identical hash code for different Structures");
 	}
 
 
@@ -99,5 +114,11 @@ public final class ArrayWrapper
 				return;
 			}
 		}
+	}
+
+
+	/** solely used by test classes */
+	public Object[] testGetValueListenerData () {
+		return new Object[]{ valueListener, valueListenerAddCount, new Value().set(valueListenerCount) };
 	}
 }

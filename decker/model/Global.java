@@ -5,6 +5,7 @@ import java.awt.*;
 import java.io.*;
 import java.util.Locale;
 import java.util.Random;
+import java.util.TreeSet;
 
 
 /** contains three sections :
@@ -75,6 +76,7 @@ System.out.println(ruleset.length+" rulesets");
 		final Ruleset r = current_ruleset;
 		// first run the global scripts
 System.out.println("running global scripts");
+		Value.setGlobalValues(engine.data.get("GLOBAL_VALUES").structure());
 		setCurrentRuleset(engine);
 		current_ruleset.initialize(accepted_locales);
 		// then run the scripts of each ruleset
@@ -135,11 +137,105 @@ System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").t
 	}
 
 
+	@SuppressWarnings("unchecked")
 	public static void setCurrentRuleset (final Ruleset r)  {
+		final Structure old_globals = (current_ruleset==null) ? null : ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT].get("GLOBAL_VALUES").structure();
+final Ruleset old_ruleset = current_ruleset;
 		current_ruleset = r;
 		ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] = r.data;
-		Value.setGlobalValues(r.data.get("GLOBAL_VALUES").structure());
+		final Structure new_globals = r.data.get("GLOBAL_VALUES").structure();
+// set the current screen or call ruleset.setup() or something
+		// replace all the global values in ENGINE with global values from the current ruleset
+		if (old_globals != null && old_globals != new_globals) {
+System.out.println("replacing globals in ENGINE      ("+old_ruleset.getName()+" -> "+r.getName()+")");
+			final TreeSet remapped_containers = new TreeSet();
+			remapped_containers.add(ScriptNode.stack[ScriptNode.ENGINE_STACK_SLOT].get("GLOBAL_VALUES").structure());
+			setCurrentRuleset_remapGlobals(ScriptNode.stack[ScriptNode.ENGINE_STACK_SLOT], remapped_containers, old_globals, new_globals);
+System.out.println("replacing globals in ENGINE      END");
+		}
+		// finally tell Value where the global values are
+		Value.setGlobalValues(new_globals);
 	}
+
+
+	@SuppressWarnings("unchecked")
+	private static void setCurrentRuleset_remapGlobals (final Structure t, final TreeSet remapped_containers, final Structure old_globals, final Structure new_globals)  {
+		remapped_containers.add(t);
+		final StringTreeMap.Iterator i = t.getStringTreeMapIterator();
+		StringTreeMap.TreeNode n;
+		while ((n=i.nextNode()) != null) {
+			final Value v = (Value) n.getValue();
+			if (v.isGlobal()) {
+				// find the value in the old globals
+				final String global_value_name = old_globals.getKey(v);
+				if (global_value_name == null) {
+					throw new RuntimeException("found a global value that does not exist in the GLOBAL_VALUES of the old ruleset : "+n.getKey()+"("+n.getValue()+")");
+				}
+				// fetch or make the value of the same name in new_globals
+				Value w = new_globals.get(global_value_name);
+				if (w == null) {
+					w = new Value();
+					new_globals.putDirectlyIntoStringTreeMap(global_value_name, w);
+				}
+				// remap the value
+				t.putDirectlyIntoStringTreeMap(n.getKey(), w);
+System.out.println("***   "+global_value_name+"   "+n.getKey()+"   "+v+" -> "+w+"   "+new_globals.get(global_value_name));
+			}
+			else {
+				final int type = v.type();
+				if (type == Value.STRUCTURE) {
+					if (!remapped_containers.contains(v.structure())) {
+						setCurrentRuleset_remapGlobals(v.structure(), remapped_containers, old_globals, new_globals);
+					}
+				}
+				else if (type == Value.ARRAY) {
+					if (!remapped_containers.contains(v.arrayWrapper())) {
+						setCurrentRuleset_remapGlobals(v.arrayWrapper(), remapped_containers, old_globals, new_globals);
+					}
+				}
+			}
+		}
+	}
+
+
+	@SuppressWarnings("unchecked")
+	private static void setCurrentRuleset_remapGlobals (final ArrayWrapper aw, final TreeSet remapped_containers, final Structure old_globals, final Structure new_globals)  {
+		remapped_containers.add(aw);
+		final Value[] a = aw.array;
+		for (int i = aw.array.length; --i >= 0; ) {
+			final Value v = a[i];
+			if (v.isGlobal()) {
+				// find the value in the old globals
+				final String global_value_name = old_globals.getKey(v);
+				if (global_value_name == null) {
+					throw new RuntimeException("found a global value that does not exist in the GLOBAL_VALUES of the old ruleset : array["+i+"] ("+v+")");
+				}
+				// fetch or make the value of the same name in new_globals
+				Value w = new_globals.get(global_value_name);
+				if (w == null) {
+					w = new Value();
+					new_globals.putDirectlyIntoStringTreeMap(global_value_name, w);
+				}
+				// remap the value
+				a[i] = w;
+System.out.println("***   "+global_value_name+"   array["+i+"]    ("+v+" -> "+w+")");
+			}
+			else {
+				final int type = v.type();
+				if (type == Value.STRUCTURE) {
+					if (!remapped_containers.contains(v.structure())) {
+						setCurrentRuleset_remapGlobals(v.structure(), remapped_containers, old_globals, new_globals);
+					}
+				}
+				else if (type == Value.ARRAY) {
+					if (!remapped_containers.contains(v.arrayWrapper())) {
+						setCurrentRuleset_remapGlobals(v.arrayWrapper(), remapped_containers, old_globals, new_globals);
+					}
+				}
+			}
+		}
+	}
+
 
 
 // view methods ***************************************************************************************************************************************

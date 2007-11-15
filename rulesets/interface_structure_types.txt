@@ -3,6 +3,21 @@ english
 
 	structure
 
+		BORDER
+			x
+			y
+			width
+			height
+			inverted = false
+			top_color = @BORDER_COLOR1
+			left_color
+			right_color
+			bottom_color = @BORDER_COLOR2
+			background_color
+			component
+			thickness = 2
+
+
 		DRAWING_BOUNDARY // limits the area where things can be drawn to the given rectangle. all drawings which are in the component array of the DRAWING_BOUNDARY get cut off at the edge of the rectangle and only display inside
 			x
 			y
@@ -94,21 +109,6 @@ english
 			width
 			height
 			color
-
-
-		BORDER
-			x
-			y
-			width
-			height
-			inverted = false
-			top_color = @BORDER_COLOR1
-			left_color
-			right_color
-			bottom_color = @BORDER_COLOR2
-			background_color
-			component
-			thickness = 2
 
 
 		BORDER_BUTTON

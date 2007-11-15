@@ -31,6 +31,8 @@ final class UIBorder extends DisplayedComponent
 		super(_component, _parent, current_clip_source);
 		updateBorder();
 		updateChildren(current_clip_source);
+if (child_count > 0 && inverted)
+System.out.println("UIBorder "+x+","+y+"   "+child[1].x+","+child[1].y);
 	}
 
 
