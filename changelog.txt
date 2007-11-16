@@ -1,6 +1,9 @@
 81%
+2007-11-16
+  listening to arrays works (except for when delete() and insert() are used)
+  the new character screen displays correctly again
 2007-11-15
-  remapping globals when changing ruleset works sometimes
+  remapping globals when changing ruleset works
 2007-11-14
   UIButton coordinates are now relative to its parent component
 2007-11-07

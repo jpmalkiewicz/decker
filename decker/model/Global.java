@@ -31,7 +31,13 @@ public final class Global
 
 
 
-	final static void addStructureType (final StructureDefinition sd)  { current_ruleset.addStructureType(sd); }
+	static {
+		Value.setGlobalValues(current_ruleset.data.get("GLOBAL_VALUES").structure());
+	}
+
+
+
+//	final static void addStructureType (final StructureDefinition sd)  { current_ruleset.addStructureType(sd); }
 public static Ruleset getCurrentRuleset ()  { return current_ruleset; }
 	public static Structure getEngineData ()  { return ScriptNode.stack[ScriptNode.ENGINE_STACK_SLOT]; }
 
@@ -76,7 +82,6 @@ System.out.println(ruleset.length+" rulesets");
 		final Ruleset r = current_ruleset;
 		// first run the global scripts
 System.out.println("running global scripts");
-		Value.setGlobalValues(engine.data.get("GLOBAL_VALUES").structure());
 		setCurrentRuleset(engine);
 		current_ruleset.initialize(accepted_locales);
 		// then run the scripts of each ruleset
@@ -147,11 +152,24 @@ final Ruleset old_ruleset = current_ruleset;
 // set the current screen or call ruleset.setup() or something
 		// replace all the global values in ENGINE with global values from the current ruleset
 		if (old_globals != null && old_globals != new_globals) {
-System.out.println("replacing globals in ENGINE      ("+old_ruleset.getName()+" -> "+r.getName()+")");
+System.out.println("replacing globals in ENGINE      ("+old_ruleset.getName()+" -> "+r.getName()+")  "+(old_globals==Value.getGlobalValues())+"   "+Value.getGlobalValues());
+			// create the set of structures and array wrappers which have already been remapped
 			final TreeSet remapped_containers = new TreeSet();
-			remapped_containers.add(ScriptNode.stack[ScriptNode.ENGINE_STACK_SLOT].get("GLOBAL_VALUES").structure());
+			// add the variables which should be omitted during the remapping to the set
+			final Structure e = ScriptNode.stack[ScriptNode.ENGINE_STACK_SLOT];
+			remapped_containers.add(e.get("GLOBAL_VALUES").structure());
+			// set all the ruleset specific values to their default values
+			Value v;
+			if ((v=e.get("displayed_screen")) != null)
+				v.setConstant("UNDEFINED");
+			if ((v=e.get("previous_displayed_screen"))!=null)
+				v.set(new ArrayWrapper(new Value[0]));
+			if ((v=e.get("DEFAULT_BORDER_THICKNESS"))!=null)
+				v.set(2);
+			if ((v=e.get("screen_overlays"))!=null)
+				v.setConstant("UNDEFINED");
+			// now remap the things that will need remapping. things like displayed_screen are omitted here, because they need to be set manually by the new ruleset
 			setCurrentRuleset_remapGlobals(ScriptNode.stack[ScriptNode.ENGINE_STACK_SLOT], remapped_containers, old_globals, new_globals);
-System.out.println("replacing globals in ENGINE      END");
 		}
 		// finally tell Value where the global values are
 		Value.setGlobalValues(new_globals);
@@ -174,12 +192,11 @@ System.out.println("replacing globals in ENGINE      END");
 				// fetch or make the value of the same name in new_globals
 				Value w = new_globals.get(global_value_name);
 				if (w == null) {
-					w = new Value();
+					w = new Value(new_globals);
 					new_globals.putDirectlyIntoStringTreeMap(global_value_name, w);
 				}
 				// remap the value
 				t.putDirectlyIntoStringTreeMap(n.getKey(), w);
-System.out.println("***   "+global_value_name+"   "+n.getKey()+"   "+v+" -> "+w+"   "+new_globals.get(global_value_name));
 			}
 			else {
 				final int type = v.type();
@@ -213,12 +230,11 @@ System.out.println("***   "+global_value_name+"   "+n.getKey()+"   "+v+" -> "+w+
 				// fetch or make the value of the same name in new_globals
 				Value w = new_globals.get(global_value_name);
 				if (w == null) {
-					w = new Value();
+					w = new Value(new_globals);
 					new_globals.putDirectlyIntoStringTreeMap(global_value_name, w);
 				}
 				// remap the value
 				a[i] = w;
-System.out.println("***   "+global_value_name+"   array["+i+"]    ("+v+" -> "+w+")");
 			}
 			else {
 				final int type = v.type();

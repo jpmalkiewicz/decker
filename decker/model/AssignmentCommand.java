@@ -124,20 +124,21 @@ final class AssignmentCommand extends ScriptNode
 			}
 			if (index < 0 || index > array.array.length)
 				caller.throwException("failed to fetch or create variable. Array index must be between 0 and "+(array.array.length-1)+" (inclusive), not "+index);
-			if (index == array.array.length)
+			if (index == array.array.length) {
 				array.array = (Value[]) ArrayModifier.addElement(array.array, new Value[index+1], (replace_with_global!=null)?replace_with_global:new Value());
-			// the returned variable is not a structure member, so we can't use fetchStructureMember() to handle global variables here
-			final Value old_value = array.array[index];
-			if (replace_with_global != null) {
+				return new Object[]{ array, new Value().set(index), array.array[index], null };
+			}
+			else if (replace_with_global != null) { // the returned variable is not a structure member, so we can't use fetchStructureMember() to handle global variables here
+				final Value old_value = array.array[index];
 				array.array[index] = replace_with_global;
 				return new Object[]{ array, new Value().set(index), replace_with_global, old_value };
 			}
 			else if (array.array[index].isGlobal()) {
-				final Value ret = new Value();
-				array.array[index] = ret; // undo the previous replacement with a global variable
-				return new Object[]{ array, new Value().set(index), ret, old_value };
+				final Value old_value = array.array[index];
+				array.array[index] = new Value(); // undo the previous replacement with a global variable
+				return new Object[]{ array, new Value().set(index), array.array[index], old_value };
 			}
-			return new Object[]{ array, new Value().set(index), array.array[index], old_value };
+			return new Object[]{ array, new Value().set(index), array.array[index], new Value().set(array.array[index]) };
 		}
 		else
 			caller.throwException("failed to create variable. unable to handle expressions whose top level operator is "+e.getOperatorElement().toString());
@@ -170,17 +171,17 @@ final class AssignmentCommand extends ScriptNode
 		Value assigned_value = null;
 		if (value_definition != null && value_definition instanceof Expression && ((Expression)value_definition).getOperator() != Expression.GLOBAL_VALUE)
 			assigned_value = ((Expression)value_definition).execute();
-		// fetch the variable
-		Value ret = null;
+		// fetch the variable *****************************************************************************************************************************
+		Value new_value = null;
 		if (its_a_global) {
-			// since it's a global value it must be a variable from the set of global variables
+			// since it's a global value it must be a variable from the set of global values
 			final Structure global_values = ((Value)stack[RULESET_STACK_SLOT].get("GLOBAL_VALUES")).structure();
 			final String varname = variable.toString();
-			final Value old_value = global_values.get(varname);
-			ret = old_value;
-			if (ret == null)
-				ret = ((Value)stack[RULESET_STACK_SLOT].get("GLOBAL_VALUES")).structure().add(variable.toString());
-			data = new Object[]{ global_values, varname, ret, old_value, varname };
+			Value old_value = global_values.get(varname);
+			new_value = old_value;
+			if (new_value == null)
+				new_value = ((Value)stack[RULESET_STACK_SLOT].get("GLOBAL_VALUES")).structure().add(variable.toString());
+			data = new Object[]{ global_values, varname, new_value, old_value, varname };
 		}
 		else {
 			// check whether we're replacing a variable with a global value
@@ -192,21 +193,40 @@ final class AssignmentCommand extends ScriptNode
 					replacement = ((Value)stack[RULESET_STACK_SLOT].get("GLOBAL_VALUES")).structure().add(value_name);
 			}
 			data = fetchOrCreateVariable(variable, false, this, replacement, its_a_type_definition);
-			ret = (Value) data[2];
+			new_value = (Value) data[2];
 		}
-
-		// assign the value to the variable *************************************************************************************************************
-		if (value_definition instanceof Function)
-			ret.set((Function)value_definition);
-		if (value_definition != null && value_definition instanceof Expression && ((Expression)value_definition).getOperator() != Expression.GLOBAL_VALUE)
-			ret.set(assigned_value);
-		if (data[3] == null || !ret.equals(data[3])) {
-if (data[0] instanceof Structure)
-((Structure)data[0]).eventValueChanged((String)data[1], (Value)data[3], ret);
-else
-System.out.println("value changed in array");
+		// then assign the value to the variable *************************************************************************************************************
+		if (value_definition instanceof Function) {
+			// if the variable will have a new value and hasn't been replaced by another variable, store its old value in a dummy variable
+			if (new_value == data[3])
+				data[3] = new Value().set(new_value);
+			new_value.set((Function)value_definition);
 		}
-		return ret;
+		if (value_definition != null && value_definition instanceof Expression && ((Expression)value_definition).getOperator() != Expression.GLOBAL_VALUE) {
+			if (new_value == data[3])
+				data[3] = new Value().set(new_value);
+			new_value.set(assigned_value);
+		}
+		// finally adjust what ValueListeners are listening to it and tell them about it, if the value has changed
+		final Value old_value = (Value)data[3];
+		final ValueListener container = (ValueListener) data[0];
+		if (old_value == null || !new_value.equals(old_value)) {
+			// if the new/old value is an array, we have to manually add/remove ValueListeners to/from it (unless container is a LOCAL or RULESET structure)
+			if (old_value != null && old_value.type() == Value.ARRAY) {
+				old_value.arrayWrapper().removeValueListener(container);
+			}
+			String s;
+			if (new_value.type() == Value.ARRAY &&( !(container instanceof Structure) || -1 == " LOCAL RULESET ENGINE ".indexOf(((Structure)container).get("structure_type").string()) )) {
+				new_value.arrayWrapper().addValueListener(container);
+//System.out.println("adding container "+container.toString()+" as value listener to array in "+data[1]);
+			}
+			// notify all listeners of the value change
+			if (container instanceof Structure)
+				((Structure)container).eventValueChanged((String)data[1], (Structure)container, old_value, new_value);
+			else
+				((ArrayWrapper)container).eventValueChanged(((Value)data[1]).integer(), (ArrayWrapper)container, old_value, new_value);
+		}
+		return new_value;
 	}
 
 
