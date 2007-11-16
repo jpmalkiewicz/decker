@@ -21,6 +21,12 @@ public final class Value
 	private Structure enclosing_structure;
 
 
+	/** TEST method */
+	static Structure getGlobalValues () {
+		return global_values;
+	}
+
+
 	static void setGlobalValues (final Structure _global_values) {
 		global_values = _global_values;
 	}

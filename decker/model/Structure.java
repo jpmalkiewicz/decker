@@ -4,7 +4,7 @@ import decker.util.*;
 
 
 
-public final class Structure implements Comparable
+public final class Structure implements Comparable, ValueListener
 {
 	private final StringTreeMap members = new StringTreeMap();
 	private ValueListener[] valueListener;
@@ -130,14 +130,6 @@ System.out.println("Structure : hash compare failed");
 	}
 
 
-	/** called whenever a variable stored in this Structure changes its value */
-	void eventValueChanged (final String varname, final Value old_value, final Value new_value) {
-		for (int i = valueListenerCount; --i >= 0; ) {
-			valueListener[i].eventValueChanged(varname, this, old_value, new_value);
-		}
-	}
-
-
 	/** returns a member variable from this collection but doesn't add it if it doesn't exist yet */
 	public Value get (final String name) {
 		return (Value) members.get(name);
@@ -159,6 +151,24 @@ System.out.println("Structure : hash compare failed");
 	/** Global.setCurrentRuleset() uses this to replaces global values in ENGINE when replacing the ruleset */
 	StringTreeMap.Iterator getStringTreeMapIterator () {
 		return members.getIterator();
+	}
+
+
+	/** called whenever a variable stored in this Structure changes its value */
+	public void eventValueChanged (final String varname, final Structure structure, final Value old_value, final Value new_value) {
+		if (structure != this)
+			throw new RuntimeException("(structure != this) should never be true when calling this function");
+		for (int i = valueListenerCount; --i >= 0; ) {
+			valueListener[i].eventValueChanged(varname, structure, old_value, new_value);
+		}
+	}
+
+
+	/** called whenever a variable stored in an array stored in a variable in this Structure (or stored in an array, that is stored in an array {and so on} that is ...) changes its value */
+	public void eventValueChanged (final int index, final ArrayWrapper array, final Value old_value, final Value new_value) {
+		for (int i = valueListenerCount; --i >= 0; ) {
+			valueListener[i].eventValueChanged(index, array, old_value, new_value);
+		}
 	}
 
 

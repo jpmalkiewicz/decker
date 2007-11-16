@@ -2,7 +2,7 @@ package decker.model;
 import java.io.PrintStream;
 
 
-public final class ArrayWrapper implements Comparable
+public final class ArrayWrapper implements Comparable, ValueListener
 {
 	public Value[] array;
 	private ValueListener[] valueListener;
@@ -10,9 +10,11 @@ public final class ArrayWrapper implements Comparable
 	private int valueListenerCount;
 
 
+
 	public ArrayWrapper (final Value[] _array)  {
 		array = _array;
 	}
+
 
 
 	public void addValueListener (final ValueListener vl) {
@@ -63,8 +65,23 @@ public final class ArrayWrapper implements Comparable
 		else {
 			return -1; // the comparator will only be used to compare ArrayWrappers and Structures, so this should work fine
 		}
-		throw new RuntimeException("identical hash code for different Structures");
+		throw new RuntimeException("identical hash code for different ArrayWrappers");
 	}
+
+
+
+	public void eventValueChanged (final int index, final ArrayWrapper array, final Value old_value, final Value new_value) {
+		for (int i = valueListenerCount; --i >= 0; ) {
+			valueListener[i].eventValueChanged(index, array, old_value, new_value);
+		}
+	}
+
+
+
+	public void eventValueChanged (final String variable_name, final Structure structure, final Value old_value, final Value new_value) {
+		throw new RuntimeException("this function should never get called");
+	}
+
 
 
 	boolean print (final PrintStream out, final String indentation, boolean line_start)  {
@@ -97,6 +114,7 @@ public final class ArrayWrapper implements Comparable
 	}
 
 
+
 	public void removeValueListener (final ValueListener vl) {
 		for (int i = valueListenerCount; --i >= 0; ) {
 			if (valueListener[i] == vl) {
@@ -115,6 +133,7 @@ public final class ArrayWrapper implements Comparable
 			}
 		}
 	}
+
 
 
 	/** solely used by test classes */

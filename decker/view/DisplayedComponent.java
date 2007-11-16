@@ -38,9 +38,11 @@ public class DisplayedComponent implements ValueListener
 
 
 
+
 // ******************************************************************************************************************************************************
 // static methods ***************************************************************************************************************************************
 // ******************************************************************************************************************************************************
+
 
 
 
@@ -73,10 +75,12 @@ System.out.print("(generic) ");
 	}
 
 
+
 	public final static void drawScreen (final Graphics g) {
 		if (currentScreen != null)
 			currentScreen.child[0].draw(g);
 	}
+
 
 
 	private final static void handleKeyDown (final KeyEvent e) {
@@ -88,6 +92,7 @@ System.out.print("handleKeyDown() not implemented");
 	}
 
 
+
 	final static int getScreenHeight () {
 		if (currentScreen != null)
 			return currentScreen.child[0].h;
@@ -95,11 +100,13 @@ System.out.print("handleKeyDown() not implemented");
 	}
 
 
+
 	final static int getScreenWidth () {
 		if (currentScreen != null)
 			return currentScreen.child[0].w;
 		return 0;
 	}
+
 
 
 	final static boolean handleUserInput (final AWTEvent e, final int mouse_x, final int mouse_y, final int mouse_dx, final int mouse_dy) {
@@ -156,6 +163,7 @@ System.out.println("mouse up END");
 	}
 
 
+
 	public static void setDisplayedScreen (final Value screen) {
 		// remove the old event listeners
 		for (int i = eventListener.length; --i >= 0; ) {
@@ -170,9 +178,12 @@ System.out.println("mouse up END");
 	}
 
 
+
+
 // ******************************************************************************************************************************************************
 // object methods ***************************************************************************************************************************************
 // ******************************************************************************************************************************************************
+
 
 
 
@@ -189,6 +200,7 @@ System.out.println("mouse up END");
 	}
 
 
+
 	DisplayedComponent (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
 		component = _component;
 		parent = _parent;
@@ -202,6 +214,7 @@ System.out.println("mouse up END");
 	}
 
 
+
 	private void addEventListener (final int eventID) {
 		if (eventListener[eventID].length == eventListenerCount[eventID]) {
 			final DisplayedComponent[] dc = eventListener[eventID];
@@ -210,6 +223,7 @@ System.out.println("mouse up END");
 		}
 		eventListener[eventID][eventListenerCount[eventID]++] = this;
 	}
+
 
 
 	void draw (final Graphics g) {
@@ -273,6 +287,7 @@ System.out.println("mouse up END");
 	}
 
 
+
 	private void eventSizeChanged (final DisplayedComponent current_clip_source, final int old_width, final int old_height, final boolean old_relativ_to_parent_width, final boolean old_relativ_to_parent_height) {
 		// if it's the dummy parent node, stop here
 		if (component == null)
@@ -323,14 +338,27 @@ System.out.println("relative to parent size : "+component.toString());
 	}
 
 
-	public void eventValueChanged (final String variable_name, final Structure container, final Value old_value, final Value new_value) {
-System.out.println("eVC() updating "+getClass().getName()+" "+parent.component.toString()+" "+parent.parent.w+" "+parent.parent.h+" "+parent.w+" "+parent.h);
-System.out.println(x+","+y+" "+w+","+h);
+
+	public void eventValueChanged (final int index, final ArrayWrapper wrapper, final Value old_value, final Value new_value) {
+System.out.println();
+System.out.println("DisplayedComponent.eventValueChanged()  "+index+"  "+old_value+" -> "+new_value);
+System.out.println();
 		final DisplayedComponent clip_source = findCurrentClipSource();
 		update(clip_source);
 		updateChildren(clip_source);
-System.out.println(x+","+y+" "+w+","+h);
 	}
+
+
+
+	public void eventValueChanged (final String variable_name, final Structure container, final Value old_value, final Value new_value) {
+//System.out.println("eVC() updating "+getClass().getName()+" "+parent.component.toString()+" "+parent.parent.w+" "+parent.parent.h+" "+parent.w+" "+parent.h);
+//System.out.println(x+","+y+" "+w+","+h);
+		final DisplayedComponent clip_source = findCurrentClipSource();
+		update(clip_source);
+		updateChildren(clip_source);
+//System.out.println(x+","+y+" "+w+","+h);
+	}
+
 
 
 	private DisplayedComponent findCurrentClipSource () {
@@ -340,6 +368,7 @@ System.out.println(x+","+y+" "+w+","+h);
 			source = source.parent;
 		return source;
 	}
+
 
 
 	private void removeEventListener (final int eventID) {
@@ -352,6 +381,7 @@ System.out.println(x+","+y+" "+w+","+h);
 			}
 		}
 	}
+
 
 
 	void update (final DisplayedComponent current_clip_source) {
@@ -430,6 +460,7 @@ System.out.println("DC.update() SCREEN_BACKGROUND "+w+" "+h+" "+parent.w+" "+par
 			}
 		}
 	}
+
 
 
 	void updateChildren (final DisplayedComponent current_clip_source) {
