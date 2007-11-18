@@ -11,9 +11,9 @@ english
 			y = 2
 			component = ARRAY
 				RECTANGLE
-					x = -3
+					x = -2
 					y = 0
-					width = 30
+					width = 29
 					height = 24
 					color = @NCS_IMAGE_BACKGROUND_COLOR
 				"character_image/"+char_images[char_image_index]
@@ -46,11 +46,12 @@ english
 				button.pressed.font = @TEXT_STYLE_BOLD.font
 				button.pressed.color = @NCS_PRESSED_SKILL_COLOR
 		LOCAL.bonus_button_function = FUNCTION
-			// mark this button and unmark the old selected button unless it's the same button
-			if selected_bonus != id
-				adjust_button(bonus_button_group[selected_bonus],false)
-				adjust_button(bonus_button_group[id],true)
-				selected_bonus = id
+			with new_character_screen
+				// mark this button and unmark the old selected button unless it's the same button
+				if selected_bonus != id
+					adjust_button(bonus_button_group[selected_bonus],false)
+					adjust_button(bonus_button_group[id],true)
+					selected_bonus = id
 		//********************************* data for the toggle buttons **********************************
 		ironman = false
 		tooltips = true
@@ -91,21 +92,23 @@ english
 						y = 2
 						idle = "arrow_w0"    // image for the idle state of the button. the pressed button image will be "home/char1" if that image exists
 						on_mouse_up = FUNCTION
-							if char_image_index == 0
-								char_image_index = char_images.size - 1
-							else
-								char_image_index = char_image_index - 1
-							char_image.component[1] = "character_image/"+char_images[char_image_index]
+							with new_character_screen
+								if char_image_index == 0
+									char_image_index = char_images.size - 1
+								else
+									char_image_index = char_image_index - 1
+								char_image.component[1] = "character_image/"+char_images[char_image_index]
 					BORDER_BUTTON
 						x = 56
 						y = 2
 						idle = "arrow_e0"
 						on_mouse_up = FUNCTION
-							if char_image_index == char_images.size - 1
-								char_image_index = 0
-							else
-								char_image_index = char_image_index + 1
-							char_image.component[1] = "character_image/"+char_images[char_image_index]
+							with new_character_screen
+								if char_image_index == char_images.size - 1
+									char_image_index = 0
+								else
+									char_image_index = char_image_index + 1
+								char_image.component[1] = "character_image/"+char_images[char_image_index]
 			createBorder(55, 47, 187, 24, @NCS_USER_INPUT_BACKGROUND_COLOR, true)
 			char_name
 			createText("New Decker Character", CENTER, 18)
@@ -125,8 +128,9 @@ english
 				component = ARRAY
 					on_off_text
 				on_mouse_up = FUNCTION
-					ironman = !ironman
-					adjust_on_off_text(on_off_text,ironman)
+					with new_character_screen
+						ironman = !ironman
+						adjust_on_off_text(on_off_text,ironman)
 				adjust_on_off_text(on_off_text,ironman)        // sets the initial text and color for the on/off text
 			BUTTON
 				x = CENTER
@@ -140,8 +144,9 @@ english
 				component = ARRAY
 					on_off_text
 				on_mouse_up = FUNCTION
-					tooltips = !tooltips
-					adjust_on_off_text(on_off_text,tooltips)
+					with new_character_screen
+						tooltips = !tooltips
+						adjust_on_off_text(on_off_text,tooltips)
 				adjust_on_off_text(on_off_text,tooltips)      // sets the initial text and color for the on/off text
 			BORDER_BUTTON
 				x = 219

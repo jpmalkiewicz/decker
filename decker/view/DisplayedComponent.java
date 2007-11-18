@@ -188,16 +188,17 @@ System.out.print("handleKeyDown() not implemented");
 		// tell the components about the event itself
 		final int listenerCount = eventListenerCount[eventID];
 		DisplayedComponent[] parent_list = new DisplayedComponent[10];
-System.out.println(listenerCount + " listeners");
 		if (listenerCount > 0) {
+System.out.println();
 			final DisplayedComponent[] el = eventListener[eventID];
-System.out.println("mouse at ("+mouse_x+" "+mouse_y+")");
+System.out.println(listenerCount + " listeners          mouse at ("+mouse_x+" "+mouse_y+")");
 			for (int i = listenerCount; --i >= 0; ) {
 				final DisplayedComponent c = el[i];
 				if (mouse_x >= c.cx && mouse_x < c.cx+c.cw && mouse_y >= c.cy && mouse_y < c.cy+c.ch &&( c.shape == null || (c.shape.getRGB(mouse_x-c.x, mouse_y-c.y)&0xff000000) != 0 )) {
 System.out.println("mouse event inside "+c.getClass().getName());
 					// if there is no hardcoded function or the hardcoded function doesn't block the scripted one, call the scripted function
 					if (( !c.hasHardcodedEventFunction[eventID] || c.eventUserInput(eventID, e, mouse_x, mouse_y, mouse_dx, mouse_dy) )&& c.scriptedEventFunction[eventID] != null) {
+System.out.println("mouse event : "+c.hashCode()+"  "+i+"    "+e);
 						if (eventID != ON_MOUSE_MOVED && eventID != ON_MOUSE_DRAGGED)
 							FunctionCall.executeFunctionCall(c.scriptedEventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(true) }, c.component.structure());
 						else
@@ -272,6 +273,28 @@ System.out.println("mouse up END");
 		}
 		eventListener[eventID][eventListenerCount[eventID]++] = this;
 		eventFunctionRegistered[eventID] = true;
+	}
+
+
+
+	void destroy () {
+		// stop listening to the scripted component
+		if (component != null && component.type() == Value.STRUCTURE) {
+			component.structure().removeValueListener(this);
+		}
+		// destroy the child components
+		for (int i = child_count; --i >= 0; ) {
+			child[i].destroy();
+		}
+		child_count = 0;
+		children_relativ_to_width = 0;
+		children_relativ_to_height = 0;
+		// remove this component from all event listener lists
+		for (int i = eventFunctionRegistered.length; --i >= 0; ) {
+			if (eventFunctionRegistered[i]) {
+				removeEventListener(i);
+			}
+		}
 	}
 
 
@@ -397,9 +420,6 @@ System.out.println("relative to parent size : "+component.toString());
 
 
 	public void eventValueChanged (final int index, final ArrayWrapper wrapper, final Value old_value, final Value new_value) {
-System.out.println();
-System.out.println("DisplayedComponent.eventValueChanged()  "+index+"  "+old_value+" -> "+new_value);
-System.out.println();
 		final DisplayedComponent clip_source = findCurrentClipSource();
 		update(clip_source);
 		updateChildren(clip_source);
@@ -516,6 +536,11 @@ System.out.println("DC.update() SCREEN_BACKGROUND "+w+" "+h+" "+parent.w+" "+par
 
 
 	void updateChildren (final DisplayedComponent current_clip_source) {
+		// destroy the old children
+		for (int i = child_count; --i >= 0; ) {
+			child[i].destroy();
+		}
+		// remove all children from this component
 		child_count = 0;
 		children_relativ_to_width = 0;
 		children_relativ_to_height = 0;
