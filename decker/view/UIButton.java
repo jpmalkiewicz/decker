@@ -4,8 +4,10 @@ import java.awt.*;
 
 
 
+/** UIButtons suppress all mouse events (except for mouse wheel events) and don't call any scripted functions while DISABLED */
 final class UIButton extends DisplayedComponent
 {
+	public final static int DISABLED_STATE_ID = 2;
 	public final static String[] BUTTON_STATE_CONSTANT = { "IDLE", "PRESSED", "DISABLED", "HOVER" };
 	public final static String[] BUTTON_STATE_FACE_VARIABLE = new String[BUTTON_STATE_CONSTANT.length];
 	private final static Value NO_FACE = new Value();
@@ -204,6 +206,7 @@ final class UIButton extends DisplayedComponent
 	}
 
 
+
 	void draw (final Graphics g) {
 		// draw the border
 		if (border != null)
@@ -221,6 +224,14 @@ final class UIButton extends DisplayedComponent
 	}
 
 
+
+	boolean eventUserInput (final int event_id, final AWTEvent e, final int mouse_x, final int mouse_y, final int mouse_dx, final int mouse_dy) {
+System.out.println("button has received event "+event_id);
+		return true;
+	}
+
+
+
 	private void updateButtonState () {
 		final int old_state = state;
 		final Value v = component.get("state");
@@ -228,6 +239,7 @@ final class UIButton extends DisplayedComponent
 			final String s = v.toString();
 			for (int i = BUTTON_STATE_CONSTANT.length; --i >= 0; ) {
 				if (i == 0 || s.equals(BUTTON_STATE_CONSTANT[i])) {
+					// display the current state
 					if (state != i) {
 						state = i;
 						x = sx[i];
@@ -252,5 +264,34 @@ final class UIButton extends DisplayedComponent
 		}
 if (state != old_state)
 System.out.println("state change "+old_state+" -> "+state);
+	}
+
+
+	void updateEventListeners () {
+		// (un)register the hardcoded event listener function
+		if (state == DISABLED_STATE_ID) {
+			for (int i = hasHardcodedEventFunction.length; --i >= 0; ) {
+				if (eventFunctionRegistered[i]) {
+					hasHardcodedEventFunction[i] = false;
+					scriptedEventFunction[i] = null;
+					removeEventListener(i);
+				}
+			}
+		}
+		else {
+			hasHardcodedEventFunction[ON_MOUSE_DOWN] = true;
+			hasHardcodedEventFunction[ON_MOUSE_DRAGGED] = true;
+			hasHardcodedEventFunction[ON_MOUSE_ENTERED] = true;
+			hasHardcodedEventFunction[ON_MOUSE_EXITED] = true;
+			hasHardcodedEventFunction[ON_MOUSE_MOVED] = true;
+			hasHardcodedEventFunction[ON_MOUSE_UP] = true;
+			for (int i = hasHardcodedEventFunction.length; --i >= 0; ) {
+				if (hasHardcodedEventFunction[i] && !eventFunctionRegistered[i]) {
+					final Value e = component.get(EVENT_FUNCTION_NAME[i]);
+					scriptedEventFunction[i] = (e==null||e.type()!=Value.FUNCTION) ? null : e.function();
+					addEventListener(i);
+				}
+			}
+		}
 	}
 }

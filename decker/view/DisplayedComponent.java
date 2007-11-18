@@ -34,7 +34,9 @@ public class DisplayedComponent implements ValueListener
 	int child_count;
 	int children_relativ_to_width, children_relativ_to_height;
 	// the event functions, if they exist
-	private final Function[] eventFunction = new Function[EVENT_FUNCTION_NAME.length];
+	final Function[] scriptedEventFunction = new Function[EVENT_FUNCTION_NAME.length];
+	final boolean[] hasHardcodedEventFunction = new boolean[EVENT_FUNCTION_NAME.length]; // eventUserInput() gets called for all hard coded event functions, so taht's the function you'll override
+	final boolean[] eventFunctionRegistered = new boolean[EVENT_FUNCTION_NAME.length]; // true whenever this DisplayedComponent is a registered listener for an event type
 
 
 
@@ -146,14 +148,15 @@ System.out.println(listenerCount + " listeners");
 System.out.println("mouse at ("+mouse_x+" "+mouse_y+")");
 			for (int i = listenerCount; --i >= 0; ) {
 				final DisplayedComponent c = el[i];
-System.out.println("("+c.cx+" "+c.cy+"   "+c.cw+" "+c.ch+")");
 				if (mouse_x >= c.cx && mouse_x < c.cx+c.cw && mouse_y >= c.cy && mouse_y < c.cy+c.ch &&( c.shape == null || (c.shape.getRGB(mouse_x-c.x, mouse_y-c.y)&0xff000000) != 0 )) {
-
-					if (eventID != ON_MOUSE_MOVED && eventID != ON_MOUSE_DRAGGED)
-						FunctionCall.executeFunctionCall(c.eventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(true) }, c.component.structure());
-					else
-						FunctionCall.executeFunctionCall(c.eventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(mouse_dx), new Value().set(mouse_dy), new Value().set(true) }, c.component.structure());
 System.out.println("mouse event inside "+c.getClass().getName());
+					// if there is no hardcoded function or the hardcoded function doesn't block the scripted one, call the scripted function
+					if (!c.hasHardcodedEventFunction[eventID] || c.eventUserInput(eventID, e, mouse_x, mouse_y, mouse_dx, mouse_dy)) {
+						if (eventID != ON_MOUSE_MOVED && eventID != ON_MOUSE_DRAGGED)
+							FunctionCall.executeFunctionCall(c.scriptedEventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(true) }, c.component.structure());
+						else
+							FunctionCall.executeFunctionCall(c.scriptedEventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(mouse_dx), new Value().set(mouse_dy), new Value().set(true) }, c.component.structure());
+					}
 				}
 			}
 		}
@@ -215,13 +218,14 @@ System.out.println("mouse up END");
 
 
 
-	private void addEventListener (final int eventID) {
+	void addEventListener (final int eventID) {
 		if (eventListener[eventID].length == eventListenerCount[eventID]) {
 			final DisplayedComponent[] dc = eventListener[eventID];
 			eventListener[eventID] = new DisplayedComponent[dc.length*2];
 			System.arraycopy(dc, 0, eventListener[eventID], 0, dc.length);
 		}
 		eventListener[eventID][eventListenerCount[eventID]++] = this;
+		eventFunctionRegistered[eventID] = true;
 	}
 
 
@@ -339,6 +343,13 @@ System.out.println("relative to parent size : "+component.toString());
 
 
 
+	/** returns true if the event handler should also call the scripted function for the event (if there is one), false otherwise */
+	boolean eventUserInput (final int event_id, final AWTEvent e, final int mouse_x, final int mouse_y, final int mouse_dx, final int mouse_dy) {
+		return true;
+	}
+
+
+
 	public void eventValueChanged (final int index, final ArrayWrapper wrapper, final Value old_value, final Value new_value) {
 System.out.println();
 System.out.println("DisplayedComponent.eventValueChanged()  "+index+"  "+old_value+" -> "+new_value);
@@ -370,13 +381,20 @@ System.out.println();
 	}
 
 
+/*
+	boolean receivesUserInput (final int input_event_id) {
+		return false;
+	}
+*/
 
-	private void removeEventListener (final int eventID) {
+
+	void removeEventListener (final int eventID) {
 		final DisplayedComponent[] dc = eventListener[eventID];
 		for (int i = eventListenerCount[eventID]; --i >= 0; ) {
 			if (dc[i] == this) {
 				System.arraycopy(dc, i+1, dc, i, eventListenerCount[eventID]-i-1);
 				eventListenerCount[eventID]--;
+				eventFunctionRegistered[eventID] = false;
 				break;
 			}
 		}
@@ -444,20 +462,8 @@ System.out.println("DC.update() SCREEN_BACKGROUND "+w+" "+h+" "+parent.w+" "+par
 			if ((v=s.get("shape")) != null && v.type() == Value.STRING) {
 				shape = (BufferedImage) AbstractView.getImage(v.string(), true);
 			}
-			// the event handler functions
-			for (int i = EVENT_FUNCTION_NAME.length; --i >= 0; ) {
-				final Value e = s.get(EVENT_FUNCTION_NAME[i]);
-				if (e != null && e.type() == Value.FUNCTION) {
-					if (eventFunction[i] == null) {
-						addEventListener(i);
-					}
-					eventFunction[i] = e.function();
-				}
-				else if (eventFunction[i] != null) {
-					removeEventListener(i);
-					eventFunction[i] = null;
-				}
-			}
+			// finally update the event listener functions
+			updateEventListeners();
 		}
 	}
 
@@ -484,6 +490,30 @@ System.out.println("DC.update() SCREEN_BACKGROUND "+w+" "+h+" "+parent.w+" "+par
 							child[child_count] = createDisplayedComponent(c[i], this, current_clip_source);
 							child_count++;
 						}
+					}
+				}
+			}
+		}
+	}
+
+
+
+	void updateEventListeners () {
+		if (component.type() == Value.STRUCTURE) {
+			final Structure s = component.structure();
+			for (int i = EVENT_FUNCTION_NAME.length; --i >= 0; ) {
+				// if there is a scripted function, store it in scriptedEventFunction[] for later use
+				final Value e = s.get(EVENT_FUNCTION_NAME[i]);
+				scriptedEventFunction[i] = (e != null && e.type() == Value.FUNCTION) ? e.function() : null;
+				// start or stop listening to this event, if neccessary
+				if (hasHardcodedEventFunction[i] || scriptedEventFunction[i] != null) {
+					if (!eventFunctionRegistered[i]) {
+						addEventListener(i);
+					}
+				}
+				else {
+					if (eventFunctionRegistered[i]) {
+						removeEventListener(i);
 					}
 				}
 			}
