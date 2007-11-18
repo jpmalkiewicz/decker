@@ -1,13 +1,14 @@
 package decker.view;
 import decker.model.*;
 import java.awt.*;
+import java.awt.event.*;
 
 
 
 /** UIButtons suppress all mouse events (except for mouse wheel events) and don't call any scripted functions while DISABLED */
 final class UIButton extends DisplayedComponent
 {
-	public final static int DISABLED_STATE_ID = 2;
+	public final static int IDLE_STATE_ID = 0, PRESSED_STATE_ID = 1, DISABLED_STATE_ID = 2, HOVER_STATE_ID = 3;
 	public final static String[] BUTTON_STATE_CONSTANT = { "IDLE", "PRESSED", "DISABLED", "HOVER" };
 	public final static String[] BUTTON_STATE_FACE_VARIABLE = new String[BUTTON_STATE_CONSTANT.length];
 	private final static Value NO_FACE = new Value();
@@ -226,7 +227,31 @@ final class UIButton extends DisplayedComponent
 
 
 	boolean eventUserInput (final int event_id, final AWTEvent e, final int mouse_x, final int mouse_y, final int mouse_dx, final int mouse_dy) {
-System.out.println("button has received event "+event_id);
+		if (state == DISABLED_STATE_ID) // this should not be possible, but better to be safe than sorry
+			return true;
+final int old_state = state;
+		final Value v = component.get("state");
+		switch (event_id) {
+			case ON_MOUSE_DOWN :
+					v.setConstant("PRESSED");
+				break;
+			case ON_MOUSE_ENTERED :
+					// if one of the mouse buttons is pressed, press the button
+					final int m = ((MouseEvent)e).getModifiersEx();
+					if (( (m&MouseEvent.BUTTON1_DOWN_MASK) == MouseEvent.BUTTON1_DOWN_MASK )||( (m&MouseEvent.BUTTON2_DOWN_MASK) == MouseEvent.BUTTON2_DOWN_MASK )||( (m&MouseEvent.BUTTON3_DOWN_MASK) == MouseEvent.BUTTON3_DOWN_MASK ))
+						v.setConstant("PRESSED");
+					else
+						v.setConstant("HOVER");
+				break;
+			case ON_MOUSE_EXITED :
+					v.setConstant("IDLE");
+				break;
+			case ON_MOUSE_UP :
+					v.setConstant("HOVER");
+				break;
+		}
+		updateButtonState();
+System.out.println("button has received event "+event_id+"  "+old_state+" -> "+state);
 		return true;
 	}
 
@@ -256,6 +281,7 @@ System.out.println("button has received event "+event_id);
 							border.y = y;
 							border.w = w;
 							border.h = h;
+							border.inverted = state == PRESSED_STATE_ID;
 						}
 					}
 					break;
@@ -271,7 +297,7 @@ System.out.println("state change "+old_state+" -> "+state);
 		// (un)register the hardcoded event listener function
 		if (state == DISABLED_STATE_ID) {
 			for (int i = hasHardcodedEventFunction.length; --i >= 0; ) {
-				if (eventFunctionRegistered[i]) {
+				if (eventFunctionRegistered[i] && hasHardcodedEventFunction[i]) {
 					hasHardcodedEventFunction[i] = false;
 					scriptedEventFunction[i] = null;
 					removeEventListener(i);
@@ -280,10 +306,8 @@ System.out.println("state change "+old_state+" -> "+state);
 		}
 		else {
 			hasHardcodedEventFunction[ON_MOUSE_DOWN] = true;
-			hasHardcodedEventFunction[ON_MOUSE_DRAGGED] = true;
 			hasHardcodedEventFunction[ON_MOUSE_ENTERED] = true;
 			hasHardcodedEventFunction[ON_MOUSE_EXITED] = true;
-			hasHardcodedEventFunction[ON_MOUSE_MOVED] = true;
 			hasHardcodedEventFunction[ON_MOUSE_UP] = true;
 			for (int i = hasHardcodedEventFunction.length; --i >= 0; ) {
 				if (hasHardcodedEventFunction[i] && !eventFunctionRegistered[i]) {

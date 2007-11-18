@@ -11,6 +11,8 @@ public class DisplayedComponent implements ValueListener
 	final static int                               ON_KEY_DOWN = 0, ON_MOUSE_DOWN = 1, ON_MOUSE_DRAGGED = 2, ON_MOUSE_ENTERED = 3, ON_MOUSE_EXITED = 4, ON_MOUSE_MOVED = 5, ON_MOUSE_UP =6;
 	private final static DisplayedComponent[][] eventListener = new DisplayedComponent[EVENT_FUNCTION_NAME.length][5];
 	private final static int[] eventListenerCount = new int[EVENT_FUNCTION_NAME.length];
+	private static DisplayedComponent[] mouseIsInside = new DisplayedComponent[10]; // this is the list of components where the mouse was inside the last time a mouse event occured. only components which listen to on_mouse_entered or to on_mouse_exited will get added
+	private static int mouseIsInsideCount;
 	private static DisplayedComponent currentScreen;
 
 
@@ -24,8 +26,6 @@ public class DisplayedComponent implements ValueListener
 	private boolean relativ_to_parent_width, relativ_to_parent_height;
 	// the clipped bounding rectangle. if the component is invisible w is <= 0, h possibly too
 	int cx, cy, cw, ch;
-	// true if the last mouse event was inside the component
-	private boolean last_mouse_event_inside;
 
 	// the shape of the component, if it's a STRUCTURE
 	private BufferedImage shape;
@@ -37,6 +37,7 @@ public class DisplayedComponent implements ValueListener
 	final Function[] scriptedEventFunction = new Function[EVENT_FUNCTION_NAME.length];
 	final boolean[] hasHardcodedEventFunction = new boolean[EVENT_FUNCTION_NAME.length]; // eventUserInput() gets called for all hard coded event functions, so taht's the function you'll override
 	final boolean[] eventFunctionRegistered = new boolean[EVENT_FUNCTION_NAME.length]; // true whenever this DisplayedComponent is a registered listener for an event type
+	boolean mouse_is_inside;
 
 
 
@@ -139,7 +140,52 @@ System.out.print("handleKeyDown() not implemented");
 				return true;
 		}
 		// it's a mouse event
-// tell all the listeners from the last event about it, if the mouse has left their area
+		// tell the components about it, if the mouse has left their area, and remove them from the mouseIsInside list
+		for (int i = mouseIsInsideCount; --i >= 0; ) {
+			final DisplayedComponent c = mouseIsInside[i];
+			if (! (mouse_x >= c.cx && mouse_x < c.cx+c.cw && mouse_y >= c.cy && mouse_y < c.cy+c.ch &&( c.shape == null || (c.shape.getRGB(mouse_x-c.x, mouse_y-c.y)&0xff000000) != 0 )) ) {
+				c.mouse_is_inside = false;
+				if (( !c.hasHardcodedEventFunction[ON_MOUSE_EXITED] || c.eventUserInput(ON_MOUSE_EXITED, e, mouse_x, mouse_y, mouse_dx, mouse_dy) )&& c.scriptedEventFunction[ON_MOUSE_EXITED] != null) {
+					FunctionCall.executeFunctionCall(c.scriptedEventFunction[ON_MOUSE_EXITED], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(false) }, c.component.structure());
+				}
+				mouseIsInside[i] = mouseIsInside[--mouseIsInsideCount];
+				mouseIsInside[mouseIsInsideCount] = null;
+			}
+		}
+		// find the components where the mouse is inside now, and tell them about it
+		for (int i = eventListenerCount[ON_MOUSE_ENTERED]; --i >= 0; ) {
+			final DisplayedComponent c = eventListener[ON_MOUSE_ENTERED][i];
+			if (!c.mouse_is_inside && mouse_x >= c.cx && mouse_x < c.cx+c.cw && mouse_y >= c.cy && mouse_y < c.cy+c.ch &&( c.shape == null || (c.shape.getRGB(mouse_x-c.x, mouse_y-c.y)&0xff000000) != 0 )) {
+				// the mouse is inside this component, add it to the mouseIsInside list
+				if (mouseIsInsideCount == mouseIsInside.length) {
+					final DisplayedComponent[] newMII = new DisplayedComponent[mouseIsInsideCount*2];
+					System.arraycopy(mouseIsInside, 0, newMII, 0, mouseIsInsideCount);
+					mouseIsInside = newMII;
+				}
+				mouseIsInside[mouseIsInsideCount++] = c;
+				// tell the component that the mouse has entered it
+				c.mouse_is_inside = true;
+				if (( !c.hasHardcodedEventFunction[ON_MOUSE_ENTERED] || c.eventUserInput(ON_MOUSE_ENTERED, e, mouse_x, mouse_y, mouse_dx, mouse_dy) )&& c.scriptedEventFunction[ON_MOUSE_ENTERED] != null) {
+					FunctionCall.executeFunctionCall(c.scriptedEventFunction[ON_MOUSE_ENTERED], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(true) }, c.component.structure());
+				}
+			}
+		}
+		// we also need to check whether the mouse has entered them for those components which are listening for it to exit but not for it to enter
+		for (int i = eventListenerCount[ON_MOUSE_EXITED]; --i >= 0; ) {
+			final DisplayedComponent c = eventListener[ON_MOUSE_EXITED][i];
+			// if the component hasn't been added to the list yet, mouse_is_inside will be false
+			if (!c.mouse_is_inside && mouse_x >= c.cx && mouse_x < c.cx+c.cw && mouse_y >= c.cy && mouse_y < c.cy+c.ch &&( c.shape == null || (c.shape.getRGB(mouse_x-c.x, mouse_y-c.y)&0xff000000) != 0 )) {
+				// the mouse is inside this component, add it to the mouseIsInside list
+				if (mouseIsInsideCount == mouseIsInside.length) {
+					final DisplayedComponent[] newMII = new DisplayedComponent[mouseIsInsideCount*2];
+					System.arraycopy(mouseIsInside, 0, newMII, 0, mouseIsInsideCount);
+					mouseIsInside = newMII;
+				}
+				mouseIsInside[mouseIsInsideCount++] = c;
+				c.mouse_is_inside = true;
+			}
+		}
+		// tell the components about the event itself
 		final int listenerCount = eventListenerCount[eventID];
 		DisplayedComponent[] parent_list = new DisplayedComponent[10];
 System.out.println(listenerCount + " listeners");
@@ -151,7 +197,7 @@ System.out.println("mouse at ("+mouse_x+" "+mouse_y+")");
 				if (mouse_x >= c.cx && mouse_x < c.cx+c.cw && mouse_y >= c.cy && mouse_y < c.cy+c.ch &&( c.shape == null || (c.shape.getRGB(mouse_x-c.x, mouse_y-c.y)&0xff000000) != 0 )) {
 System.out.println("mouse event inside "+c.getClass().getName());
 					// if there is no hardcoded function or the hardcoded function doesn't block the scripted one, call the scripted function
-					if (!c.hasHardcodedEventFunction[eventID] || c.eventUserInput(eventID, e, mouse_x, mouse_y, mouse_dx, mouse_dy)) {
+					if (( !c.hasHardcodedEventFunction[eventID] || c.eventUserInput(eventID, e, mouse_x, mouse_y, mouse_dx, mouse_dy) )&& c.scriptedEventFunction[eventID] != null) {
 						if (eventID != ON_MOUSE_MOVED && eventID != ON_MOUSE_DRAGGED)
 							FunctionCall.executeFunctionCall(c.scriptedEventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(true) }, c.component.structure());
 						else
