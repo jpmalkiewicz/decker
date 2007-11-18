@@ -1,5 +1,7 @@
 81%
 2007-11-18
+  fixed a few bugs in new_character_screen.txt where functions were still assuming all parent displayed structures were visible
+  fixed the bug where updateChildren() would not tell the discarded DisplayedComponents to stop listening to the script objects they display
   on_mouse_entered and on_mouse_exited events work
   UIButtons work
   updated the way event listeners are registered, to allow for functions which are hardcoded in the interface classes

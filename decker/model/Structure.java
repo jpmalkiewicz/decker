@@ -11,6 +11,8 @@ public final class Structure implements Comparable, ValueListener
 	private int valueListenerCount;
 
 
+
+
 	public Structure (final String type_name)  {
 		if (type_name == null)
 			throw new RuntimeException("trying to use null as a structure type");
@@ -42,6 +44,7 @@ public final class Structure implements Comparable, ValueListener
 	}
 
 
+
 	Structure (final Structure original)  {
 		StringTreeMap.Iterator i = original.members.getIterator();
 		while (i.hasNext()) {
@@ -51,13 +54,13 @@ public final class Structure implements Comparable, ValueListener
 	}
 
 
+
 	/** creates a special LOCAL structure for a FunctionCall */
 	Structure (final Value[] arguments, final String[] argument_names)  {
 		this ("LOCAL");
 		add("argument").set(new ArrayWrapper(arguments));
 		add("return_value");
 //System.out.println("Structure : "+arguments.length+"   "+argument_names.length+"  "+((argument_names.length > 0)?argument_names[0]:""));
-
 		// manually add all the named arguments to the structure - they contain the same variable as the arguments array, not just the same value
 		final int argument_count = arguments.length;
 		for (int i = argument_names.length; --i >= 0; ) {
@@ -72,6 +75,7 @@ public final class Structure implements Comparable, ValueListener
 	}
 
 
+
 	/** adds a new variable to this collection or replaces an old variable */
 	public Value add (String name)  {
 		final Value ret = new Value(this);
@@ -83,6 +87,7 @@ public final class Structure implements Comparable, ValueListener
 		}
 		return ret;
 	}
+
 
 
 	/** this value listener will automatically be called for all value changes of variables in this Structure */
@@ -99,6 +104,7 @@ public final class Structure implements Comparable, ValueListener
 	}
 
 
+
 	boolean canHoldCustomVariables ()  {
 		final String typename = members.get("structure_type").toString();
 		Value type = ScriptNode.getStructureType(typename);
@@ -107,8 +113,10 @@ public final class Structure implements Comparable, ValueListener
 	}
 
 
+
 	/** removes all members from the structure */
 	public void clear ()  { members.clear(); }
+
 
 
 	public int compareTo (Object o) {
@@ -130,10 +138,12 @@ System.out.println("Structure : hash compare failed");
 	}
 
 
+
 	/** returns a member variable from this collection but doesn't add it if it doesn't exist yet */
 	public Value get (final String name) {
 		return (Value) members.get(name);
 	}
+
 
 
 	String getKey (final Value v) {
@@ -148,10 +158,12 @@ System.out.println("Structure : hash compare failed");
 	}
 
 
+
 	/** Global.setCurrentRuleset() uses this to replaces global values in ENGINE when replacing the ruleset */
 	StringTreeMap.Iterator getStringTreeMapIterator () {
 		return members.getIterator();
 	}
+
 
 
 	/** called whenever a variable stored in this Structure changes its value */
@@ -164,12 +176,14 @@ System.out.println("Structure : hash compare failed");
 	}
 
 
+
 	/** called whenever a variable stored in an array stored in a variable in this Structure (or stored in an array, that is stored in an array {and so on} that is ...) changes its value */
 	public void eventValueChanged (final int index, final ArrayWrapper array, final Value old_value, final Value new_value) {
 		for (int i = valueListenerCount; --i >= 0; ) {
 			valueListener[i].eventValueChanged(index, array, old_value, new_value);
 		}
 	}
+
 
 
 	public boolean print (final PrintStream out, final String indentation, boolean line_start)  {
@@ -204,6 +218,7 @@ System.out.println("Structure : hash compare failed");
 	}
 
 
+
 	void putDirectlyIntoStringTreeMap (final String key, final Value v)  {
 if (v == null)
 throw new RuntimeException("who's putting null into a StringTreeMap ?!?");
@@ -211,12 +226,31 @@ throw new RuntimeException("who's putting null into a StringTreeMap ?!?");
 	}
 
 
+
 	void remove (final String key)  {
 		members.remove(key);
 	}
 
 
+
+	/** this value listener will automatically be called for all value changes of variables in this Structure */
+	public void removeValueListener (final ValueListener vl) {
+		if (valueListener != null) {
+			for (int i = valueListenerCount; --i >= 0; ) {
+				if (valueListener[i] == vl) {
+					System.arraycopy(valueListener, i+1, valueListener, i, valueListenerCount-i-1);
+					valueListener[valueListenerCount-1] = null;
+					valueListenerCount--;
+					return;
+				}
+			}
+		}
+	}
+
+
+
 	public int size ()  { return members.size(); }
+
 
 
 	public String toString ()  { return ((Value)members.get("structure_type")).string(); }
