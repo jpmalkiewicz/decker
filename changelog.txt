@@ -1,4 +1,7 @@
 81%
+2007-11-18
+  UIButtons listen to mouse events with the hardcoded function, but don't react yet
+  updated the way event listeners are registered, to allow for functions which are hardcoded in the interface classes
 2007-11-16
   listening to arrays works (except for when delete() and insert() are used)
   the new character screen displays correctly again
