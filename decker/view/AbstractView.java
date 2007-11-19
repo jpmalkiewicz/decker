@@ -53,9 +53,7 @@ public final static int ABSOLUTE_MIN_VALUE = Integer.MIN_VALUE+6; // coordinate 
 						COLORS.put(color, ret);
 					}
 				}
-			} catch (Throwable t) {
-				ret = last_color;
-			}
+			} catch (Throwable t) {}
 		}
 		return ret;
 	}

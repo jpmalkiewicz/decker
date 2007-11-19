@@ -50,51 +50,6 @@ english
 			// on_mouse_up    // put the function with the button effect here, for a standard button
 
 
-		TEXT
-			expandable = true
-			x
-			y
-			text
-			// font           // a string, may contain several ; separated font settings (in arbitrary order, but later settings override earlier ones) : font face (Arial), font size (10pt) and font style (plain, bold, italic), e.g. "Arial;10pt;plain" or "bold;italic;Courier New;12pt". if style is omitted, plain is used. if font face or font size is omitted, the current settings are used, not the settings from the parent view element
-			// color          // a color, using the html color format #rrggbb
-
-
-		TEXTFIELD
-			expandable = true
-			x
-			y
-			width
-			height
-			user_input
-			cursor                      // this is the cursor behind the text
-			component
-			// char_limit               // the maximum number of characters in the user input
-			initializer = FUNCTION
-				user_input = TEXT
-					x = 1
-					y = CENTER
-					text = ""
-				cursor = TEXT           // this is the cursor behind the text
-					y = CENTER
-					text = "_"
-				component = ARRAY
-					user_input
-					cursor
-			on_draw = FUNCTION
-				if component[0] != user_input
-					component[0] = user_input
-				if component[1] != cursor
-					component[1] = cursor
-				cursor.x = user_input.x + pixelwidth(user_input)
-			on_key_down = FUNCTION (key)
-				if size(key) == 1 &&( char_limit == UNDEFINED || size(user_input.text) < char_limit )
-					user_input.text = user_input.text + key
-					if (TEXTFIELD.width != UNDEFINED) && (user_input.x + pixelwidth(user_input) + pixelwidth(cursor) > width)
-						user_input.text = substring(user_input.text, 0, size(user_input.text)-1)    // the typed character doesn't fit into the field, discard it
-				else if key == "BACKSPACE" && size(user_input.text) > 0
-					user_input.text = substring(user_input.text, 0, size(user_input.text)-1)
-
-
 		LINE
 			x
 			y
@@ -348,3 +303,33 @@ english
 			height = 0
 			initializer = FUNCTION
 				cell = ARRAY
+
+
+		TEXT
+			x
+			y
+			v_align
+			h_align
+			width
+			height
+			text
+			font           // a string, may contain several ; separated font settings (in arbitrary order, but later settings override earlier ones) : font face (Arial), font size (10pt) and font style (plain, bold, italic), e.g. "Arial;10pt;plain" or "bold;italic;Courier New;12pt". if style is omitted, plain is used. if font face or font size is omitted, the current settings are used, not the settings from the parent view element
+			color          // a color, using the html color format #rrggbb
+
+
+		TEXTFIELD
+			x
+			y
+			width
+			height
+			user_input
+			cursor                      // this is the cursor behind the text
+			// char_limit               // the maximum number of characters in the user input
+			initializer = FUNCTION
+				user_input = TEXT
+					x = 1
+					y = CENTER
+					text = ""
+				cursor = TEXT           // this is the cursor behind the text
+					y = CENTER
+					text = "_"
