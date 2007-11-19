@@ -1,4 +1,6 @@
 81%
+2007-11-19
+  UIText hardcoded
 2007-11-18
   fixed a few bugs in new_character_screen.txt where functions were still assuming all parent displayed structures were visible
   fixed the bug where updateChildren() would not tell the discarded DisplayedComponents to stop listening to the script objects they display

@@ -60,6 +60,8 @@ public class DisplayedComponent implements ValueListener
 				ret = new UIButton(_component, _parent, current_clip_source);
 			else if (t.equals("BORDER"))
 				ret = new UIBorder(_component, _parent, current_clip_source);
+			else if (t.equals("TEXT"))
+				ret = new UIText(_component, _parent, current_clip_source);
 		}
 		if (ret == null) {
 System.out.print("(generic) ");
@@ -251,6 +253,14 @@ System.out.println("mouse up END");
 
 
 
+	DisplayedComponent (final Value _component, final DisplayedComponent _parent) {
+		component = _component;
+		parent = _parent;
+		child_count = -1; // the -1 will tell createDisplayedComponent() that the children still need to be added
+	}
+
+
+
 	DisplayedComponent (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
 		component = _component;
 		parent = _parent;
@@ -342,9 +352,6 @@ System.out.println("mouse up END");
 				if ((v=d.get("color")) != null)
 					g.setColor(AbstractView.getColor(v.toString()));
 				g.fillRect(x, y, w, h);
-			}
-			else if (type.equals("TABLE")) {
-//				UITable.draw(x, y, d, g, this);
 			}
 			// draw the child components of this view component
 			final DisplayedComponent[] c = child;
