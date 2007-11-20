@@ -341,6 +341,11 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 				else
 					return getFontMetrics(getFont("")).getAscent(); // use the last font that was used to draw a string
 			}
+			else if (type.equals("IMAGE")) {
+				Image image;
+				if ((v=d.get("image")) != null && (image=getImage(v.toString())) != null)
+					return image.getHeight(null);
+			}
 			// if its structure type has a special pixelheight function, call it
 			final Value t = ScriptNode.getStructureType(type);
 			if (t != null) {
@@ -410,6 +415,11 @@ System.out.println("loading artwork from "+(path.length()>0?path:"."));
 				else
 					fm = getFontMetrics(getFont("")); // use the last font that was used to draw a string
 				return fm.stringWidth(d.get("text").toString());
+			}
+			else if (type.equals("IMAGE")) {
+				Image image;
+				if ((v=d.get("image")) != null && (image=getImage(v.toString())) != null)
+					return image.getWidth(null);
 			}
 			// if its structure type has a special pixelwidth function, call it
 			final Value t = ScriptNode.getStructureType(type);

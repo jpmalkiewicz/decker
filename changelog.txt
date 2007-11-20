@@ -1,4 +1,7 @@
 81%
+2007-11-20
+  IMAGE structure type added and UIImage overhauled
+  UITextfield is taking shape
 2007-11-19
   UIText hardcoded
 2007-11-18
