@@ -6,17 +6,10 @@ english
 		//**************************** data for the character image selector *****************************
 		char_images = filelist("artwork/character_image/")   // this variable stores the list of available character images, the screen display class doesn't recognize it
 		char_image_index = 0
-		char_image = COMPONENT     // the player icon
+		char_image = IMAGE     // the player icon
 			x = 29
 			y = 2
-			component = ARRAY
-				RECTANGLE
-					x = -2
-					y = 0
-					width = 29
-					height = 24
-					color = @NCS_IMAGE_BACKGROUND_COLOR
-				"character_image/"+char_images[char_image_index]
+			image = "character_image/"+char_images[char_image_index]
 		//********************************* data for the bonus selector ***********************************
 		LOCAL.bonus_text = ARRAY
 			"Hardware"
@@ -68,14 +61,11 @@ english
 			y = 49
 			width = 179
 			height = 20
-			user_input.color = @NCS_USER_INPUT_COLOR
-			user_input.text = "Hacker X"
-			user_input.font = @TEXT_STYLE_BOLD.font
-			user_input.y = 3
-			cursor = COMPONENT
-				x = 0
-				y = 3
-				component = "new_character/cursor"
+			text = "Hacker X"
+			font = @TEXT_STYLE_BOLD.font
+			color = @NCS_USER_INPUT_COLOR
+			cursor = IMAGE
+				image = "new_character/cursor"
 		//************************************************************************************************
 		component = ARRAY
 			SCREEN_BACKGROUND
@@ -85,30 +75,33 @@ english
 				width = 82
 				height = 28
 				inverted = true
+				background_color = @NCS_IMAGE_BACKGROUND_COLOR
 				component = ARRAY
 					char_image
 					BORDER_BUTTON
 						x = 2
 						y = 2
-						idle = "arrow_w0"    // image for the idle state of the button. the pressed button image will be "home/char1" if that image exists
+						idle = IMAGE
+							image = "arrow_w0"     // image for the idle state of the button. the pressed button image will be "home/arrow1" if that image exists
 						on_mouse_up = FUNCTION
 							with new_character_screen
 								if char_image_index == 0
 									char_image_index = char_images.size - 1
 								else
 									char_image_index = char_image_index - 1
-								char_image.component[1] = "character_image/"+char_images[char_image_index]
+								char_image.image = "character_image/"+char_images[char_image_index]
 					BORDER_BUTTON
 						x = 56
 						y = 2
-						idle = "arrow_e0"
+						idle = IMAGE
+							image = "arrow_e0"
 						on_mouse_up = FUNCTION
 							with new_character_screen
 								if char_image_index == char_images.size - 1
 									char_image_index = 0
 								else
 									char_image_index = char_image_index + 1
-								char_image.component[1] = "character_image/"+char_images[char_image_index]
+								char_image.image = "character_image/"+char_images[char_image_index]
 			createBorder(55, 47, 187, 24, @NCS_USER_INPUT_BACKGROUND_COLOR, true)
 			char_name
 			createText("New Decker Character", CENTER, 18)
@@ -151,7 +144,8 @@ english
 			BORDER_BUTTON
 				x = 219
 				y = 219
-				idle = "ok0"
+				idle = IMAGE
+					image = "ok0"
 				on_mouse_up = FUNCTION
 					with new_character_screen
 // create the new character START
@@ -159,7 +153,7 @@ english
 						GLOBAL.ironman = ironman
 						GLOBAL.player = HUMAN
 							name = char_name.user_input.text
-							image = char_image.component[0]
+							image = char_image
 							LOCAL.slvl = bonus_name[selected_bonus] == "software" ? 2 : 1
 							LOCAL.hlvl = bonus_name[selected_bonus] == "hardware" ? 2 : 1
 							deck = createDeck(hlvl, slvl)
@@ -181,7 +175,8 @@ english
 			BORDER_BUTTON
 				x = 17
 				y = 219
-				idle = "cancel0"
+				idle = IMAGE
+					image = "cancel0"
 				on_mouse_up = &exit_program
 		for i = 0 to bonus_name.size-1
 			bonus_button_group[] = BUTTON

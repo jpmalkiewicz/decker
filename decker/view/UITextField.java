@@ -5,13 +5,16 @@ import java.awt.*;
 
 final class UITextField extends DisplayedComponent
 {
-	private Value cursor, text;
+	private Structure text;
+	private Value cursor;
+
 
 
 
 	UITextField (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
 		super(_component, _parent, current_clip_source);
-		// fetch the
+		// fetch the text
+		Value v = _component.
 		// register it as a hard coded key listener
 		hasHardcodedEventFunction[ON_KEY_DOWN] = true;
 		if (!eventFunctionRegistered[ON_KEY_DOWN])

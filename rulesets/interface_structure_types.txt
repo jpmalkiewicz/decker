@@ -18,23 +18,18 @@ english
 			thickness = 2
 
 
-		DRAWING_BOUNDARY // limits the area where things can be drawn to the given rectangle. all drawings which are in the component array of the DRAWING_BOUNDARY get cut off at the edge of the rectangle and only display inside
-			x
-			y
-			width
-			height
-			component
-
-
-		COMPONENT             // all variables in each view definition are optional
+		BORDER_BUTTON
 			expandable = true
 			x
 			y
-			// width
-			// height
-			// title             // only relevant if it is the top level component. then it sets the frame title
-			// background_image
-			// component         // must contain an array which contains the interface elements of this view, e.g. buttons and lists
+			component
+			state = IDLE
+			idle              // the image for the idle state of the button. if the image name ends with a 0 and no pressed, hover or disabled images are defined, the program will look for images of the same name but ending in a 1, 2 and 3 for them
+			// pressed
+			// disabled
+			// hover
+			// on_mouse_up    // put the function with the button effect here, for a standard button
+			// text_padding    // put a value here if you want the text to be shifted a different number of pixels than 4 from the top
 
 
 		BUTTON
@@ -50,6 +45,43 @@ english
 			// on_mouse_up    // put the function with the button effect here, for a standard button
 
 
+		COMPONENT             // all variables in each view definition are optional
+			expandable = true
+			x
+			y
+			// width
+			// height
+			// title             // only relevant if it is the top level component. then it sets the frame title
+			// background_image
+			// component         // must contain an array which contains the interface elements of this view, e.g. buttons and lists
+
+
+		DRAWING_BOUNDARY // limits the area where things can be drawn to the given rectangle. all drawings which are in the component array of the DRAWING_BOUNDARY get cut off at the edge of the rectangle and only display inside
+			x
+			y
+			width
+			height
+			component
+
+
+		EVENT_BLOCKER    // the event handler will stop at this component with all input events. on_draw events pass through
+			on_draw
+			on_key_down      = &trueFunction
+			on_mouse_down    = &trueFunction
+			on_mouse_dragged = &trueFunction
+			on_mouse_moved   = &trueFunction
+			on_mouse_up      = &trueFunction
+			x = -900000
+			y = x
+			width = -2*x
+			height = -2*x
+
+
+		IMAGE
+			expandable = true
+			image
+			
+			
 		LINE
 			x
 			y
@@ -64,33 +96,6 @@ english
 			width
 			height
 			color
-
-
-		BORDER_BUTTON
-			expandable = true
-			x
-			y
-			component
-			state = IDLE
-			idle              // the image for the idle state of the button. if the image name ends with a 0 and no pressed, hover or disabled images are defined, the program will look for images of the same name but ending in a 1, 2 and 3 for them
-			// pressed
-			// disabled
-			// hover
-			// on_mouse_up    // put the function with the button effect here, for a standard button
-			// text_padding    // put a value here if you want the text to be shifted a different number of pixels than 4 from the top
-
-
-		EVENT_BLOCKER    // the event handler will stop at this component with all input events. on_draw events pass through
-			on_draw
-			on_key_down      = &trueFunction
-			on_mouse_down    = &trueFunction
-			on_mouse_dragged = &trueFunction
-			on_mouse_moved   = &trueFunction
-			on_mouse_up      = &trueFunction
-			x = -900000
-			y = x
-			width = -2*x
-			height = -2*x
 
 
 		SCREEN_BACKGROUND
@@ -275,14 +280,6 @@ english
 				component[0].component.component = displayed_element
 
 
-		SELECTED_ROW_BACKGROUND
-			color
-			padding_left = 0
-			padding_right = 0
-			padding_top = 0
-			padding_bottom = 0
-
-
 		TABLE
 			expandable = true
 			rows = 0                 // number of rows in this table
@@ -322,14 +319,8 @@ english
 			y
 			width
 			height
-			user_input
-			cursor                      // this is the cursor behind the text
-			// char_limit               // the maximum number of characters in the user input
-			initializer = FUNCTION
-				user_input = TEXT
-					x = 1
-					y = CENTER
-					text = ""
-				cursor = TEXT           // this is the cursor behind the text
-					y = CENTER
-					text = "_"
+			text
+			font
+			color
+			cursor = "_"
+			char_limit               // the maximum number of characters for the text input

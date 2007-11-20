@@ -23,7 +23,7 @@ public class DisplayedComponent implements ValueListener
 	private DisplayedComponent parent;
 	// the bounding rectangle
 	int x, y, w = Integer.MIN_VALUE, h = Integer.MIN_VALUE;
-	private boolean relativ_to_parent_width, relativ_to_parent_height;
+	boolean relative_to_parent_width, relative_to_parent_height;
 	// the clipped bounding rectangle. if the component is invisible w is <= 0, h possibly too
 	int cx, cy, cw, ch;
 
@@ -32,7 +32,7 @@ public class DisplayedComponent implements ValueListener
 	// child structures of this component
 	DisplayedComponent[] child;
 	int child_count;
-	int children_relativ_to_width, children_relativ_to_height;
+	int children_relative_to_width, children_relative_to_height;
 	// the event functions, if they exist
 	final Function[] scriptedEventFunction = new Function[EVENT_FUNCTION_NAME.length];
 	final boolean[] hasHardcodedEventFunction = new boolean[EVENT_FUNCTION_NAME.length]; // eventUserInput() gets called for all hard coded event functions, so taht's the function you'll override
@@ -52,7 +52,7 @@ public class DisplayedComponent implements ValueListener
 	final static DisplayedComponent createDisplayedComponent (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
 		DisplayedComponent ret = null;
 		if (_component.type() != Value.STRUCTURE) {
-			ret = new UIImage(_component, _parent, current_clip_source);
+			throw new RuntimeException(_component+" is not a structure");
 		}
 		else { // it's a structure
 			final String t = _component.get("structure_type").string();
@@ -62,9 +62,11 @@ public class DisplayedComponent implements ValueListener
 				ret = new UIBorder(_component, _parent, current_clip_source);
 			else if (t.equals("TEXT"))
 				ret = new UIText(_component, _parent, current_clip_source);
+			else if (t.equals("IMAGE"))
+				ret = new UIImage(_component, _parent, current_clip_source);
 		}
 		if (ret == null) {
-System.out.print("(generic) ");
+System.out.print("(generic "+_component+") ");
 			ret = new DisplayedComponent(_component, _parent, current_clip_source);
 		}
 		if (ret.child_count == -1) {
@@ -94,6 +96,18 @@ System.out.print("handleKeyDown() not implemented");
 
 		}
 //		v.eventKeyPressed(((KeyEvent)e).getKeyChar(), ((KeyEvent)e).getKeyCode(), ((KeyEvent)e).isAltDown());
+	}
+
+
+
+	/** returns the percentage value, or Integer.MIN_VALUE if it is not a percentage value */
+	public final static int getPercentageValue (final String s) {
+		if (s != null && s.endsWith("%")) {
+			try {
+				return Integer.parseInt(s.substring(0, s.length()-1));
+			} catch (NumberFormatException ex) {}
+		}
+		return Integer.MIN_VALUE;
 	}
 
 
@@ -215,7 +229,6 @@ System.out.println("mouse up END");
 	}
 
 
-
 	public static void setDisplayedScreen (final Value screen) {
 		// remove the old event listeners
 		for (int i = eventListener.length; --i >= 0; ) {
@@ -297,8 +310,8 @@ System.out.println("mouse up END");
 			child[i].destroy();
 		}
 		child_count = 0;
-		children_relativ_to_width = 0;
-		children_relativ_to_height = 0;
+		children_relative_to_width = 0;
+		children_relative_to_height = 0;
 		// remove this component from all event listener lists
 		for (int i = eventFunctionRegistered.length; --i >= 0; ) {
 			if (eventFunctionRegistered[i]) {
@@ -368,26 +381,26 @@ System.out.println("mouse up END");
 
 
 
-	private void eventSizeChanged (final DisplayedComponent current_clip_source, final int old_width, final int old_height, final boolean old_relativ_to_parent_width, final boolean old_relativ_to_parent_height) {
+	void eventSizeChanged (final DisplayedComponent current_clip_source, final int old_width, final int old_height, final boolean old_relative_to_parent_width, final boolean old_relative_to_parent_height) {
 		// if it's the dummy parent node, stop here
 		if (component == null)
 			return;
 		// adjust the number of relativ children at the parent component
-		if (old_relativ_to_parent_width) {
-			parent.children_relativ_to_width--;
+		if (old_relative_to_parent_width) {
+			parent.children_relative_to_width--;
 		}
-		if (old_relativ_to_parent_height) {
-			parent.children_relativ_to_height--;
+		if (old_relative_to_parent_height) {
+			parent.children_relative_to_height--;
 		}
-		relativ_to_parent_width = false;
-		relativ_to_parent_height = false;
+		relative_to_parent_width = false;
+		relative_to_parent_height = false;
 		if (component.type() == Value.STRUCTURE) {
 			final Structure c = component.structure();
 			// determine whether this component's size or position is relative to its parent's size
 			Value v;
 			String s;
-			relativ_to_parent_width  = ( (v=c.get("x")) != null &&( v.equalsConstant("CENTER") || v.equalsConstant("RIGHT")  ))||( (v=c.get("width"))  != null && v.type() == Value.STRING && (s=v.string()).endsWith("%") && Global.isInteger(s.substring(0, s.length()-1)) );
-			relativ_to_parent_height = ( (v=c.get("y")) != null &&( v.equalsConstant("CENTER") || v.equalsConstant("BOTTOM") ))||( (v=c.get("height")) != null && v.type() == Value.STRING && (s=v.string()).endsWith("%") && Global.isInteger(s.substring(0, s.length()-1)) );
+			relative_to_parent_width  = ( (v=c.get("x")) != null &&( v.equalsConstant("CENTER") || v.equalsConstant("RIGHT")  ))||( (v=c.get("width"))  != null && v.type() == Value.STRING && (s=v.string()).endsWith("%") && Global.isInteger(s.substring(0, s.length()-1)) );
+			relative_to_parent_height = ( (v=c.get("y")) != null &&( v.equalsConstant("CENTER") || v.equalsConstant("BOTTOM") ))||( (v=c.get("height")) != null && v.type() == Value.STRING && (s=v.string()).endsWith("%") && Global.isInteger(s.substring(0, s.length()-1)) );
 			// if the component's size has changed, update the child sizes and call on_resize
 			// new components are marked with an initial width of Integer.MIN_VALUE. for them, the size change is ignored, because it may be called by
 			final boolean width_has_changed = w != old_width;
@@ -397,23 +410,21 @@ System.out.println("mouse up END");
 				if (k != null) {
 					FunctionCall.executeFunctionCall(k.function(), new Value[]{ new Value().set(w), new Value().set(h) }, component.structure());
 				}
-				if (( children_relativ_to_width > 0 && width_has_changed )||( children_relativ_to_height > 0 && height_has_changed )) {
+				if (( children_relative_to_width > 0 && width_has_changed )||( children_relative_to_height > 0 && height_has_changed )) {
 					for (int i = child_count; --i >= 0; ) {
-						if (( child[i].relativ_to_parent_width && width_has_changed )||( child[i].relativ_to_parent_height && height_has_changed )) {
+						if (( child[i].relative_to_parent_width && width_has_changed )||( child[i].relative_to_parent_height && height_has_changed )) {
 							child[i].update(current_clip_source);
 						}
 					}
 				}
 			}
 			// notify the parent component if this component's size is relative
-			if (relativ_to_parent_width) {
-				parent.children_relativ_to_width++;
+			if (relative_to_parent_width) {
+				parent.children_relative_to_width++;
 			}
-			if (relativ_to_parent_height) {
-				parent.children_relativ_to_height++;
+			if (relative_to_parent_height) {
+				parent.children_relative_to_height++;
 			}
-if (relativ_to_parent_width || relativ_to_parent_height)
-System.out.println("relative to parent size : "+component.toString());
 		}
 	}
 
@@ -435,7 +446,7 @@ System.out.println("relative to parent size : "+component.toString());
 
 
 	public void eventValueChanged (final String variable_name, final Structure container, final Value old_value, final Value new_value) {
-//System.out.println("eVC() updating "+getClass().getName()+" "+parent.component.toString()+" "+parent.parent.w+" "+parent.parent.h+" "+parent.w+" "+parent.h);
+//System.out.println("DC.eventValueChanged() "+getClass().getName()+" "+variable_name+" "+old_value+" -> "+new_value);
 //System.out.println(x+","+y+" "+w+","+h);
 		final DisplayedComponent clip_source = findCurrentClipSource();
 		update(clip_source);
@@ -445,7 +456,7 @@ System.out.println("relative to parent size : "+component.toString());
 
 
 
-	private DisplayedComponent findCurrentClipSource () {
+	DisplayedComponent findCurrentClipSource () {
 		DisplayedComponent source = parent;
 		while ( source.parent != null )
 //		while ( source.component != null && !(source instanceof UIDrawingBoundary) )
@@ -476,8 +487,8 @@ System.out.println("relative to parent size : "+component.toString());
 
 
 	void update (final DisplayedComponent current_clip_source) {
-		relativ_to_parent_width = false;
-		relativ_to_parent_height = false;
+		relative_to_parent_width = false;
+		relative_to_parent_height = false;
 		// if the displayed component is an image, fetch it
 		if (component.type() != Value.STRUCTURE) {
 			x = parent.x;
@@ -491,8 +502,6 @@ System.out.println("relative to parent size : "+component.toString());
 			y = parent.y + DefaultView.y(s, parent.h, -1);
 			w = DefaultView.width(s, parent.w);
 			h = DefaultView.height(s, parent.h);
-if (s.get("structure_type").equals("SCREEN_BACKGROUND"))
-System.out.println("DC.update() SCREEN_BACKGROUND "+w+" "+h+" "+parent.w+" "+parent.h);
 			// calculate the bounding rectangle of the visible area
 			if (current_clip_source.cw <= 0) {
 				cx = 0;
@@ -549,8 +558,8 @@ System.out.println("DC.update() SCREEN_BACKGROUND "+w+" "+h+" "+parent.w+" "+par
 		}
 		// remove all children from this component
 		child_count = 0;
-		children_relativ_to_width = 0;
-		children_relativ_to_height = 0;
+		children_relative_to_width = 0;
+		children_relative_to_height = 0;
 		// add the child components
 		if (component != null && component.type() == Value.STRUCTURE) {
 			final Value v = component.get("component");
