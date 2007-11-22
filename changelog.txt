@@ -1,7 +1,9 @@
 81%
+2007-11-22
+  UITextField works
 2007-11-20
   IMAGE structure type added and UIImage overhauled
-  UITextfield is taking shape
+  UITextField is taking shape
 2007-11-19
   UIText hardcoded
 2007-11-18

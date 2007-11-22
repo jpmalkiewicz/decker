@@ -45,7 +45,7 @@ final class UIText extends DisplayedComponent
 		Value v;
 		// fetch the text and its style settings
 		text = t.get("text").toString();
-		v = v=t.get("font");
+		v = t.get("font");
 		font = AbstractView.getFont((v.type() == Value.STRING)?v.string():"", null, false);
 		color = ((v=t.get("color")).type() == Value.STRING) ? AbstractView.getColor(v.string()) : null;
 		y_offset = AbstractView.getFontMetrics(font).getAscent();

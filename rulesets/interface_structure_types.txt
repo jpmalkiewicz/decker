@@ -317,10 +317,12 @@ english
 		TEXTFIELD
 			x
 			y
-			width
+			v_align
+			h_align
+			width            // if you set the width of the TEXTFIELD, the text input will be constrained so the text + cursor will always fit into the field
 			height
 			text
 			font
 			color
 			cursor = "_"
-			char_limit               // the maximum number of characters for the text input
+			char_limit       // the maximum number of characters for the text input
