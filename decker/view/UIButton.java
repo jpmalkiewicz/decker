@@ -229,7 +229,6 @@ final class UIButton extends DisplayedComponent
 	boolean eventUserInput (final int event_id, final AWTEvent e, final int mouse_x, final int mouse_y, final int mouse_dx, final int mouse_dy) {
 		if (state == DISABLED_STATE_ID) // this should not be possible, but better to be safe than sorry
 			return true;
-final int old_state = state;
 		final Value v = component.get("state");
 		switch (event_id) {
 			case ON_MOUSE_DOWN :
@@ -251,14 +250,12 @@ final int old_state = state;
 				break;
 		}
 		updateButtonState();
-System.out.println("button has received event "+event_id+"  "+old_state+" -> "+state);
 		return true;
 	}
 
 
 
 	private void updateButtonState () {
-		final int old_state = state;
 		final Value v = component.get("state");
 		if (v != null && v.type() == Value.CONSTANT) {
 			final String s = v.toString();
@@ -288,8 +285,6 @@ System.out.println("button has received event "+event_id+"  "+old_state+" -> "+s
 				}
 			}
 		}
-if (state != old_state)
-System.out.println("state change "+old_state+" -> "+state);
 	}
 
 

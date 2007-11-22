@@ -57,9 +57,9 @@ english
 				string.color = @NCS_OFF_COLOR
 		//********************************* data for the character name **********************************
 		char_name = TEXTFIELD
-			x = 59
-			y = 49
-			width = 179
+			x = 60
+			y = 52
+			width = 178
 			height = 20
 			text = "Hacker X"
 			font = @TEXT_STYLE_BOLD.font

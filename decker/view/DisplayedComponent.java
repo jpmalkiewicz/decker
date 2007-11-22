@@ -1,5 +1,6 @@
 package decker.view;
 import decker.model.*;
+import decker.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -60,10 +61,12 @@ public class DisplayedComponent implements ValueListener
 				ret = new UIButton(_component, _parent, current_clip_source);
 			else if (t.equals("BORDER"))
 				ret = new UIBorder(_component, _parent, current_clip_source);
-			else if (t.equals("TEXT"))
-				ret = new UIText(_component, _parent, current_clip_source);
 			else if (t.equals("IMAGE"))
 				ret = new UIImage(_component, _parent, current_clip_source);
+			else if (t.equals("TEXT"))
+				ret = new UIText(_component, _parent, current_clip_source);
+			else if (t.equals("TEXTFIELD"))
+				ret = new UITextField(_component, _parent, current_clip_source);
 		}
 		if (ret == null) {
 System.out.print("(generic "+_component+") ");
@@ -91,11 +94,51 @@ System.out.print("(generic "+_component+") ");
 
 
 	private final static void handleKeyDown (final KeyEvent e) {
-System.out.print("handleKeyDown() not implemented");
-		for (int i = eventListenerCount[ON_KEY_DOWN]; --i >= 0; ) {
-
+		// if there is no key listener, don't waste time generating the event info
+		if (eventListenerCount[ON_KEY_DOWN] == 0)
+			return;
+		// turn the pressed key into a single letter, if it is one, or a description string
+		final char c = e.getKeyChar();
+		Value key = new Value().set((c==KeyEvent.CHAR_UNDEFINED)?"":(c+""));
+		switch (e.getKeyCode()) {
+			case KeyEvent.VK_BACK_SPACE : key.set("BACKSPACE"); break;
+			case KeyEvent.VK_ESCAPE : key.set("ESCAPE"); break;
+			case KeyEvent.VK_LEFT : key.set("LEFT"); break;
+			case KeyEvent.VK_RIGHT : key.set("RIGHT"); break;
+			case KeyEvent.VK_UP : key.set("UP"); break;
+			case KeyEvent.VK_DOWN : key.set("DOWN"); break;
+			case KeyEvent.VK_F1 : key.set("F1"); break;
+			case KeyEvent.VK_F2 : key.set("F2"); break;
+			case KeyEvent.VK_F3 : key.set("F3"); break;
+			case KeyEvent.VK_F4 : key.set("F4"); break;
+			case KeyEvent.VK_F5 : key.set("F5"); break;
+			case KeyEvent.VK_F6 : key.set("F6"); break;
+			case KeyEvent.VK_F7 : key.set("F7"); break;
+			case KeyEvent.VK_F8 : key.set("F8"); break;
+			case KeyEvent.VK_F9 : key.set("F9"); break;
+			case KeyEvent.VK_F10 : key.set("F10"); break;
+			case KeyEvent.VK_F11 : key.set("F11"); break;
+			case KeyEvent.VK_F12 : key.set("F12"); break;
 		}
-//		v.eventKeyPressed(((KeyEvent)e).getKeyChar(), ((KeyEvent)e).getKeyCode(), ((KeyEvent)e).isAltDown());
+		// add the modifier keys to the event info
+		final int modifiers = e.getModifiers();
+		final Queue q = new Queue();
+		q.add(key);
+		if ((modifiers & InputEvent.ALT_MASK) == InputEvent.ALT_MASK) q.add(new Value().set("ALT"));
+		if ((modifiers & InputEvent.ALT_GRAPH_MASK) == InputEvent.ALT_GRAPH_MASK) q.add(new Value().set("ALT_GRAPH"));
+		if ((modifiers & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK) q.add(new Value().set("CTRL"));
+		if ((modifiers & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK) q.add(new Value().set("SHIFT"));
+		final Value[] args = new Value[q.size()];
+		for (int i = 0; i < args.length; i++) {
+			args[i] = (Value) q.remove();
+		}
+		// send the key event to all key listeners
+		for (int i = eventListenerCount[ON_KEY_DOWN]; --i >= 0; ) {
+			final DisplayedComponent k = eventListener[ON_KEY_DOWN][i];
+			if (( !k.hasHardcodedEventFunction[ON_KEY_DOWN] || k.eventUserInput(ON_KEY_DOWN, e, -1, -1, -1, -1) )&& k.scriptedEventFunction[ON_KEY_DOWN] != null) {
+				FunctionCall.executeFunctionCall(k.scriptedEventFunction[ON_KEY_DOWN], args, k.component.structure());
+			}
+		}
 	}
 
 
@@ -203,7 +246,6 @@ System.out.print("handleKeyDown() not implemented");
 		}
 		// tell the components about the event itself
 		final int listenerCount = eventListenerCount[eventID];
-		DisplayedComponent[] parent_list = new DisplayedComponent[10];
 		if (listenerCount > 0) {
 System.out.println();
 			final DisplayedComponent[] el = eventListener[eventID];
