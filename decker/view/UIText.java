@@ -36,6 +36,7 @@ final class UIText extends DisplayedComponent
 
 	void update (final DisplayedComponent current_clip_source) {
 		super.update(current_clip_source);
+		updateText();
 	}
 
 

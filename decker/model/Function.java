@@ -95,7 +95,7 @@ public final class Function extends ScriptNode
 	int getFunctionID ()  { return id; }
 
 
-	public boolean print (final PrintStream out, final String indentation, final boolean line_start)  {
+	public boolean print (final PrintStream out, final String indentation, final boolean line_start, final int depth)  {
 		out.print((line_start?indentation:"") + "FUNCTION "+((function_body==null)?Global.FUNCTION_NAME[id]:"")+" (");
 		if (argument_name.length > 0) {
 			out.print(argument_name[0]);
@@ -108,7 +108,7 @@ public final class Function extends ScriptNode
 		}
 		out.println(")");
 		if (function_body != null)
-			return function_body.print(out, indentation, true);
+			return function_body.print(out, indentation, true, depth);
 		else
 			return true;
 	}

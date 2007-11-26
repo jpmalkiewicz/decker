@@ -60,13 +60,13 @@ final class StructureDefinition extends Expression
 	String getStructureType ()  { return (structure_type instanceof String) ? (String) structure_type : null; }
 
 
-	boolean print (final PrintStream out, final String indentation, final boolean line_start)  {
+	boolean print (final PrintStream out, final String indentation, final boolean line_start, final int depth)  {
 		out.print((line_start?indentation:"") + ((structure_type instanceof String)?(String)structure_type:("copy("+((Expression)structure_type).toString()+")")));
 		if (definition_body == null)
 			return false;
 		else {
 			out.println();
-			return definition_body.print(out, indentation, true);
+			return definition_body.print(out, indentation, true, depth-1);
 		}
 	}
 

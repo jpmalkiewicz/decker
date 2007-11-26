@@ -51,15 +51,18 @@ class Block extends ScriptNode
 	}
 
 
-	boolean print (final PrintStream out, final String indentation, final boolean line_start)  {
+	boolean print (final PrintStream out, final String indentation, final boolean line_start, final int depth)  {
 		if (!line_start)
 			out.println();
 		final int count = child_command.length;
 		if (count > 0) {
 			final String ind = indentation + Global.BLOCK_INDENT;
-			for (int i = 0; i < count; i++)
-				if (!child_command[i].print(out, ind, true))
-					out.println();
+			if (depth <= 0)
+				System.out.println(ind+"...");
+			else
+				for (int i = 0; i < count; i++)
+					if (!child_command[i].print(out, ind, true, depth-1))
+						out.println();
 		}
 		return true;
 	}

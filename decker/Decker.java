@@ -51,12 +51,6 @@ AbstractView.reloadArtwork(true);
 Global.getDisplayedScreen().set(Global.getCurrentRuleset().data.get("initial_screen"));
 Global.getViewWrapper().repaint();
 Global.getViewWrapper().requestFocus();
-System.out.println("a");
-DisplayedComponent.setDisplayedScreen(Global.getCurrentRuleset().data.get("initial_screen"));
-System.out.println("b");
-//		ViewAccess.setView(new Interface());
-//		ViewAccess.setImagePath("resources/images/");
-//		ViewAccess.startGame();
 	}
 
 

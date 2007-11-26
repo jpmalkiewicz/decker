@@ -39,13 +39,13 @@ final class GlobalDefinitionCommand extends ScriptNode
 	}
 
 
-	boolean print (final PrintStream out, final String indentation, final boolean line_start)  {
+	boolean print (final PrintStream out, final String indentation, final boolean line_start, final int depth)  {
 		if (!line_start)
 			out.println();
 		out.println(indentation + "global");
 		final String ind = indentation + Global.BLOCK_INDENT;
 		for (int i = 0; i < globals.length; i++)
-			if (!globals[i].print(out, ind, true))
+			if (!globals[i].print(out, ind, true, depth-1))
 				out.println();
 		return true;
 	}

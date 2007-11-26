@@ -84,31 +84,35 @@ public final class ArrayWrapper implements Comparable, ValueListener
 
 
 
-	boolean print (final PrintStream out, final String indentation, boolean line_start)  {
+	boolean print (final PrintStream out, final String indentation, boolean line_start, final int depth)  {
 		if (array.length == 0) {
 			out.print((line_start?indentation:"") + "ARRAY");
 			return false;
 		}
 		out.println((line_start?indentation:"") + "ARRAY");
 		final String ind = indentation+Global.BLOCK_INDENT;
-		final Value[] a = array;
-		final int al = a.length;
-		for (int i = 0; i < al; i++) {
-			final int ait = a[i].type();
-			if (ait == Value.STRUCTURE) {
-				if (!a[i].structure().print(out, ind, true))
-					out.println();
+		if (depth <= 0)
+			out.println(ind+"...");
+		else {
+			final Value[] a = array;
+			final int al = a.length;
+			for (int i = 0; i < al; i++) {
+				final int ait = a[i].type();
+				if (ait == Value.STRUCTURE) {
+					if (!a[i].structure().print(out, ind, true, depth-1))
+						out.println();
+				}
+				else if (ait == Value.FUNCTION) {
+					if (!a[i].function().print(out, ind, true, depth-1))
+						out.println();
+				}
+				else if (ait == Value.ARRAY) {
+					if (!a[i].arrayWrapper().print(out, ind, true, depth-1))
+						out.println();
+				}
+				else
+					out.println(ind+a[i].toStringForPrinting());
 			}
-			else if (ait == Value.FUNCTION) {
-				if (!a[i].function().print(out, ind, true))
-					out.println();
-			}
-			else if (ait == Value.ARRAY) {
-				if (!a[i].arrayWrapper().print(out, ind, true))
-					out.println();
-			}
-			else
-				out.println(ind+a[i].toStringForPrinting());
 		}
 		return true;
 	}

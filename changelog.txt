@@ -1,4 +1,10 @@
+82%
+2007-11-26
+  switching between screens works again
+
 81%
+2007-11-26
+  fixed a bug in the home screen
 2007-11-22
   UITextField works
 2007-11-20

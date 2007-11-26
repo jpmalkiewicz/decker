@@ -102,17 +102,21 @@ english
 
 
 	ENGINE.displayScreen = FUNCTION (screen, remember_old_screen)
-		if screen.structure_type != UNDEFINED && screen != displayed_screen
+		if screen.structure_type != UNDEFINED && screen != displayed_screen && value_type(screen) == "STRUCTURE"
 			if remember_old_screen
 				previous_displayed_screen[] = displayed_screen
-			displayed_screen = screen
 			screen_overlays = UNDEFINED  // remove the screen overlays which have been displayed on top of the old screen
+			displayed_screen = screen
+			if value_type(screen.setup) == "FUNCTION"
+				screen.setup()
 
 
 	ENGINE.displayPreviousScreen = FUNCTION
 		if previous_displayed_screen.size > 0
 			displayed_screen = delete(previous_displayed_screen, previous_displayed_screen.size-1)
 			screen_overlays = UNDEFINED  // remove the screen overlays which have been displayed on top of the old screen
+			if value_type(displayed_screen.setup) == "FUNCTION"
+				displayed_screen.setup()
 
 
 	ENGINE.getPreviousScreen = FUNCTION

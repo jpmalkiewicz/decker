@@ -35,7 +35,7 @@ final class ConstantDefinitionCommand extends ScriptNode
 	}
 
 
-	boolean print (final PrintStream out, final String indentation, final boolean line_start)  {
+	boolean print (final PrintStream out, final String indentation, final boolean line_start, final int depth)  {
 		if (!line_start)
 			out.println();
 		if (constant.length == 1)
@@ -43,8 +43,11 @@ final class ConstantDefinitionCommand extends ScriptNode
 		else {
 			out.println(indentation + "constant");
 			final String ind = indentation + Global.BLOCK_INDENT;
-			for (int i = 0; i < constant.length; i++)
-				out.println(ind + constant[i]);
+			if (depth <= 0)
+				System.out.println(ind+"...");
+			else
+				for (int i = 0; i < constant.length; i++)
+					out.println(ind + constant[i]);
 		}
 		return true;
 	}

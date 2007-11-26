@@ -245,12 +245,6 @@ english
 			return_value = target_system.rating + target_count / 2 + special_condition
 
 
-	RULESET.displayInitializedScreen = FUNCTION (screen, remember_old_screen)
-		displayScreen(screen, remember_old_screen)
-		if value_type(screen.setup) == "FUNCTION"
-			screen.setup()
-
-
 	RULESET.getCurrentMaxRating = FUNCTION (deck, item_type)
 		return_value = 0
 		if item_type.category[0] == PROGRAM
@@ -440,6 +434,8 @@ english
 	RULESET.updateBackButton = FUNCTION (button)
 		LOCAL.previous_screen = getPreviousScreen()
 		if previous_screen == home_screen
-			button.idle = "home/home"
+			button.idle = IMAGE
+				image = "home/home"
 		else
-			button.idle = "home/matrix"
+			button.idle = IMAGE
+				image = "home/matrix"

@@ -230,6 +230,13 @@ final class AssignmentCommand extends ScriptNode
 	}
 
 
+	boolean print (final PrintStream out, final String indentation, boolean line_start, final int depth)  {
+		line_start = variable.print(out, indentation, line_start, depth);
+		out.print((line_start?indentation:" ") + "= ");
+		return print(out, indentation, line_start, value_definition, depth);
+	}
+
+
 	public void replace(String original, boolean starts_with, String replacement)  {
 		if(variable != null)
 			variable.replace(original, starts_with, replacement);
@@ -245,12 +252,5 @@ final class AssignmentCommand extends ScriptNode
 		variable = _variable;
 		if (its_a_global && variable.getOperator() != Expression.VARIABLE)
 			throwException("only simple variables allowed on the left side of the = in global definition blocks, no complex expressions, member operators, array operators and so on");
-	}
-
-
-	boolean print (final PrintStream out, final String indentation, boolean line_start)  {
-		line_start = variable.print(out, indentation, line_start);
-		out.print((line_start?indentation:" ") + "= ");
-		return print(out, indentation, line_start, value_definition);
 	}
 }
