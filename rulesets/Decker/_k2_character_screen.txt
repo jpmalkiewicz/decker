@@ -89,7 +89,8 @@ english
 		back_button = BORDER_BUTTON
 			x = 430 - 18 - 24
 			y = 300 - 18 - 24
-			idle = "home/home"
+			idle = IMAGE
+				image = "home/home"
 			on_mouse_up = FUNCTION
 				displayPreviousScreen()
 
@@ -114,14 +115,17 @@ english
 			BORDER_BUTTON
 				x = back_button.x - 10 - 24
 				y = back_button.y
-				idle = "home/deck"
+				idle = IMAGE
+					image = "home/deck"
 				on_mouse_up = FUNCTION
 					displayInitializedScreen(deck_screen, false)
 
+		LOCAL.plus_image = IMAGE
+				image = "home/plus"
 		attack_button = BORDER_BUTTON
 			x = 0
 			y = -2
-			idle = "home/plus"
+			idle = plus_image
 			on_mouse_up = FUNCTION
 				if player.skill_points >= player.attack
 					player.skill_points = player.skill_points - player.attack
@@ -129,7 +133,7 @@ english
 		defense_button = BORDER_BUTTON
 			x = 0
 			y = 18
-			idle = "home/plus"
+			idle = plus_image
 			on_mouse_up = FUNCTION
 				if player.skill_points >= player.defense
 					player.skill_points = player.skill_points - player.defense
@@ -137,7 +141,7 @@ english
 		stealth_button = BORDER_BUTTON
 			x = 0
 			y = 38
-			idle = "home/plus"
+			idle = plus_image
 			on_mouse_up = FUNCTION
 				if player.skill_points >= player.stealth
 					player.skill_points = player.skill_points - player.stealth
@@ -145,7 +149,7 @@ english
 		analysis_button = BORDER_BUTTON
 			x = 0
 			y = 58
-			idle = "home/plus"
+			idle = plus_image
 			on_mouse_up = FUNCTION
 				if player.skill_points >= player.analysis
 					player.skill_points = player.skill_points - player.analysis
@@ -153,7 +157,7 @@ english
 		programming_button = BORDER_BUTTON
 			x = 0
 			y = 78
-			idle = "home/plus"
+			idle = plus_image
 			on_mouse_up = FUNCTION
 				if player.skill_points >= player.programming
 					player.skill_points = player.skill_points - player.programming
@@ -161,7 +165,7 @@ english
 		chip_design_button = BORDER_BUTTON
 			x = 0
 			y = 98
-			idle = "home/plus"
+			idle = plus_image
 			on_mouse_up = FUNCTION
 				if player.skill_points >= player.chip_design
 					player.skill_points = player.skill_points - player.chip_design
@@ -187,35 +191,36 @@ english
 				component[4] = player.skill_points >= player.programming ? programming_button : UNDEFINED
 				component[5] = player.skill_points >= player.chip_design ? chip_design_button : UNDEFINED
 
-		on_draw = FUNCTION
-			char_name.text          = player.name
-			char_reputation.text    = ( player.reputation_level < 0 ? REPUTATION_NAME[0] : player.reputation_level >= REPUTATION_NAME.size ? REPUTATION_NAME[REPUTATION_NAME.size-1] : REPUTATION_NAME[player.reputation_level] ) + " / " + player.reputation_level
-			char_money.text         = player.money
-			char_health.text        = HEALTH_INCREMENT * (LETHAL_DAMAGE - player.physical_damage) + "%"
-			date.text               = date_text(2132,0,player.age)
+		setup = FUNCTION
+			with character_screen
+				char_name.text          = player.name
+				char_reputation.text    = ( player.reputation_level < 0 ? REPUTATION_NAME[0] : player.reputation_level >= REPUTATION_NAME.size ? REPUTATION_NAME[REPUTATION_NAME.size-1] : REPUTATION_NAME[player.reputation_level] ) + " / " + player.reputation_level
+				char_money.text         = player.money
+				char_health.text        = HEALTH_INCREMENT * (LETHAL_DAMAGE - player.physical_damage) + "%"
+				date.text               = date_text(2132,0,player.age)
 
-			attack_points.text      = player.attack
-			defense_points.text     = player.defense
-			stealth_points.text     = player.stealth
-			analysis_points.text    = player.analysis
-			programming_points.text = player.programming
-			chip_design_points.text = player.chip_design
-			skill_points.text       = player.skill_points
+				attack_points.text      = player.attack
+				defense_points.text     = player.defense
+				stealth_points.text     = player.stealth
+				analysis_points.text    = player.analysis
+				programming_points.text = player.programming
+				chip_design_points.text = player.chip_design
+				skill_points.text       = player.skill_points
 
-			updateBackButton(back_button)
+				updateBackButton(back_button)
 
-			lifestyle.text         = lifestyle_text[player.lifestyle]
-			monthly_cost.text      = LIFESTYLE_COST[player.lifestyle]
-			LOCAL.d = date_days_in_month(2132,0,player.age) - date_day_of_month(2132,0,player.age) + 1
-			monthly_cost_due.text  = d == 1 ? "1 day" : d + "days"
-			if player.lifestyle + 1 < LIFESTYLE_COST.size
-				lifestyle_upgrade_text.text = "Cost To Upgrade"
-				lifestyle_upgrade.text = LIFESTYLE_UPGRADE_COST[player.lifestyle]
-				if player.money >= LIFESTYLE_UPGRADE_COST[player.lifestyle]
-					lifestyle_panel_border.height = lifestyle_panel.height+20
+				lifestyle.text         = lifestyle_text[player.lifestyle]
+				monthly_cost.text      = LIFESTYLE_COST[player.lifestyle]
+				LOCAL.d = date_days_in_month(2132,0,player.age) - date_day_of_month(2132,0,player.age) + 1
+				monthly_cost_due.text  = d == 1 ? "1 day" : d + "days"
+				if player.lifestyle + 1 < LIFESTYLE_COST.size
+					lifestyle_upgrade_text.text = "Cost To Upgrade"
+					lifestyle_upgrade.text = LIFESTYLE_UPGRADE_COST[player.lifestyle]
+					if player.money >= LIFESTYLE_UPGRADE_COST[player.lifestyle]
+						lifestyle_panel_border.height = lifestyle_panel.height+20
+					else
+						lifestyle_panel_border.height = lifestyle_panel.height-8
 				else
-					lifestyle_panel_border.height = lifestyle_panel.height-8
-			else
-				lifestyle_upgrade_text.text = ""
-				lifestyle_upgrade.text = ""
-				lifestyle_panel_border.height = lifestyle_panel.height-28
+					lifestyle_upgrade_text.text = ""
+					lifestyle_upgrade.text = ""
+					lifestyle_panel_border.height = lifestyle_panel.height-28

@@ -211,28 +211,28 @@ final class ForLoopCommand extends Block
 	}
 
 
-	boolean print (final PrintStream out, final String indentation, boolean line_start)  {
+	boolean print (final PrintStream out, final String indentation, boolean line_start, final int depth)  {
 		if (!line_start)
 			out.println();
 		if (java_style) {
 			out.print(indentation+"for (");
 			// print the variable section
 			if (variable != null) {
-				line_start = variable.print(out, indentation, false);
+				line_start = variable.print(out, indentation, false, depth);
 				if (initial_value != null) {
 					out.print((line_start?indentation:" ") + "= ");
-					line_start = initial_value.print(out, indentation, false);
+					line_start = initial_value.print(out, indentation, false, depth);
 				}
 			}
 			out.print((line_start?indentation:"") + "; ");
 			// print the condition section
 			if (condition != null) {
-				line_start = condition.print(out, indentation, false);
+				line_start = condition.print(out, indentation, false, depth);
 			}
 			out.print((line_start?indentation:"") + "; ");
 			// print the section that advances the loop variable
 			if (increment != null) {
-				line_start = increment.print(out, indentation, false);
+				line_start = increment.print(out, indentation, false, depth);
 			}
 			out.println((line_start?indentation:"") + ")");
 		}
@@ -240,7 +240,7 @@ final class ForLoopCommand extends Block
 			out.print(indentation+"for ");
 			// print the variable section
 			if (variable != null) {
-				line_start = variable.print(out, indentation, false);
+				line_start = variable.print(out, indentation, false, depth);
 			}
 			else {
 				out.print("[variable not defined]");
@@ -248,7 +248,7 @@ final class ForLoopCommand extends Block
 			}
 			out.print((line_start?indentation:" ") + "= ");
 			if (initial_value != null) {
-				line_start = initial_value.print(out, indentation, false);
+				line_start = initial_value.print(out, indentation, false, depth);
 			}
 			else {
 				out.print("[initial value not defined]");
@@ -257,7 +257,7 @@ final class ForLoopCommand extends Block
 			out.print((line_start?indentation:" ") + (go_up ? "to " : "downto "));
 			// print the final value section
 			if (final_value != null) {
-				line_start = final_value.print(out, indentation, false);
+				line_start = final_value.print(out, indentation, false, depth);
 			}
 			else {
 				out.print("[final value not defined]");
@@ -266,14 +266,14 @@ final class ForLoopCommand extends Block
 			// print the section that advances the loop variable
 			if (step != null) {
 				out.print((line_start?indentation:" ") + "step ");
-				line_start = step.print(out, indentation, false);
+				line_start = step.print(out, indentation, false, depth);
 			}
 			if (!line_start) {
 				out.println();
 			}
 		}
 		// print the block enclosed in the for loop
-		return super.print(out, indentation, true);
+		return super.print(out, indentation, true, depth);
 	}
 
 

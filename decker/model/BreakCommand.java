@@ -23,7 +23,7 @@ final class BreakCommand extends ScriptNode
 	public Value execute ()  { return BREAK_VALUE; }
 
 
-	boolean print (final PrintStream out, final String indentation, final boolean line_start)  {
+	boolean print (final PrintStream out, final String indentation, final boolean line_start, final int depth)  {
 		if (!line_start)
 			out.print("break");
 		else

@@ -46,6 +46,7 @@ public final class ViewWrapper extends Canvas implements ComponentListener
 	private int frame_x, frame_y;
 	private int old_width = -1, old_height = -1;
 	private String oldScreenTitle = "";
+	private Value oldDisplayedScreen = new Value();
 
 
 	public void componentHidden (ComponentEvent e)  {}
@@ -82,43 +83,6 @@ public final class ViewWrapper extends Canvas implements ComponentListener
 						mouse_y = ((MouseEvent)e).getY();
 					}
 					discardEvent = DisplayedComponent.handleUserInput(e, mouse_x, mouse_y, mouse_x-mx, mouse_y-my);
-//					discardEvent = DisplayedComponent.;
-/*					// if it is a mouse event, remember the old mouse position
-					if (e instanceof MouseEvent) {
-						mouse_x = ((MouseEvent)e).getX();
-						mouse_y = ((MouseEvent)e).getY();
-					}
-					switch (e.getID()) {
-						case ComponentEvent.COMPONENT_RESIZED :
-							break;
-						case MouseEvent.MOUSE_DRAGGED :
-							v.eventMouseDragged(mouse_x, mouse_y, mouse_x-mx, mouse_y-my);
-							break;
-						case MouseEvent.MOUSE_ENTERED :
-						case MouseEvent.MOUSE_MOVED :
-							v.eventMouseMoved(mouse_x, mouse_y);
-							break;
-						case MouseEvent.MOUSE_EXITED :
-							mouse_x = -100000;
-							mouse_y = -100000;
-							v.eventMouseMoved(mouse_x, mouse_y);
-							break;
-						case MouseEvent.MOUSE_PRESSED :
-							v.eventMousePressed(mouse_x, mouse_y);
-							break;
-						case MouseEvent.MOUSE_RELEASED :
-							v.eventMouseReleased(mouse_x, mouse_y);
-							break;
-						case KeyEvent.KEY_PRESSED :
-							v.eventKeyPressed(((KeyEvent)e).getKeyChar(), ((KeyEvent)e).getKeyCode(), ((KeyEvent)e).isAltDown());
-							break;
-						case KeyEvent.KEY_RELEASED :
-							v.eventKeyReleased(((KeyEvent)e).getKeyChar(), ((KeyEvent)e).getKeyCode(), ((KeyEvent)e).isAltDown());
-							break;
-						default :
-							discardEvent = true;
-					}
-*/
 				} catch (Throwable t) {
 					t.printStackTrace();
 				}
@@ -193,9 +157,15 @@ public final class ViewWrapper extends Canvas implements ComponentListener
 		try {
 			handleUserInput();
 
+			final Value scr = Global.getDisplayedScreen();
+			if (scr != null) {
+				if (oldDisplayedScreen == null || !scr.equals(oldDisplayedScreen)) {
+System.out.println("** switching screens **");
+					oldDisplayedScreen.set(scr);
+					DisplayedComponent.setDisplayedScreen(scr);
+				}
+
 //			if (view != null) {
-				final Value scr = Global.getDisplayedScreen();
-				if (scr != null) {
 final int w = Math.max(11, DisplayedComponent.getScreenWidth()), h = Math.max(11, DisplayedComponent.getScreenHeight());
 
 					// draw the next frame

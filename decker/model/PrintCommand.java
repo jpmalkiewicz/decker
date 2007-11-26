@@ -28,13 +28,13 @@ final class PrintCommand extends ScriptNode
 	public Value execute ()  { Global.displayTickerMessage(displayed_expression.execute().toString()); return null; }
 
 
-	boolean print (final PrintStream out, final String indentation, final boolean line_start)  {
+	boolean print (final PrintStream out, final String indentation, final boolean line_start, final int depth)  {
 		if (!line_start)
 			out.println();
 		out.print(indentation + "print ");
 		if (displayed_expression == null)
 			out.println("[displayed expression not defined]");
-		else if (!displayed_expression.print(out, indentation, false))
+		else if (!displayed_expression.print(out, indentation, false, depth))
 			out.println();
 		return true;
 	}

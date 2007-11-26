@@ -51,7 +51,7 @@ final class ArrayDefinition extends Expression
 	}
 
 
-	boolean print (final PrintStream out, final String indentation, final boolean line_start)  {
+	boolean print (final PrintStream out, final String indentation, final boolean line_start, final int depth)  {
 		final int count = array_definition.length;
 		if (array_definition.length == 0) {
 			out.print((line_start?indentation:"") + "ARRAY");
@@ -60,9 +60,12 @@ final class ArrayDefinition extends Expression
 		else {
 			out.println((line_start?indentation:"") + "ARRAY");
 			final String ind = indentation + Global.BLOCK_INDENT;
-			for (int i = 0; i < count; i++)
-				if (!array_definition[i].print(out, ind, true))
-					out.println();
+			if (depth <= 0)
+				System.out.println(ind+"...");
+			else
+				for (int i = 0; i < count; i++)
+					if (!array_definition[i].print(out, ind, true, depth-1))
+						out.println();
 			return true;
 		}
 	}

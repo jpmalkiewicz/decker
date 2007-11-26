@@ -118,7 +118,7 @@ class UITable
 			final int eventy = y-j*ch;
 			for (int i = 0; i < columns; i++)
 				if (row[i].type() == Value.STRUCTURE)
-					if (caller.eventMouseDragged(x-cx[i], eventy, dx, dy, row[i].structure(), cw[i], ch))
+//					if (caller.eventMouseDragged(x-cx[i], eventy, dx, dy, row[i].structure(), cw[i], ch))
 						return true;
 		}
 		// if we're currently dragging a row, check whether it has changed its position
@@ -178,7 +178,7 @@ class UITable
 			final int eventy = y-j*ch;
 			for (int i = 0; i < columns; i++)
 				if (row[i].type() == Value.STRUCTURE)
-					if (caller.eventMouseMoved(x-cx[i], eventy, row[i].structure(), cw[i], ch))
+//					if (caller.eventMouseMoved(x-cx[i], eventy, row[i].structure(), cw[i], ch))
 						return true;
 		}
 		return false;
@@ -229,7 +229,7 @@ class UITable
 			final int eventy = y-j*ch;
 			for (int i = 0; i < columns; i++)
 				if (row[i].type() == Value.STRUCTURE)
-					if (caller.eventMousePressed(x-cx[i], eventy, row[i].structure(), cw[i], ch))
+//					if (caller.eventMousePressed(x-cx[i], eventy, row[i].structure(), cw[i], ch))
 						return true;
 		}
 		// if it is possible to drag rows and the event hasn't been consumed, remember the place where the row was grabbed
@@ -276,7 +276,7 @@ class UITable
 			final int eventy = y-j*ch;
 			for (int i = 0; i < columns; i++)
 				if (row[i].type() == Value.STRUCTURE)
-					if (caller.eventMouseReleased(x-cx[i], eventy, row[i].structure(), cw[i], ch))
+//					if (caller.eventMouseReleased(x-cx[i], eventy, row[i].structure(), cw[i], ch))
 						return true;
 		}
 		return false;

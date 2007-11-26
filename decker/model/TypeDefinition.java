@@ -59,7 +59,7 @@ final class TypeDefinition extends ScriptNode
 	}
 
 
-	boolean print (final PrintStream out, final String indentation, final boolean line_start)  {
+	boolean print (final PrintStream out, final String indentation, final boolean line_start, final int depth)  {
 		out.println((line_start?indentation:"") + structure_type + ((extends_structure_type==null)?"":(" extends "+extends_structure_type)));
 		if (definition_body != null) {
 			final String ind = indentation + Global.BLOCK_INDENT;
@@ -68,7 +68,7 @@ final class TypeDefinition extends ScriptNode
 					out.println(ind + (String)definition_body[i]);
 				else {
 					out.print(ind + (String)((Object[])definition_body[i])[0] + " = ");
-					if ( !((Expression)((Object[])definition_body[i])[1]).print(out, ind, false) )
+					if ( !((Expression)((Object[])definition_body[i])[1]).print(out, ind, false, depth-1) )
 						out.println();
 				}
 			}

@@ -153,7 +153,7 @@ english
 						GLOBAL.ironman = ironman
 						GLOBAL.player = HUMAN
 							name = char_name.user_input.text
-							image = char_image
+							image = char_image.image
 							LOCAL.slvl = bonus_name[selected_bonus] == "software" ? 2 : 1
 							LOCAL.hlvl = bonus_name[selected_bonus] == "hardware" ? 2 : 1
 							deck = createDeck(hlvl, slvl)
@@ -169,6 +169,8 @@ english
 							physical_damage = 3
 							money = money + 2000
 							skill_points = 8
+						debug(GLOBAL.player, , 3)
+// debug stuff END
 						updateShopInventory()
 // create the new character END
 					displayScreen(home_screen)

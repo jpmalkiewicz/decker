@@ -33,9 +33,9 @@ final class StaticScriptFunctions extends ScriptNode
 			case Global.F_REPAINT : if ((v=stack[ENGINE_STACK_SLOT].get("frames_per_second")) == null || v.type() != Value.INTEGER || v.integer() <= 0) try { Global.getDisplayedComponent().repaint(); } catch (Throwable t) {}; return new Value();
 			case Global.F_SIZE : return execute_size(args);
 			case Global.F_SUBSTRING : return execute_substring(args);
-			case Global.F_TO_LOWER_CASE : return (args.length==0) ? new Value() : new Value().set(args[0].toString().toLowerCase());
-			case Global.F_TO_UPPER_CASE : return (args.length==0) ? new Value() : new Value().set(args[0].toString().toUpperCase());
-			case Global.F_VALUE_TYPE : return (args.length==0) ? new Value() : new Value().set(args[0].typeName());
+			case Global.F_TO_LOWER_CASE : return (args.length==0 || args[0] == null) ? DUMMY_VALUE : new Value().set(args[0].toString().toLowerCase());
+			case Global.F_TO_UPPER_CASE : return (args.length==0 || args[0] == null) ? DUMMY_VALUE : new Value().set(args[0].toString().toUpperCase());
+			case Global.F_VALUE_TYPE : return (args.length==0 || args[0] == null) ? new Value() : new Value().set(args[0].typeName());
 		}
 		return null;
 	}
@@ -89,12 +89,13 @@ final class StaticScriptFunctions extends ScriptNode
 			boolean new_line = true;
 			final PrintStream where = (args.length >= 2 && args[1] != null && args[1].equals(false)) ? System.err : System.out;
 			final Value v = args[0];
+			final int depth = (args.length >= 3 && args[2] != null && args[2].type() == Value.INTEGER) ? args[2].integer() : 10;
 			if (v.type() == Value.FUNCTION)
-				new_line = v.function().print(where, "", true);
+				new_line = v.function().print(where, "", true, depth);
 			else if (v.type() == Value.STRUCTURE)
-				new_line = v.structure().print(where, "", true);
+				new_line = v.structure().print(where, "", true, depth);
 			else if (v.type() == Value.ARRAY)
-				new_line = v.arrayWrapper().print(where, "", true);
+				new_line = v.arrayWrapper().print(where, "", true, depth);
 			else
 				where.println(v.toStringForPrinting());
 			if (!new_line)
@@ -361,5 +362,5 @@ final class StaticScriptFunctions extends ScriptNode
 	public Value execute ()  { throw new RuntimeException("should never get called"); }
 
 
-	boolean print (final PrintStream out, final String indentation, final boolean line_start)  { throw new RuntimeException("should never get called"); }
+	boolean print (final PrintStream out, final String indentation, final boolean line_start, final int depth)  { throw new RuntimeException("should never get called"); }
 }

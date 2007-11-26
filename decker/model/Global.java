@@ -19,6 +19,7 @@ public final class Global
 	final static String COMMANDS = " if for while with global print copy structure break constant "; // the string must start and end with spaces
 	final static String BLOCK_INDENT = "   ";
 	final static int PARSER_EXPRESSION_STACK_SIZE = 100;
+	final static int DEFAULT_PRINT_DEPTH = 10;
 
 	// id codes for hard coded functions. used by FunctionCall.executeFunctionCall() and Global.initializedataModel()
 	final static int F_SIZE = 0, F_FILELIST = 1, F_SUBSTRING = 2, F_PIXELWIDTH = 3, F_PIXELHEIGHT = 4, F_EXIT_PROGRAM = 5, F_REPAINT = 6, F_INDEXOF = 7, F_IMAGE_EXISTS = 8, F_TO_LOWER_CASE = 9, F_TO_UPPER_CASE = 10, F_DATE_TEXT = 11, F_DEBUG = 12, F_INSERT = 13, F_RANDOM = 14, F_VALUE_TYPE = 15, F_DATE_DAY_OF_MONTH = 16, F_DATE_DAYS_IN_MONTH = 17, F_DELETE = 18, F_GET_STRUCTURE_STACK = 19, F_IS_EXPANDABLE = 20, F_HAS_VARIABLE = 21;

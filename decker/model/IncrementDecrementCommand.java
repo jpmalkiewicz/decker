@@ -52,10 +52,10 @@ final class IncrementDecrementCommand extends ScriptNode
 	}
 
 
-	boolean print (final PrintStream out, final String indentation, boolean line_start)  {
+	boolean print (final PrintStream out, final String indentation, boolean line_start, final int depth)  {
 		if (prefix)
 			out.print((line_start?indentation:"") + ((modifier>0)?"++":"--"));
-		variable.print(out, indentation, line_start);
+		variable.print(out, indentation, line_start, depth);
 		if (!prefix)
 			out.print((line_start?indentation:"") + ((modifier>0)?"++":"--"));
 		return false;

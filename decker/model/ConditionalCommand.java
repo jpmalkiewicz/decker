@@ -77,15 +77,15 @@ final class ConditionalCommand extends Block
 	int getType ()  { return type; }
 
 
-	boolean print (final PrintStream out, final String indentation, final boolean line_start)  {
+	boolean print (final PrintStream out, final String indentation, final boolean line_start, final int depth)  {
 		out.println((line_start?indentation:"") + ((type==IF)?"if":"while") + " " + ((conditional_expression!=null)?conditional_expression:"[ CONDITIONAL EXPRESSION NOT DEFINED ]"));
 		if (else_branch == null)
-			return super.print(out, indentation, true);
+			return super.print(out, indentation, true, depth-1);
 		else {
-			if (!super.print(out, indentation, true))
+			if (!super.print(out, indentation, true, depth-1))
 				out.println();
 			out.println(indentation+"else");
-			return else_branch.print(out, indentation, true);
+			return else_branch.print(out, indentation, true, depth-1);
 		}
 	}
 

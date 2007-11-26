@@ -33,7 +33,7 @@ final class WithCommand extends Block
 		else {
 			System.err.println("Error in "+getScriptName()+" line "+getScriptLine()+" column "+getScriptColumn()+" :");
 			System.err.println(Global.BLOCK_INDENT + "expression does not describe a structure, instead it has the value "+v.toString()+" ("+v.typeName()+")");
-			if (!print(System.err, Global.BLOCK_INDENT, true)) {
+			if (!print(System.err, Global.BLOCK_INDENT, true, Global.DEFAULT_PRINT_DEPTH)) {
 				System.err.println();
 			}
 		}
@@ -44,15 +44,15 @@ final class WithCommand extends Block
 	}
 
 
-	boolean print (final PrintStream out, final String indentation, final boolean line_start)  {
+	boolean print (final PrintStream out, final String indentation, final boolean line_start, final int depth)  {
 		if (!line_start)
 			out.println();
 		out.print(indentation + "with ");
 		if (variable_expression == null)
 			out.println("[expression not defined]");
-		else if (!variable_expression.print(out, indentation, false))
+		else if (!variable_expression.print(out, indentation, false, depth))
 			out.println();
-		return super.print(out, indentation, true);
+		return super.print(out, indentation, true, depth);
 	}
 
 

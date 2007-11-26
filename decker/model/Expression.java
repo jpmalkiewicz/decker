@@ -408,7 +408,7 @@ try {
 	}
 
 
-	boolean print (final PrintStream out, final String indentation, boolean line_start)  {
+	boolean print (final PrintStream out, final String indentation, boolean line_start, final int depth)  {
 		boolean ret = false;
 		switch(operator) {
 			case VARIABLE :
@@ -424,37 +424,37 @@ try {
 					if (line_start)
 						out.print(indentation);
 					out.print("(");
-					line_start = print(out, indentation, false, first_operand);
+					line_start = print(out, indentation, false, first_operand, depth);
 					out.print((line_start?indentation:"") + ")");
 				break;
 			case ARRAY_INDEX :
-					line_start = print(out, indentation, line_start, first_operand);
+					line_start = print(out, indentation, line_start, first_operand, depth);
 					out.print((line_start?indentation:"") + "[");
-					line_start = print(out, indentation, false, second_operand);
+					line_start = print(out, indentation, false, second_operand, depth);
 					out.print((line_start?indentation:"") + "]");
 				break;
 			case MEMBER :
-					line_start = print(out, indentation, line_start, first_operand);
+					line_start = print(out, indentation, line_start, first_operand, depth);
 					out.print((line_start?indentation:"") + ".");
-					ret = print(out, indentation, false, second_operand);
+					ret = print(out, indentation, false, second_operand, depth);
 				break;
 			case NOT :
 			case NEGATIVE :
 			case GLOBAL_VALUE :
 					out.print((line_start?indentation:"") + operator_element.toString());
-					ret = print(out, indentation, false, first_operand);
+					ret = print(out, indentation, false, first_operand, depth);
 				break;
 			case RAW_VALUE :
 					out.print((line_start?indentation:""));
-					ret = print(out, indentation, false, first_operand);
+					ret = print(out, indentation, false, first_operand, depth);
 				break;
 			case FUNCTION_CALL:
 					out.print((line_start?indentation:"")+toString());
 				break;
 			default :
-					line_start = print(out, indentation, line_start, first_operand);
+					line_start = print(out, indentation, line_start, first_operand, depth);
 					out.print((line_start?indentation:" ") + operator_element.toString() + " ");
-					ret = print(out, indentation, false, second_operand);
+					ret = print(out, indentation, false, second_operand, depth);
 				break;
 		}
 		return ret;

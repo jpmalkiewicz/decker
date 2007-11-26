@@ -177,16 +177,16 @@ public abstract class ScriptNode
 
 
 	/** returns true iff the cursor is sitting at the beginning of a new line */
-	abstract boolean print (final PrintStream out, final String indentation, final boolean line_start);
+	abstract boolean print (final PrintStream out, final String indentation, final boolean line_start, final int depth);
 
 
 	/** called whenever a ScriptNode that may no exist gets printed */
-	boolean print (final PrintStream out, final String indentation, boolean line_start, final ScriptNode e) {
+	boolean print (final PrintStream out, final String indentation, boolean line_start, final ScriptNode e, final int depth) {
 		if (e == null) {
 			out.print("%MISSING OPERAND%");
 			return false;
 		}
-		return e.print(out, indentation, line_start);
+		return e.print(out, indentation, line_start, depth);
 	}
 
 
@@ -220,7 +220,7 @@ public abstract class ScriptNode
 
 	public String toString ()  {
 		final StringPrintStream sps = new StringPrintStream();
-		print(sps, "", true);
+		print(sps, "", true, Global.DEFAULT_PRINT_DEPTH);
 		return sps.toString();
 	}
 }

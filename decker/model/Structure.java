@@ -186,11 +186,11 @@ System.out.println("Structure : hash compare failed");
 
 
 
-	public boolean print (final PrintStream out, final String indentation, boolean line_start)  {
+	public boolean print (final PrintStream out, final String indentation, boolean line_start, final int depth)  {
 		final String ind = indentation+Global.BLOCK_INDENT;
 		out.print((line_start?indentation:"") + get("structure_type"));
 		// make sure we're not going too deep into recurions
-		if (ind.length() == 10*Global.BLOCK_INDENT.length()) {
+		if (depth <= 0) {
 			if (members.size() > 0)
 				out.println(ind+"...");
 		}
@@ -204,11 +204,11 @@ System.out.println("Structure : hash compare failed");
 					final Value v = (Value) n.getValue();
 					final int vt = v.type();
 					if (vt == Value.STRUCTURE)
-						v.structure().print(out, ind, false);
+						v.structure().print(out, ind, false, depth-1);
 					else if (vt == Value.FUNCTION)
-						v.function().print(out, ind, false);
+						v.function().print(out, ind, false, depth-1);
 					else if (vt == Value.ARRAY)
-						v.arrayWrapper().print(out, ind, false);
+						v.arrayWrapper().print(out, ind, false, depth-1);
 					else
 						out.println(v.toStringForPrinting());
 				}
