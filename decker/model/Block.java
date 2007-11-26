@@ -58,7 +58,7 @@ class Block extends ScriptNode
 		if (count > 0) {
 			final String ind = indentation + Global.BLOCK_INDENT;
 			if (depth <= 0)
-				System.out.println(ind+"...");
+				System.out.println(ind+"[...]");
 			else
 				for (int i = 0; i < count; i++)
 					if (!child_command[i].print(out, ind, true, depth-1))

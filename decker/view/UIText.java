@@ -16,8 +16,9 @@ final class UIText extends DisplayedComponent
 
 	UIText (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
 		super(_component, _parent);
+		component.structure().addValueListener(this);
 		updateText();
-		update(current_clip_source);
+		super.update(current_clip_source);
 		child_count = 0; // cannot have children
 	}
 
@@ -32,6 +33,18 @@ final class UIText extends DisplayedComponent
 	}
 
 
+	public void eventValueChanged (final int index, final ArrayWrapper wrapper, final Value old_value, final Value new_value) {
+System.out.println(index+"  changed");
+		updateText();
+		super.eventValueChanged(index, wrapper, old_value, new_value);
+	}
+
+
+	public void eventValueChanged (final String variable_name, final Structure container, final Value old_value, final Value new_value) {
+System.out.println(variable_name+"  changed");
+		updateText();
+		super.eventValueChanged(variable_name, container, old_value, new_value);
+	}
 
 
 	void update (final DisplayedComponent current_clip_source) {
@@ -45,7 +58,9 @@ final class UIText extends DisplayedComponent
 		final Structure t = component.structure();
 		Value v;
 		// fetch the text and its style settings
+final String old_text = text;
 		text = t.get("text").toString();
+System.out.println("updating text    "+old_text+" -> "+text);
 		v = t.get("font");
 		font = AbstractView.getFont((v.type() == Value.STRING)?v.string():"", null, false);
 		color = ((v=t.get("color")).type() == Value.STRING) ? AbstractView.getColor(v.string()) : null;

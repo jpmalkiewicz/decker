@@ -61,7 +61,7 @@ final class ArrayDefinition extends Expression
 			out.println((line_start?indentation:"") + "ARRAY");
 			final String ind = indentation + Global.BLOCK_INDENT;
 			if (depth <= 0)
-				System.out.println(ind+"...");
+				System.out.println(ind+"[...]");
 			else
 				for (int i = 0; i < count; i++)
 					if (!array_definition[i].print(out, ind, true, depth-1))

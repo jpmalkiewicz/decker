@@ -92,7 +92,7 @@ public final class ArrayWrapper implements Comparable, ValueListener
 		out.println((line_start?indentation:"") + "ARRAY");
 		final String ind = indentation+Global.BLOCK_INDENT;
 		if (depth <= 0)
-			out.println(ind+"...");
+			out.println(ind+"[...]");
 		else {
 			final Value[] a = array;
 			final int al = a.length;

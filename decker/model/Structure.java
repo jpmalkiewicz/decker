@@ -191,11 +191,13 @@ System.out.println("Structure : hash compare failed");
 		out.print((line_start?indentation:"") + get("structure_type"));
 		// make sure we're not going too deep into recurions
 		if (depth <= 0) {
-			if (members.size() > 0)
-				out.println(ind+"...");
+			if (members.size() > 0) {
+				out.println(); // add a line feed behind the structure type
+				out.println(ind+"[...]");
+			}
 		}
 		else {
-			out.println(); // gotta add a line feed behind the structure type
+			out.println(); // add a line feed behind the structure type
 			final StringTreeMap.Iterator i = members.getIterator();
 			while (i.hasNext()) {
 				final StringTreeMap.TreeNode n = i.nextNode();
@@ -207,8 +209,10 @@ System.out.println("Structure : hash compare failed");
 						v.structure().print(out, ind, false, depth-1);
 					else if (vt == Value.FUNCTION)
 						v.function().print(out, ind, false, depth-1);
-					else if (vt == Value.ARRAY)
-						v.arrayWrapper().print(out, ind, false, depth-1);
+					else if (vt == Value.ARRAY) {
+						if (!v.arrayWrapper().print(out, ind, false, depth-1))
+							out.println();
+					}
 					else
 						out.println(v.toStringForPrinting());
 				}
