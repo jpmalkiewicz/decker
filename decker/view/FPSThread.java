@@ -30,7 +30,10 @@ public class FPSThread extends Thread
 			time = System.nanoTime();
 			component.repaint();
 //System.out.println(((System.nanoTime()-time)/1000000L)+"                        FPSThread");
-			final Value vfps = ScriptNode.getValue("FRAMES_PER_SECOND");
+			Value vfps = null;
+			try {
+				vfps = ScriptNode.getValue("FRAMES_PER_SECOND");
+			} catch (Throwable t) {}
 			long fps = (vfps==null||vfps.type()!=Value.INTEGER) ? 25 : vfps.integer();
 			if (fps <= 0)
 				fps = 100;

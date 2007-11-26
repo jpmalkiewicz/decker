@@ -229,6 +229,11 @@ final class UIButton extends DisplayedComponent
 	boolean eventUserInput (final int event_id, final AWTEvent e, final int mouse_x, final int mouse_y, final int mouse_dx, final int mouse_dy) {
 		if (state == DISABLED_STATE_ID) // this should not be possible, but better to be safe than sorry
 			return true;
+		String s;
+if (component.type() != Value.STRUCTURE ||( !(s=component.get("structure_type").string()).equals("BUTTON") && !s.equals("BORDER_BUTTON") )) {
+System.out.println("this button is not a button anymore");
+return true;
+}
 		final Value v = component.get("state");
 		switch (event_id) {
 			case ON_MOUSE_DOWN :

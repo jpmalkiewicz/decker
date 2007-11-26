@@ -44,7 +44,7 @@ final class ConstantDefinitionCommand extends ScriptNode
 			out.println(indentation + "constant");
 			final String ind = indentation + Global.BLOCK_INDENT;
 			if (depth <= 0)
-				System.out.println(ind+"...");
+				System.out.println(ind+"[...]");
 			else
 				for (int i = 0; i < constant.length; i++)
 					out.println(ind + constant[i]);

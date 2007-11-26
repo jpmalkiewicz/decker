@@ -1,6 +1,8 @@
 82%
 2007-11-26
+  added optional depth parameter to debug()
   switching between screens works again
+  character screen : skill buttons work. lifestyle button used to work. looks like something 
 
 81%
 2007-11-26
