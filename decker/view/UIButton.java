@@ -30,11 +30,13 @@ final class UIButton extends DisplayedComponent
 
 
 
+
 	static {
 		for (int i = BUTTON_STATE_CONSTANT.length; --i >= 0; ) {
 			BUTTON_STATE_FACE_VARIABLE[i] = BUTTON_STATE_CONSTANT[i].toLowerCase();
 		}
 	}
+
 
 
 
@@ -208,6 +210,7 @@ final class UIButton extends DisplayedComponent
 
 
 
+
 	void draw (final Graphics g) {
 		// draw the border
 		if (border != null)
@@ -223,6 +226,7 @@ final class UIButton extends DisplayedComponent
 				c[i].draw(g);
 		}
 	}
+
 
 
 
@@ -260,6 +264,21 @@ return true;
 
 
 
+
+	void update (final DisplayedComponent current_clip_source) {
+		super.update(CUSTOM_SIZE, current_clip_source);
+		updateButton(current_clip_source);
+	}
+
+
+
+
+	private void updateButton (final DisplayedComponent current_clip_source) {
+	}
+
+
+
+
 	private void updateButtonState () {
 		final Value v = component.get("state");
 		if (v != null && v.type() == Value.CONSTANT) {
@@ -291,6 +310,8 @@ return true;
 			}
 		}
 	}
+
+
 
 
 	void updateEventListeners () {
