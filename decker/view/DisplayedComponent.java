@@ -10,6 +10,9 @@ public class DisplayedComponent implements ValueListener
 {
 	final static String[] EVENT_FUNCTION_NAME = { "on_key_down",   "on_mouse_down",   "on_mouse_dragged",   "on_mouse_entered",   "on_mouse_exited",   "on_mouse_moved",   "on_mouse_up" };
 	final static int                               ON_KEY_DOWN = 0, ON_MOUSE_DOWN = 1, ON_MOUSE_DRAGGED = 2, ON_MOUSE_ENTERED = 3, ON_MOUSE_EXITED = 4, ON_MOUSE_MOVED = 5, ON_MOUSE_UP =6;
+	// when calling DisplayedContent.update(), derived classes use these constants to tell the default update algorithm which settings have custom functions
+	final static int CUSTOM_SIZE = 0x1;
+
 	private final static DisplayedComponent[][] eventListener = new DisplayedComponent[EVENT_FUNCTION_NAME.length][5];
 	private final static int[] eventListenerCount = new int[EVENT_FUNCTION_NAME.length];
 	private static DisplayedComponent[] mouseIsInside = new DisplayedComponent[10]; // this is the list of components where the mouse was inside the last time a mouse event occured. only components which listen to on_mouse_entered or to on_mouse_exited will get added
@@ -321,7 +324,7 @@ System.out.println("mouse up END");
 		parent = _parent;
 		child_count = -1; // the -1 will tell createDisplayedComponent() that the children still need to be added
 		if (_component != null) {
-			update(current_clip_source);
+			update(0, current_clip_source);
 			if (_component.type() == Value.STRUCTURE) {
 				_component.structure().addValueListener(this);
 			}
@@ -361,6 +364,10 @@ System.out.println("mouse up END");
 			}
 		}
 	}
+
+
+
+	void determineSize (final boolean width_already_determined, final boolean height_already_determined, final DisplayedComponent current_clip_source) {}
 
 
 
@@ -455,7 +462,7 @@ System.out.println("mouse up END");
 				if (( children_relative_to_width > 0 && width_has_changed )||( children_relative_to_height > 0 && height_has_changed )) {
 					for (int i = child_count; --i >= 0; ) {
 						if (( child[i].relative_to_parent_width && width_has_changed )||( child[i].relative_to_parent_height && height_has_changed )) {
-							child[i].update(current_clip_source);
+							child[i].update(0, current_clip_source);
 						}
 					}
 				}
@@ -481,7 +488,7 @@ System.out.println("mouse up END");
 
 	public void eventValueChanged (final int index, final ArrayWrapper wrapper, final Value old_value, final Value new_value) {
 		final DisplayedComponent clip_source = findCurrentClipSource();
-		update(clip_source);
+		update(0, clip_source);
 		updateChildren(clip_source);
 	}
 
@@ -491,7 +498,7 @@ System.out.println("mouse up END");
 //System.out.println("DC.eventValueChanged() "+getClass().getName()+" "+variable_name+" "+old_value+" -> "+new_value);
 //System.out.println(x+","+y+" "+w+","+h);
 		final DisplayedComponent clip_source = findCurrentClipSource();
-		update(clip_source);
+		update(0, clip_source);
 		updateChildren(clip_source);
 //System.out.println(x+","+y+" "+w+","+h);
 	}
@@ -528,10 +535,10 @@ System.out.println("mouse up END");
 
 
 
-	void update (final DisplayedComponent current_clip_source) {
+	void update (final int customSettings, final DisplayedComponent current_clip_source) {
 		relative_to_parent_width = false;
 		relative_to_parent_height = false;
-		// if the displayed component is an image, fetch it
+		// if the displayed component is not a structure, use the parent's x and y
 		if (component.type() != Value.STRUCTURE) {
 			x = parent.x;
 			y = parent.y;
@@ -539,11 +546,65 @@ System.out.println("mouse up END");
 		// if the displayed component is a Structure, set the structure specific variables
 		else { // (component.type() == Value.STRUCTURE)
 			final Structure s = component.structure();
-			// determine the bounding rectangle
-			x = parent.x + DefaultView.x(s, parent.w, -1);
-			y = parent.y + DefaultView.y(s, parent.h, -1);
-			w = DefaultView.width(s, parent.w);
-			h = DefaultView.height(s, parent.h);
+			// determine the width
+			w = 0;
+			boolean width_determined = false;
+			Value v = s.get("width");
+			if (v != null) {
+				switch (v.type()) {
+					case Value.INTEGER :
+						w = v.integer();
+						width_determined = true;
+					break;
+					case Value.REAL :
+						w = (int) (v.real()+0.500000001);
+						width_determined = true;
+					break;
+					case Value.STRING :
+						// check whether it's a percentage value
+						final String k = v.string();
+						if (k.endsWith("%")) {
+							try {
+								w = (Integer.parseInt(k.substring(0, k.length()-1)) * parent.w + 50)/100;
+								width_determined = true;
+							} catch (NumberFormatException ex) {}
+						}
+					break;
+				}
+			}
+			// determine the height
+			h = 0;
+			boolean height_determined = false;
+			v = s.get("height");
+			if (v != null) {
+				switch (v.type()) {
+					case Value.INTEGER :
+						h = v.integer();
+						height_determined = true;
+					break;
+					case Value.REAL :
+						h = (int) (v.real()+0.500000001);
+						height_determined = true;
+					break;
+					case Value.STRING :
+						// check whether it's a percentage value
+						final String k = v.string();
+						if (k.endsWith("%")) {
+							try {
+								h = (Integer.parseInt(k.substring(0, k.length()-1)) * parent.h + 50)/100;
+								height_determined = true;
+							} catch (NumberFormatException ex) {}
+						}
+					break;
+				}
+			}
+			// if we don't have a valid width or height value yet, try to call the custom size function some derived classes have
+			if (( !width_determined || !height_determined )&& (customSettings&CUSTOM_SIZE) != 0) {
+				determineSize(width_determined, height_determined, current_clip_source);
+			}
+			// determine the position
+			x = parent.x + DefaultView.x(s, parent.w, w);
+			y = parent.y + DefaultView.y(s, parent.h, h);
 			// calculate the bounding rectangle of the visible area
 			if (current_clip_source.cw <= 0) {
 				cx = 0;
@@ -582,7 +643,6 @@ System.out.println("mouse up END");
 				}
 			}
 			// the component may have a shape
-			Value v;
 			if ((v=s.get("shape")) != null && v.type() == Value.STRING) {
 				shape = (BufferedImage) AbstractView.getImage(v.string(), true);
 			}
