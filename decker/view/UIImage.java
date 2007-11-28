@@ -11,13 +11,19 @@ class UIImage extends DisplayedComponent
 
 
 	UIImage (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
-		super(_component, _parent, current_clip_source);
-		Value v;
-		image = AbstractView.getImage(_component.get("image").toString());
+		super(_component, _parent);
+		image = AbstractView.getImage((_component.type()==Value.STRUCTURE) ? _component.get("image").toString() : _component.toString());
+		update(0, current_clip_source);
+	}
+
+
+
+
+	void determineSize (final boolean width_already_determined, final boolean height_already_determined, final DisplayedComponent current_clip_source) {
 		if (image != null) {
-			if ((v=_component.get("width")) == null || v.equalsConstant("UNDEFINED"))
+			if (!width_already_determined)
 				w = image.getWidth(null);
-			if ((v=_component.get("height")) == null || v.equalsConstant("UNDEFINED"))
+			if (!height_already_determined)
 				h = image.getHeight(null);
 		}
 	}
@@ -55,5 +61,12 @@ class UIImage extends DisplayedComponent
 		else {
 			super.eventValueChanged(variable_name, container, old_value, new_value);
 		}
+	}
+
+
+
+
+	void update (final int customSettings, final DisplayedComponent current_clip_source) {
+		super.update(customSettings|CUSTOM_SIZE, current_clip_source);
 	}
 }

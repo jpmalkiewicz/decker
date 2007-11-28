@@ -16,7 +16,8 @@ final class UIButton extends DisplayedComponent
 	private int state; // 0 = IDLE, 1 = PRESSED, 2 = DISABLED, 3 = HOVER
 	private final DisplayedComponent[] face = new DisplayedComponent[BUTTON_STATE_CONSTANT.length]; // one for each state
 	private UIBorder border;
-	private DisplayedComponent clip_source;
+	// this is the current face for each state
+	private Value[] current_face = new Value[BUTTON_STATE_CONSTANT.length];
 	// the button may change its size and position depending on its state. these are the values for each state
 	private final int[] sx = new int[BUTTON_STATE_CONSTANT.length];
 	private final int[] sw = new int[BUTTON_STATE_CONSTANT.length];
@@ -41,21 +42,109 @@ final class UIButton extends DisplayedComponent
 
 
 	UIButton (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
-		super(_component, _parent, current_clip_source);
-		clip_source = current_clip_source;
-		Value v, k;
+		super(_component, _parent);
 		// determine the type. it may be a BORDER_BUTTON
 		final String type = _component.get("structure_type").string();
 		// add the border if it's a BORDER_BUTTON
 		if (type.equals("BORDER_BUTTON"))
 			border = new UIBorder(this, current_clip_source, true);
-		final int border_thickness = type.equals("BORDER_BUTTON") ? ScriptNode.getValue("DEFAULT_BORDER_THICKNESS").integer() : 0;
+		// fill in the remaining data
+		update(0, current_clip_source);
+	}
 
-		// fetch the button face for each state
+
+
+
+	void determineSize (final boolean width_already_determined, final boolean height_already_determined, final DisplayedComponent current_clip_source) {
+		final int border_thickness = component.get("structure_type").equals("BORDER_BUTTON") ? ScriptNode.getValue("DEFAULT_BORDER_THICKNESS").integer() : 0;
+		// if the width or height is fixed, use that value for all button states
+		if (width_already_determined || height_already_determined) {
+			for (int i = sw.length; --i >= 0; ) {
+				sw[i] = width_already_determined ? w : (face[i].w+2*border_thickness);
+				sh[i] = height_already_determined ? h : (face[i].h+2*border_thickness);
+			}
+		}
+		// use the width and height of the current state for the button
+		w = sw[state];
+		h = sh[state];
+	}
+
+
+
+
+	void draw (final Graphics g) {
+		// draw the border
+		if (border != null)
+			border.draw(g);
+		// draw the button face
+		if (face[state] != null)
+			face[state].draw(g);
+		// draw the child components of this view component
+		final int cc = child_count;
+		if (cc > 0) {
+			final DisplayedComponent[] c = child;
+			for (int i = 0; i < cc; i++)
+				c[i].draw(g);
+		}
+	}
+
+
+
+
+	boolean eventUserInput (final int event_id, final AWTEvent e, final int mouse_x, final int mouse_y, final int mouse_dx, final int mouse_dy) {
+		if (state == DISABLED_STATE_ID) // this should not be possible, but better to be safe than sorry
+			return true;
+		String s;
+if (component.type() != Value.STRUCTURE ||( !(s=component.get("structure_type").string()).equals("BUTTON") && !s.equals("BORDER_BUTTON") )) {
+System.out.println("this button is not a button anymore");
+return true;
+}
+		final Value v = component.get("state");
+		switch (event_id) {
+			case ON_MOUSE_DOWN :
+					v.setConstant("PRESSED");
+				break;
+			case ON_MOUSE_ENTERED :
+					// if one of the mouse buttons is pressed, press the button
+					final int m = ((MouseEvent)e).getModifiersEx();
+					if (( (m&MouseEvent.BUTTON1_DOWN_MASK) == MouseEvent.BUTTON1_DOWN_MASK )||( (m&MouseEvent.BUTTON2_DOWN_MASK) == MouseEvent.BUTTON2_DOWN_MASK )||( (m&MouseEvent.BUTTON3_DOWN_MASK) == MouseEvent.BUTTON3_DOWN_MASK ))
+						v.setConstant("PRESSED");
+					else
+						v.setConstant("HOVER");
+				break;
+			case ON_MOUSE_EXITED :
+					v.setConstant("IDLE");
+				break;
+			case ON_MOUSE_UP :
+					v.setConstant("HOVER");
+				break;
+		}
+		updateButtonState();
+		return true;
+	}
+
+
+
+
+	void update (final int customSettings, final DisplayedComponent current_clip_source) {
+		// determine the button state
+		state = IDLE_STATE_ID;
+		final Value v = component.get("state");
+		if (v != null && v.type() == Value.CONSTANT) {
+			final String s = v.constant();
+			for (int i = BUTTON_STATE_CONSTANT.length; --i >= 1; ) {
+				if (s.equals(BUTTON_STATE_CONSTANT[i])) {
+					state = i;
+					break;
+				}
+			}
+		}
+		// update the button face for each state
+		// fetch them from the displayed component
 		final Value[] state_value = new Value[BUTTON_STATE_CONSTANT.length];
 		int count = 0;
 		for (int i = BUTTON_STATE_CONSTANT.length; --i >= 0; ) {
-			state_value[i] = _component.get(BUTTON_STATE_FACE_VARIABLE[i]);
+			state_value[i] = component.get(BUTTON_STATE_FACE_VARIABLE[i]);
 			if (state_value[i] != null && !state_value[i].equalsConstant("UNDEFINED"))
 				count++;
 			else
@@ -63,9 +152,10 @@ final class UIButton extends DisplayedComponent
 		}
 		// if one or more button faces are undefined, and we have a button face for the idle state, fill the missing faces in
 		if (count < BUTTON_STATE_CONSTANT.length && state_value[0] != NO_FACE) {
-			// if the idle face is an image name with the syntax "<name>0" or "<name>0<file extension", try to deduce the missing image names from it
-			if (state_value[0].type() != Value.STRUCTURE) { // state_value[0] cannot be UNDEFINED here, otherwise we would have to check for that
-				final String image_name = state_value[0].toString();
+			// if the idle face is an image named "<name>0" or "<name>0<file extension", try to deduce the missing image names from it
+			// state_value[0] cannot be UNDEFINED here
+			if (state_value[0].type() != Value.STRUCTURE ||( state_value[0].type() == Value.STRUCTURE && state_value[0].get("structure_type").equals("IMAGE") )) {
+				final String image_name = (state_value[0].type()==Value.STRUCTURE) ? state_value[0].get("image").toString() : state_value[0].toString();
 				if (image_name.endsWith("0")) {
 					final String prefix = image_name.substring(0, image_name.length()-1);
 					for (int i = BUTTON_STATE_CONSTANT.length; --i >= 1; ) {
@@ -96,10 +186,38 @@ final class UIButton extends DisplayedComponent
 				}
 			}
 		}
+		// check whether the button faces have changed. if so, recreate them
+		for (int i = 0; i < current_face.length; i++) {
+			if (current_face[i] == null || !current_face[i].equals(state_value[i])) {
+				// just use the idle face if this face is identical to it
+				if (i > 0 &&( state_value[i] == state_value[0] || state_value[i].equals(state_value[0]) )) {
+					face[i] = face[0];
+				}
+				// otherwise make a new face
+				else {
+					face[i] = DisplayedComponent.createDisplayedComponent(state_value[i], this, current_clip_source);
+				}
+			}
+		}
+		// make the new face values the current ones
+		System.arraycopy(state_value, 0, current_face, 0, state_value.length);
 
-		// if the width or height is not fixed, determine the button position and size for each individual state. also determine the clipping area
-		final boolean variable_width  = w == 0 &&( (v=_component.get("width"))  == null || !v.equals(0) );
-		final boolean variable_height = h == 0 &&( (v=_component.get("height")) == null || !v.equals(0) );
+		// put markers in the button face width arrays so we'll know whether DisplayedComponent.update() has called determineSize()
+		sw[0] = Integer.MIN_VALUE;
+		// let DisplayedComponent fill in the standard data
+		super.update(customSettings|CUSTOM_SIZE, current_clip_source);
+
+		// if determineSize() did not get called, the width and height of the button must be fixed values. use them for all button states
+		if (sw[0] == Integer.MIN_VALUE) {
+			for (int i = BUTTON_STATE_CONSTANT.length; --i >= 1; ) {
+				sw[i] = w;
+				sh[i] = h;
+			}
+		}
+
+		// give each button state a position and a clip rectangle
+
+/*
 		// if the width and height are fixed, things are easy
 		if (!variable_width) {
 			for (int i = BUTTON_STATE_CONSTANT.length; --i >= 0; ) {
@@ -206,74 +324,7 @@ final class UIButton extends DisplayedComponent
 			state = 0;
 			updateButtonState();
 		}
-	}
-
-
-
-
-	void draw (final Graphics g) {
-		// draw the border
-		if (border != null)
-			border.draw(g);
-		// draw the button face
-		if (face[state] != null)
-			face[state].draw(g);
-		// draw the child components of this view component
-		final int cc = child_count;
-		if (cc > 0) {
-			final DisplayedComponent[] c = child;
-			for (int i = 0; i < cc; i++)
-				c[i].draw(g);
-		}
-	}
-
-
-
-
-	boolean eventUserInput (final int event_id, final AWTEvent e, final int mouse_x, final int mouse_y, final int mouse_dx, final int mouse_dy) {
-		if (state == DISABLED_STATE_ID) // this should not be possible, but better to be safe than sorry
-			return true;
-		String s;
-if (component.type() != Value.STRUCTURE ||( !(s=component.get("structure_type").string()).equals("BUTTON") && !s.equals("BORDER_BUTTON") )) {
-System.out.println("this button is not a button anymore");
-return true;
-}
-		final Value v = component.get("state");
-		switch (event_id) {
-			case ON_MOUSE_DOWN :
-					v.setConstant("PRESSED");
-				break;
-			case ON_MOUSE_ENTERED :
-					// if one of the mouse buttons is pressed, press the button
-					final int m = ((MouseEvent)e).getModifiersEx();
-					if (( (m&MouseEvent.BUTTON1_DOWN_MASK) == MouseEvent.BUTTON1_DOWN_MASK )||( (m&MouseEvent.BUTTON2_DOWN_MASK) == MouseEvent.BUTTON2_DOWN_MASK )||( (m&MouseEvent.BUTTON3_DOWN_MASK) == MouseEvent.BUTTON3_DOWN_MASK ))
-						v.setConstant("PRESSED");
-					else
-						v.setConstant("HOVER");
-				break;
-			case ON_MOUSE_EXITED :
-					v.setConstant("IDLE");
-				break;
-			case ON_MOUSE_UP :
-					v.setConstant("HOVER");
-				break;
-		}
-		updateButtonState();
-		return true;
-	}
-
-
-
-
-	void update (final DisplayedComponent current_clip_source) {
-		super.update(CUSTOM_SIZE, current_clip_source);
-		updateButton(current_clip_source);
-	}
-
-
-
-
-	private void updateButton (final DisplayedComponent current_clip_source) {
+*/
 	}
 
 

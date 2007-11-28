@@ -22,7 +22,7 @@ final class UITextField extends DisplayedComponent
 	UITextField (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
 		super(_component, _parent);
 		updateText();
-		update(current_clip_source);
+		update(0, current_clip_source);
 		child_count = 0; // cannot have children
 		// register it as a hard coded key listener
 		hasHardcodedEventFunction[ON_KEY_DOWN] = true;
@@ -78,8 +78,8 @@ final class UITextField extends DisplayedComponent
 
 
 
-	void update (final DisplayedComponent current_clip_source) {
-		super.update(current_clip_source);
+	void update (final int customSettings, final DisplayedComponent current_clip_source) {
+		super.update(customSettings, current_clip_source);
 		updateText();
 		updateCursor(current_clip_source);
 	}

@@ -296,8 +296,8 @@ public final class Value
 
 
 	public String constant ()  {
-		if (type != STRUCTURE)
-			throw new RuntimeException("Cannot convert "+TYPE_NAME[type]+" to STRUCTURE");
+		if (type != CONSTANT)
+			throw new RuntimeException("Cannot convert "+TYPE_NAME[type]+" to CONSTANT");
 		return (String) object;
 	}
 
