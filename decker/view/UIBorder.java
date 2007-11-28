@@ -87,8 +87,8 @@ final class UIBorder extends DisplayedComponent
 	}
 
 
-	void update (final DisplayedComponent current_clip_source) {
-		super.update(current_clip_source);
+	void update (final int customSettings, final DisplayedComponent current_clip_source) {
+		super.update(customSettings, current_clip_source);
 		updateBorder();
 	}
 

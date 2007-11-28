@@ -1,4 +1,7 @@
 82%
+2007-11-28
+  fixed a bug in Value.constant()
+  working on UIButton.update()
 2007-11-27
   refining the way DisplayedComponent.update() works and interacts with functions of derived classes
 2007-11-26
