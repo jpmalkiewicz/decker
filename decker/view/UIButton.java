@@ -50,6 +50,7 @@ final class UIButton extends DisplayedComponent
 			border = new UIBorder(this, current_clip_source, true);
 		// fill in the remaining data
 		update(0, current_clip_source);
+updateButtonState();
 	}
 
 
@@ -197,8 +198,8 @@ return true;
 				else {
 					if (state_value[i].type() == Value.STRUCTURE)
 						face[i] = DisplayedComponent.createDisplayedComponent(state_value[i], this, current_clip_source);
-//					else
-//						face[i] = new UIImage(state_value[i], this, current_clip_source);
+					else
+						face[i] = new UIImage(state_value[i], this, current_clip_source);
 				}
 			}
 		}
@@ -301,6 +302,12 @@ return true;
 				}
 			}
 		}
+
+
+for (int i = 0; i < BUTTON_STATE_CONSTANT.length; i++) {
+if (face[i] != null)
+face[i].update(0, current_clip_source);
+}
 
 /*
 		// if the width and height are fixed, things are easy
