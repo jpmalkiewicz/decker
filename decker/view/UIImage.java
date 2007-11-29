@@ -67,6 +67,21 @@ class UIImage extends DisplayedComponent
 
 
 	void update (final int customSettings, final DisplayedComponent current_clip_source) {
-		super.update(customSettings|CUSTOM_SIZE, current_clip_source);
+		if (component.type() == Value.STRUCTURE)
+			super.update(customSettings|CUSTOM_SIZE, current_clip_source);
+		else {
+			// it's just a name
+			x = parent.x;
+			y = parent.y;
+			image = AbstractView.getImage(component.toString());
+			if (image == null) {
+				w = 0;
+				h = 0;
+			}
+			else {
+				w = image.getWidth(null);
+				h = image.getHeight(null);
+			}
+		}
 	}
 }

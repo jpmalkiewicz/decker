@@ -5,6 +5,8 @@ import java.awt.*;
 
 final class UIBorder extends DisplayedComponent
 {
+	public static boolean PRINT_ILLEGAL_BORDER_SIZE_WARNING = false;
+
 	private Color left, top, right, bottom, background;
 	private int thickness;
 	boolean inverted;
@@ -36,8 +38,15 @@ final class UIBorder extends DisplayedComponent
 
 	void draw (final Graphics g) {
 		final int t = thickness;
+		// don't draw the border if it has a negative size
+		if (w < 2*t || h < 2*t) {
+			if (PRINT_ILLEGAL_BORDER_SIZE_WARNING) {
+				PRINT_ILLEGAL_BORDER_SIZE_WARNING = false; // print the warning only once
+				new RuntimeException("Warning in UIBorder.draw() : negative border size. x="+x+" y="+y+" w="+w+" h="+h).printStackTrace();
+			}
+			return;
+		}
 		// draw the background
-if (inverted)
 		if (background != null && w-2*t > 0 && h-2*t > 0) {
 			g.setColor(background);
 			g.fillRect(x+t, y+t, w-2*t, h-2*t);

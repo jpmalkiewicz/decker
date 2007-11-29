@@ -125,8 +125,8 @@ System.out.print("(generic "+_component+") ");
 							else
 								ret += parent_width/2;
 						}
-//						else if (p.equalsConstant("LEFT"))  // this case has no effect as x is already assumed to be (parent_x+0)
-//							ret += 0;
+						// else if (p.equalsConstant("LEFT"))  // this case has no effect as x is already assumed to be (parent_x+0)
+						//		ret += 0;
 					break;
 				}
 			}
@@ -144,14 +144,12 @@ System.out.print("(generic "+_component+") ");
 							ret -= width/2;
 						else if (a.equalsConstant("LEFT"))
 							ret -= width;
-//						else if (a.equalsConstant("RIGHT"))  // this has no effect apart from keeping x=CENTER and x=RIGHT from assuming a h_align value that differs from RIGHT
-//							ret -= 0;
+						//	else if (a.equalsConstant("RIGHT"))  // this has no effect apart from keeping x=CENTER and x=RIGHT from assuming a h_align value that differs from RIGHT
+						//		ret -= 0;
 					break;
 				}
 			}
 		}
-if (component.type() == Value.STRUCTURE && component.get("structure_type").equals("BORDER"))
-	System.out.println(component+"   "+component.get("x")+"   "+component.get("h_align")+"   "+ret+"   "+width+"   "+parent_width);
 		return ret;
 	}
 
@@ -192,8 +190,8 @@ if (component.type() == Value.STRUCTURE && component.get("structure_type").equal
 							else
 								ret += parent_height/2;
 						}
-//						else if (p.equalsConstant("TOP"))  // this case has no effect as y is already assumed to be (parent_y+0)
-//							ret += 0;
+						//	else if (p.equalsConstant("TOP"))  // this case has no effect as y is already assumed to be (parent_y+0)
+						//		ret += 0;
 					break;
 				}
 			}
@@ -211,8 +209,8 @@ if (component.type() == Value.STRUCTURE && component.get("structure_type").equal
 							ret -= height/2;
 						else if (a.equalsConstant("TOP"))
 							ret -= height;
-//						else if (a.equalsConstant("BOTTOM"))  // this has no effect apart from keeping the cases y=CENTER and y=BOTTOM from assuming a h_align value that differs from BOTTOM
-//							ret -= 0;
+						//	else if (a.equalsConstant("BOTTOM"))  // this has no effect apart from keeping the cases y=CENTER and y=BOTTOM from assuming a h_align value that differs from BOTTOM
+						//		ret -= 0;
 					break;
 				}
 			}
@@ -277,6 +275,42 @@ if (component.type() == Value.STRUCTURE && component.get("structure_type").equal
 				FunctionCall.executeFunctionCall(k.scriptedEventFunction[ON_KEY_DOWN], args, k.component.structure());
 			}
 		}
+	}
+
+
+
+
+	final static boolean hasExplicitX (final Value component)  {
+		if (component.type() == Value.STRUCTURE) {
+			final Value p = component.get("x");
+			final Value a = component.get("h_align");
+			final int ptype = (p==null) ? (-1) : p.type();
+			final int atype = (a==null) ? (-1) : a.type();
+			String s;
+			if (p != null &&( ptype == Value.INTEGER || ptype == Value.REAL ||( ptype == Value.CONSTANT &&( (s=p.constant()).equals("LEFT") || s.equals("CENTER") || s.equals("RIGHT") ))))
+				return true;
+			if (a != null &&( atype == Value.INTEGER || atype == Value.REAL ||( atype == Value.CONSTANT &&( (s=a.constant()).equals("LEFT") || s.equals("CENTER") || s.equals("RIGHT") ))))
+				return true;
+		}
+		return false;
+	}
+
+
+
+
+	final static boolean hasExplicitY (final Value component)  {
+		if (component.type() == Value.STRUCTURE) {
+			final Value p = component.get("y");
+			final Value a = component.get("v_align");
+			final int ptype = (p==null) ? (-1) : p.type();
+			final int atype = (a==null) ? (-1) : a.type();
+			String s;
+			if (p != null &&( ptype == Value.INTEGER || ptype == Value.REAL ||( ptype == Value.CONSTANT &&( (s=p.constant()).equals("TOP") || s.equals("CENTER") || s.equals("BOTTOM") ))))
+				return true;
+			if (a != null &&( atype == Value.INTEGER || atype == Value.REAL ||( atype == Value.CONSTANT &&( (s=a.constant()).equals("TOP") || s.equals("CENTER") || s.equals("BOTTOM") ))))
+				return true;
+		}
+		return false;
 	}
 
 
@@ -577,6 +611,7 @@ System.out.println("mouse up END");
 
 
 
+
 	void eventSizeChanged (final DisplayedComponent current_clip_source, final int old_width, final int old_height, final boolean old_relative_to_parent_width, final boolean old_relative_to_parent_height) {
 		// if it's the dummy parent node, stop here
 		if (component == null)
@@ -626,10 +661,12 @@ System.out.println("mouse up END");
 
 
 
+
 	/** returns true if the event handler should also call the scripted function for the event (if there is one), false otherwise */
 	boolean eventUserInput (final int event_id, final AWTEvent e, final int mouse_x, final int mouse_y, final int mouse_dx, final int mouse_dy) {
 		return true;
 	}
+
 
 
 
@@ -638,6 +675,7 @@ System.out.println("mouse up END");
 		update(0, clip_source);
 		updateChildren(clip_source);
 	}
+
 
 
 
@@ -652,6 +690,7 @@ System.out.println("mouse up END");
 
 
 
+
 	DisplayedComponent findCurrentClipSource () {
 		DisplayedComponent source = parent;
 		while ( source.parent != null )
@@ -661,11 +700,6 @@ System.out.println("mouse up END");
 	}
 
 
-/*
-	boolean receivesUserInput (final int input_event_id) {
-		return false;
-	}
-*/
 
 
 	void removeEventListener (final int eventID) {
@@ -679,6 +713,7 @@ System.out.println("mouse up END");
 			}
 		}
 	}
+
 
 
 
@@ -750,10 +785,10 @@ System.out.println("mouse up END");
 				determineSize(width_determined, height_determined, current_clip_source);
 			}
 			// determine the position
-			x = parent.x + DefaultView.x(component, parent.w, w); //determineX(component, parent.x, parent.w, w);
-			y = parent.y + DefaultView.y(component, parent.h, h); //determineX(component, parent.x, parent.w, w);
-//			y = determineY(component, parent.y, parent.h, h);
-//System.out.println(component+" "+x+" "+y+" "+w+" "+h);
+			x = determineX(component, parent.x, parent.w, w);
+			y = determineY(component, parent.y, parent.h, h);
+if (this instanceof UIBorder)
+System.out.println(component+" "+x+" "+y+" "+w+" "+h);
 			// calculate the bounding rectangle of the visible area
 			if (current_clip_source.cw <= 0) {
 				cx = 0;
@@ -802,6 +837,7 @@ System.out.println("mouse up END");
 
 
 
+
 	void updateChildren (final DisplayedComponent current_clip_source) {
 		// destroy the old children
 		for (int i = child_count; --i >= 0; ) {
@@ -833,6 +869,7 @@ System.out.println("mouse up END");
 			}
 		}
 	}
+
 
 
 
