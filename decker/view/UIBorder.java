@@ -37,6 +37,7 @@ final class UIBorder extends DisplayedComponent
 	void draw (final Graphics g) {
 		final int t = thickness;
 		// draw the background
+if (inverted)
 		if (background != null && w-2*t > 0 && h-2*t > 0) {
 			g.setColor(background);
 			g.fillRect(x+t, y+t, w-2*t, h-2*t);
