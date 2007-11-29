@@ -67,10 +67,11 @@ english
 			idle = createText("Upgrade")
 			x = CENTER
 			y = 0
-			text_padding = 4
+			padding = 2
+			padding_left = 6
+			padding_right = 6
 			on_mouse_up = FUNCTION
 				with character_screen
-					debug("*** lifestyle button pressed ***")
 					player.money = player.money - LIFESTYLE_UPGRADE_COST[player.lifestyle]
 					player.lifestyle = player.lifestyle + 1
 					updateLifestylePanel()

@@ -58,16 +58,33 @@ updateButtonState();
 
 	void determineSize (final boolean width_already_determined, final boolean height_already_determined, final DisplayedComponent current_clip_source) {
 		final int border_thickness = component.get("structure_type").equals("BORDER_BUTTON") ? ScriptNode.getValue("DEFAULT_BORDER_THICKNESS").integer() : 0;
+		Value v;
+		final int padding        = ((v=component.get("padding"))        != null && v.type() == Value.INTEGER) ? v.integer() : 0;
+		final int padding_left   = ((v=component.get("padding_left"))   != null && v.type() == Value.INTEGER) ? v.integer() : padding;
+		final int padding_right  = ((v=component.get("padding_right"))  != null && v.type() == Value.INTEGER) ? v.integer() : padding;
+		final int padding_top    = ((v=component.get("padding_top"))    != null && v.type() == Value.INTEGER) ? v.integer() : padding;
+		final int padding_bottom = ((v=component.get("padding_bottom")) != null && v.type() == Value.INTEGER) ? v.integer() : padding;
 		// if the width or height is fixed, use that value for all button states
 		if (width_already_determined || height_already_determined) {
 			for (int i = sw.length; --i >= 0; ) {
-				sw[i] = width_already_determined ? w : (face[i].w+2*border_thickness);
-				sh[i] = height_already_determined ? h : (face[i].h+2*border_thickness);
+				sw[i] = width_already_determined ? w : (face[i].w+2*border_thickness+padding_left+padding_right);
+				sh[i] = height_already_determined ? h : (face[i].h+2*border_thickness+padding_top+padding_bottom);
 			}
 		}
-		// use the width and height of the current state for the button
-		w = sw[state];
-		h = sh[state];
+		if (face[state] != null) {
+			// use the width and height of the current state for the button
+			if (( !width_already_determined && face[state].w <= 0 )||( !height_already_determined && face[state].h <= 0 )) {
+				face[state].update(0, current_clip_source);
+				sw[state] = face[state].w + 2*border_thickness + padding_left+padding_right;
+				sh[state] = face[state].h + 2*border_thickness + padding_top+padding_bottom;
+			}
+			else if (sw[state] <= 0 || sh[state] <= 0) {
+				sw[state] = face[state].w+2*border_thickness + padding_left+padding_right;
+				sh[state] = face[state].h+2*border_thickness + padding_top+padding_bottom;
+			}
+			w = sw[state];
+			h = sh[state];
+		}
 	}
 
 
@@ -130,7 +147,7 @@ return true;
 	void update (final int customSettings, final DisplayedComponent current_clip_source) {
 		// determine the button state
 		state = IDLE_STATE_ID;
-		final Value v = component.get("state");
+		Value v = component.get("state");
 		if (v != null && v.type() == Value.CONSTANT) {
 			final String s = v.constant();
 			for (int i = BUTTON_STATE_CONSTANT.length; --i >= 1; ) {
@@ -207,15 +224,18 @@ return true;
 		System.arraycopy(state_value, 0, current_face, 0, state_value.length);
 
 		// put markers in the button face width arrays so we'll know whether DisplayedComponent.update() has called determineSize()
-		sw[0] = Integer.MIN_VALUE;
+		for (int i = BUTTON_STATE_CONSTANT.length; --i >= 0; ) {
+			sw[i] = Integer.MIN_VALUE;
+		}
 		// let DisplayedComponent fill in the standard data
 		super.update(customSettings|CUSTOM_SIZE, current_clip_source);
 
 		// if determineSize() did not get called, the width and height of the button must be fixed values. use them for all button states
-		if (sw[0] == Integer.MIN_VALUE) {
-			for (int i = BUTTON_STATE_CONSTANT.length; --i >= 1; ) {
+		for (int i = BUTTON_STATE_CONSTANT.length; --i >= 0; ) {
+			if (sw[i] == Integer.MIN_VALUE) {
 				sw[i] = w;
 				sh[i] = h;
+				face[i].update(0, current_clip_source);
 			}
 		}
 
@@ -230,7 +250,7 @@ return true;
 				sch[i] = ch;
 			}
 			else {
-				// determine x and w
+				// determine w and x
 				if (sw[i] == sw[state]) {
 					sx[i] = x;
 					scx[i] = cx;
@@ -303,11 +323,38 @@ return true;
 			}
 		}
 
+		// center the button faces if they have no explicit position
+		final int border_thickness = component.get("structure_type").equals("BORDER_BUTTON") ? ScriptNode.getValue("DEFAULT_BORDER_THICKNESS").integer() : 0;
+		final int padding        = ((v=component.get("padding"))        != null && v.type() == Value.INTEGER) ? v.integer() : 0;
+		final int padding_left   = ((v=component.get("padding_left"))   != null && v.type() == Value.INTEGER) ? v.integer() : padding;
+		final int padding_right  = ((v=component.get("padding_right"))  != null && v.type() == Value.INTEGER) ? v.integer() : padding;
+		final int padding_top    = ((v=component.get("padding_top"))    != null && v.type() == Value.INTEGER) ? v.integer() : padding;
+		final int padding_bottom = ((v=component.get("padding_bottom")) != null && v.type() == Value.INTEGER) ? v.integer() : padding;
+		if (face[0] != null) { // if face[0] exists all the others do, too
+			for (int i = 0; i < BUTTON_STATE_CONSTANT.length; i++) {
+				int fx = 0;
+				if (!hasExplicitX(face[i].component)) {
+					face[i].x = x + padding_left + ((w-padding_left-padding_right)-face[i].w)/2;
+				}
+				else {
+					face[i].x = determineX(face[i].component, sx[i]+border_thickness+padding_left, sw[i]-2*border_thickness-padding_left-padding_right, face[i].w);
+				}
+				if (!hasExplicitY(face[i].component)) {
+					face[i].y = y + padding_top + (h-padding_top-padding_bottom-face[i].h)/2;
+				}
+				else {
+					face[i].y = determineY(face[i].component, sy[i]+border_thickness+padding_top, sh[i]-2*border_thickness-padding_top-padding_bottom, face[i].h);
+				}
+			}
+		}
 
-for (int i = 0; i < BUTTON_STATE_CONSTANT.length; i++) {
-if (face[i] != null)
-face[i].update(0, current_clip_source);
-}
+		// adjust the border size
+		if (border != null) {
+			border.x = x;
+			border.y = y;
+			border.w = w;
+			border.h = h;
+		}
 
 /*
 		// if the width and height are fixed, things are easy

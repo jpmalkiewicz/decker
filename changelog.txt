@@ -1,4 +1,8 @@
 82%
+2007-11-29
+  finished overhauling and debugging the update mechanism
+  added padding to button faces
+  new character screen and character screen work again
 2007-11-28
   fixed a bug in Value.constant()
   working on UIButton.update()
