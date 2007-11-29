@@ -149,8 +149,9 @@ System.out.print("(generic "+_component+") ");
 					break;
 				}
 			}
-// System.out.println(p+"   "+a+"   "+ret+"   "+width+"   "+parent_width);
 		}
+if (component.type() == Value.STRUCTURE && component.get("structure_type").equals("BORDER"))
+	System.out.println(component+"   "+component.get("x")+"   "+component.get("h_align")+"   "+ret+"   "+width+"   "+parent_width);
 		return ret;
 	}
 
@@ -752,7 +753,7 @@ System.out.println("mouse up END");
 			x = parent.x + DefaultView.x(component, parent.w, w); //determineX(component, parent.x, parent.w, w);
 			y = parent.y + DefaultView.y(component, parent.h, h); //determineX(component, parent.x, parent.w, w);
 //			y = determineY(component, parent.y, parent.h, h);
-System.out.println(component+" "+x+" "+y+" "+w+" "+h);
+//System.out.println(component+" "+x+" "+y+" "+w+" "+h);
 			// calculate the bounding rectangle of the visible area
 			if (current_clip_source.cw <= 0) {
 				cx = 0;

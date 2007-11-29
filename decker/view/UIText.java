@@ -79,7 +79,7 @@ System.out.println(variable_name+"  changed");
 		// fetch the text and its style settings
 final String old_text = text;
 		text = t.get("text").toString();
-System.out.println("updating text    "+old_text+" -> "+text);
+// System.out.println("updating text    "+old_text+" -> "+text);
 		v = t.get("font");
 		font = AbstractView.getFont((v.type() == Value.STRING)?v.string():"", null, false);
 		color = ((v=t.get("color")).type() == Value.STRING) ? AbstractView.getColor(v.string()) : null;
