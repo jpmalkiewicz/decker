@@ -195,7 +195,10 @@ return true;
 				}
 				// otherwise make a new face
 				else {
-					face[i] = DisplayedComponent.createDisplayedComponent(state_value[i], this, current_clip_source);
+					if (state_value[i].type() == Value.STRUCTURE)
+						face[i] = DisplayedComponent.createDisplayedComponent(state_value[i], this, current_clip_source);
+//					else
+//						face[i] = new UIImage(state_value[i], this, current_clip_source);
 				}
 			}
 		}
@@ -216,6 +219,88 @@ return true;
 		}
 
 		// give each button state a position and a clip rectangle
+		for (int i = 0; i < BUTTON_STATE_CONSTANT.length; i++) {
+			if (i == state) {
+				sx[i] = x;
+				sy[i] = y;
+				scx[i] = cx;
+				scy[i] = cy;
+				scw[i] = cw;
+				sch[i] = ch;
+			}
+			else {
+				// determine x and w
+				if (sw[i] == sw[state]) {
+					sx[i] = x;
+					scx[i] = cx;
+					scw[i] = cw;
+				}
+				else if (i > 0 && sw[i] == sw[0]) {
+					sx[i] = sx[0];
+					scx[i] = scx[0];
+					scw[i] = scw[0];
+				}
+				else {
+					sx[i] = determineX(component, parent.x, parent.w, sw[i]);
+					if (current_clip_source.cw <= 0) {
+						// scx[i] = 0; // scx[i] does not have any effect in this case and will never be used
+						scw[i] = 0;
+					}
+					else {
+						if (current_clip_source.cx <= sx[i]) {
+							scx[i] = sx[i];
+							scw[i] = scx[i] + current_clip_source.cw - sx[i];
+							if (scw[i] > sw[i]) {
+								scw[i] = sw[i];
+							}
+						}
+						// the current clip rectangle's x lies inside or right of our component
+						else {
+							scx[i] = current_clip_source.cx;
+							scw[i] = current_clip_source.cw;
+							if (sx[i]+sw[i] < scx[i]+scw[i]) {
+								scw[i] = sx[i]+sw[i]-scx[i]; // will result in values <= 0 if the clip rectangle lies right of the component
+							}
+						}
+					}
+				}
+				// determine y and h
+				if (sh[i] == sh[state]) {
+					sy[i] = y;
+					scy[i] = cy;
+					sch[i] = ch;
+				}
+				else if (i > 0 && sh[i] == sh[0]) {
+					sy[i] = sy[0];
+					scy[i] = scy[0];
+					sch[i] = sch[0];
+				}
+				else {
+					sy[i] = determineY(component, parent.y, parent.h, sh[i]);
+					if (current_clip_source.ch <= 0) {
+						// scy[i] = 0; // scy[i] does not have any effect in this case and will never be used
+						sch[i] = 0;
+					}
+					else {
+						if (current_clip_source.cy <= sy[i]) {
+							scy[i] = sy[i];
+							sch[i] = scy[i] + current_clip_source.ch - sy[i];
+							if (sch[i] > sh[i]) {
+								sch[i] = sh[i];
+							}
+						}
+						// the current clip rectangle's y lies inside or below our component
+						else {
+							scy[i] = current_clip_source.cy;
+							sch[i] = current_clip_source.ch;
+							if (sy[i]+sh[i] < scy[i]+sch[i]) {
+								sch[i] = sy[i]+sh[i]-scy[i]; // will result in values <= 0 if the clip rectangle lies below the component
+							}
+						}
+					}
+				}
+			}
+		}
 
 /*
 		// if the width and height are fixed, things are easy

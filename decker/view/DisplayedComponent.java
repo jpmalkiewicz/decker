@@ -21,10 +21,11 @@ public class DisplayedComponent implements ValueListener
 
 
 
+
 	// the displayed component
 	Value component;
 	// the parent Structure of this component
-	private DisplayedComponent parent;
+	DisplayedComponent parent;
 	// the bounding rectangle
 	int x, y, w = Integer.MIN_VALUE, h = Integer.MIN_VALUE;
 	boolean relative_to_parent_width, relative_to_parent_height;
@@ -89,10 +90,143 @@ System.out.print("(generic "+_component+") ");
 
 
 
+
+	final static int determineX (final Value component, final int parent_x, final int parent_width, final int width)  {
+		int ret = parent_x;
+		// if it's the top level view (parent_width==Integer.MIN_VALUE) it automatically sits at (0,0)
+		if (parent_width > Integer.MIN_VALUE && component.type() == Value.STRUCTURE) {
+			final Value p = component.get("x");
+			final Value a = component.get("h_align");
+			final int ptype = (p==null) ? (-1) : p.type();
+			final int atype = (a==null) ? (-1) : a.type();
+			if (p != null) {
+				switch (ptype) {
+					case Value.INTEGER :
+						ret += p.integer();
+					break;
+					case Value.REAL :
+						if (a == null || atype != Value.REAL)
+							ret += (int) (p.real() + 0.500000001);
+						else
+							ret += (int) (p.real() + a.real() + 0.500000001); // to avoid rounding errors adding up
+					break;
+					case Value.CONSTANT :
+						if (p.equalsConstant("RIGHT")) {
+							// if the visible_object has no explicit horizontal alignment, treat it as LEFT aligned, i.e. sitting left of (x,y)
+							if (a == null ||( atype != Value.INTEGER && atype != Value.REAL && atype != Value.CONSTANT )||( atype == Value.CONSTANT && !a.equalsConstant("LEFT") && !a.equalsConstant("CENTER") && !a.equalsConstant("RIGHT") ))
+								ret += parent_width-width;
+							else
+								ret += parent_width;
+						}
+						else if (p.equalsConstant("CENTER")) {
+							// if the visible_object has no explicit horizontal alignment, treat it as CENTER aligned, i.e. sitting centered on (x,y)
+							if (a == null ||( atype != Value.INTEGER && atype != Value.REAL && atype != Value.CONSTANT )||( atype == Value.CONSTANT && !a.equalsConstant("LEFT") && !a.equalsConstant("CENTER") && !a.equalsConstant("RIGHT") ))
+								ret += (parent_width-width)/2;
+							else
+								ret += parent_width/2;
+						}
+//						else if (p.equalsConstant("LEFT"))  // this case has no effect as x is already assumed to be (parent_x+0)
+//							ret += 0;
+					break;
+				}
+			}
+			if (a != null) {
+				switch (atype) {
+					case Value.INTEGER :
+						ret += a.integer();
+					break;
+					case Value.REAL :
+						if (ptype != Value.REAL) // otherwise a has already been added
+							ret += (int) (a.real()+0.500000001);
+					break;
+					case Value.CONSTANT :
+						if (a.equalsConstant("CENTER"))
+							ret -= width/2;
+						else if (a.equalsConstant("LEFT"))
+							ret -= width;
+//						else if (a.equalsConstant("RIGHT"))  // this has no effect apart from keeping x=CENTER and x=RIGHT from assuming a h_align value that differs from RIGHT
+//							ret -= 0;
+					break;
+				}
+			}
+System.out.println(p+"   "+a+"   "+ret+"   "+width+"   "+parent_width);
+		}
+		return ret;
+	}
+
+
+
+
+	final static int determineY (final Value component, final int parent_y, final int parent_height, final int height)  {
+		int ret = parent_y;
+		// if it's the top level vieh (parent_height==Integer.MIN_VALUE) it automatically sits at (0,0)
+		if (parent_height > Integer.MIN_VALUE && component.type() == Value.STRUCTURE) {
+			final Value p = component.get("y");
+			final Value a = component.get("v_align");
+			final int ptype = (p==null) ? (-1) : p.type();
+			final int atype = (a==null) ? (-1) : a.type();
+			if (p != null) {
+				switch (ptype) {
+					case Value.INTEGER :
+						ret += p.integer();
+					break;
+					case Value.REAL :
+						if (a == null || atype != Value.REAL)
+							ret += (int) (p.real() + 0.500000001);
+						else
+							ret += (int) (p.real() + a.real() + 0.500000001); // to avoid rounding errors adding up
+					break;
+					case Value.CONSTANT :
+						if (p.equalsConstant("BOTTOM")) {
+							// if the visible_object has no eyplicit horizontal alignment, treat it as LEFT aligned, i.e. sitting left of (x,y)
+							if (a == null ||( atype != Value.INTEGER && atype != Value.REAL && atype != Value.CONSTANT )||( atype == Value.CONSTANT && !a.equalsConstant("TOP") && !a.equalsConstant("CENTER") && !a.equalsConstant("BOTTOM") ))
+								ret += parent_height-height;
+							else
+								ret += parent_height;
+						}
+						else if (p.equalsConstant("CENTER")) {
+							// if the visible_object has no eyplicit horizontal alignment, treat it as CENTER aligned, i.e. sitting centered on (x,y)
+							if (a == null ||( atype != Value.INTEGER && atype != Value.REAL && atype != Value.CONSTANT )||( atype == Value.CONSTANT && !a.equalsConstant("TOP") && !a.equalsConstant("CENTER") && !a.equalsConstant("BOTTOM") ))
+								ret += (parent_height-height)/2;
+							else
+								ret += parent_height/2;
+						}
+//						else if (p.equalsConstant("TOP"))  // this case has no effect as y is already assumed to be (parent_y+0)
+//							ret += 0;
+					break;
+				}
+			}
+			if (a != null) {
+				switch (atype) {
+					case Value.INTEGER :
+						ret += a.integer();
+					break;
+					case Value.REAL :
+						if (ptype != Value.REAL) // otherhise a has already been added
+							ret += (int) (a.real()+0.500000001);
+					break;
+					case Value.CONSTANT :
+						if (a.equalsConstant("CENTER"))
+							ret -= height/2;
+						else if (a.equalsConstant("TOP"))
+							ret -= height;
+//						else if (a.equalsConstant("BOTTOM"))  // this has no effect apart from keeping the cases y=CENTER and y=BOTTOM from assuming a h_align value that differs from BOTTOM
+//							ret -= 0;
+					break;
+				}
+			}
+		}
+		return ret;
+	}
+
+
+
+
 	public final static void drawScreen (final Graphics g) {
 		if (currentScreen != null)
 			currentScreen.child[0].draw(g);
 	}
+
 
 
 
@@ -146,6 +280,7 @@ System.out.print("(generic "+_component+") ");
 
 
 
+
 	/** returns the percentage value, or Integer.MIN_VALUE if it is not a percentage value */
 	public final static int getPercentageValue (final String s) {
 		if (s != null && s.endsWith("%")) {
@@ -158,6 +293,7 @@ System.out.print("(generic "+_component+") ");
 
 
 
+
 	final static int getScreenHeight () {
 		if (currentScreen != null)
 			return currentScreen.child[0].h;
@@ -166,11 +302,13 @@ System.out.print("(generic "+_component+") ");
 
 
 
+
 	final static int getScreenWidth () {
 		if (currentScreen != null)
 			return currentScreen.child[0].w;
 		return 0;
 	}
+
 
 
 
@@ -274,6 +412,8 @@ System.out.println("mouse up END");
 	}
 
 
+
+
 	public static void setDisplayedScreen (final Value screen) {
 		// remove the old event listeners
 		for (int i = eventListener.length; --i >= 0; ) {
@@ -311,11 +451,13 @@ System.out.println("mouse up END");
 
 
 
+
 	DisplayedComponent (final Value _component, final DisplayedComponent _parent) {
 		component = _component;
 		parent = _parent;
 		child_count = -1; // the -1 will tell createDisplayedComponent() that the children still need to be added
 	}
+
 
 
 
@@ -333,6 +475,7 @@ System.out.println("mouse up END");
 
 
 
+
 	void addEventListener (final int eventID) {
 		if (eventListener[eventID].length == eventListenerCount[eventID]) {
 			final DisplayedComponent[] dc = eventListener[eventID];
@@ -342,6 +485,7 @@ System.out.println("mouse up END");
 		eventListener[eventID][eventListenerCount[eventID]++] = this;
 		eventFunctionRegistered[eventID] = true;
 	}
+
 
 
 
@@ -367,7 +511,9 @@ System.out.println("mouse up END");
 
 
 
+
 	void determineSize (final boolean width_already_determined, final boolean height_already_determined, final DisplayedComponent current_clip_source) {}
+
 
 
 
@@ -603,8 +749,10 @@ System.out.println("mouse up END");
 				determineSize(width_determined, height_determined, current_clip_source);
 			}
 			// determine the position
-			x = parent.x + DefaultView.x(s, parent.w, w);
-			y = parent.y + DefaultView.y(s, parent.h, h);
+			x = parent.x + DefaultView.x(component, parent.w, w); //determineX(component, parent.x, parent.w, w);
+			y = parent.y + DefaultView.y(component, parent.h, h); //determineX(component, parent.x, parent.w, w);
+//			y = determineY(component, parent.y, parent.h, h);
+System.out.println(x+" "+y);
 			// calculate the bounding rectangle of the visible area
 			if (current_clip_source.cw <= 0) {
 				cx = 0;
