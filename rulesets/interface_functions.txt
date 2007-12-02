@@ -14,10 +14,6 @@ english
 		LOCAL.can_expand
 		for i = 0 to columns-1
 			k = argument[i+1]
-			// if it's not a structure, wrap a COMPONENT around it so we can set its position within the table cell
-			if value_type(k) != "STRUCTURE" && k != UNDEFINED
-				k = COMPONENT
-					component = k
 			row[] = k
 			// use the default values for all undefined cell values
 			if k != UNDEFINED

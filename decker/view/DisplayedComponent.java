@@ -65,6 +65,8 @@ public class DisplayedComponent implements ValueListener
 				ret = new UIButton(_component, _parent, current_clip_source);
 			else if (t.equals("BORDER"))
 				ret = new UIBorder(_component, _parent, current_clip_source);
+			else if (t.equals("TABLE"))
+				ret = new UITable(_component, _parent, current_clip_source);
 			else if (t.equals("IMAGE"))
 				ret = new UIImage(_component, _parent, current_clip_source);
 			else if (t.equals("TEXT"))

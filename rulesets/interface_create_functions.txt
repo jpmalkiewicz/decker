@@ -16,16 +16,31 @@ english
 
 	ENGINE.createBorderButton = FUNCTION (_face, _x, _y)
 		return_value = BORDER_BUTTON
-			idle = &_face
 			x = &_x
 			y = &_y
+		if value_type(_face) != "STRING"
+			idle = &_face
+		else
+			idle = IMAGE
+				image = &_face
 
 
 	ENGINE.createButton = FUNCTION (_face, _x, _y)
 		return_value = BUTTON
-			idle = &_face
 			x = &_x
 			y = &_y
+		if value_type(_face) != "STRING"
+			idle = &_face
+		else
+			idle = IMAGE
+				image = &_face
+
+
+	ENGINE.createImage = FUNCTION (_image, _x, _y)
+		return_value = IMAGE
+			image = &_image
+			x = _x
+			y = _y
 
 
 	// the first argument must be a component or the text (as a string) that is to be displayed in the popup (or leave it out, if your popup doesn't have a content section)

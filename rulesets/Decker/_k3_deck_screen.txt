@@ -4,11 +4,15 @@ english
 
 		LOCAL.screen_width = 540
 		LOCAL.screen_height = 445
+		width = screen_width
+		height = screen_height
+		
 
 		back_button = BORDER_BUTTON
 			x = screen_width - 18 - 24
 			y = screen_height - 18 - 24
-			idle = "home/home"
+			idle = IMAGE
+				image = "home/home"
 			on_mouse_up = FUNCTION
 				displayPreviousScreen()
 
@@ -56,7 +60,8 @@ english
 			BORDER_BUTTON
 				x = back_button.x - 10 - 24
 				y = back_button.y
-				idle = "home/char"
+				idle = IMAGE
+					image = "home/char"
 				on_mouse_up = FUNCTION
 					displayInitializedScreen(character_screen, false)
 
@@ -151,7 +156,8 @@ english
 								trashcan_wrapper.component = BORDER_BUTTON
 									x = scrollpane.x-2
 									y = back_button.y
-									idle = "trashcan0"
+									idle = IMAGE
+										image = "trashcan0"
 									on_mouse_up = FUNCTION
 										LOCAL.button_ok = createBorderButton("ok0")
 										button_ok.on_mouse_up = FUNCTION
@@ -183,19 +189,21 @@ english
 				LOCAL.default_function = FUNCTION
 					if prog.state == DEFAULT
 						setProgramState(player.deck, prog, LOADED)
-						idle = "status_off"
+						idle = IMAGE
+							image = "status_off"
 					else
 						// switch off the default marker for the old default program in the table
 						LOCAL.p2 = player.deck.default_program[prog.type.default_category]
 						if p2 != UNDEFINED
 							LOCAL.index = indexof(p2, player.deck.program)
-							getTableCell(deck_screen.scrollpane.displayed_element, index, 6).idle = "status_off"
+							getTableCell(deck_screen.scrollpane.displayed_element, index, 6).idle.image = "status_off"
 						// if the program wasn't loaded, change the load marker
 						if prog.state == INSTALLED
 							LOCAL.index = indexof(prog, player.deck.program)
-							getTableCell(deck_screen.scrollpane.displayed_element, index, 5).idle = "status_on"
+							getTableCell(deck_screen.scrollpane.displayed_element, index, 5).idle.image = "status_on"
 						setProgramState(player.deck, prog, DEFAULT)
-						idle = "status_on"
+						idle = IMAGE
+							image = "status_on"
 						deck_screen.current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
 
 				LOCAL.load_function = FUNCTION
@@ -203,23 +211,26 @@ english
 						LOCAL.index = indexof(prog, player.deck.program)
 						getTableCell(deck_screen.scrollpane.displayed_element, index, 6).idle = "status_off"
 					setProgramState(player.deck, prog, prog.state != INSTALLED ? INSTALLED : LOADED)
-					idle = prog.state == INSTALLED ? "status_off" : "status_on"
+					idle = IMAGE
+						image = prog.state == INSTALLED ? "status_off" : "status_on"
 					deck_screen.current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
 
 				for i = 0 to p.size-1
 					loaded = BUTTON
-						idle = p[i].state != INSTALLED ?  "status_on"  :  "status_off"
+						idle = IMAGE
+							image = p[i].state != INSTALLED ?  "status_on"  :  "status_off"
 						prog = p[i]
 						on_mouse_down = &load_function
 					if p[i].type.default_category != UNDEFINED
 						state = BUTTON
-							idle = p[i].state == DEFAULT  ?  "status_on"  :  "status_off"
+							idle = IMAGE
+								image = p[i].state == DEFAULT  ?  "status_on"  :  "status_off"
 							prog = p[i]
 							on_mouse_down = &default_function
 					else
 						state = createText("")
 
-					addTableRow(t, p[i].type.image, createText(p[i].name,,,@TABLE_TEXT_COLOR), createText(p[i].type.name,,,@TABLE_TEXT_COLOR), createText(p[i].rating,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR), loaded, state)
+					addTableRow(t, createImage(p[i].type.image), createText(p[i].name,,,@TABLE_TEXT_COLOR), createText(p[i].type.name,,,@TABLE_TEXT_COLOR), createText(p[i].rating,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR), loaded, state)
 				centerRightAlignedTableColumn(t, 3)
 				centerRightAlignedTableColumn(t, 4)
 				scrollpane.displayed_element = t
