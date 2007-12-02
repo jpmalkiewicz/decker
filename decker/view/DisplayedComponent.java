@@ -10,7 +10,7 @@ public class DisplayedComponent implements ValueListener
 {
 	final static String[] EVENT_FUNCTION_NAME = { "on_key_down",   "on_mouse_down",   "on_mouse_dragged",   "on_mouse_entered",   "on_mouse_exited",   "on_mouse_moved",   "on_mouse_up" };
 	final static int                               ON_KEY_DOWN = 0, ON_MOUSE_DOWN = 1, ON_MOUSE_DRAGGED = 2, ON_MOUSE_ENTERED = 3, ON_MOUSE_EXITED = 4, ON_MOUSE_MOVED = 5, ON_MOUSE_UP =6;
-	// when calling DisplayedContent.update(), derived classes use these constants to tell the default update algorithm which settings have custom functions
+	// when calling DisplayedComponentt.update(), derived classes use these constants to tell the default update algorithm which settings have custom functions
 	final static int CUSTOM_SIZE = 0x1;
 
 	private final static DisplayedComponent[][] eventListener = new DisplayedComponent[EVENT_FUNCTION_NAME.length][5];
@@ -671,7 +671,7 @@ System.out.println("mouse up END");
 
 
 	public void eventValueChanged (final int index, final ArrayWrapper wrapper, final Value old_value, final Value new_value) {
-		final DisplayedComponent clip_source = findCurrentClipSource();
+		final DisplayedComponent clip_source = getCurrentClipSource();
 		update(0, clip_source);
 		updateChildren(clip_source);
 	}
@@ -682,7 +682,7 @@ System.out.println("mouse up END");
 	public void eventValueChanged (final String variable_name, final Structure container, final Value old_value, final Value new_value) {
 //System.out.println("DC.eventValueChanged() "+getClass().getName()+" "+variable_name+" "+old_value+" -> "+new_value);
 //System.out.println(x+","+y+" "+w+","+h);
-		final DisplayedComponent clip_source = findCurrentClipSource();
+		final DisplayedComponent clip_source = getCurrentClipSource();
 		update(0, clip_source);
 		updateChildren(clip_source);
 //System.out.println(x+","+y+" "+w+","+h);
@@ -691,7 +691,7 @@ System.out.println("mouse up END");
 
 
 
-	DisplayedComponent findCurrentClipSource () {
+	DisplayedComponent getCurrentClipSource () {
 		DisplayedComponent source = parent;
 		while ( source.parent != null )
 //		while ( source.component != null && !(source instanceof UIDrawingBoundary) )
@@ -787,8 +787,6 @@ System.out.println("mouse up END");
 			// determine the position
 			x = determineX(component, parent.x, parent.w, w);
 			y = determineY(component, parent.y, parent.h, h);
-if (this instanceof UIBorder)
-System.out.println(component+" "+x+" "+y+" "+w+" "+h);
 			// calculate the bounding rectangle of the visible area
 			if (current_clip_source.cw <= 0) {
 				cx = 0;

@@ -55,7 +55,7 @@ class UIImage extends DisplayedComponent
 				relative_to_parent_height = (v=component.get("y")) != null && (k=getPercentageValue(v.toString())) != Integer.MIN_VALUE && k != 0;
 			}
 			if (w != old_width || h != old_height || old_rtpw != relative_to_parent_width || old_rtph != relative_to_parent_height) {
-				eventSizeChanged(findCurrentClipSource(), old_width, old_height, old_rtpw, old_rtph);
+				eventSizeChanged(getCurrentClipSource(), old_width, old_height, old_rtpw, old_rtph);
 			}
 		}
 		else {
