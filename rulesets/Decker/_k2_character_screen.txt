@@ -130,7 +130,7 @@ english
 				idle = IMAGE
 					image = "home/deck"
 				on_mouse_up = FUNCTION
-					displayInitializedScreen(deck_screen, false)
+					displayScreen(deck_screen, false)
 
 		LOCAL.plus_image = IMAGE
 				image = "home/plus"

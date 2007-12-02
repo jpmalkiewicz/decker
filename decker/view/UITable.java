@@ -3,282 +3,145 @@ import decker.model.*;
 import java.awt.*;
 
 
-/** contains all interface related functions for the table object */
-class UITable
+
+
+class UITable extends DisplayedComponent
 {
-	private final static int ILEFT = Integer.MIN_VALUE, IRIGHT = Integer.MIN_VALUE+1, ICENTER = Integer.MIN_VALUE+2, ITOP = Integer.MIN_VALUE+3, IBOTTOM = Integer.MIN_VALUE+4;
+	private int[] column_width, column_x;
+	private int row_height, total_width;
+	private TableCellWrapper[][] cell; // cell[row][column]
 
 
-	static void draw (final int dx, final int dy, final Structure d, final Graphics g, final DefaultView caller) {
-		Value q;
+	UITable (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
+		super(_component, _parent);
+		update(0, current_clip_source);
+	}
+
+
+
+
+	void determineSize (final boolean width_already_determined, final boolean height_already_determined, final DisplayedComponent current_clip_source) {
+		if (!width_already_determined)
+			w = total_width;
+		if (!height_already_determined)
+			h = row_height * cell.length;
+	}
+
+
+
+
+	public void draw (final Graphics g) {
+
+	}
+
+
+
+
+	public void eventValueChanged (final String variable_name, final Structure container, final Value old_value, final Value new_value) {
+		update(0, getCurrentClipSource());
+	}
+
+
+
+
+	public void eventValueChanged (final int index, final ArrayWrapper wrapper, final Value old_value, final Value new_value) {
+		update(0, getCurrentClipSource());
+	}
+
+
+
+
+	void update (final int customSettings, final DisplayedComponent current_clip_source) {
+		final Structure d = component.structure();
+		Value v;
+		// check whether the size or formatting has changed
 		final int rows = d.get("rows").integer();
 		final int columns = d.get("columns").integer();
-		final int ch = d.get("cell_height").integer();
+		final int rowh = d.get("cell_height").integer();
 		// calculate the x and width of each column
-		final int[] cx = new int[columns];
-		final int[] cw = new int[columns];
-		int total_width = 0;
-		if ((q=d.get("cell_width")).type() == Value.INTEGER) {
-			final int w = q.integer();
+		final int[] colx = new int[columns];
+		final int[] colw = new int[columns];
+		int totalw;
+		total_width = 0;
+		if ((v=d.get("cell_width")).type() == Value.INTEGER) {
+			final int cellw = v.integer();
 			for (int i = 0; i < columns; i++) {
-				cx[i] = i*w;
-				cw[i] = w;
+				colx[i] = i*cellw;
+				colw[i] = cellw;
 			}
-			total_width = w*columns;
+			totalw = cellw*columns;
 		}
-		else { // q must be an ARRAY
-			final Value[] a = q.array();
+		else { // v must be an ARRAY
+			final Value[] a = v.array();
 			for (int i = 0; i < columns; i++) {
-				cx[i] = total_width;
-				final int w = a[i].integer();
-				cw[i] = w;
-				total_width += w;
+				colx[i] = total_width;
+				colw[i] = a[i].integer();
 			}
+			totalw = colx[columns-1] + colw[columns-1];
 		}
-		// mark the selected row
-		int r;
-		if ((q=d.get("selected_row")).type() == Value.INTEGER && ((r=q.integer()) >= 0) && r < rows) {
-			q = d.get("selected_row_background");
-			Color c = null;
-			int mx = dx, my = dy+ch*r, mw = total_width, mh = ch;
-			if (q.type() == Value.STRING)
-				c = AbstractView.getColor(q.string());
-			else if (q.type() == Value.STRUCTURE && q.get("structure_type").equals("SELECTED_ROW_BACKGROUND")) {
-				Value v;
-				c = AbstractView.getColor(q.get("color").string());
-				if (c != null) {
-					if ((v=q.get("padding_left")).type() == Value.INTEGER) {
-						int i = v.integer();
-						mx -= i;
-						mw += i;
-					}
-					if ((v=q.get("padding_right")).type() == Value.INTEGER) {
-						int i = v.integer();
-						mw += i;
-					}
-					if ((v=q.get("padding_top")).type() == Value.INTEGER) {
-						int i = v.integer();
-						my -= i;
-						mh += i;
-					}
-					if ((v=q.get("padding_bottom")).type() == Value.INTEGER) {
-						int i = v.integer();
-						mh += i;
+		// if the number of columns has changed, rebuild the whole table
+//		if (cell == null || column_width.length != columns) {
+if (true) {
+			// destroy the old DisplayComponents
+			if (cell != null) {
+				for (int i = cell.length; --i >= 0; ) {
+					for (int j = cell[i].length; --j >= 0; ) {
+						if (cell[i][j] != null) {
+							cell[i][j].destroy();
+						}
 					}
 				}
 			}
-			if (c != null) {
-				g.setColor(c);
-				g.fillRect(mx, my, mw, mh);
+			// create the new table
+			column_width = colw;
+			column_x = colx;
+			row_height = rowh;
+			total_width = totalw;
+			w = totalw;
+			h = rows*rowh;
+// trigger a size_changed event if necessary
+			cell = new TableCellWrapper[rows][columns];
+			x = determineX(component, parent.x, parent.w, w);
+			y = determineY(component, parent.y, parent.h, h);
+			final Value[] row_data = d.get("cell").array();
+			for (int i = (row_data.length<rows)?row_data.length:rows; --i >= 0; ) {
+				final Value[] column_data = row_data[i].array();
+				for (int j = (column_data.length<columns)?column_data.length:columns; --j >= 0; ) {
+					// we need a wrapper for every cell, so the component that sits in that cell can poll the cell boundary when positioning itself
+					cell[i][j] = new TableCellWrapper(this, x + colx[j], y + i*rowh, colw[j], rowh);
+					if ((v=column_data[j]) != null) {
+						cell[i][j].cell_content = createDisplayedComponent(v, cell[i][j], current_clip_source);
+					}
+				}
 			}
 		}
-		// draw the cells
-		final Value[] cells = d.get("cell").array();
-		for (int j = rows; --j >= 0; ) {
-			final Value[] row = cells[j].array();
-			// determine the base y
-			final int row_y = j*ch+dy;
-			for (int i = columns; --i >= 0; ) {
-				caller.drawContent(row[i], dx+cx[i], row_y, cw[i], ch);
-			}
-		}
+super.update(customSettings|CUSTOM_SIZE, current_clip_source);
 	}
 
 
-	static boolean eventMouseDragged (int x, int y, final int dx, final int dy, final Structure d, final int parent_width, final int parent_height, final DefaultView caller)  {
-		Value q;
-		final int rows = d.get("rows").integer();
-		final int columns = d.get("columns").integer();
-		final int ch = d.get("cell_height").integer();
-		// calculate the x and width of each column
-		final int[] cx = new int[columns];
-		final int[] cw = new int[columns];
-		int total_width = 0;
-		if ((q=d.get("cell_width")).type() == Value.INTEGER) {
-			final int w = q.integer();
-			for (int i = 0; i < columns; i++) {
-				cx[i] = i*w;
-				cw[i] = w;
-			}
-			total_width = w*columns;
-		}
-		else { // q must be an ARRAY
-			final Value[] a = q.array();
-			for (int i = 0; i < columns; i++) {
-				cx[i] = total_width;
-				final int w = a[i].integer();
-				cw[i] = w;
-				total_width += w;
-			}
-		}
-		// spread the event
-		final Value[] cells = d.get("cell").array();
-		for (int j = 0; j < rows; j++) {
-			final Value[] row = cells[j].array();
-			final int eventy = y-j*ch;
-			for (int i = 0; i < columns; i++)
-				if (row[i].type() == Value.STRUCTURE)
-//					if (caller.eventMouseDragged(x-cx[i], eventy, dx, dy, row[i].structure(), cw[i], ch))
-						return true;
-		}
-		// if we're currently dragging a row, check whether it has changed its position
-		if ((q=d.get("can_drag_rows")).type() == Value.INTEGER) {
-			final int dragged_row_index = q.integer()/ch;
-			if (y >= 0 && y/ch < rows && y/ch != dragged_row_index) {
-				// the row has been dragged to a new position
-				final Value dragged_row = cells[dragged_row_index];
-				if (y/ch > dragged_row_index)
-					System.arraycopy(cells, dragged_row_index+1, cells, dragged_row_index, y/ch-dragged_row_index);
-				else
-					System.arraycopy(cells, y/ch, cells, y/ch+1, dragged_row_index-y/ch);
-				cells[y/ch] = dragged_row;
-				q.set(q.integer()%ch+(y/ch)*ch);
-				// call the row drag listener function if there is one
-				if ((q=d.get("on_row_drag")) != null && q.type() == Value.FUNCTION)
-					FunctionCall.executeFunctionCall(q.function(), new Value[]{ new Value().set(d), new Value().set(dragged_row_index), new Value().set(y/ch) }, ScriptNode.KEEP_STACK);
-			}
-		}
-		// move the row selection to the current row
-		if (!d.get("selected_row_background").equalsConstant("UNDEFINED") && DefaultView.inside(x, y, total_width, ch*rows, d))
-			d.get("selected_row").set(y/ch);
-		return false;
-	}
 
 
-	static boolean eventMouseMoved (int x, int y, final Structure d, final int parent_width, final int parent_height, final DefaultView caller)  {
-		Value q;
-		final int rows = d.get("rows").integer();
-		final int columns = d.get("columns").integer();
-		final int ch = d.get("cell_height").integer();
-		// calculate the x and width of each column
-		final int[] cx = new int[columns];
-		final int[] cw = new int[columns];
-		int total_width = 0;
-		if ((q=d.get("cell_width")).type() == Value.INTEGER) {
-			final int w = q.integer();
-			for (int i = 0; i < columns; i++) {
-				cx[i] = i*w;
-				cw[i] = w;
-			}
-			total_width = w*columns;
-		}
-		else { // q must be an ARRAY
-			final Value[] a = q.array();
-			for (int i = 0; i < columns; i++) {
-				cx[i] = total_width;
-				final int w = a[i].integer();
-				cw[i] = w;
-				total_width += w;
-			}
-		}
-		// spread the event
-		final Value[] cells = d.get("cell").array();
-		for (int j = 0; j < rows; j++) {
-			final Value[] row = cells[j].array();
-			final int eventy = y-j*ch;
-			for (int i = 0; i < columns; i++)
-				if (row[i].type() == Value.STRUCTURE)
-//					if (caller.eventMouseMoved(x-cx[i], eventy, row[i].structure(), cw[i], ch))
-						return true;
-		}
-		return false;
-	}
+	static class TableCellWrapper extends DisplayedComponent
+	{
+		DisplayedComponent cell_content;
 
 
-	static boolean eventMousePressed (int x, int y, final Structure d, final int parent_width, final int parent_height, final DefaultView caller)  {
-		Value q;
-		final int rows = d.get("rows").integer();
-		final int columns = d.get("columns").integer();
-		final int ch = d.get("cell_height").integer();
-		// calculate the x and width of each column
-		final int[] cx = new int[columns];
-		final int[] cw = new int[columns];
-		int total_width = 0;
-		if ((q=d.get("cell_width")).type() == Value.INTEGER) {
-			final int w = q.integer();
-			for (int i = 0; i < columns; i++) {
-				cx[i] = i*w;
-				cw[i] = w;
-			}
-			total_width = w*columns;
+
+		TableCellWrapper (final UITable parent, final int _x, final int _y, final int _w, final int _h) {
+			super(null, parent);
+			child_count = 0;
+			x = _x;
+			y = _y;
+			w = _w;
+			h = _h;
 		}
-		else { // q must be an ARRAY
-			final Value[] a = q.array();
-			for (int i = 0; i < columns; i++) {
-				cx[i] = total_width;
-				final int w = a[i].integer();
-				cw[i] = w;
-				total_width += w;
-			}
-		}
-		// change the selected row
-		if (!d.get("selected_row_background").equalsConstant("UNDEFINED") && DefaultView.inside(x, y, total_width, ch*rows, d)) {
-			q = d.get("selected_row");
-			int old_selected_row = (q.type() != Value.INTEGER) ? -1 : q.integer();
-			if (old_selected_row != y/ch) {
-				Value old = new Value().set(q);
-				q.set(y/ch);
-				if ((q=d.get("on_selection_change")) != null && q.type() == Value.FUNCTION)
-					FunctionCall.executeFunctionCall(q.function(), new Value[]{ new Value().set(d), old, new Value().set(y/ch) }, ScriptNode.KEEP_STACK);
-			}
-		}
-		// spread the event
-		final Value[] cells = d.get("cell").array();
-		for (int j = 0; j < rows; j++) {
-			final Value[] row = cells[j].array();
-			final int eventy = y-j*ch;
-			for (int i = 0; i < columns; i++)
-				if (row[i].type() == Value.STRUCTURE)
-//					if (caller.eventMousePressed(x-cx[i], eventy, row[i].structure(), cw[i], ch))
-						return true;
-		}
-		// if it is possible to drag rows and the event hasn't been consumed, remember the place where the row was grabbed
-		if (( (q=d.get("can_drag_rows")).equals(true) || q.type() == Value.INTEGER )&& DefaultView.inside(x, y, total_width, ch*rows, d))
-			q.set(y);
-		return false;
-	}
 
 
-	static boolean eventMouseReleased (int x, int y, final Structure d, final int parent_width, final int parent_height, final DefaultView caller)  {
-		Value q;
-		final int rows = d.get("rows").integer();
-		final int columns = d.get("columns").integer();
-		final int ch = d.get("cell_height").integer();
-		// calculate the x and width of each column
-		final int[] cx = new int[columns];
-		final int[] cw = new int[columns];
-		int total_width = 0;
-		if ((q=d.get("cell_width")).type() == Value.INTEGER) {
-			final int w = q.integer();
-			for (int i = 0; i < columns; i++) {
-				cx[i] = i*w;
-				cw[i] = w;
-			}
-			total_width = w*columns;
-		}
-		else { // q must be an ARRAY
-			final Value[] a = q.array();
-			for (int i = 0; i < columns; i++) {
-				cx[i] = total_width;
-				final int w = a[i].integer();
-				cw[i] = w;
-				total_width += w;
-			}
-		}
-		// stop the row drag mechanism
-		if ((q=d.get("can_drag_rows")).type() == Value.INTEGER) {
-			q.set(true);
-		}
-		// spread the event
-		final Value[] cells = d.get("cell").array();
-		for (int j = 0; j < rows; j++) {
-			final Value[] row = cells[j].array();
-			final int eventy = y-j*ch;
-			for (int i = 0; i < columns; i++)
-				if (row[i].type() == Value.STRUCTURE)
-//					if (caller.eventMouseReleased(x-cx[i], eventy, row[i].structure(), cw[i], ch))
-						return true;
-		}
-		return false;
+
+		void destroy () { if (cell_content != null) { cell_content.destroy(); cell_content = null; } }
+		void draw (final Graphics g) {}
+		public void eventValueChanged (final int index, final ArrayWrapper wrapper, final Value old_value, final Value new_value) {}
+		public void eventValueChanged (final String variable_name, final Structure container, final Value old_value, final Value new_value) {}
+		void update (final int customSettings, final DisplayedComponent current_clip_source) {}
 	}
 }

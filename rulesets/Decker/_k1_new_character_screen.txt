@@ -169,7 +169,6 @@ english
 							physical_damage = 3
 							money = money + 35000
 							skill_points = 8
-						debug(GLOBAL.player, , 3)
 // debug stuff END
 						updateShopInventory()
 // create the new character END
