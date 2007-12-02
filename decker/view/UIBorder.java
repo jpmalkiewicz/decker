@@ -104,7 +104,7 @@ final class UIBorder extends DisplayedComponent
 
 
 	private void updateBorder () {
-		if (component != null) {
+		if (component != null && component.type() == Value.STRUCTURE && component.get("structure_type").equals("BORDER")) {
 			Value v;
 			inverted = component.get("inverted").equals(true);
 			background = AbstractView.getColor(component.get("background_color").toString());

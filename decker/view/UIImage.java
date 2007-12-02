@@ -12,7 +12,11 @@ class UIImage extends DisplayedComponent
 
 	UIImage (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
 		super(_component, _parent);
-		image = AbstractView.getImage((_component.type()==Value.STRUCTURE) ? _component.get("image").toString() : _component.toString());
+		if (!_component.equalsConstant("UNDEFINED")) {
+			image = AbstractView.getImage((_component.type()==Value.STRUCTURE&&_component.get("structure_type").equals("IMAGE")) ? _component.get("image").toString() : _component.toString());
+			if (image == null)
+				System.out.println("UIImage : undefined image "+_component);
+		}
 		update(0, current_clip_source);
 	}
 
