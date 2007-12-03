@@ -65,10 +65,12 @@ public class DisplayedComponent implements ValueListener
 				ret = new UIButton(_component, _parent, current_clip_source);
 			else if (t.equals("BORDER"))
 				ret = new UIBorder(_component, _parent, current_clip_source);
-			else if (t.equals("TABLE"))
-				ret = new UITable(_component, _parent, current_clip_source);
 			else if (t.equals("IMAGE"))
 				ret = new UIImage(_component, _parent, current_clip_source);
+			else if (t.equals("SCROLLBAR"))
+				ret = new UIScrollbar(_component, _parent, current_clip_source);
+			else if (t.equals("TABLE"))
+				ret = new UITable(_component, _parent, current_clip_source);
 			else if (t.equals("TEXT"))
 				ret = new UIText(_component, _parent, current_clip_source);
 			else if (t.equals("TEXTFIELD"))
@@ -549,6 +551,48 @@ System.out.println("mouse up END");
 
 
 
+	void determineClip (final DisplayedComponent current_clip_source) {
+		if (current_clip_source.cw <= 0) {
+			cx = 0;
+			cy = 0;
+			cw = 0;
+			ch = 0;
+		}
+		else {
+			if (current_clip_source.cx <= x) {
+				cx = x;
+				cw = cx + current_clip_source.cw - x;
+				if (cw > w) {
+					cw = w;
+				}
+			}
+			else {
+				cx = current_clip_source.cx;
+				cw = current_clip_source.cw;
+				if (x+w < cx+cw) {
+					cw = x+w-cx;
+				}
+			}
+			if (current_clip_source.cy <= y) {
+				cy = y;
+				ch = cy + current_clip_source.ch - y;
+				if (ch > h) {
+					ch = h;
+				}
+			}
+			else {
+				cy = current_clip_source.cy;
+				ch = current_clip_source.ch;
+				if (y+h < cy+ch) {
+					ch = y+h-cy;
+				}
+			}
+		}
+	}
+
+
+
+
 	void determineSize (final boolean width_already_determined, final boolean height_already_determined, final DisplayedComponent current_clip_source) {}
 
 
@@ -609,6 +653,15 @@ System.out.println("mouse up END");
 			if (clip != null)
 				g.setClip(clip);
 		}
+	}
+
+
+
+
+	void eventPositionChanged (final DisplayedComponent current_clip_source, final int dx, final int dy) {
+		x += dx;
+		y += dy;
+		determineClip(current_clip_source);
 	}
 
 
@@ -790,42 +843,7 @@ System.out.println("mouse up END");
 			x = determineX(component, parent.x, parent.w, w);
 			y = determineY(component, parent.y, parent.h, h);
 			// calculate the bounding rectangle of the visible area
-			if (current_clip_source.cw <= 0) {
-				cx = 0;
-				cy = 0;
-				cw = 0;
-				ch = 0;
-			}
-			else {
-				if (current_clip_source.cx <= x) {
-					cx = x;
-					cw = cx + current_clip_source.cw - x;
-					if (cw > w) {
-						cw = w;
-					}
-				}
-				else {
-					cx = current_clip_source.cx;
-					cw = current_clip_source.cw;
-					if (x+w < cx+cw) {
-						cw = x+w-cx;
-					}
-				}
-				if (current_clip_source.cy <= y) {
-					cy = y;
-					ch = cy + current_clip_source.ch - y;
-					if (ch > h) {
-						ch = h;
-					}
-				}
-				else {
-					cy = current_clip_source.cy;
-					ch = current_clip_source.ch;
-					if (y+h < cy+ch) {
-						ch = y+h-cy;
-					}
-				}
-			}
+			determineClip(current_clip_source);
 			// the component may have a shape
 			if ((v=s.get("shape")) != null && v.type() == Value.STRING) {
 				shape = (BufferedImage) AbstractView.getImage(v.string(), true);

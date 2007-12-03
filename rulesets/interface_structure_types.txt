@@ -131,56 +131,17 @@ english
 			height
 			v_align
 			h_align
-			component  // component[0] = scroller, [1] = up arrow (optional), [2] = down arrow (optional), [3] is an invisible rectangle that spans the whole screen to capture on_mouse_dragged events
+			component
 			on_draw
 			slider_position = 0  // logical position
 			slider_max           // you HAVE to set this to a positive number or the slider won't work
 			slider_stepping = 20 // this is the amount by which slider_position will change each time you press one of the arrow buttons
 			effect               // put a function here. it gets called whenever the slider_position changes
 			slider_dragging      // the scrollbar automatically sets this variable when the user starts / stops dragging the slider
-			vertical = true      // false -> the scrollbar is horizontal
-			initializer = FUNCTION
-				on_draw = FUNCTION
-					scrollbarDrawFunction(SCROLLBAR.this)
-				component = ARRAY
-					UNDEFINED  // slider
-					UNDEFINED  // up/left arrow, optional
-					UNDEFINED  // down/right arrow, optional
-					COMPONENT // this is an invisible rectangle that spans the whole screen to capture on_mouse_dragged events
-						x = -1000000
-						y = x
-						width = -2*x
-						height = width
-						on_mouse_dragged = FUNCTION (mouse_x, mouse_y, dx, dy)
-							if slider_dragging != UNDEFINED
-								// calculate the coordinates of the mouse relative to the scrollbar
-								LOCAL.dm = ( vertical ? mouse_y+y : mouse_x+x ) - slider_dragging
-								LOCAL.pmin = vertical ? pixelheight(SCROLLBAR.component[1]) : pixelwidth(SCROLLBAR.component[1]) // physical minimum of the slider position, determined by the height/width of the up/left arrow
-								// adjust the logical slider position to its new physical position
-								if vertical
-									LOCAL.logical = ((dm-pmin) * slider_max) / (SCROLLBAR.height - pmin - pixelheight(component[0]) - pixelheight(component[2]))
-								else
-									LOCAL.logical = ((dm-pmin) * slider_max) / (SCROLLBAR.width - pmin - pixelwidth(component[0]) - pixelwidth(component[2]))
-								if logical < 0
-									logical = 0
-								if logical > slider_max
-									logical = slider_max
-								if slider_position != logical
-									slider_position = logical
-								if effect != UNDEFINED
-									effect(SCROLLBAR.this, slider_position)
-						on_mouse_up = FUNCTION
-							slider_dragging = UNDEFINED    // capture on_mouse_up events here, to stop dragging the slider
-			pixelwidth = FUNCTION
-				return_value = width
-				// we can only guess the width if the scrollbar is vertical
-				if return_value == UNDEFINED && vertical
-					return_value = max( pixelwidth(SCROLLBAR.component[0]), pixelwidth(SCROLLBAR.component[1]), pixelwidth(SCROLLBAR.component[2]) )
-			pixelheight = FUNCTION
-				return_value = height
-				// we can only guess the height if the scrollbar is horizontal
-				if return_value == UNDEFINED && !vertical
-					return_value = max( pixelheight(SCROLLBAR.component[0]), pixelheight(SCROLLBAR.component[1]), pixelheight(SCROLLBAR.component[2]) )
+			vertical = true      // true -> the scrollbar is vertical. all other values -> it's horizontal
+			slider
+			minus_button
+			plus_button          // slider, minus_button, plus_button contain the structures or image names from which the scrollbar slider and the optional buttons on the scrollbar's ends are created
 
 
 		SCROLLPANE
@@ -238,13 +199,13 @@ english
 						vscrollbar.slider_stepping = component[2].slider_stepping
 						vscrollbar.slider_dragging = component[2].slider_dragging
 						if vscrollbar.slider_dragging != UNDEFINED
-							vscrollbar.component[0].state = PRESSED
+							vscrollbar.slider.state = PRESSED
 						else
-							vscrollbar.component[0].state = component[2].component[0].state
-						if vscrollbar.component[1] != UNDEFINED && component[2].component[1] != UNDEFINED
-							vscrollbar.component[1].state = component[2].component[1].state
-						if vscrollbar.component[2] != UNDEFINED && component[2].component[2] != UNDEFINED
-							vscrollbar.component[2].state = component[2].component[2].state
+							vscrollbar.slider.state = component[2].slider.state
+						if vscrollbar.minus_button != UNDEFINED && component[2].minus_button != UNDEFINED
+							vscrollbar.minus_button.state = component[2].minus_button.state
+						if vscrollbar.plus_button != UNDEFINED && component[2].plus_button != UNDEFINED
+							vscrollbar.plus_button.state = component[2].plus_button.state
 					component[2] = vscrollbar
 				else
 					component[2] = UNDEFINED
@@ -257,13 +218,13 @@ english
 						hscrollbar.slider_stepping = component[3].slider_stepping
 						hscrollbar.slider_dragging = component[3].slider_dragging
 						if hscrollbar.slider_dragging != UNDEFINED
-							hscrollbar.component[0].state = PRESSED
+							hscrollbar.slider.state = PRESSED
 						else
-							hscrollbar.component[0].state = component[3].component[0].state
-						if hscrollbar.component[1] != UNDEFINED && component[3].component[1] != UNDEFINED
-							hscrollbar.component[1].state = component[3].component[1].state
-						if hscrollbar.component[3] != UNDEFINED && component[3].component[3] != UNDEFINED
-							hscrollbar.component[3].state = component[3].component[3].state
+							hscrollbar.slider.state = component[3].slider.state
+						if hscrollbar.minus_button != UNDEFINED && component[3].minus_button != UNDEFINED
+							hscrollbar.minus_button.state = component[3].minus_button.state
+						if hscrollbar.component[3] != UNDEFINED && component[3].plus_button != UNDEFINED
+							hscrollbar.component[3].state = component[3].plus_button.state
 					component[3] = hscrollbar
 				else
 					component[3] = UNDEFINED

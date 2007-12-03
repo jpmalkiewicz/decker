@@ -128,42 +128,39 @@ english
 			// add the slider and the optional arrow buttons
 			if value_type(_slider) == "STRING"      // it's the name of an image. we need to turn it into a button
 				_slider = BUTTON
-					idle = _slider
+					idle = IMAGE
+						image = _slider
 			if vertical
 				_slider.x = CENTER
 				_slider.y = 0   // the y position is adjusted every time the SCROLLBAR is drawn. this way it can adjust to mods with different sized buttons
 			else
 				_slider.x = 0
 				_slider.y = CENTER  // the x position is adjusted every time the SCROLLBAR is drawn. this way it can adjust to mods with different sized buttons
-			_slider.on_mouse_down = FUNCTION (mouse_x, mouse_y)
-				SCROLLBAR.slider_dragging = vertical ? mouse_y : mouse_x
-			component[0] = _slider
+			slider = _slider
 			if _up_left_arrow != UNDEFINED
 				if value_type(_up_left_arrow) == "STRING"      // it's the name of an image. we need to turn it into a button
 					_up_left_arrow = BUTTON
-						idle = _up_left_arrow
+						idle = IMAGE
+							image = _up_left_arrow
 				if vertical
 					_up_left_arrow.x = CENTER
 					_up_left_arrow.y = 0
 				else
 					_up_left_arrow.x = 0
 					_up_left_arrow.y = CENTER
-				_up_left_arrow.on_mouse_down = FUNCTION
-					setSliderPosition(SCROLLBAR.this, slider_position - slider_stepping)
-				component[1] = _up_left_arrow
+				minus_button = _up_left_arrow
 			if _down_right_arrow != UNDEFINED
 				if value_type(_down_right_arrow) == "STRING"      // it's the name of an image. we need to turn it into a button
 					_down_right_arrow = BUTTON
-						idle = _down_right_arrow
+						idle = IMAGE
+							image = _down_right_arrow
 				if vertical
 					_down_right_arrow.x = CENTER
 					_down_right_arrow.y = BOTTOM
 				else
 					_down_right_arrow.x = RIGHT
 					_down_right_arrow.y = CENTER
-				_down_right_arrow.on_mouse_down = FUNCTION
-					setSliderPosition(SCROLLBAR.this, slider_position + slider_stepping)
-				component[2] = _down_right_arrow
+				plus_button = _down_right_arrow
 
 
 	ENGINE.createSelectedRowBackground = FUNCTION (_color, _padding_left=0, _padding_right=0, _padding_top=0, _padding_bottom=0)

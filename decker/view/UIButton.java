@@ -6,7 +6,7 @@ import java.awt.event.*;
 
 
 /** UIButtons suppress all mouse events (except for mouse wheel events) and don't call any scripted functions while DISABLED */
-final class UIButton extends DisplayedComponent
+class UIButton extends DisplayedComponent
 {
 	public final static int IDLE_STATE_ID = 0, PRESSED_STATE_ID = 1, DISABLED_STATE_ID = 2, HOVER_STATE_ID = 3;
 	public final static String[] BUTTON_STATE_CONSTANT = { "IDLE", "PRESSED", "DISABLED", "HOVER" };
@@ -139,6 +139,13 @@ return true;
 		}
 		updateButtonState();
 		return true;
+	}
+
+
+
+
+	int getState () {
+		return state;
 	}
 
 
