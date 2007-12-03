@@ -20,6 +20,24 @@ class UITable extends DisplayedComponent
 
 
 
+	void destroy () {
+		if (cell != null) {
+			for (int i = cell.length; --i >= 0; ) {
+				final TableCellWrapper[] row = cell[i];
+				for (int j = row.length; --j >= 0; ) {
+					row[j].destroy();
+					row[j] = null;
+				}
+				cell[i] = null;
+			}
+		}
+		cell = null;
+		super.destroy();
+	}
+
+
+
+
 	void determineSize (final boolean width_already_determined, final boolean height_already_determined, final DisplayedComponent current_clip_source) {
 		w = total_width;
 		h = (cell != null) ? (row_height * cell.length) : 0;
@@ -39,6 +57,23 @@ System.out.print("("+j+","+i+")");
 							row[j].cell_content.draw(g);
 						}
 					}
+				}
+			}
+		}
+	}
+
+
+
+
+	void eventPositionChanged (final DisplayedComponent current_clip_source, final int dx, final int dy) {
+		super.eventPositionChanged(current_clip_source, dx, dy);
+		for (int i = cell.length; --i >= 0; ) {
+			for (int j = cell[i].length; --j >= 0; ) {
+				cell[i][j].x += dx;
+				cell[i][j].y += dy;
+				final DisplayedComponent k = cell[i][j].cell_content;
+				if (k != null) {
+					k.eventPositionChanged(current_clip_source, dx, dy);
 				}
 			}
 		}
@@ -77,19 +112,9 @@ System.out.println("UITable : ignoring a changs to TABLE.columns");
 				y = determineY(component, parent.y, parent.h, h);
 				if (( x != old_x || y != old_y )&& cell != null) {
 					// x or y has changed. move the table contents
-					DisplayedComponent k;
 					final int dx = x-old_x;
 					final int dy = y-old_y;
-					for (int i = cell.length; --i >= 0; ) {
-						for (int j = cell[i].length; --j >= 0; ) {
-							cell[i][j].x += dx;
-							cell[i][j].y += dy;
-							if ((k=cell[i][j].cell_content) != null) {
-								k.x += dx;
-								k.y += dy;
-							}
-						}
-					}
+					eventPositionChanged(getCurrentClipSource(), dx, dy);
 				}
 				return;
 			}
@@ -176,7 +201,6 @@ if (true) {
 			y = determineY(component, parent.y, parent.h, h);
 			if ((v=d.get("cell")).type() == Value.ARRAY) {
 				final Value[] row_data = v.array();
-System.out.println("UITable : table has "+row_data.length+" rows");
 				if (rows != row_data.length) {
 					rows = row_data.length;
 					d.get("rows").set(rows);
@@ -211,11 +235,8 @@ System.out.println("UITable : table has "+row_data.length+" rows");
 				if (rows != 0)
 					d.get("rows").set(0);
 			}
-System.out.println("UITable   : "+x+" "+y+"  "+w+" "+h+"    "+columns+" "+rows+"   "+cell[0][1].cell_content.x+" "+cell[0][2].cell_content.x+" "+cell[0][3].cell_content.x);
 		}
-System.out.println("UITable   : "+x+" "+y+"  "+w+" "+h+"    "+columns+" "+rows);
 super.update(customSettings|CUSTOM_SIZE, current_clip_source);
-System.out.println("UITable * : "+x+" "+y+"  "+w+" "+h+"    "+columns+" "+rows);
 //System.exit(0);
 	}
 

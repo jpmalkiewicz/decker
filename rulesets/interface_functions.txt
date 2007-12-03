@@ -98,15 +98,6 @@ english
 			return_value = previous_displayed_screen[previous_displayed_screen.size-1]
 
 
-	ENGINE.scrollbarDrawFunction = FUNCTION (_scrollbar)
-		if _scrollbar.vertical
-			LOCAL.physical_range = _scrollbar.height - pixelheight(_scrollbar.component[0]) - pixelheight(_scrollbar.component[1]) - pixelheight(_scrollbar.component[2])
-			_scrollbar.component[0].y = pixelheight(_scrollbar.component[1]) + (physical_range * _scrollbar.slider_position + _scrollbar.slider_max/2) / _scrollbar.slider_max
-		else
-			LOCAL.physical_range = _scrollbar.width - pixelwidth(_scrollbar.component[0]) - pixelwidth(_scrollbar.component[1]) - pixelwidth(_scrollbar.component[2])
-			_scrollbar.component[0].x = pixelwidth(_scrollbar.component[1]) + (physical_range * _scrollbar.slider_position + _scrollbar.slider_max/2) / _scrollbar.slider_max
-
-
 	// moves the slider of a scrollbar to a new logical position
 	ENGINE.setSliderPosition = FUNCTION (_scrollbar, _slider_position)
 		// the logical slider position cannot be negative

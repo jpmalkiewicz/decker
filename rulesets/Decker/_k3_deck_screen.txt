@@ -63,7 +63,7 @@ english
 				idle = IMAGE
 					image = "home/char"
 				on_mouse_up = FUNCTION
-					displayInitializedScreen(character_screen, false)
+					displayScreen(character_screen, false)
 
 			// the hardware section
 			createText("Chips",       20, 15)

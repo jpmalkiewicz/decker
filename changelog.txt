@@ -1,4 +1,6 @@
 82%
+2007-12-03
+  scrollbar works except for slider dragging
 2007-11-29
   finished overhauling and debugging the update mechanism
   added padding to button faces
