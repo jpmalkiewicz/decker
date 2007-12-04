@@ -76,9 +76,32 @@ component[0] = scroller, [1] = up arrow (optional), [2] = down arrow (optional),
 				sp = 0;
 			if (sp > slider_max)
 				sp = slider_max;
-			if (sp != old_slider_position && component.type() == Value.STRUCTURE && component.get("structure_type").equals("SCROLLBAR")) {
-				component.get("slider_position").set(sp);
-				update(0, getCurrentClipSource());
+			if (component.type() == Value.STRUCTURE && component.get("structure_type").equals("SCROLLBAR")) {
+				if (sp != old_slider_position) {
+					component.get("slider_position").set(sp);
+					update(0, getCurrentClipSource());
+				}
+				// if the slider is already in the area of the min or max value, but is not at the end of the scale when the button is pressed, move it to the end
+				if (vertical) {
+					if (sp == 0 && button == minus_button && slider.y > y + minus_button.h) {
+						slider.component.get("y").set(minus_button.h);
+						slider.update(0, getCurrentClipSource());
+					}
+					if (sp == slider_max && button == plus_button && slider.y < y + h - slider.h - ((plus_button==null)?0:plus_button.h)) {
+						slider.component.get("y").set(h - slider.h - ((plus_button==null)?0:plus_button.h));
+						slider.update(0, getCurrentClipSource());
+					}
+				}
+				else {
+					if (sp == 0 && button == minus_button && slider.x > x + minus_button.w) {
+						slider.component.get("x").set(minus_button.w);
+						slider.update(0, getCurrentClipSource());
+					}
+					if (sp == slider_max && button == plus_button && slider.x < x + w - slider.w - ((plus_button==null)?0:plus_button.w)) {
+						slider.component.get("x").set(w - slider.w - ((plus_button==null)?0:plus_button.w));
+						slider.update(0, getCurrentClipSource());
+					}
+				}
 			}
 		}
 		else if (button == slider) {
@@ -201,18 +224,22 @@ component[0] = scroller, [1] = up arrow (optional), [2] = down arrow (optional),
 
 
 	void sliderDragged (final int mouse_x, final int mouse_y) {
-System.out.println("x");
 		if (vertical) {
-			int sp = mouse_y - y - slider.drag_offset;
-			final int slidermin = (minus_button==null) ? 0 : minus_button.h;
-			final int slidermax = h - slider.h - ((plus_button==null) ? 0 : plus_button.h);
-			if (sp < slidermin)
-				sp = slidermin;
-			if (sp > slidermax)
-				sp = slidermax;
+			final int m = (minus_button==null) ? 0 : minus_button.h;
+			final int slider_range = h - m - slider.h - ((plus_button==null) ? 0 : plus_button.h) + 1;
+			int sp = mouse_y - y - m - slider.drag_offset;
+			if (sp >= slider_range)
+				sp = slider_range-1;
+			if (sp < 0)
+				sp = 0;
 			if (sp != slider.y) {
-				if (slidermin != slidermax) {
-					final int logical_value = (slider_max * sp + (slidermax-slidermin+1)/2) / (slidermax-slidermin);
+				if (slider_range > 0) {
+					// there will be rounding errors, so we may have to adjust the logical value up or down
+					int logical_value = ((slider_max+1) * sp ) / slider_range;
+					while ((slider_range*logical_value)/(slider_max+1) > sp)
+						logical_value--;
+					while ((slider_range*(logical_value+1))/(slider_max+1) <= sp)
+						logical_value++;
 					if (logical_value != slider_position) {
 						slider_position = logical_value;
 						component.get("slider_position").set(logical_value);
@@ -220,13 +247,38 @@ System.out.println("x");
 						if ((v=component.get("effect")).type() == Value.FUNCTION)
 							FunctionCall.executeFunctionCall(v.function(), null, component.structure());
 					}
-System.out.println(sp+"  "+logical_value);
 				}
-				slider.component.get("y").set(sp);
+				slider.component.get("y").set(sp+m);
 				slider.update(0, getCurrentClipSource());
 			}
 		}
 		else {
+			final int m = (minus_button==null) ? 0 : minus_button.w;
+			final int slider_range = w - m - slider.w - ((plus_button==null) ? 0 : plus_button.w) + 1;
+			int sp = mouse_x - x - m - slider.drag_offset;
+			if (sp >= slider_range)
+				sp = slider_range-1;
+			if (sp < 0)
+				sp = 0;
+			if (sp != slider.x) {
+				if (slider_range > 0) {
+					// there will be rounding errors, so we max have to adjust the logical value up or down
+					int logical_value = ((slider_max+1) * sp ) / slider_range;
+					while ((slider_range*logical_value)/(slider_max+1) > sp)
+						logical_value--;
+					while ((slider_range*(logical_value+1))/(slider_max+1) <= sp)
+						logical_value++;
+					if (logical_value != slider_position) {
+						slider_position = logical_value;
+						component.get("slider_position").set(logical_value);
+						Value v;
+						if ((v=component.get("effect")).type() == Value.FUNCTION)
+							FunctionCall.executeFunctionCall(v.function(), null, component.structure());
+					}
+				}
+				slider.component.get("x").set(sp+m);
+				slider.update(0, getCurrentClipSource());
+			}
 		}
 	}
 
@@ -298,9 +350,25 @@ System.out.println(sp+"  "+logical_value);
 		// place the scrollbar buttons
 		if (vertical) {
 			if (slider != null) {
-				final int slider_range = h - slider.h - ((minus_button!=null)?minus_button.h:0) - ((plus_button!=null)?plus_button.h:0);
+				final int m = (minus_button!=null) ? minus_button.h : 0;
+				final int slider_range = h - slider.h - m - ((plus_button!=null)?plus_button.h:0) + 1;
 				final int sx = update_buttons ? 0 : determineX(slider.component, x, w, slider.w); // there is no need to determine slider.x here if we have to update the slider anyway
-				final int sy = y + ((minus_button!=null)?minus_button.h:0) + ((slider_max==0) ? 0 : ((slider_range*slider_position+(slider_max+1)/2)/slider_max));
+				int sy = y + m + ((slider_range*slider_position)/(slider_max+1));
+				// check whether there is more than one pixel position that corresponds to the current logical position, and whether the slider is within the pixel range of the current value
+				int sy_plus_1 = y + m + ((slider_range*(slider_position+1))/(slider_max+1));
+				if (slider.y > sy && slider.y < sy_plus_1)
+					sy = slider.y;
+				else {
+					if (slider_position == 0)
+						; // do nothing
+					else if (slider_position == slider_max)
+						// put the slider at the end of the range
+						sy = y + m + slider_range - 1;
+					else
+						// put the slider in the center of the range for the current logical value
+						sy = (sy+sy_plus_1)/2;
+				}
+				// update the slider, if its position has changed
 				if (update_buttons || sx != slider.x || sy != slider.y) {
 					if (sy != slider.y)
 						slider.component.get("y").set(sy-y);
@@ -327,10 +395,26 @@ System.out.println(sp+"  "+logical_value);
 		}
 		else {
 			if (slider != null) {
-				final int slider_range = w - slider.w - ((minus_button!=null)?minus_button.w:0) - ((plus_button!=null)?plus_button.w:0);
-				final int sx = x + ((minus_button!=null)?minus_button.w:0) + ((slider_max==0) ? 0 : ((slider_range*slider_position+(slider_max+1)/2)/slider_max));
-				final int sy = update_buttons ? 0 : determineY(slider.component, y, h, slider.h);
-				if (update_buttons || slider.x != sx || slider.y != sy) {
+				final int m = (minus_button!=null) ? minus_button.w : 0;
+				final int slider_range = w - slider.w - m - ((plus_button!=null)?plus_button.w:0) + 1;
+				final int sy = update_buttons ? 0 : determineY(slider.component, y, h, slider.h); // there is no need to determine slider.y here if we have to update the slider anyway
+				int sx = x + m + ((slider_range*slider_position)/(slider_max+1));
+				// check whether there is more than one pixel position that corresponds to the current logical position, and whether the slider is within the pixel range of the current value
+				int sx_plus_1 = x + m + ((slider_range*(slider_position+1))/(slider_max+1));
+				if (slider.x > sx && slider.x < sx_plus_1)
+					sx = slider.x;
+				else {
+					if (slider_position == 0)
+						; // do nothing
+					else if (slider_position == slider_max)
+						// put the slider at the end of the range
+						sx = x + m + slider_range - 1;
+					else
+						// put the slider in the center of the range for the current logical value
+						sx = (sx+sx_plus_1)/2;
+				}
+				// update the slider, if its position has changed
+				if (update_buttons || sx != slider.x || sy != slider.y) {
 					if (sx != slider.x)
 						slider.component.get("x").set(sx-x);
 					slider.update(0, current_clip_source);
