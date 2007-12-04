@@ -125,19 +125,16 @@ english
 
 
 		SCROLLBAR  // a vertical scrollbar
+			expandable = true
 			x
 			y
 			width
 			height
-			v_align
-			h_align
 			component
-			on_draw
 			slider_position = 0  // logical position
 			slider_max           // you HAVE to set this to a positive number or the slider won't work
 			slider_stepping = 20 // this is the amount by which slider_position will change each time you press one of the arrow buttons
 			effect               // put a function here. it gets called whenever the slider_position changes
-			slider_dragging      // the scrollbar automatically sets this variable when the user starts / stops dragging the slider
 			vertical = true      // true -> the scrollbar is vertical. all other values -> it's horizontal
 			slider
 			minus_button
@@ -177,7 +174,6 @@ english
 				LOCAL.hscrollbar = false
 				// determine whether we need a vertical scrollbar
 				if ( !optional_scrollbars || h < dh ) && ( value_type(vertical_scrollbar) == "STRUCTURE" || value_type(vertical_scrollbar) == "ARRAY" )
-					vertical_scrollbar[0] = "scroller_vertical_blue0"
 					vscrollbar = value_type(vertical_scrollbar) == "ARRAY" ? createSimpleScrollbar(w, h, vertical_scrollbar, true) : vertical_scrollbar
 					w = w - pixelwidth(vscrollbar) - scrollbar_padding
 				// determine whether we need a horizontal scrollbar

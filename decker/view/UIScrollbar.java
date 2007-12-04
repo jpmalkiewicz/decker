@@ -9,7 +9,7 @@ class UIScrollbar extends DisplayedComponent
 {
 	private boolean vertical;
 	private int slider_position, slider_max, slider_stepping;
-	private DisplayedComponent slider, minus_button, plus_button;
+	private UIScrollbarButton slider, minus_button, plus_button;
 	private final Value slider_value = new Value(), minus_button_value = new Value(), plus_button_value = new Value();
 
 
@@ -67,8 +67,9 @@ component[0] = scroller, [1] = up arrow (optional), [2] = down arrow (optional),
 
 
 
-	void buttonPressed (UIScrollbarButton button) {
+	void buttonPressed (UIScrollbarButton button, final int mouse_x, final int mouse_y) {
 		if (button == minus_button || button == plus_button) {
+// smooth scrolling !
 			final int old_slider_position = slider_position;
 			int sp = slider_position + (button==minus_button?(-1):1) * slider_stepping;
 			if (sp < 0)
@@ -79,6 +80,23 @@ component[0] = scroller, [1] = up arrow (optional), [2] = down arrow (optional),
 				component.get("slider_position").set(sp);
 				update(0, getCurrentClipSource());
 			}
+		}
+		else if (button == slider) {
+			button.listens_everywhere = true;
+			button.drag_offset = vertical ? (mouse_y-button.y) : (mouse_x-button.x);
+		}
+	}
+
+
+
+
+	void buttonReleased (UIScrollbarButton button) {
+		if (button == minus_button || button == plus_button) {
+// smooth scrolling !
+		}
+		else if (button == slider) {
+			button.listens_everywhere = false;
+			button.update(0, getCurrentClipSource());
 		}
 	}
 
@@ -182,6 +200,38 @@ component[0] = scroller, [1] = up arrow (optional), [2] = down arrow (optional),
 
 
 
+	void sliderDragged (final int mouse_x, final int mouse_y) {
+System.out.println("x");
+		if (vertical) {
+			int sp = mouse_y - y - slider.drag_offset;
+			final int slidermin = (minus_button==null) ? 0 : minus_button.h;
+			final int slidermax = h - slider.h - ((plus_button==null) ? 0 : plus_button.h);
+			if (sp < slidermin)
+				sp = slidermin;
+			if (sp > slidermax)
+				sp = slidermax;
+			if (sp != slider.y) {
+				if (slidermin != slidermax) {
+					final int logical_value = (slider_max * sp + (slidermax-slidermin+1)/2) / (slidermax-slidermin);
+					if (logical_value != slider_position) {
+						slider_position = logical_value;
+						component.get("slider_position").set(logical_value);
+						Value v;
+						if ((v=component.get("effect")).type() == Value.FUNCTION)
+							FunctionCall.executeFunctionCall(v.function(), null, component.structure());
+					}
+System.out.println(sp+"  "+logical_value);
+				}
+				slider.component.get("y").set(sp);
+				slider.update(0, getCurrentClipSource());
+			}
+		}
+		else {
+		}
+	}
+
+
+
 	void update (final int customSettings, final DisplayedComponent current_clip_source) {
 		if (component.type() != Value.STRUCTURE)
 			return;
@@ -190,20 +240,21 @@ component[0] = scroller, [1] = up arrow (optional), [2] = down arrow (optional),
 			return;
 		Value v;
 		boolean update_buttons = false;
+		final boolean slider_listens_everywhere = ( slider != null && slider.listens_everywhere);
 		// if one of the scrollbar elements has changed, rebuild the buttons
 		if (slider == null || !d.get("slider").equals(slider_value) || !d.get("minus_button").equals(minus_button) || !d.get("plus_button").equals(plus_button)) {
 			update_buttons = true;
 			if (!d.get("slider").equals(slider_value)) {
 				slider_value.set(d.get("slider"));
-				slider = new UIScrollbarButton(createButton(slider_value), this, current_clip_source);
+				slider = new UIScrollbarButton(createButton(slider_value), this, current_clip_source, slider_listens_everywhere, true);
 			}
 			if (!d.get("minus_button").equals(minus_button_value)) {
 				minus_button_value.set(d.get("minus_button"));
-				minus_button = new UIScrollbarButton(createButton(minus_button_value), this, current_clip_source);
+				minus_button = new UIScrollbarButton(createButton(minus_button_value), this, current_clip_source, false, false);
 			}
 			if (!d.get("plus_button").equals(plus_button_value)) {
 				plus_button_value.set(d.get("plus_button"));
-				plus_button = new UIScrollbarButton(createButton(plus_button_value), this, current_clip_source);
+				plus_button = new UIScrollbarButton(createButton(plus_button_value), this, current_clip_source, false, false);
 			}
 		}
 		// if the scrollbar orientation or size has changed, update its size
@@ -222,6 +273,7 @@ component[0] = scroller, [1] = up arrow (optional), [2] = down arrow (optional),
 			}
 		}
 		// update the logical (as opposed to pixel position) position for the slider
+		final int old_slider_position = slider_position;
 		slider_position = 0;
 		if ((v=d.get("slider_position")).type() == Value.INTEGER) {
 			slider_position = v.integer();
@@ -302,5 +354,8 @@ component[0] = scroller, [1] = up arrow (optional), [2] = down arrow (optional),
 				}
 			}
 		}
+		// if the slider position has changed and there is a function listening to it, call that function
+		if (slider_position != old_slider_position && (v=component.get("effect")).type() == Value.FUNCTION)
+			FunctionCall.executeFunctionCall(v.function(), null, component.structure());
 	}
 }
