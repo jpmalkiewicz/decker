@@ -69,6 +69,16 @@ english
 		//************************************************************************************************
 		component = ARRAY
 			SCREEN_BACKGROUND
+			SCROLLBAR
+				x = 20
+				y = 20
+				height = 200
+				slider_max = height-y
+				slider = "scroller_vertical_white0"
+				minus_button = "scroller_up_white0"
+				plus_button = "scroller_down_white0"
+				effect = FUNCTION
+					debug(slider_position)
 			BORDER
 				x = 29
 				y =  121

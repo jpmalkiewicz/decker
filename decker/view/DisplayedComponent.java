@@ -233,6 +233,37 @@ System.out.print("(generic "+_component+") ");
 
 
 
+	/** returns the percentage value, or Integer.MIN_VALUE if it is not a percentage value */
+	public final static int getPercentageValue (final String s) {
+		if (s != null && s.endsWith("%")) {
+			try {
+				return Integer.parseInt(s.substring(0, s.length()-1));
+			} catch (NumberFormatException ex) {}
+		}
+		return Integer.MIN_VALUE;
+	}
+
+
+
+
+	final static int getScreenHeight () {
+		if (currentScreen != null)
+			return currentScreen.child[0].h;
+		return 0;
+	}
+
+
+
+
+	final static int getScreenWidth () {
+		if (currentScreen != null)
+			return currentScreen.child[0].w;
+		return 0;
+	}
+
+
+
+
 	private final static void handleKeyDown (final KeyEvent e) {
 		// if there is no key listener, don't waste time generating the event info
 		if (eventListenerCount[ON_KEY_DOWN] == 0)
@@ -279,73 +310,6 @@ System.out.print("(generic "+_component+") ");
 				FunctionCall.executeFunctionCall(k.scriptedEventFunction[ON_KEY_DOWN], args, k.component.structure());
 			}
 		}
-	}
-
-
-
-
-	final static boolean hasExplicitX (final Value component)  {
-		if (component.type() == Value.STRUCTURE) {
-			final Value p = component.get("x");
-			final Value a = component.get("h_align");
-			final int ptype = (p==null) ? (-1) : p.type();
-			final int atype = (a==null) ? (-1) : a.type();
-			String s;
-			if (p != null &&( ptype == Value.INTEGER || ptype == Value.REAL ||( ptype == Value.CONSTANT &&( (s=p.constant()).equals("LEFT") || s.equals("CENTER") || s.equals("RIGHT") ))))
-				return true;
-			if (a != null &&( atype == Value.INTEGER || atype == Value.REAL ||( atype == Value.CONSTANT &&( (s=a.constant()).equals("LEFT") || s.equals("CENTER") || s.equals("RIGHT") ))))
-				return true;
-		}
-		return false;
-	}
-
-
-
-
-	final static boolean hasExplicitY (final Value component)  {
-		if (component.type() == Value.STRUCTURE) {
-			final Value p = component.get("y");
-			final Value a = component.get("v_align");
-			final int ptype = (p==null) ? (-1) : p.type();
-			final int atype = (a==null) ? (-1) : a.type();
-			String s;
-			if (p != null &&( ptype == Value.INTEGER || ptype == Value.REAL ||( ptype == Value.CONSTANT &&( (s=p.constant()).equals("TOP") || s.equals("CENTER") || s.equals("BOTTOM") ))))
-				return true;
-			if (a != null &&( atype == Value.INTEGER || atype == Value.REAL ||( atype == Value.CONSTANT &&( (s=a.constant()).equals("TOP") || s.equals("CENTER") || s.equals("BOTTOM") ))))
-				return true;
-		}
-		return false;
-	}
-
-
-
-
-	/** returns the percentage value, or Integer.MIN_VALUE if it is not a percentage value */
-	public final static int getPercentageValue (final String s) {
-		if (s != null && s.endsWith("%")) {
-			try {
-				return Integer.parseInt(s.substring(0, s.length()-1));
-			} catch (NumberFormatException ex) {}
-		}
-		return Integer.MIN_VALUE;
-	}
-
-
-
-
-	final static int getScreenHeight () {
-		if (currentScreen != null)
-			return currentScreen.child[0].h;
-		return 0;
-	}
-
-
-
-
-	final static int getScreenWidth () {
-		if (currentScreen != null)
-			return currentScreen.child[0].w;
-		return 0;
 	}
 
 
@@ -447,6 +411,42 @@ System.out.println("mouse event : "+c.hashCode()+"  "+i+"    "+e);
 		}
 if (eventID == ON_MOUSE_UP)
 System.out.println("mouse up END");
+		return false;
+	}
+
+
+
+
+	final static boolean hasExplicitX (final Value component)  {
+		if (component.type() == Value.STRUCTURE) {
+			final Value p = component.get("x");
+			final Value a = component.get("h_align");
+			final int ptype = (p==null) ? (-1) : p.type();
+			final int atype = (a==null) ? (-1) : a.type();
+			String s;
+			if (p != null &&( ptype == Value.INTEGER || ptype == Value.REAL ||( ptype == Value.CONSTANT &&( (s=p.constant()).equals("LEFT") || s.equals("CENTER") || s.equals("RIGHT") ))))
+				return true;
+			if (a != null &&( atype == Value.INTEGER || atype == Value.REAL ||( atype == Value.CONSTANT &&( (s=a.constant()).equals("LEFT") || s.equals("CENTER") || s.equals("RIGHT") ))))
+				return true;
+		}
+		return false;
+	}
+
+
+
+
+	final static boolean hasExplicitY (final Value component)  {
+		if (component.type() == Value.STRUCTURE) {
+			final Value p = component.get("y");
+			final Value a = component.get("v_align");
+			final int ptype = (p==null) ? (-1) : p.type();
+			final int atype = (a==null) ? (-1) : a.type();
+			String s;
+			if (p != null &&( ptype == Value.INTEGER || ptype == Value.REAL ||( ptype == Value.CONSTANT &&( (s=p.constant()).equals("TOP") || s.equals("CENTER") || s.equals("BOTTOM") ))))
+				return true;
+			if (a != null &&( atype == Value.INTEGER || atype == Value.REAL ||( atype == Value.CONSTANT &&( (s=a.constant()).equals("TOP") || s.equals("CENTER") || s.equals("BOTTOM") ))))
+				return true;
+		}
 		return false;
 	}
 
