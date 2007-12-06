@@ -417,25 +417,31 @@ updateButtonState();
 
 	void updateEventListeners () {
 		// (un)register the hardcoded event listener function
+		final boolean[] hHEF = new boolean[hasHardcodedEventFunction.length];
+		hHEF[ON_MOUSE_DOWN] = true;
+		hHEF[ON_MOUSE_ENTERED] = true;
+		hHEF[ON_MOUSE_EXITED] = true;
+		hHEF[ON_MOUSE_UP] = true;
 		if (state == DISABLED_STATE_ID) {
 			for (int i = hasHardcodedEventFunction.length; --i >= 0; ) {
-				if (eventFunctionRegistered[i] && hasHardcodedEventFunction[i]) {
+				if (hHEF[i]) {
 					hasHardcodedEventFunction[i] = false;
 					scriptedEventFunction[i] = null;
-					removeEventListener(i);
+					if (eventFunctionRegistered[i]) {
+						removeEventListener(i);
+					}
 				}
 			}
 		}
 		else {
-			hasHardcodedEventFunction[ON_MOUSE_DOWN] = true;
-			hasHardcodedEventFunction[ON_MOUSE_ENTERED] = true;
-			hasHardcodedEventFunction[ON_MOUSE_EXITED] = true;
-			hasHardcodedEventFunction[ON_MOUSE_UP] = true;
 			for (int i = hasHardcodedEventFunction.length; --i >= 0; ) {
-				if (hasHardcodedEventFunction[i] && !eventFunctionRegistered[i]) {
+				if (hHEF[i]) {
+					hasHardcodedEventFunction[i] = true;
 					final Value e = component.get(EVENT_FUNCTION_NAME[i]);
 					scriptedEventFunction[i] = (e==null||e.type()!=Value.FUNCTION) ? null : e.function();
-					addEventListener(i);
+					if (!eventFunctionRegistered[i]) {
+						addEventListener(i);
+					}
 				}
 			}
 		}

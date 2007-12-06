@@ -4,9 +4,10 @@ import decker.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.util.TreeSet;
 
 
-public class DisplayedComponent implements ValueListener
+public class DisplayedComponent implements Comparable, ValueListener
 {
 	final static String[] EVENT_FUNCTION_NAME = { "on_key_down",   "on_mouse_down",   "on_mouse_dragged",   "on_mouse_entered",   "on_mouse_exited",   "on_mouse_moved",   "on_mouse_up" };
 	final static int                               ON_KEY_DOWN = 0, ON_MOUSE_DOWN = 1, ON_MOUSE_DRAGGED = 2, ON_MOUSE_ENTERED = 3, ON_MOUSE_EXITED = 4, ON_MOUSE_MOVED = 5, ON_MOUSE_UP =6;
@@ -319,6 +320,7 @@ System.out.print("(generic "+_component+") ");
 
 
 
+	@SuppressWarnings("unchecked")
 	final static boolean handleUserInput (final AWTEvent e, final int mouse_x, final int mouse_y, final int mouse_dx, final int mouse_dy) {
 		int eventID = -1;
 		switch (e.getID()) {
@@ -393,6 +395,7 @@ System.out.print("(generic "+_component+") ");
 			}
 		}
 		// tell the components about the event itself
+		final TreeSet notified_components = new TreeSet();
 		final int listenerCount = eventListenerCount[eventID];
 		if (listenerCount > 0) {
 System.out.println();
@@ -400,11 +403,15 @@ System.out.println();
 System.out.println(listenerCount + " listeners          mouse at ("+mouse_x+" "+mouse_y+")");
 			for (int i = listenerCount; --i >= 0; ) {
 				final DisplayedComponent c = el[i];
-				if (mouse_x >= c.cx && mouse_x < c.cx+c.cw && mouse_y >= c.cy && mouse_y < c.cy+c.ch &&( c.shape == null || (c.shape.getRGB(mouse_x-c.x, mouse_y-c.y)&0xff000000) != 0 )) {
+				if (mouse_x >= c.cx && mouse_x < c.cx+c.cw && mouse_y >= c.cy && mouse_y < c.cy+c.ch &&( c.shape == null || (c.shape.getRGB(mouse_x-c.x, mouse_y-c.y)&0xff000000) != 0 )&& !notified_components.contains(c)) {
+					notified_components.add(c);
 System.out.println("mouse event inside "+c.getClass().getName());
 					// if there is no hardcoded function or the hardcoded function doesn't block the scripted one, call the scripted function
 					if (( !c.hasHardcodedEventFunction[eventID] || c.eventUserInput(eventID, e, mouse_x, mouse_y, mouse_dx, mouse_dy) )&& c.scriptedEventFunction[eventID] != null) {
 System.out.println("mouse event : "+c.hashCode()+"  "+i+"    "+e);
+c.component.structure().print(System.out, "", true, 2);
+//if (el.length >= 24 && i != 24)
+//el[24].component.structure().print(System.out, "", true, 2);
 						if (eventID != ON_MOUSE_MOVED && eventID != ON_MOUSE_DRAGGED)
 							FunctionCall.executeFunctionCall(c.scriptedEventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(true) }, c.component.structure());
 						else
@@ -527,6 +534,18 @@ System.out.println("mouse up END");
 		}
 		eventListener[eventID][eventListenerCount[eventID]++] = this;
 		eventFunctionRegistered[eventID] = true;
+	}
+
+
+
+
+	public int compareTo (Object o) {
+		if (o == null)
+			return 1;
+		int ret = o.hashCode() - hashCode();
+		if (ret != 0 || o == this)
+			return ret;
+		throw new RuntimeException("identical hash code for different Structures");
 	}
 
 
