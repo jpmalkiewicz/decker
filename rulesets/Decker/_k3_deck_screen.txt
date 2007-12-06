@@ -204,7 +204,7 @@ english
 				LOCAL.load_function = FUNCTION
 					if prog.state == DEFAULT
 						LOCAL.index = indexof(prog, player.deck.program)
-						getTableCell(deck_screen.scrollpane.displayed_element, index, 6).idle = "status_off"
+						getTableCell(deck_screen.scrollpane.displayed_element, index, 6).idle.image = "status_off"
 					setProgramState(player.deck, prog, prog.state != INSTALLED ? INSTALLED : LOADED)
 					idle.image = prog.state == INSTALLED ? "status_off" : "status_on"
 					deck_screen.current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
@@ -222,7 +222,7 @@ english
 							prog = p[i]
 							on_mouse_down = &default_function
 					else
-						state = createText("")
+						state = UNDEFINED
 
 					addTableRow(t, createImage(p[i].type.image), createText(p[i].name,,,@TABLE_TEXT_COLOR), createText(p[i].type.name,,,@TABLE_TEXT_COLOR), createText(p[i].rating,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR), loaded, state)
 				centerRightAlignedTableColumn(t, 3)

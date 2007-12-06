@@ -90,7 +90,7 @@ final class AssignmentCommand extends ScriptNode
 				if (structure_value == null)
 					caller.throwException("failed to create variable. structure "+e.getFirstOperand().toString()+" not found");
 				if (structure_value.type() != Value.STRUCTURE)
-					caller.throwException("failed to create variable. "+e.getFirstOperand().toString()+" gives a "+structure_value.typeName()+" instead of a structure");
+					caller.throwException("failed to create variable. "+e.getFirstOperand().toString()+" gives a "+structure_value.typeName()+" ("+structure_value+") instead of a structure");
 				structure = structure_value.structure();
 			}
 			final Value ret = structure.get(varname);

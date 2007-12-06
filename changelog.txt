@@ -1,6 +1,5 @@
 82%
 2007-12-06
-  fixed a bug where components would receive events more than once because the listener list was rearranged by them
   scrollpane works
 2007-12-04
   scrollbar works

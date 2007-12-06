@@ -181,7 +181,7 @@ if (true) {
 			if (cell != null) {
 				for (int i = cell.length; --i >= 0; ) {
 					for (int j = cell[i].length; --j >= 0; ) {
-						if (cell[i][j] != null) {
+						if (cell[i][j].cell_content != null) {
 							cell[i][j].cell_content.destroy();
 							cell[i][j].cell_content = null;
 						}
