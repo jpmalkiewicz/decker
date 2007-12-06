@@ -7,7 +7,9 @@ import java.awt.*;
 
 class UIDecoratedTable extends DisplayedComponent
 {
-
+	private DisplayedComponent[] header;
+	private DisplayedComponent table;
+	private DisplayedComponent
 
 
 

@@ -13,50 +13,7 @@ class UIScrollbar extends DisplayedComponent
 	private final Value slider_value = new Value(), minus_button_value = new Value(), plus_button_value = new Value();
 
 
-/*
-	ENGINE.scrollbarDrawFunction = FUNCTION (_scrollbar)
-		if _scrollbar.vertical
-			LOCAL.physical_range = _scrollbar.height - pixelheight(_scrollbar.component[0]) - pixelheight(_scrollbar.component[1]) - pixelheight(_scrollbar.component[2])
-			_scrollbar.component[0].y = pixelheight(_scrollbar.component[1]) + (physical_range * _scrollbar.slider_position + _scrollbar.slider_max/2) / _scrollbar.slider_max
-		else
-			LOCAL.physical_range = _scrollbar.width - pixelwidth(_scrollbar.component[0]) - pixelwidth(_scrollbar.component[1]) - pixelwidth(_scrollbar.component[2])
-			_scrollbar.component[0].x = pixelwidth(_scrollbar.component[1]) + (physical_range * _scrollbar.slider_position + _scrollbar.slider_max/2) / _scrollbar.slider_max
 
-component[0] = scroller, [1] = up arrow (optional), [2] = down arrow (optional), [3] is an invisible rectangle that spans the whole screen to capture on_mouse_dragged events
-
-	COMPONENT // this is an invisible rectangle that spans the whole screen to capture on_mouse_dragged events
-		x = -1000000
-		y = x
-		width = -2*x
-		height = width
-		on_mouse_dragged = FUNCTION (mouse_x, mouse_y, dx, dy)
-			if slider_dragging != UNDEFINED
-				// calculate the coordinates of the mouse relative to the scrollbar
-				LOCAL.dm = ( vertical ? mouse_y+y : mouse_x+x ) - slider_dragging
-				LOCAL.pmin = vertical ? pixelheight(SCROLLBAR.component[1]) : pixelwidth(SCROLLBAR.component[1]) // physical minimum of the slider position, determined by the height/width of the up/left arrow
-				// adjust the logical slider position to its new physical position
-				if vertical
-					LOCAL.logical = ((dm-pmin) * slider_max) / (SCROLLBAR.height - pmin - pixelheight(component[0]) - pixelheight(component[2]))
-				else
-					LOCAL.logical = ((dm-pmin) * slider_max) / (SCROLLBAR.width - pmin - pixelwidth(component[0]) - pixelwidth(component[2]))
-				if logical < 0
-					logical = 0
-				if logical > slider_max
-					logical = slider_max
-				if slider_position != logical
-					slider_position = logical
-				if effect != UNDEFINED
-					effect(SCROLLBAR.this, slider_position)
-		on_mouse_up = FUNCTION
-			slider_dragging = UNDEFINED    // capture on_mouse_up events here, to stop dragging the slider
-
-
-	_down_right_arrow.on_mouse_down = FUNCTION
-		setSliderPosition(SCROLLBAR.this, slider_position + slider_stepping)
-
-	_slider.on_mouse_down = FUNCTION (mouse_x, mouse_y)
-		SCROLLBAR.slider_dragging = vertical ? mouse_y : mouse_x
-*/
 
 	UIScrollbar (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
 		super(_component, _parent);
@@ -223,7 +180,15 @@ component[0] = scroller, [1] = up arrow (optional), [2] = down arrow (optional),
 
 
 
+	int getSliderPosition () {
+		return slider_position;
+	}
+
+
+
+
 	void sliderDragged (final int mouse_x, final int mouse_y) {
+System.out.println("**** "+slider_max);
 		if (vertical) {
 			final int m = (minus_button==null) ? 0 : minus_button.h;
 			final int slider_range = h - m - slider.h - ((plus_button==null) ? 0 : plus_button.h) + 1;
