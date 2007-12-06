@@ -35,7 +35,7 @@ english
 				sorting_order_function = _sorting_order_function
 				column = _column
 				on_mouse_up = FUNCTION
-					sortTable(scrollpane.displayed_element, sorting_order_function, column, player.deck.program)
+					sortTable(deck_screen.scrollpane.displayed_element, sorting_order_function, column, player.deck.program)
 
 		LOCAL.table_button_x = ARRAY
 			scrollpane.x

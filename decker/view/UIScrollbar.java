@@ -188,7 +188,6 @@ class UIScrollbar extends DisplayedComponent
 
 
 	void sliderDragged (final int mouse_x, final int mouse_y) {
-System.out.println("**** "+slider_max);
 		if (vertical) {
 			final int m = (minus_button==null) ? 0 : minus_button.h;
 			final int slider_range = h - m - slider.h - ((plus_button==null) ? 0 : plus_button.h) + 1;
