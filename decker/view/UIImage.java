@@ -17,7 +17,18 @@ class UIImage extends DisplayedComponent
 			if (image == null)
 				System.out.println("UIImage : undefined image "+_component);
 		}
+		if (_component.type() == Value.STRUCTURE)
+			_component.structure().addValueListener(this);
 		update(0, current_clip_source);
+	}
+
+
+
+
+	void destroy () {
+		super.destroy();
+		if (component.type() == Value.STRUCTURE)
+			component.structure().removeValueListener(this);
 	}
 
 

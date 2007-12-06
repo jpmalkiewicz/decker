@@ -1,4 +1,6 @@
 82%
+2007-12-06
+  scrollpane works
 2007-12-04
   scrollbar works
 2007-12-03

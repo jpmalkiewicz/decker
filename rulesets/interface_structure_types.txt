@@ -45,6 +45,14 @@ english
 			// on_mouse_up    // put the function with the button effect here, for a standard button
 
 
+		CLIP // limits the area where things can be drawn to the given rectangle. all drawings which are in the component array of the CLIP get cut off at the edge of the rectangle and only display inside
+			x
+			y
+			width
+			height
+			component
+
+
 		COMPONENT             // all variables in each view definition are optional
 			expandable = true
 			x
@@ -54,14 +62,6 @@ english
 			// title             // only relevant if it is the top level component. then it sets the frame title
 			// background_image
 			// component         // must contain an array which contains the interface elements of this view, e.g. buttons and lists
-
-
-		DRAWING_BOUNDARY // limits the area where things can be drawn to the given rectangle. all drawings which are in the component array of the DRAWING_BOUNDARY get cut off at the edge of the rectangle and only display inside
-			x
-			y
-			width
-			height
-			component
 
 
 		EVENT_BLOCKER    // the event handler will stop at this component with all input events. on_draw events pass through
@@ -146,95 +146,13 @@ english
 			y
 			width
 			height
-			component                            // component[2] optional vertical scrollbar, component[3] optional horizontal scrollbar, component[1] optional view element that gets displayed in the corner that is cut off if both scrollbars are displayed, component[0] a DRAWING_BOUNDARY with component[0].component being a wrapper around the view element that is displayed in this scrollpane
+			component                            // component[2] optional vertical scrollbar, component[3] optional horizontal scrollbar, component[1] optional view element that gets displayed in the corner that is cut off if both scrollbars are displayed, component[0] a CLIP with component[0].component being a wrapper around the view element that is displayed in this scrollpane
 			displayed_element                    // the component that this SCROLLPANE displays
 			optional_scrollbars = true           // the scrollbars are optional by default and only get displayed when needed
 			vertical_scrollbar                   // either a scrollbar or an array containing the slider and buttons, or their names
 			horizontal_scrollbar                 // like vertical_scrollbar
 			corner_filler                        // component to be displayed in the cornerthat gets get cut off when both scrollbars are displayed
 			scrollbar_padding = 1                // number of pixels to be put left empty between the DRAWING_PANE and the scrollbar
-			initializer = FUNCTION
-				component = ARRAY
-					DRAWING_BOUNDARY
-						x = 0
-						y = 0
-						component = COMPONENT   // wraps around the displayed component to be able to move it around on the screen without changing it
-							x = 0
-							y = 0
-							component = UNDEFINED  // the displayed component
-					UNDEFINED
-					UNDEFINED
-					UNDEFINED
-			on_draw = FUNCTION
-				LOCAL.w = width                  // width of the space available for displaying the displayed_element after adding scrollbars
-				LOCAL.h = height                 // height of the space available for displaying the displayed_element after adding scrollbars
-				LOCAL.dw = pixelwidth(displayed_element)   // width of the displayed_element
-				LOCAL.dh = pixelheight(displayed_element)  // height of the displayed_element
-				LOCAL.vscrollbar = false
-				LOCAL.hscrollbar = false
-				// determine whether we need a vertical scrollbar
-				if ( !optional_scrollbars || h < dh ) && ( value_type(vertical_scrollbar) == "STRUCTURE" || value_type(vertical_scrollbar) == "ARRAY" )
-					vscrollbar = value_type(vertical_scrollbar) == "ARRAY" ? createSimpleScrollbar(w, h, vertical_scrollbar, true) : vertical_scrollbar
-					w = w - pixelwidth(vscrollbar) - scrollbar_padding
-				// determine whether we need a horizontal scrollbar
-				if ( !optional_scrollbars || w < dw ) && ( value_type(horizontal_scrollbar) == "STRUCTURE" || value_type(horizontal_scrollbar) == "ARRAY" )
-					hscrollbar = value_type(horizontal_scrollbar) == "ARRAY" ? createSimpleScrollbar(w, h, horizontal_scrollbar, false) : horizontal_scrollbar
-					h = h - pixelheight(hscrollbar) - scrollbar_padding
-					// check whether after adding the horizontal scrollbar we now need the vertical scrollbar (w, h, because the display area is no longer high enough to display the content). we don't have to check whether scrollbars are optional, they definitely are
-					if h < dh && ( value_type(vertical_scrollbar) == "STRUCTURE" || value_type(vertical_scrollbar) == "ARRAY" )
-						vscrollbar = value_type(vertical_scrollbar) == "ARRAY" ? createSimpleScrollbar(w, h, vertical_scrollbar, true) : vertical_scrollbar
-						w = w - pixelwidth(vscrollbar) - scrollbar_padding
-					else
-						vscrollbar.height = h   // the height needs to be reduced to make room for the horizontal scrollbar
-				// add/remove the vertical scrollbar
-				if vscrollbar != false
-					vscrollbar.slider_max = dh - h
-					// if the vertical scrollbar already exists, fetch the current state
-					if component[2].structure_type == "SCROLLBAR"
-						setSliderPosition(vscrollbar, component[2].slider_position)
-						vscrollbar.slider_stepping = component[2].slider_stepping
-						vscrollbar.slider_dragging = component[2].slider_dragging
-						if vscrollbar.slider_dragging != UNDEFINED
-							vscrollbar.slider.state = PRESSED
-						else
-							vscrollbar.slider.state = component[2].slider.state
-						if vscrollbar.minus_button != UNDEFINED && component[2].minus_button != UNDEFINED
-							vscrollbar.minus_button.state = component[2].minus_button.state
-						if vscrollbar.plus_button != UNDEFINED && component[2].plus_button != UNDEFINED
-							vscrollbar.plus_button.state = component[2].plus_button.state
-					component[2] = vscrollbar
-				else
-					component[2] = UNDEFINED
-				// add/remove the horizontal scrollbar
-				if hscrollbar != false
-					hscrollbar.slider_max = dw - w
-					// if the horizontal scrollbar already exists, fetch the current state
-					if component[3].structure_type == "SCROLLBAR"
-						setSliderPosition(hscrollbar, component[3].slider_position)
-						hscrollbar.slider_stepping = component[3].slider_stepping
-						hscrollbar.slider_dragging = component[3].slider_dragging
-						if hscrollbar.slider_dragging != UNDEFINED
-							hscrollbar.slider.state = PRESSED
-						else
-							hscrollbar.slider.state = component[3].slider.state
-						if hscrollbar.minus_button != UNDEFINED && component[3].minus_button != UNDEFINED
-							hscrollbar.minus_button.state = component[3].minus_button.state
-						if hscrollbar.component[3] != UNDEFINED && component[3].plus_button != UNDEFINED
-							hscrollbar.component[3].state = component[3].plus_button.state
-					component[3] = hscrollbar
-				else
-					component[3] = UNDEFINED
-				// add or remove the corner filler
-				if hscrollbar != false && vscrollbar != false
-					component[1] = corner_filler
-				else
-					component[1] = UNDEFINED
-				// adjust the displayed content
-				component[0].width = w
-				component[0].height = h
-				component[0].component.x = hscrollbar == false ? 0 : -hscrollbar.slider_position
-				component[0].component.y = vscrollbar == false ? 0 : -vscrollbar.slider_position
-				component[0].component.component = displayed_element
 
 
 		TABLE

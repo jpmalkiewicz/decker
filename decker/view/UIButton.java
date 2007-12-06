@@ -43,6 +43,7 @@ class UIButton extends DisplayedComponent
 
 	UIButton (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
 		super(_component, _parent);
+		_component.structure().addValueListener(this);
 		// determine the type. it may be a BORDER_BUTTON
 		final String type = _component.get("structure_type").string();
 		// add the border if it's a BORDER_BUTTON
@@ -51,6 +52,15 @@ class UIButton extends DisplayedComponent
 		// fill in the remaining data
 		update(0, current_clip_source);
 updateButtonState();
+	}
+
+
+
+
+	void destroy () {
+		super.destroy();
+		if (component.type() == Value.STRUCTURE)
+			component.structure().removeValueListener(this);
 	}
 
 
@@ -138,6 +148,11 @@ updateButtonState();
 		updateButtonState();
 		return true;
 	}
+
+
+
+
+
 
 
 

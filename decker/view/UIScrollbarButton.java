@@ -54,9 +54,9 @@ class UIScrollbarButton extends UIButton
 		super.eventUserInput(event_id, e, mouse_x, mouse_y, mouse_dx, mouse_dy);
 		final int state = getState();
 		if (old_state != state) {
-			if (state == PRESSED_STATE_ID)
+if (state == PRESSED_STATE_ID && event_id == ON_MOUSE_DOWN)
 				((UIScrollbar)parent).buttonPressed(this,mouse_x, mouse_y);
-			if (old_state == PRESSED_STATE_ID)
+if (old_state == PRESSED_STATE_ID && event_id == ON_MOUSE_UP)
 				((UIScrollbar)parent).buttonReleased(this);
 		}
 		if (listens_everywhere) {
@@ -67,7 +67,6 @@ class UIScrollbarButton extends UIButton
 			if (event_id == ON_MOUSE_DRAGGED) {
 				((UIScrollbar)parent).sliderDragged(mouse_x, mouse_y);
 			}
-else System.out.println(event_id);
 		}
 		return true;
 	}

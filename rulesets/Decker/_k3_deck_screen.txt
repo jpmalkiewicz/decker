@@ -21,10 +21,7 @@ english
 			y = 180
 			width = screen_width - 2 * 20
 			height = screen_height - y - 80    // make the height relative to the screenheight
-			vertical_scrollbar = ARRAY
-				"scroller_vertical_blue0"
-				"scroller_up_blue0"
-				"scroller_down_blue0"
+			vertical_scrollbar = createSimpleScrollbar(width, height, true, "scroller_vertical_blue0", "scroller_up_blue0", "scroller_down_blue0")
 
 		LOCAL.createTableButton = FUNCTION (_column, _text, _width, _x, _sorting_order_function)
 			return_value = BORDER_BUTTON
@@ -189,8 +186,7 @@ english
 				LOCAL.default_function = FUNCTION
 					if prog.state == DEFAULT
 						setProgramState(player.deck, prog, LOADED)
-						idle = IMAGE
-							image = "status_off"
+						idle.image = "status_off"
 					else
 						// switch off the default marker for the old default program in the table
 						LOCAL.p2 = player.deck.default_program[prog.type.default_category]
@@ -202,8 +198,7 @@ english
 							LOCAL.index = indexof(prog, player.deck.program)
 							getTableCell(deck_screen.scrollpane.displayed_element, index, 5).idle.image = "status_on"
 						setProgramState(player.deck, prog, DEFAULT)
-						idle = IMAGE
-							image = "status_on"
+						idle.image = "status_on"
 						deck_screen.current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
 
 				LOCAL.load_function = FUNCTION
@@ -211,8 +206,7 @@ english
 						LOCAL.index = indexof(prog, player.deck.program)
 						getTableCell(deck_screen.scrollpane.displayed_element, index, 6).idle = "status_off"
 					setProgramState(player.deck, prog, prog.state != INSTALLED ? INSTALLED : LOADED)
-					idle = IMAGE
-						image = prog.state == INSTALLED ? "status_off" : "status_on"
+					idle.image = prog.state == INSTALLED ? "status_off" : "status_on"
 					deck_screen.current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
 
 				for i = 0 to p.size-1

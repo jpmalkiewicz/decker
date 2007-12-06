@@ -61,14 +61,18 @@ public class DisplayedComponent implements ValueListener
 		}
 		else { // it's a structure
 			final String t = _component.get("structure_type").string();
-			if (t.equals("BUTTON") || t.equals("BORDER_BUTTON"))
-				ret = new UIButton(_component, _parent, current_clip_source);
-			else if (t.equals("BORDER"))
+			if (t.equals("BORDER"))
 				ret = new UIBorder(_component, _parent, current_clip_source);
+			else if (t.equals("BUTTON") || t.equals("BORDER_BUTTON"))
+				ret = new UIButton(_component, _parent, current_clip_source);
+			else if (t.equals("CLIP"))
+				ret = new UIClip(_component, _parent, current_clip_source);
 			else if (t.equals("IMAGE"))
 				ret = new UIImage(_component, _parent, current_clip_source);
 			else if (t.equals("SCROLLBAR"))
 				ret = new UIScrollbar(_component, _parent, current_clip_source);
+			else if (t.equals("SCROLLPANE"))
+				ret = new UIScrollpane(_component, _parent, current_clip_source);
 			else if (t.equals("TABLE"))
 				ret = new UITable(_component, _parent, current_clip_source);
 			else if (t.equals("TEXT"))
