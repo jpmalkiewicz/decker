@@ -152,11 +152,6 @@ updateButtonState();
 
 
 
-
-
-
-
-
 	int getState () {
 		return state;
 	}
@@ -255,7 +250,6 @@ updateButtonState();
 			if (sw[i] == Integer.MIN_VALUE) {
 				sw[i] = w;
 				sh[i] = h;
-				face[i].update(0, current_clip_source);
 			}
 		}
 
@@ -352,18 +346,21 @@ updateButtonState();
 		final int padding_bottom = ((v=component.get("padding_bottom")) != null && v.type() == Value.INTEGER) ? v.integer() : padding;
 		if (face[0] != null) { // if face[0] exists all the others do, too
 			for (int i = 0; i < BUTTON_STATE_CONSTANT.length; i++) {
-				int fx = 0;
-				if (!hasExplicitX(face[i].component)) {
-					face[i].x = x + padding_left + ((w-padding_left-padding_right)-face[i].w)/2;
-				}
-				else {
-					face[i].x = determineX(face[i].component, sx[i]+border_thickness+padding_left, sw[i]-2*border_thickness-padding_left-padding_right, face[i].w);
-				}
-				if (!hasExplicitY(face[i].component)) {
-					face[i].y = y + padding_top + (h-padding_top-padding_bottom-face[i].h)/2;
-				}
-				else {
-					face[i].y = determineY(face[i].component, sy[i]+border_thickness+padding_top, sh[i]-2*border_thickness-padding_top-padding_bottom, face[i].h);
+				if (i == 0 || face[i] != face[0]) {
+					face[i].update(0, current_clip_source);
+					int fx = 0;
+					if (!hasExplicitX(face[i].component)) {
+						face[i].x = x + padding_left + ((w-padding_left-padding_right)-face[i].w)/2;
+					}
+					else {
+						face[i].x = determineX(face[i].component, sx[i]+border_thickness+padding_left, sw[i]-2*border_thickness-padding_left-padding_right, face[i].w);
+					}
+					if (!hasExplicitY(face[i].component)) {
+						face[i].y = y + padding_top + (h-padding_top-padding_bottom-face[i].h)/2;
+					}
+					else {
+						face[i].y = determineY(face[i].component, sy[i]+border_thickness+padding_top, sh[i]-2*border_thickness-padding_top-padding_bottom, face[i].h);
+					}
 				}
 			}
 		}

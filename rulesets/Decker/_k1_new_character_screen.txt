@@ -7,8 +7,7 @@ english
 		char_images = filelist("artwork/character_image/")   // this variable stores the list of available character images, the screen display class doesn't recognize it
 		char_image_index = 0
 		char_image = IMAGE     // the player icon
-			x = 29
-			y = 2
+			x = 27
 			image = "character_image/"+char_images[char_image_index]
 		//********************************* data for the bonus selector ***********************************
 		LOCAL.bonus_text = ARRAY
@@ -79,8 +78,6 @@ english
 				component = ARRAY
 					char_image
 					BORDER_BUTTON
-						x = 2
-						y = 2
 						idle = IMAGE
 							image = "arrow_w0"     // image for the idle state of the button. the pressed button image will be "home/arrow1" if that image exists
 						on_mouse_up = FUNCTION
@@ -91,8 +88,7 @@ english
 									char_image_index = char_image_index - 1
 								char_image.image = "character_image/"+char_images[char_image_index]
 					BORDER_BUTTON
-						x = 56
-						y = 2
+						x = 54
 						idle = IMAGE
 							image = "arrow_e0"
 						on_mouse_up = FUNCTION
