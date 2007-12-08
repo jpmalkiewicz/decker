@@ -4,7 +4,8 @@ import decker.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.util.TreeSet;
+
+
 
 
 public class DisplayedComponent implements Comparable, ValueListener
@@ -82,8 +83,9 @@ public class DisplayedComponent implements Comparable, ValueListener
 				ret = new UITextField(_component, _parent, current_clip_source);
 		}
 		if (ret == null) {
+if (_component == null || _component.type() != Value.STRUCTURE || !_component.get("structure_type").equals("COMPONENT"))
 System.out.print("(generic "+_component+") ");
-			ret = new DisplayedComponent(_component, _parent, current_clip_source);
+			ret = new UIGenericComponent(_component, _parent, current_clip_source);
 		}
 		if (ret.child_count == -1) {
 			ret.updateChildren(current_clip_source);
@@ -320,7 +322,6 @@ System.out.print("(generic "+_component+") ");
 
 
 
-	@SuppressWarnings("unchecked")
 	final static boolean handleUserInput (final AWTEvent e, final int mouse_x, final int mouse_y, final int mouse_dx, final int mouse_dy) {
 		int eventID = -1;
 		switch (e.getID()) {
@@ -395,16 +396,15 @@ System.out.print("(generic "+_component+") ");
 			}
 		}
 		// tell the components about the event itself
-		final TreeSet notified_components = new TreeSet();
 		final int listenerCount = eventListenerCount[eventID];
 		if (listenerCount > 0) {
+			final DisplayedComponent[] el = new DisplayedComponent[listenerCount];
+			System.arraycopy(eventListener[eventID], 0, el, 0, listenerCount);
 System.out.println();
-			final DisplayedComponent[] el = eventListener[eventID];
 System.out.println(listenerCount + " listeners          mouse at ("+mouse_x+" "+mouse_y+")");
 			for (int i = listenerCount; --i >= 0; ) {
 				final DisplayedComponent c = el[i];
-				if (mouse_x >= c.cx && mouse_x < c.cx+c.cw && mouse_y >= c.cy && mouse_y < c.cy+c.ch &&( c.shape == null || (c.shape.getRGB(mouse_x-c.x, mouse_y-c.y)&0xff000000) != 0 )&& !notified_components.contains(c)) {
-					notified_components.add(c);
+				if (mouse_x >= c.cx && mouse_x < c.cx+c.cw && mouse_y >= c.cy && mouse_y < c.cy+c.ch &&( c.shape == null || (c.shape.getRGB(mouse_x-c.x, mouse_y-c.y)&0xff000000) != 0 )) {
 System.out.println("mouse event inside "+c.getClass().getName());
 					// if there is no hardcoded function or the hardcoded function doesn't block the scripted one, call the scripted function
 					if (( !c.hasHardcodedEventFunction[eventID] || c.eventUserInput(eventID, e, mouse_x, mouse_y, mouse_dx, mouse_dy) )&& c.scriptedEventFunction[eventID] != null) {

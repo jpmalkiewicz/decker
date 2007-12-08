@@ -1,4 +1,7 @@
 82%
+2007-12-08
+  UIBorder now has two components, to give it an inner and an outer size
+  all screens work again (except for a button face positioning glitch in the rest screen, and it's not possible to select table rows yet)
 2007-12-06
   scrollpane works
 2007-12-04

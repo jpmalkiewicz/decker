@@ -108,8 +108,6 @@ english
 
 		component = ARRAY
 			SCREEN_BACKGROUND
-				width = 430
-				height = 300
 			createBorder(skill_panel.x-10, skill_panel.y-9, skill_panel.width+20, skill_panel.height+20, UNDEFINED, true)
 			skill_panel
 			lifestyle_panel_border
@@ -252,7 +250,7 @@ english
 				updateBackButton(back_button)
 
 				LOCAL.d = date_days_in_month(2132,0,player.age) - date_day_of_month(2132,0,player.age) + 1
-				monthly_cost_due.text  = d == 1 ? "1 day" : d + "days"
+				monthly_cost_due.text  = d == 1 ? "1 day" : d + " days"
 				
 				lifestyle_panel_border.height = lifestyle_panel.height+20
 				updateLifestylePanel(true)

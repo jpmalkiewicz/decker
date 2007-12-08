@@ -10,6 +10,9 @@ final class UIBorder extends DisplayedComponent
 	private Color left, top, right, bottom, background;
 	private int thickness;
 	boolean inverted;
+	private UIBorderInnerArea inner_area;
+
+
 
 
 	UIBorder (final DisplayedComponent _parent, final DisplayedComponent current_clip_source, final boolean use_default_background_color) {
@@ -26,14 +29,26 @@ final class UIBorder extends DisplayedComponent
 			thickness = v.integer();
 		if (use_default_background_color)
 			background = AbstractView.getColor(global_values.get("BACKGROUND_COLOR").string());
+		child_count = 0;
+		inner_area = new UIBorderInnerArea(this);
+		inner_area.update(0, current_clip_source);
 	}
+
+
 
 
 	UIBorder (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
-		super(_component, _parent, current_clip_source);
+		super(_component, _parent);
+		if (_component != null && _component.type() == Value.STRUCTURE){
+			_component.structure().addValueListener(this);
+		}
 		updateBorder();
-		updateChildren(current_clip_source);
+		child_count = 0;
+		inner_area = new UIBorderInnerArea(this);
+		update(0, current_clip_source);
 	}
+
+
 
 
 	void draw (final Graphics g) {
@@ -89,18 +104,20 @@ final class UIBorder extends DisplayedComponent
 			for (int i = t; --i >= 0; )
 				g.drawLine(x+i, y+i, x+w1-i-1, y+i);
 		}
-		// draw the child components
-		final DisplayedComponent[] c = child;
-		final int cc = child_count;
-		for (int i = 0; i < cc; i++)
-			c[i].draw(g);
+		inner_area.draw(g);
 	}
+
+
 
 
 	void update (final int customSettings, final DisplayedComponent current_clip_source) {
 		super.update(customSettings, current_clip_source);
 		updateBorder();
+		if (inner_area != null);
+		inner_area.update(0, current_clip_source);
 	}
+
+
 
 
 	private void updateBorder () {
@@ -131,6 +148,62 @@ final class UIBorder extends DisplayedComponent
 				thickness = v.integer();
 			else if ((v=ScriptNode.getValue("DEFAULT_BORDER_THICKNESS")).type() == Value.INTEGER)
 				thickness = v.integer();
+		}
+	}
+
+
+
+
+	void updateChildren (final DisplayedComponent current_clip_source) {
+		inner_area.updateChildren(current_clip_source);
+	}
+
+
+
+
+// ******************************************************************************************************************************************************
+// UIBorderInnerArea ************************************************************************************************************************************
+// ******************************************************************************************************************************************************
+
+
+
+
+	private static class UIBorderInnerArea extends DisplayedComponent
+	{
+		UIBorderInnerArea (final UIBorder _parent) {
+			super(null, _parent);
+		}
+
+
+
+
+		void draw (final Graphics g) {
+			// draw the child components
+			final DisplayedComponent[] c = child;
+			final int cc = child_count;
+			for (int i = 0; i < cc; i++)
+				c[i].draw(g);
+		}
+
+
+
+
+		void update (final int customSettings, final DisplayedComponent current_clip_source) {
+			final UIBorder p = (UIBorder) parent;
+			x = p.x + p.thickness;
+			y = p.y + p.thickness;
+			w = p.w - 2*p.thickness;
+			h = p.h - 2*p.thickness;
+			updateChildren(current_clip_source);
+		}
+
+
+
+
+		void updateChildren (final DisplayedComponent current_clip_source) {
+			component = parent.component;
+			super.updateChildren(current_clip_source);
+			component = null;
 		}
 	}
 }

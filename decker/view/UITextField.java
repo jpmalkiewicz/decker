@@ -56,6 +56,7 @@ final class UITextField extends DisplayedComponent
 			if (k.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
 				if (text.length() > 0) {
 					text = text.substring(0, text.length()-1);
+					component.get("text").set(text);
 					cursor_x = font_metrics.stringWidth(text);
 				}
 			}
@@ -66,6 +67,7 @@ final class UITextField extends DisplayedComponent
 					return true;
 				}
 				text = text + k.getKeyChar();
+				component.get("text").set(text);
 				cursor_x = font_metrics.stringWidth(text);
 			}
 			if (old_cursor_x != cursor_x && cursor instanceof DisplayedComponent) {
@@ -73,6 +75,15 @@ final class UITextField extends DisplayedComponent
 			}
 		}
 		return true;
+	}
+
+
+
+
+	public void eventValueChanged (final String variable_name, final Structure container, final Value old_value, final Value new_value) {
+		if (variable_name.equals("text") && container.get("text").equals(text))
+			return;
+		super.eventValueChanged(variable_name, container, old_value, new_value);
 	}
 
 

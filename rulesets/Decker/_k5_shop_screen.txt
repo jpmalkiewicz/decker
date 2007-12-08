@@ -12,9 +12,10 @@ english
 			v_align = CENTER
 			h_align = LEFT
 			y = char_money_caption.y
-			idle = "home/home"
+			idle = IMAGE
+				image = "home/home"
 			on_mouse_up = FUNCTION
-				displayInitializedScreen(home_screen, false)
+				displayScreen(home_screen, false)
 		purchase_button_wrapper = SET
 			x = COMPONENT.width*37/100
 			y = home_button.y
@@ -103,7 +104,7 @@ english
 				sorting_order_function = _sorting_order_function
 				column = _column
 				on_mouse_up = FUNCTION
-					sortTableInShop(scrollpane.displayed_element, sorting_order_function, column, player.shop_inventory)
+					sortTableInShop(shop_screen.scrollpane.displayed_element, sorting_order_function, column, player.shop_inventory)
 
 		LOCAL.table_button_x = ARRAY
 			scrollpane.x
@@ -111,8 +112,6 @@ english
 
 		component = ARRAY
 			SCREEN_BACKGROUND
-				width = COMPONENT.width
-				height = COMPONENT.height
 			char_money_caption
 			char_money
 			item_table_caption
@@ -174,7 +173,7 @@ english
 					m = "check"
 				else if m != UNDEFINED
 					m = createText(m,,,@TABLE_TEXT_COLOR)
-				addTableRow(t, p[i].type.image, createText(p[i].name,,,@TABLE_TEXT_COLOR), createText(p[i].type.name,,,@TABLE_TEXT_COLOR), createText(rating,,,@TABLE_TEXT_COLOR), m, createText(p[i].value,,,@TABLE_TEXT_COLOR), createText(p[i].average_value,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR))
+				addTableRow(t, createImage(p[i].type.image), createText(p[i].name,,,@TABLE_TEXT_COLOR), createText(p[i].type.name,,,@TABLE_TEXT_COLOR), createText(rating,,,@TABLE_TEXT_COLOR), m, createText(p[i].value,,,@TABLE_TEXT_COLOR), createText(p[i].average_value,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR))
 			centerRightAlignedTableColumn(t, 5)
 			centerRightAlignedTableColumn(t, 6)
 			centerRightAlignedTableColumn(t, 7)

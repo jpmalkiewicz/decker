@@ -26,19 +26,19 @@ english
 							y = 20
 							width = 0
 							height = 0
-							component = COMPONENT
+							component = IMAGE
 								x = CENTER
 								y = CENTER
-								component = _image
+								image = _image
 						COMPONENT
 							x = content_width - 20
 							y = 20
 							width = 0
 							height = 0
-							component = COMPONENT
+							component = IMAGE
 								x = CENTER
 								y = CENTER
-								component = _image
+								image = _image
 						createText(_text, CENTER, _text2 != UNDEFINED ? 4 : 12)
 					if _text2 != UNDEFINED
 						component[] = createText(_text2, CENTER, 21)
@@ -55,8 +55,6 @@ english
 
 		component = ARRAY
 			SCREEN_BACKGROUND
-				width = COMPONENT.width
-				height = COMPONENT.height
 			char_health
 			char_money
 			monthly_cost
@@ -70,9 +68,10 @@ english
 				h_align = LEFT
 				y = 75
 				v_align = TOP
-				idle = "home/home"
+				idle = IMAGE
+					image = "home/home"
 				on_mouse_up = FUNCTION
-					displayInitializedScreen(home_screen, false)
+					displayScreen(home_screen, false)
 
 
 		setup = FUNCTION
@@ -101,4 +100,3 @@ english
 			if player.physical_damage == 0 || healingTime1(player) > 1
 				a[] = rest_screen.createSpecialButton(yoff, "rest_screen/goof_off", "goof off for a day", , 1)
 			rest_screen.height = 90 + a.size*60
-			rest_screen.component[0].height = rest_screen.height

@@ -50,8 +50,6 @@ english
 
 		component = ARRAY
 			SCREEN_BACKGROUND
-				width = screen_width
-				height = screen_height
 			back_button
 			trashcan_wrapper
 			BORDER_BUTTON
