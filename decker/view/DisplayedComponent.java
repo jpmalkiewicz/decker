@@ -536,6 +536,20 @@ System.out.println("mouse up END");
 
 
 
+	void applyInnerBounds (UIInnerArea _inner_area) {
+		_inner_area.x = x;
+		_inner_area.y = y;
+		_inner_area.w = w;
+		_inner_area.h = h;
+		_inner_area.cx = cx;
+		_inner_area.cy = cy;
+		_inner_area.cw = cw;
+		_inner_area.ch = ch;
+	}
+
+
+
+
 	public int compareTo (Object o) {
 		if (o == null)
 			return 1;

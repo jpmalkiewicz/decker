@@ -8,9 +8,9 @@ final class UIBorder extends DisplayedComponent
 	public static boolean PRINT_ILLEGAL_BORDER_SIZE_WARNING = false;
 
 	private Color left, top, right, bottom, background;
-	private int thickness;
+	int thickness;
 	boolean inverted;
-	private UIBorderInnerArea inner_area;
+	private UIInnerArea inner_area;
 
 
 
@@ -30,7 +30,7 @@ final class UIBorder extends DisplayedComponent
 		if (use_default_background_color)
 			background = AbstractView.getColor(global_values.get("BACKGROUND_COLOR").string());
 		child_count = 0;
-		inner_area = new UIBorderInnerArea(this);
+		inner_area = new UIInnerArea(this);
 		inner_area.update(0, current_clip_source);
 	}
 
@@ -44,8 +44,24 @@ final class UIBorder extends DisplayedComponent
 		}
 		updateBorder();
 		child_count = 0;
-		inner_area = new UIBorderInnerArea(this);
+		inner_area = new UIInnerArea(this);
 		update(0, current_clip_source);
+	}
+
+
+
+
+	void applyInnerBounds (UIInnerArea _inner_area) {
+		_inner_area.x = x + thickness;
+		_inner_area.y = y + thickness;
+		_inner_area.w = w - 2*thickness;
+		_inner_area.h = h - 2*thickness;
+		// no need to set the clip of the _inner_area, since UIInnerArea never listens to input events anyway
+		// this would be a lazy implementation that doesn't take the border into account
+//		_inner_area.cx = cx;
+//		_inner_area.cy = cy;
+//		_inner_area.cw = cw;
+//		_inner_area.ch = ch;
 	}
 
 
@@ -156,54 +172,5 @@ final class UIBorder extends DisplayedComponent
 
 	void updateChildren (final DisplayedComponent current_clip_source) {
 		inner_area.updateChildren(current_clip_source);
-	}
-
-
-
-
-// ******************************************************************************************************************************************************
-// UIBorderInnerArea ************************************************************************************************************************************
-// ******************************************************************************************************************************************************
-
-
-
-
-	private static class UIBorderInnerArea extends DisplayedComponent
-	{
-		UIBorderInnerArea (final UIBorder _parent) {
-			super(null, _parent);
-		}
-
-
-
-
-		void draw (final Graphics g) {
-			// draw the child components
-			final DisplayedComponent[] c = child;
-			final int cc = child_count;
-			for (int i = 0; i < cc; i++)
-				c[i].draw(g);
-		}
-
-
-
-
-		void update (final int customSettings, final DisplayedComponent current_clip_source) {
-			final UIBorder p = (UIBorder) parent;
-			x = p.x + p.thickness;
-			y = p.y + p.thickness;
-			w = p.w - 2*p.thickness;
-			h = p.h - 2*p.thickness;
-			updateChildren(current_clip_source);
-		}
-
-
-
-
-		void updateChildren (final DisplayedComponent current_clip_source) {
-			component = parent.component;
-			super.updateChildren(current_clip_source);
-			component = null;
-		}
 	}
 }
