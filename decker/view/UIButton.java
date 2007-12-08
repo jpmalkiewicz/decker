@@ -16,6 +16,7 @@ class UIButton extends DisplayedComponent
 	private int state; // 0 = IDLE, 1 = PRESSED, 2 = DISABLED, 3 = HOVER
 	private final DisplayedComponent[] face = new DisplayedComponent[BUTTON_STATE_CONSTANT.length]; // one for each state
 	private UIBorder border;
+	private UIInnerArea inner_area;
 	// this is the current face for each state
 	private Value[] current_face = new Value[BUTTON_STATE_CONSTANT.length];
 	// the button may change its size and position depending on its state. these are the values for each state
@@ -44,9 +45,9 @@ class UIButton extends DisplayedComponent
 	UIButton (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
 		super(_component, _parent);
 		_component.structure().addValueListener(this);
-		// determine the type. it may be a BORDER_BUTTON
+		inner_area = new UIInnerArea(this);
+		// add a border if it's a BORDER_BUTTON
 		final String type = _component.get("structure_type").string();
-		// add the border if it's a BORDER_BUTTON
 		if (type.equals("BORDER_BUTTON"))
 			border = new UIBorder(this, current_clip_source, true);
 		// fill in the remaining data
@@ -57,10 +58,27 @@ updateButtonState();
 
 
 
-	void destroy () {
-		super.destroy();
-		if (component.type() == Value.STRUCTURE)
-			component.structure().removeValueListener(this);
+	void applyInnerBounds (UIInnerArea _inner_area) {
+		// first fetch the bounding rectangle of the button face
+		if (border != null)
+			border.applyInnerBounds(_inner_area);
+		else {
+			_inner_area.x = x;
+			_inner_area.y = y;
+			_inner_area.w = w;
+			_inner_area.h = h;
+		}
+		// then apply the padding
+		Value v;
+		final int padding        = ((v=component.get("padding"))        != null && v.type() == Value.INTEGER) ? v.integer() : 0;
+		final int padding_left   = ((v=component.get("padding_left"))   != null && v.type() == Value.INTEGER) ? v.integer() : padding;
+		final int padding_right  = ((v=component.get("padding_right"))  != null && v.type() == Value.INTEGER) ? v.integer() : padding;
+		final int padding_top    = ((v=component.get("padding_top"))    != null && v.type() == Value.INTEGER) ? v.integer() : padding;
+		final int padding_bottom = ((v=component.get("padding_bottom")) != null && v.type() == Value.INTEGER) ? v.integer() : padding;
+		_inner_area.x += padding_left;
+		_inner_area.w -= (padding_left+padding_right);
+		_inner_area.y += padding_top;
+		_inner_area.h -= (padding_top+padding_bottom);
 	}
 
 
@@ -229,9 +247,9 @@ updateButtonState();
 				// otherwise make a new face
 				else {
 					if (state_value[i].type() == Value.STRUCTURE)
-						face[i] = DisplayedComponent.createDisplayedComponent(state_value[i], this, current_clip_source);
+						face[i] = DisplayedComponent.createDisplayedComponent(state_value[i], inner_area, current_clip_source);
 					else
-						face[i] = new UIImage(state_value[i], this, current_clip_source);
+						face[i] = new UIImage(state_value[i], inner_area, current_clip_source);
 				}
 			}
 		}
@@ -337,40 +355,27 @@ updateButtonState();
 			}
 		}
 
-		// center the button faces if they have no explicit position
-		final int border_thickness = component.get("structure_type").equals("BORDER_BUTTON") ? ScriptNode.getValue("DEFAULT_BORDER_THICKNESS").integer() : 0;
-		final int padding        = ((v=component.get("padding"))        != null && v.type() == Value.INTEGER) ? v.integer() : 0;
-		final int padding_left   = ((v=component.get("padding_left"))   != null && v.type() == Value.INTEGER) ? v.integer() : padding;
-		final int padding_right  = ((v=component.get("padding_right"))  != null && v.type() == Value.INTEGER) ? v.integer() : padding;
-		final int padding_top    = ((v=component.get("padding_top"))    != null && v.type() == Value.INTEGER) ? v.integer() : padding;
-		final int padding_bottom = ((v=component.get("padding_bottom")) != null && v.type() == Value.INTEGER) ? v.integer() : padding;
-		if (face[0] != null) { // if face[0] exists all the others do, too
-			for (int i = 0; i < BUTTON_STATE_CONSTANT.length; i++) {
-				if (i == 0 || face[i] != face[0]) {
-					face[i].update(0, current_clip_source);
-					int fx = 0;
-					if (!hasExplicitX(face[i].component)) {
-						face[i].x = x + padding_left + ((w-padding_left-padding_right)-face[i].w)/2;
-					}
-					else {
-						face[i].x = determineX(face[i].component, sx[i]+border_thickness+padding_left, sw[i]-2*border_thickness-padding_left-padding_right, face[i].w);
-					}
-					if (!hasExplicitY(face[i].component)) {
-						face[i].y = y + padding_top + (h-padding_top-padding_bottom-face[i].h)/2;
-					}
-					else {
-						face[i].y = determineY(face[i].component, sy[i]+border_thickness+padding_top, sh[i]-2*border_thickness-padding_top-padding_bottom, face[i].h);
-					}
-				}
-			}
-		}
-
-		// adjust the border size
+		// adjust the border and inner area size
 		if (border != null) {
 			border.x = x;
 			border.y = y;
 			border.w = w;
 			border.h = h;
+		}
+		applyInnerBounds(inner_area);
+
+		// position the button faces
+		if (face[0] != null) { // if face[0] exists all the others do, too
+			for (int i = 0; i < BUTTON_STATE_CONSTANT.length; i++) {
+				if (i == 0 || face[i] != face[0]) {
+					face[i].update(0, current_clip_source);
+					// center the face if it has no explisit position
+					if (!hasExplicitX(face[i].component))
+						face[i].x = inner_area.x + (inner_area.w-face[i].w)/2;
+					if (!hasExplicitY(face[i].component))
+						face[i].y = inner_area.y + (inner_area.h-face[i].h)/2;
+				}
+			}
 		}
 	}
 
