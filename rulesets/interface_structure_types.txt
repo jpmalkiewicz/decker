@@ -64,19 +64,6 @@ english
 			// component         // must contain an array which contains the interface elements of this view, e.g. buttons and lists
 
 
-		EVENT_BLOCKER    // the event handler will stop at this component with all input events. on_draw events pass through
-			on_draw
-			on_key_down      = &trueFunction
-			on_mouse_down    = &trueFunction
-			on_mouse_dragged = &trueFunction
-			on_mouse_moved   = &trueFunction
-			on_mouse_up      = &trueFunction
-			x = -900000
-			y = x
-			width = -2*x
-			height = -2*x
-
-
 		IMAGE
 			expandable = true
 			image
@@ -96,6 +83,7 @@ english
 			width
 			height
 			color
+			fill = false
 
 
 		SCREEN_BACKGROUND
@@ -171,8 +159,8 @@ english
 			//cell_v_align           // default vertical alignment of cell content, works like cell_h_align
 			//cell_x // x value of cell content. works like cell_h_align
 			//cell_y // y value of cell content. works like cell_h_align
-			// on_row_drag           // put an event handler function here if you want to react to rows getting dragged
-			// on_selection_change   // put an event handler function here if you want to react to rows getting selected or deselected by the player
+			// on_row_dragged        // put an event handler function here if you want to react to rows getting dragged to new positions
+			// on_selection_change   // FUNCTION (table, old_row_index, new_row_index) : put an event handler function here if you want to react to rows getting selected or deselected by the player
 			initializer = FUNCTION
 				cell = ARRAY
 

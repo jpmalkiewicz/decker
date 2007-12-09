@@ -1,4 +1,6 @@
 83%
+2007-12-09
+  UITable rows are now selectable and draggable
 2007-12-08
   UIButton now uses UIInnerArea. This fixes the display glitch on the rest screen
 
