@@ -19,8 +19,3 @@ english
 		for i = 1 to argument.size-1
 			if return_value > argument[i]
 				return_value = argument[i]
-
-
-	// this function will always return true. used by EVENT_EATER
-	ENGINE.trueFunction = FUNCTION
-		return_value = true

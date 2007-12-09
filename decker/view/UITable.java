@@ -10,6 +10,12 @@ class UITable extends DisplayedComponent
 	private int[] column_width, column_x;
 	private int row_height, total_width, columns;
 	private TableCellWrapper[][] cell; // cell[row][column]
+	private boolean can_drag_rows, can_select_rows;
+	private boolean dragging_row;
+	private int current_row = -1; // the selected or dragged row
+	private final Value selected_row_background = new Value();
+
+
 
 
 	UITable (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
@@ -52,6 +58,17 @@ class UITable extends DisplayedComponent
 
 	public void draw (final Graphics g) {
 		if (cell != null) {
+			// mark the selected row
+			if (can_select_rows && current_row > -1) {
+				if (selected_row_background.type() == Value.STRING) {
+					final Color c = AbstractView.getColor(selected_row_background.string());
+					if (c != null) {
+						g.setColor(c);
+						g.fillRect(x, y+current_row*row_height, w, row_height);
+					}
+				}
+			}
+			// draw the cell contents
 			for (int i = cell.length; --i >= 0; ) {
 				if (i < cell.length) { // to avoid errors when a cell has an on_draw function that changed the table
 					final TableCellWrapper[] row = cell[i];
@@ -80,6 +97,94 @@ class UITable extends DisplayedComponent
 				}
 			}
 		}
+	}
+
+
+
+
+	boolean eventUserInput (final int event_id, final AWTEvent e, final int mouse_x, final int mouse_y, final int mouse_dx, final int mouse_dy) {
+		final int my = mouse_y-y;
+		if (row_height <= 0 || my < 0 || my >= h || mouse_x < x || mouse_x >= x+w || component == null || component.type() != Value.STRUCTURE || !component.get("structure_type").equals("TABLE")) {
+			dragging_row = false;
+			return true;
+		}
+		Value v;
+		final int old_current_row = current_row;
+		switch (event_id) {
+			case ON_MOUSE_DOWN :
+					if (can_select_rows || can_drag_rows) {
+						current_row = my / row_height;
+					}
+				break;
+			case ON_MOUSE_DRAGGED :
+					if (can_drag_rows && dragging_row) {
+						int target_row = my / row_height;
+//						int target_row = (my+row_height/2) / row_height;
+//						if (target_row > current_row)
+//							target_row--;
+						if (target_row != current_row) {
+							// move the row in the displayed table and its script representation
+							v = component.get("cell");
+							if (v.type() == Value.ARRAY) {
+								final Value[] rows = v.array();
+								if (current_row > -1 && current_row < rows.length && target_row < rows.length) {
+									// all the data is valid, move the row
+									final TableCellWrapper[] d_row = cell[current_row];
+									final Value s_row = rows[current_row];
+									if (current_row < target_row) {
+										System.arraycopy(cell, current_row+1, cell, current_row, target_row-current_row);
+										System.arraycopy(rows, current_row+1, rows, current_row, target_row-current_row);
+									}
+									else {
+										System.arraycopy(cell, target_row, cell, target_row+1, current_row-target_row);
+										System.arraycopy(rows, target_row, rows, target_row+1, current_row-target_row);
+									}
+									cell[target_row] = d_row;
+									rows[target_row] = s_row;
+System.out.println("moving UITable row : update the cell positions and cell content positions");
+// update the position of all moved displayed components
+update(0, getCurrentClipSource());
+									// adjust the current row index
+									current_row = target_row;
+									// call the row drag listener function, if there is one
+									if ((v=component.get("on_row_dragged")) != null && v.type() == Value.FUNCTION) {
+										Value[] args = new Value[]{ new Value().set(component), new Value(), new Value() };
+										if (old_current_row > -1)
+											args[1].set(old_current_row);
+										if (current_row > -1)
+											args[2].set(current_row);
+										FunctionCall.executeFunctionCall(v.function(), args, null);
+									}
+								}
+							}
+						}
+					}
+					else {
+						current_row = my / row_height;
+					}
+				break;
+			case ON_MOUSE_EXITED :
+					dragging_row = false;
+				break;
+			case ON_MOUSE_UP :
+					dragging_row = false;
+				break;
+		}
+		if (can_select_rows && current_row != old_current_row) {
+			component.get("selected_row").set(current_row);
+			if (!dragging_row && (v=component.get("on_selection_change")) != null && v.type() == Value.FUNCTION) {
+				Value[] args = new Value[]{ new Value().set(component), new Value(), new Value() };
+				if (old_current_row > -1)
+					args[1].set(old_current_row);
+				if (current_row > -1)
+					args[2].set(current_row);
+				FunctionCall.executeFunctionCall(v.function(), args, null);
+			}
+		}
+		if (event_id == ON_MOUSE_DOWN && can_drag_rows) {
+			dragging_row = true;
+		}
+		return true;
 	}
 
 
@@ -136,8 +241,32 @@ System.out.println("UITable : ignoring a changs to TABLE.columns");
 
 
 	void update (final int customSettings, final DisplayedComponent current_clip_source) {
+		if (component == null || component.type() != Value.STRUCTURE || !component.get("structure_type").equals("TABLE")) {
+			super.update(0, current_clip_source);
+		}
 		final Structure d = component.structure();
 		Value v;
+		// update whether a row can be selected / dragged
+		hasHardcodedEventFunction[ON_MOUSE_DOWN] = false;
+		hasHardcodedEventFunction[ON_MOUSE_DRAGGED] = false;
+		hasHardcodedEventFunction[ON_MOUSE_EXITED] = false;
+		hasHardcodedEventFunction[ON_MOUSE_UP] = false;
+		selected_row_background.set(d.get("selected_row_background"));
+		can_select_rows = !selected_row_background.equalsConstant("UNDEFINED");
+		can_drag_rows = d.get("can_drag_rows").equals(true);
+		if (can_select_rows) {
+			hasHardcodedEventFunction[ON_MOUSE_DOWN] = true;
+			hasHardcodedEventFunction[ON_MOUSE_DRAGGED] = true;
+		}
+		if (can_drag_rows) {
+			hasHardcodedEventFunction[ON_MOUSE_DOWN] = true;
+			hasHardcodedEventFunction[ON_MOUSE_DRAGGED] = true;
+			hasHardcodedEventFunction[ON_MOUSE_EXITED] = true;
+			hasHardcodedEventFunction[ON_MOUSE_UP] = true;
+		}
+		else {
+			dragging_row = false;
+		}
 		// check whether the size or formatting has changed
 		int rows = d.get("rows").integer();
 		columns = d.get("columns").integer();
@@ -239,8 +368,11 @@ if (true) {
 					d.get("rows").set(0);
 			}
 		}
-super.update(customSettings|CUSTOM_SIZE, current_clip_source);
-//System.exit(0);
+		// fetch the selected row
+		if (can_select_rows && (v=d.get("selected_row")).type() == Value.INTEGER && v.integer() > -1 && v.integer() < rows)
+			current_row =v.integer();
+		// finally call the super.update function to update anything that has been omitted so far
+		super.update(customSettings|CUSTOM_SIZE, current_clip_source);
 	}
 
 

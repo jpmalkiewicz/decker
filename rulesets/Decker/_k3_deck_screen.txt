@@ -133,7 +133,7 @@ english
 				t.selected_row_background = @TABLE_SELECTED_ROW_BACKGROUND
 				t.can_drag_rows = true
 				t.selected_row = scrollpane.displayed_element.selected_row
-				t.on_row_drag = FUNCTION (table, old_row_index, new_row_index)
+				t.on_row_dragged = FUNCTION (table, old_row_index, new_row_index)
 					// rearrange the programs in the player deck accordingly
 					LOCAL.p = player.deck.program
 					LOCAL.backup = p[old_row_index]
@@ -148,6 +148,7 @@ english
 					with deck_screen
 						if new_selected_row >= 0 && new_selected_row < table.rows
 							if trashcan_wrapper.component == UNDEFINED
+								debug("adding trashcan")
 								trashcan_wrapper.component = BORDER_BUTTON
 									x = scrollpane.x-2
 									y = back_button.y
@@ -156,16 +157,16 @@ english
 									on_mouse_up = FUNCTION
 										LOCAL.button_ok = createBorderButton("ok0")
 										button_ok.on_mouse_up = FUNCTION
-											LOCAL.index = deck_screen.scrollpane.displayed_element.selected_row
+											LOCAL.index = scrollpane.displayed_element.selected_row
 											setProgramState(player.deck, player.deck.program[index], INSTALLED)
 											delete(player.deck.program, index)
-											deleteTableRow(deck_screen.scrollpane.displayed_element, index)
+											deleteTableRow(scrollpane.displayed_element, index)
 											deleteScreenOverlay(popup)
-											deck_screen.trashcan_wrapper.component = UNDEFINED
-											deck_screen.current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
+											trashcan_wrapper.component = UNDEFINED
+											current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
 											return_value = true
-											centerRightAlignedTableColumn(deck_screen.scrollpane, 3)
-											centerRightAlignedTableColumn(deck_screen.scrollpane, 4)
+											centerRightAlignedTableColumn(scrollpane, 3)
+											centerRightAlignedTableColumn(scrollpane, 4)
 										LOCAL.button_cancel = createBorderButton("cancel0")
 										button_cancel.on_mouse_up = FUNCTION
 											deleteScreenOverlay(popup)
