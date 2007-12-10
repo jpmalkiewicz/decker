@@ -22,8 +22,8 @@ public final class Global
 	final static int DEFAULT_PRINT_DEPTH = 10;
 
 	// id codes for hard coded functions. used by FunctionCall.executeFunctionCall() and Global.initializedataModel()
-	final static int F_SIZE = 0, F_FILELIST = 1, F_SUBSTRING = 2, F_PIXELWIDTH = 3, F_PIXELHEIGHT = 4, F_EXIT_PROGRAM = 5, F_REPAINT = 6, F_INDEXOF = 7, F_IMAGE_EXISTS = 8, F_TO_LOWER_CASE = 9, F_TO_UPPER_CASE = 10, F_DATE_TEXT = 11, F_DEBUG = 12, F_INSERT = 13, F_RANDOM = 14, F_VALUE_TYPE = 15, F_DATE_DAY_OF_MONTH = 16, F_DATE_DAYS_IN_MONTH = 17, F_DELETE = 18, F_GET_STRUCTURE_STACK = 19, F_IS_EXPANDABLE = 20, F_HAS_VARIABLE = 21;
-	final static String[] FUNCTION_NAME = { "size", "filelist", "substring", "pixelwidth", "pixelheight", "exit_program", "repaint", "indexof", "image_exists", "to_lower_case", "to_upper_case", "date_text", "debug", "insert", "random", "value_type", "date_day_of_month", "date_days_in_month", "delete", "getStructureStack", "isExpandable", "hasVariable" };
+	final static int F_SIZE = 0, F_FILELIST = 1, F_SUBSTRING = 2, F_PIXELWIDTH = 3, F_PIXELHEIGHT = 4, F_EXIT_PROGRAM = 5, F_REPAINT = 6, F_INDEXOF = 7, F_IMAGE_EXISTS = 8, F_TO_LOWER_CASE = 9, F_TO_UPPER_CASE = 10, F_DATE_TEXT = 11, F_DEBUG = 12, F_INSERT = 13, F_RANDOM = 14, F_VALUE_TYPE = 15, F_DATE_DAY_OF_MONTH = 16, F_DATE_DAYS_IN_MONTH = 17, F_DELETE = 18, F_GET_STRUCTURE_STACK = 19, F_IS_EXPANDABLE = 20, F_HAS_VARIABLE = 21, F_SCRIPT_NAME = 22;
+	final static String[] FUNCTION_NAME = { "size", "filelist", "substring", "pixelwidth", "pixelheight", "exit_program", "repaint", "indexof", "image_exists", "to_lower_case", "to_upper_case", "date_text", "debug", "insert", "random", "value_type", "date_day_of_month", "date_days_in_month", "delete", "getStructureStack", "isExpandable", "hasVariable", "scriptName" };
 
 	public static Locale[] accepted_locales = { Locale.getDefault(), new Locale("en") };
 	public static Ruleset[] ruleset = new Ruleset[0];
@@ -54,6 +54,7 @@ public static Ruleset getCurrentRuleset ()  { return current_ruleset; }
 		engine.data.add("debug").set(new Function(F_DEBUG, new String[]{ "print_this", "to_console" }));
 		engine.data.add("delete").set(new Function(F_DELETE, new String[]{ "array", "index" }));
 		engine.data.add("filelist").set(new Function(F_FILELIST, new String[]{ "directory" }));
+		engine.data.add("scriptName").set(new Function(F_SCRIPT_NAME, new String[0]));
 		engine.data.add("getStructureStack").set(new Function(F_GET_STRUCTURE_STACK, new String[0]));
 		engine.data.add("hasVariable").set(new Function(F_HAS_VARIABLE, new String[]{ "structure", "variable" }));
 		engine.data.add("image_exists").set(new Function(F_IMAGE_EXISTS, new String[]{ "name" }));
@@ -69,10 +70,10 @@ public static Ruleset getCurrentRuleset ()  { return current_ruleset; }
 		engine.data.add("to_lower_case").set(new Function(F_TO_LOWER_CASE, new String[]{ "text" }));
 		engine.data.add("to_upper_case").set(new Function(F_TO_UPPER_CASE, new String[]{ "text" }));
 		engine.data.add("value_type").set(new Function(F_VALUE_TYPE, new String[]{ "value" }));
-		engine.data.add("displayed_screen").set(new Structure("VIEW")); // initialized with a dummy screen to avoid errors
+		engine.data.add("displayed_screen").set(new Structure("VIEW", null)); // initialized with a dummy screen to avoid errors
 		ScriptNode.stack[ScriptNode.ENGINE_STACK_SLOT] = engine.data;
 		ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] = current_ruleset.data;
-		ScriptNode.stack[ScriptNode.GLOBAL_STACK_SLOT] = new Structure("GLOBAL");
+		ScriptNode.stack[ScriptNode.GLOBAL_STACK_SLOT] = new Structure("GLOBAL", null);
 		ScriptNode.stack_size = ScriptNode.DEFAULT_GLOBAL_STACK_SIZE;
 		ScriptNode.global_stack_size = ScriptNode.DEFAULT_GLOBAL_STACK_SIZE;
 	}

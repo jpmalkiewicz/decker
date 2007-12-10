@@ -13,7 +13,7 @@ public final class Structure implements Comparable, ValueListener
 
 
 
-	public Structure (final String type_name)  {
+	public Structure (final String type_name, final ScriptNode caller)  {
 		if (type_name == null)
 			throw new RuntimeException("trying to use null as a structure type");
 		add("structure_type").set(type_name);
@@ -33,6 +33,8 @@ public final class Structure implements Comparable, ValueListener
 					final String k = n.getKey();
 					if (k.equals("initializer"))
 						initializer = (Value) n.getValue();
+					else if (k.equals("scriptname") && caller != null && ((Value)n.getValue()).equalsConstant("UNDEFINED"))
+						add(k).set(caller.getScriptName());
 					else if (!k.equals("pixelwidth") && !k.equals("pixelheight") && !k.equals("expandable")) // pixelwidth and pixelheight stay with their structure type and aren't copied to the instantiated structures
 						add(k).set((Value)n.getValue());
 				}
@@ -57,7 +59,7 @@ public final class Structure implements Comparable, ValueListener
 
 	/** creates a special LOCAL structure for a FunctionCall */
 	Structure (final Value[] arguments, final String[] argument_names)  {
-		this ("LOCAL");
+		this ("LOCAL", null);
 		add("argument").set(new ArrayWrapper(arguments));
 		add("return_value");
 //System.out.println("Structure : "+arguments.length+"   "+argument_names.length+"  "+((argument_names.length > 0)?argument_names[0]:""));

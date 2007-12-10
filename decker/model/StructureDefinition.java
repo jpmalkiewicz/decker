@@ -46,7 +46,7 @@ final class StructureDefinition extends Expression
 		final Value x = (structure_type instanceof String) ? null : ((Expression)structure_type).execute();
 		if (x != null && x.type() != Value.STRUCTURE)
 			throwException(structure_type.toString() + " should return a structure, but it returned the "+x.typeName()+" "+x.toString());
-		final Structure k = (structure_type instanceof String) ? new Structure((String)structure_type) : new Structure(x.structure());
+		final Structure k = (structure_type instanceof String) ? new Structure((String)structure_type, this) : new Structure(x.structure());
 		// execute the definition body if there is one
 		if (definition_body != null) {
 			addStackItem(k); // in case the structure is referenced by Expressions in the definition body

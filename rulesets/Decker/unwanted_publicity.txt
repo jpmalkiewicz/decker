@@ -1,0 +1,21 @@
+english
+	MISSION_LIST[] = MISSION
+		title = "Unwanted Publicity"
+		description = "A local gang is seeking revenge on a politician who double crossed them. You will hack into the town's city illumination system controls, and edit a huge hologram on the marketplace, turning it into a disgusting scene involving said politician and a hog"
+		payment = 90
+		deadline = 3
+
+
+		// this defines a system and makes it the target system
+		target_system = SYSTEM
+			rating = 1
+			name = "City Illumination Controls"
+			type = GENERIC
+
+
+		// three goals are added to the mission
+		goal[] = EDIT_FILE
+			target = FILE
+				name = "a holovid"
+				description = "this is the hologram you are looking for"
+				size = 30

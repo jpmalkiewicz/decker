@@ -165,11 +165,10 @@ final class StaticScriptFunctions extends ScriptNode
 
 	/** executes the hard coded script function getStructureStack(year,month,day) */
 	private final static Value execute_get_structure_stack (final Value[] args)  {
-		Structure stack = new Structure("ARRAY");
-		for (int i = 0; i < ScriptNode.stack_size-1; i++) { // -1 because otherwise it would add its own LOCAL data object to the returned array
-			stack.add("").set(new Value().set(ScriptNode.stack[i].get("structure_type")));
-		}
-		return new Value().set(stack);
+		final Value[] a = new Value[stack_size];
+		for (int i = a.length; --i >= 0; )
+			a[i] = new Value().set(stack[i].get("structure_type"));
+		return new Value().set(new ArrayWrapper(a));
 	}
 
 

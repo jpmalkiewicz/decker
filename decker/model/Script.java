@@ -19,7 +19,7 @@ final class Script
 			if (ls != null) {
 				// we need a LOCAL object on the stack for the script execution
 System.out.println("   running script from file : "+filename);
-				final Structure local = new Structure("LOCAL");
+				final Structure local = new Structure("LOCAL", null);
 				ScriptNode.addStackItem(local);
 				((Block)ls).execute();
 				ScriptNode.removeStackItem(local, (Block)ls);

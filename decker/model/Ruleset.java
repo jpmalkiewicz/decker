@@ -6,7 +6,7 @@ import java.util.Locale;
 
 public final class Ruleset
 {
-	public final Structure data = new Structure("RULESET");
+	public final Structure data = new Structure("RULESET", null);
 	final StringTreeMap structure_types = new StringTreeMap();
 	private Script[] script = new Script[0]; // the list of scripts in this ruleset
 
@@ -16,19 +16,19 @@ public final class Ruleset
 			data.get("structure_type").set("ENGINE");
 		}
 		data.add("RULESET_NAME").set(ruleset_name);
-		final Structure constants = new Structure("SET");
+		final Structure constants = new Structure("SET", null);
 		if (ruleset_name.equals("")) { // if this is the engine ruleset, add the only standard constant, UNDEFINED
 			constants.add("UNDEFINED");
 		}
 		data.add("CONSTANTS").set(constants);
-		data.add("GLOBAL_VALUES").set(new Structure("SET"));
+		data.add("GLOBAL_VALUES").set(new Structure("SET", null));
 		// add the set of structure types
-		final Structure structure_types = new Structure("SET");
+		final Structure structure_types = new Structure("SET", null);
 		data.add("STRUCTURE_TYPES").set(structure_types);
 		if (ruleset_name.equals("")) { // if this is the engine ruleset, add the standard structure type ARRAY
 			final String[] expandable_structure_types = { "COLLECTION", "ENGINE", "GLOBAL", "LOCAL", "RULESET", "SET" };
 			for (int i = 0; i < expandable_structure_types.length; i++) {
-				final Structure s = new Structure(expandable_structure_types[i]);
+				final Structure s = new Structure(expandable_structure_types[i], null);
 				s.add("expandable").set(true);
 				structure_types.add(expandable_structure_types[i]).set(s);
 			}
