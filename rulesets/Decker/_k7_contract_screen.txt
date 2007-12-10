@@ -1,0 +1,48 @@
+english
+	RULESET.contract_screen = COMPONENT
+		title = "Decker - Thrifty Electronics"
+		width = 640
+		height = 500
+
+		// the contract list
+		list_scrollpane = SCROLLPANE
+			x = 20
+			y = 60
+			width = COMPONENT.width - 2 * 20     //  = 600
+			height = 220
+			vertical_scrollbar = createSimpleScrollbar(true, "blue")
+		LOCAL.createTableButton = FUNCTION (_column, _text, _width, _x, _sorting_order_function)
+			return_value = BORDER_BUTTON
+				x = _x[0]
+				y = _x[1] - 20
+				idle = createText(_text)
+				idle.height = 14
+				width = _width
+				height = 20
+				_x[0] = _x[0] + _width
+				sorting_order_function = _sorting_order_function
+				column = _column
+				on_mouse_up = FUNCTION
+					sortTable(contract_screen.scrollpane.displayed_element, sorting_order_function, column, player.mission_list)
+		LOCAL.table_button_x = ARRAY
+			list_scrollpane.x
+			list_scrollpane.y
+
+		component = ARRAY
+			SCREEN_BACKGROUND
+			char_money_caption
+			char_money
+			item_table_caption
+			home_button
+			special_order_button
+			purchase_button_wrapper
+
+			// the table
+			createBorder(list_scrollpane.x-2, list_scrollpane.y-22, list_scrollpane.width+4, list_scrollpane.height+24, @TABLE_BACKGROUND_COLOR, true)
+			list_scrollpane
+			createTableButton(0, "Title",      120, table_button_x, &compareShopItemsPreset)
+			createTableButton(1, "Difficulty",  80, table_button_x, &compareText)
+			createTableButton(2, "Target",     160, table_button_x, &compareText)
+			createTableButton(3, "Deadline",    80, table_button_x, &compareRatings)
+			createTableButton(4, "Payment",     80, table_button_x, &compareCurrentRatings)
+			createTableButton(5, "Accepted",    80, table_button_x, &compareNumbersInverted)

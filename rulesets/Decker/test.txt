@@ -1,8 +1,8 @@
 english
-    title = "Bootleg Run"
-    description = "Zony Music will release three bootleg albums in the near future. If you steal those albums for us we'll pay you 900 cash."
-    payment = 900
-    deadline = 7*8/9
+	title = "Bootleg Run"
+	description = "Zony Music will release three bootleg albums in the near future. If you steal those albums for us we'll pay you 900 cash."
+	payment = 900
+	deadline = 7*8/9
     
     
     
@@ -10,19 +10,19 @@ english
 
     
 
-    target_system = SYSTEM
+	target_system = SYSTEM
 		rating = 2
 		name = "Zony Music"
 		type = CONSUMER
 
-    goal = ARRAY
-    	DOWNLOAD_FILE
+	goal = ARRAY
+		DOWNLOAD_FILE
 			target = FILE
 				description="album data"
-    	DOWNLOAD_FILE
+		DOWNLOAD_FILE
 			target = FILE
 				description="album data"
-    	DOWNLOAD_FILE
+		DOWNLOAD_FILE
 			target = FILE
 				description="album data"
 				

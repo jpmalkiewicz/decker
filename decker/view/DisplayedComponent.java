@@ -410,9 +410,9 @@ System.out.println("mouse event inside "+c.getClass().getName());
 					if (( !c.hasHardcodedEventFunction[eventID] || c.eventUserInput(eventID, e, mouse_x, mouse_y, mouse_dx, mouse_dy) )&& c.scriptedEventFunction[eventID] != null) {
 System.out.println("mouse event : "+c.hashCode()+"  "+i+"    "+e);
 						if (eventID != ON_MOUSE_MOVED && eventID != ON_MOUSE_DRAGGED)
-							FunctionCall.executeFunctionCall(c.scriptedEventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(true) }, c.component.structure());
+							FunctionCall.executeFunctionCall(c.scriptedEventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(true) }, (c.component.type()==Value.STRUCTURE)?c.component.structure():null);
 						else
-							FunctionCall.executeFunctionCall(c.scriptedEventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(mouse_dx), new Value().set(mouse_dy), new Value().set(true) }, c.component.structure());
+							FunctionCall.executeFunctionCall(c.scriptedEventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(mouse_dx), new Value().set(mouse_dy), new Value().set(true) }, (c.component.type()==Value.STRUCTURE)?c.component.structure():null);
 					}
 				}
 			}

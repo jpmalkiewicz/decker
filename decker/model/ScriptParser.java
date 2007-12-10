@@ -60,8 +60,12 @@ final class ScriptParser extends ScriptReader
 			s = previewElement();
 		}
 		// make sure the next element doesn't start in an illegal column
-		if (s != null && getColumn() != array_entry_column && getColumn() > command_column)
-			throwException(s+" should start in column "+array_entry_column + ", or in column "+command_column+" or further left");
+		if (s != null && getColumn() != array_entry_column && getColumn() > command_column) {
+			if (!s.equals("="))
+				throwException(s+" should start in column "+array_entry_column + ", or in column "+command_column+" or further left");
+			else
+				throwException("You cannot assign a value to   "+array_definition.getLastEntry()+"   when you use its value to initialize an array entry");
+		}
 		block_column = array_entry_column;
 		return array_definition;
 	}

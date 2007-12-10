@@ -9,7 +9,7 @@ abstract class ScriptReader
 	private final static String SINGLE_CHARACTER_ELEMENTS = ".*/+-(){}[],?:@;";
 	final static String VARIABLE_NAME_CHARACTERS = "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	final static String VARIABLE_NAME_CHARACTERS_AND_DOT = VARIABLE_NAME_CHARACTERS + ".";
-	static int TABULATOR_SIZE = 4;
+	static int TABULATOR_SIZE = 3;
 
 
 	private String script_name;

@@ -2,7 +2,7 @@ english
 	RULESET.shop_screen = COMPONENT
 		title = "Decker - Thrifty Electronics"
 		width = 560
-		height = 380
+		height = 384
 
 		char_money_caption = createText("Money", 20, height-29, , , , CENTER)
 		char_money = createText("", 20+pixelwidth(char_money_caption)+20, char_money_caption.y, , , , CENTER)
@@ -87,10 +87,7 @@ english
 			y = 60
 			width = COMPONENT.width - 2 * 20
 			height = COMPONENT.height - y - 54    // make the height relative to the screenheight
-			vertical_scrollbar = ARRAY
-				"scroller_vertical_blue0"
-				"scroller_up_blue0"
-				"scroller_down_blue0"
+			vertical_scrollbar = createSimpleScrollbar(true, "blue")
 
 		LOCAL.createTableButton = FUNCTION (_column, _text, _width, _x, _sorting_order_function)
 			return_value = BORDER_BUTTON
@@ -119,7 +116,7 @@ english
 			special_order_button
 			purchase_button_wrapper
 
-			// the software section
+			// the table
 			createBorder(scrollpane.x-2, scrollpane.y-22, scrollpane.width+4, scrollpane.height+24, @TABLE_BACKGROUND_COLOR, true)
 			scrollpane
 			createTableButton(0, "",         19, table_button_x, &compareShopItemsPreset)
