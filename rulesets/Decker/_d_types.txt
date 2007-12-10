@@ -147,7 +147,6 @@ english
 			description
 			payment
 			target_system
-			filename                // name of the script this mission comes from
 			goal
 			rating = @DEFAULT_MISSION_RATING
 			deadline = 5

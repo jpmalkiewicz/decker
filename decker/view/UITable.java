@@ -191,6 +191,7 @@ update(0, getCurrentClipSource());
 
 
 	public void eventValueChanged (final String variable_name, final Structure container, final Value old_value, final Value new_value) {
+System.out.println("UITable value changed   "+variable_name);
 		if (component.type() == Value.STRUCTURE && component.get("structure_type").equals("TABLE")) {
 			if (variable_name.equals("width") && component.get("width").equals(w))
 				return;
@@ -234,6 +235,7 @@ System.out.println("UITable : ignoring a changs to TABLE.columns");
 
 
 	public void eventValueChanged (final int index, final ArrayWrapper wrapper, final Value old_value, final Value new_value) {
+System.out.println("UITable value changed   "+index);
 		update(0, getCurrentClipSource());
 	}
 

@@ -173,11 +173,11 @@ english
 
 
 	// image_array must contain 1-3 entries : [0] the slider, [1] the up/left arrow, [2] the down/right arrow
-	ENGINE.createSimpleScrollbar = FUNCTION (boundingwidth, boundingheight, vertical, scroller, minus_arrow, plus_arrow)
+	ENGINE.createSimpleScrollbar = FUNCTION (vertical, color, boundingwidth = 100, boundingheight = 100)
 		if vertical
-			return_value = createScrollbar(RIGHT, 0, , boundingheight, true, scroller, 0, minus_arrow, plus_arrow)
+			return_value = createScrollbar(RIGHT, 0, , boundingheight, true, "scroller_vertical_"+color+"0", 0, "scroller_up_"+color+"0", "scroller_down_"+color+"0")
 		else
-			return_value = createScrollbar(0, BOTTOM, boundingwidth, , false, scroller, 0, minus_arrow, plus_arrow)
+			return_value = createScrollbar(0, BOTTOM, boundingwidth, , false, "scroller_horizontal_"+color+"0", 0, "scroller_left_"+color+"0", "scroller_right_"+color+"0")
 
 
 	ENGINE.createTable = FUNCTION (pcolumns, pcell_height, pcell_width)

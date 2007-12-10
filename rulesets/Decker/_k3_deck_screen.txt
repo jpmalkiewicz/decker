@@ -21,13 +21,14 @@ english
 			y = 180
 			width = screen_width - 2 * 20
 			height = screen_height - y - 80    // make the height relative to the screenheight
-			vertical_scrollbar = createSimpleScrollbar(width, height, true, "scroller_vertical_blue0", "scroller_up_blue0", "scroller_down_blue0")
+			vertical_scrollbar = createSimpleScrollbar(true, "blue")
 
 		LOCAL.createTableButton = FUNCTION (_column, _text, _width, _x, _sorting_order_function)
 			return_value = BORDER_BUTTON
 				x = _x[0]
 				y = _x[1] - 20
 				idle = createText(_text)
+// ugly fix, the only reason idle.height needs to be set here is to keep Java from centering the text wrong
 				idle.height = 14
 				width = _width
 				height = 20

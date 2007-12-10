@@ -51,6 +51,11 @@ final class ArrayDefinition extends Expression
 	}
 
 
+	Expression getLastEntry () {
+		return (array_definition.length==0) ? null : array_definition[array_definition.length-1];
+	}
+
+
 	boolean print (final PrintStream out, final String indentation, final boolean line_start, final int depth)  {
 		final int count = array_definition.length;
 		if (array_definition.length == 0) {

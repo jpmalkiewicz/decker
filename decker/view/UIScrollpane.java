@@ -203,7 +203,7 @@ class UIScrollpane extends DisplayedComponent
 				dx = 0;
 			else {
 				if (dx + content_clip.w > content.w)
-					dx = content_clip.w - content.w;
+					dx = content.w - content_clip.w;
 				v_horizontal_scrollbar.get("slider_max").set(content.w - content_clip.w);
 				v_horizontal_scrollbar.get("slider_position").set(dx);
 			}
@@ -211,8 +211,9 @@ class UIScrollpane extends DisplayedComponent
 			if (!needs_vertical)
 				dy = 0;
 			else {
+System.out.println("determining v scroll values ");
 				if (dy + content_clip.h > content.h)
-					dy = content_clip.h - content.h;
+					dy = content.h - content_clip.h;
 				v_vertical_scrollbar.get("slider_max").set(content.h - content_clip.h);
 				v_vertical_scrollbar.get("slider_position").set(dy);
 			}
