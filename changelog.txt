@@ -2,6 +2,7 @@
 2007-12-10
   UIScrollpane glitch with maxed scrollbar position at the moment of content size reduction fixed
   improved array definition parsing errors a bit and changed the tab size to 3 spaces
+  the list of missions which can become available is generated
 2007-12-09
   UITable rows are now selectable and draggable
 2007-12-08
@@ -29,7 +30,7 @@
 2007-11-26
   added optional depth parameter to debug()
   switching between screens works again
-  character screen : skill buttons work. lifestyle button used to work. looks like something 
+  character screen : skill buttons work. lifestyle button used to work. looks like something
 
 81%
 2007-11-26

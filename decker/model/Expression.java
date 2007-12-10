@@ -221,7 +221,7 @@ try {
 					final Value r = getVar(operator_element.string());
 					final Value r2 = stack[RULESET_STACK_SLOT].get("STRUCTURE_TYPES").get(operator_element.string());
 					final Value r3 = stack[ENGINE_STACK_SLOT].get("STRUCTURE_TYPES").get(operator_element.string());
-				return ( r != r2 && r != r3 ) ? r : new Value().set(new Structure(operator_element.string())); // return a new instance if the found value is a structure type
+				return ( r != r2 && r != r3 ) ? r : new Value().set(new Structure(operator_element.string(), this)); // return a new instance if the found value is a structure type
 			case CONSTANT :
 					return_value.set(operator_element);
 				break;

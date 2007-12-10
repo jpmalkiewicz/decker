@@ -28,18 +28,58 @@ english
 	RULESET.advanceDate = FUNCTION (day_count)
 		for i = 1 to day_count
 			player.age++
+			// pay the rent
 			if date_day_of_month(2132,0,player.age) == 1
 				// a new month has started. deduce the living costs
 				player.money = player.money - LIFESTYLE_COST[player.lifestyle]
 				// stop advancing the date if the player has run into debts. the game is over then
 				if player.money < 0
 					break
-				// update the shop contents every 7 days
-				if player.age-(player.age/7)*7 == 1
-					updateShopInventory()
+			// update the shop contents every 7 days
+			if player.age-(player.age/7)*7 == 1
+				updateShopInventory()
+			// update the missions
+// *****
+			makeMissionsAvailable()
 		if value_type(displayed_screen.setup) == "FUNCTION"
 			displayed_screen.setup()
 
+
+	RULESET.createNewPlayer = FUNCTION
+		with new_character_screen
+			GLOBAL.tooltips = tooltips
+			GLOBAL.ironman = ironman
+			GLOBAL.player = HUMAN
+				name = char_name.text
+				image = char_image.image
+				LOCAL.slvl = bonus_name[selected_bonus] == "software" ? 2 : 1
+				LOCAL.hlvl = bonus_name[selected_bonus] == "hardware" ? 2 : 1
+				deck = createDeck(hlvl, slvl)
+				if bonus_name[selected_bonus] == "skills"
+					attack = 2
+					defense = 2
+					stealth = 2
+					analysis = 2
+					programming = 2
+					chip_design = 2
+				money = bonus_name[selected_bonus] == "money" ? 2000 : 100
+				mission_list = ARRAY
+				completed_missions = ARRAY
+// debug stuff START
+				physical_damage = 3
+				money = money + 35000
+				skill_points = 8
+// debug stuff END
+
+		updateShopInventory()
+
+		// create the initial mission list
+		makeMissionsAvailable()
+		makeMissionsAvailable()
+		makeMissionsAvailable()
+		while (player.mission_list.size < 2) // make sure there are at least two missions when the game starts
+			makeMissionsAvailable()
+		debug("*** play has "+player.mission_list.size+" missions")
 
 	RULESET.duplicateShopItem = FUNCTION (item, shop_list)
 		return_value = false
@@ -72,6 +112,39 @@ english
 		for i = human.deck.program.size-1 downto 0
 			if human.deck.program[i].attack_modifier != UNDEFINED
 				return_value = return_value + human.deck.program[i].attack_modifier
+
+
+	// tries to make 0 to 2 missions available to the player
+	RULESET.makeMissionsAvailable = FUNCTION
+		LOCAL.new_missions = random(0,1)+random(0,1)
+		if new_missions > 0
+			// make a list of the missions which could become available
+			LOCAL.possible_missions = ARRAY
+			LOCAL.m = player.mission_list
+			LOCAL.available
+			for i = MISSION_LIST.size-1 downto 0
+				// check whether the mission is available
+				available = MISSION_LIST[i].available
+				if value_type(available) == "FUNCTION"
+					available = available(MISSION_LIST[i])
+				// if it is available make sure that it isn't on the player's list of completed missions
+				if available
+					available = indexof(MISSION_LIST[i].scriptname, player.completed_missions) == UNDEFINED
+					// if it is still available, make sure that it isn't on the player's current mission list
+					if available
+						for j = m.size-1 downto 0
+							if m[j].scriptname == MISSION_LIST[i].scriptname
+								available = false
+								break
+					// now that the mission has passed all tests, put it on the list of potential new missions
+					if available
+						possible_missions[] = MISSION_LIST[i]
+			// pick and add the missions
+			if new_missions > possible_missions
+				new_missions = possible_missions
+			for i = new_missions downto 1
+// dummy mission
+				player.mission_list[] = MISSION
 
 
 	RULESET.updateShopInventory = FUNCTION
@@ -115,39 +188,3 @@ english
 					swap = c[b]
 					c[b] = c[b+1]
 					c[b+1] = swap
-
-
-	RULESET.createNewPlayer = FUNCTION
-		with new_character_screen
-			GLOBAL.tooltips = tooltips
-			GLOBAL.ironman = ironman
-			GLOBAL.player = HUMAN
-				name = char_name.text
-				image = char_image.image
-				LOCAL.slvl = bonus_name[selected_bonus] == "software" ? 2 : 1
-				LOCAL.hlvl = bonus_name[selected_bonus] == "hardware" ? 2 : 1
-				deck = createDeck(hlvl, slvl)
-				if bonus_name[selected_bonus] == "skills"
-					attack = 2
-					defense = 2
-					stealth = 2
-					analysis = 2
-					programming = 2
-					chip_design = 2
-				money = bonus_name[selected_bonus] == "money" ? 2000 : 100
-
-// debug stuff START
-		physical_damage = 3
-		money = money + 35000
-		skill_points = 8
-// debug stuff END
-
-		updateShopInventory()
-
-		// create the initial mission list
-
-
-		LOCAL.c = ARRAY
-		player.mission_list = c
-		debug(MISSION_LIST.size)
-		debug(MISSION_LIST)

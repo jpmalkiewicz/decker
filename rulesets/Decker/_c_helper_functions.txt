@@ -221,28 +221,34 @@ english
 
 
 	// this function makes a mission available if it has a target system with a rating or it has a mission rating the rating is within +/-2 or +/-20% of the player's preferred mission rating
-	RULESET.defaultMissionAvailable = FUNCTION
-		if rating != UNDEFINED
-			return_value = ( rating >= player.mission_base_rating-2 || rating >= player.mission_base_rating*4/5 ) && ( rating <= player.mission_base_rating+2 || rating <= player.mission_base_rating*6/5 )
-		else if target_system.rating != UNDEFINED
-			return_value = ( target_system.rating >= player.mission_base_rating-2 || target_system.rating >= player.mission_base_rating*4/5 ) && ( target_system.rating <= player.mission_base_rating+2 || target_system.rating <= player.mission_base_rating*6/5 )
+	RULESET.defaultMissionAvailable = FUNCTION (mission)
+		with mission
+			return_value = false
+			LOCAL.r = rating
+			if value_type(r) == "FUNCTION"
+				r = r(mission)
+			if r != UNDEFINED
+				return_value = ( r >= player.mission_base_rating-2 || r >= player.mission_base_rating*4/5 ) && ( r <= player.mission_base_rating+2 || r <= player.mission_base_rating*6/5 )
+			else if target_system.rating != UNDEFINED
+				return_value = ( target_system.rating >= player.mission_base_rating-2 || target_system.rating >= player.mission_base_rating*4/5 ) && ( target_system.rating <= player.mission_base_rating+2 || target_system.rating <= player.mission_base_rating*6/5 )
 
 
 	// calculates the mission rating for missions which have a target system
-	RULESET.defaultMissionRating = FUNCTION
-		if target_system.structure_type == "SYSTEM"
-			LOCAL.special_condition = 0
-			LOCAL.target_count = 0
-			// there's either one goal or an array of goals
-			if value_type(goal) != "ARRAY" &&( goal.structure_type == "NO_RED_ALARM" || goal.structure_type == "CREATE_BACKDOOR" || goal.structure_type == "CRASH_SYSTEM" || goal.structure_type == "TIME_RESTRICTION" )
-				special_condition = goal.structure_type == "TIME_RESTRICTION" ? 2 : 1
-			if value_type(goal) == "ARRAY"
-				target_count = goal.size
-				for i = goal.size-1 downto 0
-					if goal[i].structure_type == "NO_RED_ALARM" || goal[i].structure_type == "CREATE_BACKDOOR" || goal[i].structure_type == "CRASH_SYSTEM" || goal[i].structure_type == "TIME_RESTRICTION"
-						special_condition = special_condition + ( goal.structure_type == "TIME_RESTRICTION" ? 2 : 1 )
-						target_count = target_count - 1
-			return_value = target_system.rating + target_count / 2 + special_condition
+	RULESET.defaultMissionRating = FUNCTION (mission)
+		with mission
+			if target_system.structure_type == "SYSTEM"
+				LOCAL.special_condition = 0
+				LOCAL.target_count = 0
+				// there's either one goal or an array of goals
+				if value_type(goal) != "ARRAY" &&( goal.structure_type == "NO_RED_ALARM" || goal.structure_type == "CREATE_BACKDOOR" || goal.structure_type == "CRASH_SYSTEM" || goal.structure_type == "TIME_RESTRICTION" )
+					special_condition = goal.structure_type == "TIME_RESTRICTION" ? 2 : 1
+				if value_type(goal) == "ARRAY"
+					target_count = goal.size
+					for i = goal.size-1 downto 0
+						if goal[i].structure_type == "NO_RED_ALARM" || goal[i].structure_type == "CREATE_BACKDOOR" || goal[i].structure_type == "CRASH_SYSTEM" || goal[i].structure_type == "TIME_RESTRICTION"
+							special_condition = special_condition + ( goal.structure_type == "TIME_RESTRICTION" ? 2 : 1 )
+							target_count = target_count - 1
+				return_value = target_system.rating + target_count / 2 + special_condition
 
 
 	RULESET.getCurrentMaxRating = FUNCTION (deck, item_type)

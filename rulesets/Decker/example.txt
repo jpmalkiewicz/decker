@@ -1,5 +1,4 @@
 english
-	debug("adding Bootleg Run to MISSION_LIST")
 	MISSION_LIST[] = MISSION
 		title = "Bootleg Run"
 		description = "Zony Music will release three bootleg albums in the near future. Steal those albums for us and we'll pay you 900 cash."
@@ -9,7 +8,7 @@ english
 
 		// this defines a system and makes it the target system
 		target_system = SYSTEM
-			rating = 5
+			rating = 9
 			name = "Zony Music"
 			type = CONSUMER
 

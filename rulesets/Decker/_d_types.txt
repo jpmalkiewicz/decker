@@ -140,7 +140,7 @@ english
 
 		MISSION
 			expandable = true
-			available = @DEFAULT_MISSION_AVAILABLE
+			available = defaultMissionAvailable   // this function will get called whenever we need to know whether this mission might become available
 			status = INCOMPLETE
 			can_be_started = true
 			title
@@ -148,13 +148,14 @@ english
 			payment
 			target_system
 			goal
-			rating = @DEFAULT_MISSION_RATING
+			rating = defaultMissionRating   // this function will get called when the actual mission is created from the template mission, and its return value will be used as the rating of the actual mission
 			deadline = 5
 			can_be_dropped = true
 			age = 0
 			failed_attempts = 0
 			reload_when_over = false
-			intializer = FUNCTION
+			scriptname     // leave this UNDEFINED. it will automatically be set to the name of the script that created the mission object
+			initializer = FUNCTION
 				goal = ARRAY
 
 		HUMAN
