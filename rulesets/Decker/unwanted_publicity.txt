@@ -1,7 +1,7 @@
 english
 	MISSION_LIST[] = MISSION
 		title = "Unwanted Publicity"
-		description = "A local gang is seeking revenge on a politician who double crossed them. You will hack into the town's city illumination system controls, and edit a huge hologram on the marketplace, turning it into a disgusting scene involving said politician and a hog"
+		description = "Someone is seeking to put a dent in the reputation of one of the heads of the city. You will hack into the city illumination system controls, edit a huge hologram on the marketplace, and turn it into a disgusting scene involving said politician and a hog"
 		payment = 90
 		deadline = 3
 

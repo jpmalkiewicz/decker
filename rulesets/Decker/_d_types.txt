@@ -145,7 +145,7 @@ english
 			can_be_started = true
 			title
 			description
-			payment
+			payment = defaultMissionPayment
 			target_system
 			goal
 			rating = defaultMissionRating   // this function will get called when the actual mission is created from the template mission, and its return value will be used as the rating of the actual mission
@@ -154,6 +154,7 @@ english
 			age = 0
 			failed_attempts = 0
 			reload_when_over = false
+			// setup       // put a function here to have it called when the mission is added to the list of available missions. the first parameter in the function call will be the mission
 			scriptname     // leave this UNDEFINED. it will automatically be set to the name of the script that created the mission object
 			initializer = FUNCTION
 				goal = ARRAY

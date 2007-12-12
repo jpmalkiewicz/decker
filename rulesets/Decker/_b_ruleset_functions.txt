@@ -79,7 +79,7 @@ english
 		makeMissionsAvailable()
 		while (player.mission_list.size < 2) // make sure there are at least two missions when the game starts
 			makeMissionsAvailable()
-		debug("*** play has "+player.mission_list.size+" missions")
+
 
 	RULESET.duplicateShopItem = FUNCTION (item, shop_list)
 		return_value = false
@@ -120,7 +120,7 @@ english
 		if new_missions > 0
 			// make a list of the missions which could become available
 			LOCAL.possible_missions = ARRAY
-			LOCAL.m = player.mission_list
+			LOCAL.m
 			LOCAL.available
 			for i = MISSION_LIST.size-1 downto 0
 				// check whether the mission is available
@@ -132,6 +132,7 @@ english
 					available = indexof(MISSION_LIST[i].scriptname, player.completed_missions) == UNDEFINED
 					// if it is still available, make sure that it isn't on the player's current mission list
 					if available
+						m = player.mission_list
 						for j = m.size-1 downto 0
 							if m[j].scriptname == MISSION_LIST[i].scriptname
 								available = false
@@ -140,11 +141,29 @@ english
 					if available
 						possible_missions[] = MISSION_LIST[i]
 			// pick and add the missions
-			if new_missions > possible_missions
-				new_missions = possible_missions
+			if new_missions > possible_missions.size
+				new_missions = possible_missions.size
 			for i = new_missions downto 1
-// dummy mission
-				player.mission_list[] = MISSION
+				LOCAL.k = random(0,possible_missions.size-1)
+				m = copy(possible_missions[k])
+				player.mission_list[] = m
+				delete(possible_missions, k)
+				m.available = true
+				if value_type(m.rating) == "FUNCTION"
+					m.rating = m.rating(m)
+				if value_type(m.payment) == "FUNCTION"
+					m.payment = m.payment(m)
+				// copy all the mission goals to leave their template version intact while playing the mission
+				if value_type(m.goal) == "STRUCTURE"
+					m.goal = copy(m.goal)
+				else if value_type(m.goal) == "ARRAY"
+					k = m.goal
+					m.goal = ARRAY
+					for j = 0 to k.size-1
+						m.goal[j] = copy(k[j])
+				// finally run the mission's setup function if there is one
+				if value_type(m.setup) == "FUNCTION"
+					m.setup(m)
 
 
 	RULESET.updateShopInventory = FUNCTION
