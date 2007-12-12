@@ -233,6 +233,15 @@ english
 				return_value = ( target_system.rating >= player.mission_base_rating-2 || target_system.rating >= player.mission_base_rating*4/5 ) && ( target_system.rating <= player.mission_base_rating+2 || target_system.rating <= player.mission_base_rating*6/5 )
 
 
+	RULESET.defaultMissionPayment = FUNCTION (mission)
+		with mission
+			LOCAL.r = mission.rating
+			if value_type(r) == "FUNCTION"
+				r = r(mission)
+			return_value = (120 - 10*deadline) * ( rating + player.lifestyle ) * (85 + random(0,30)) / 100
+
+
+
 	// calculates the mission rating for missions which have a target system
 	RULESET.defaultMissionRating = FUNCTION (mission)
 		with mission

@@ -194,6 +194,12 @@ english
 				columns = cell_width.size
 
 
+	ENGINE.createTableText = FUNCTION (text, x, y, color, font, h_align, v_align, width, height)
+		return_value = createText(text, x, y, color, font, h_align, v_align, width, height)
+		if color == UNDEFINED
+			return_value.color = @TABLE_TEXT_COLOR
+
+
 	// returns a new TEXT with the default settings as defined in the TEXT stored in TEXT_STYLE
 	ENGINE.createText = FUNCTION (text, x, y, color, font, h_align, v_align, width, height)
 		return_value = copy(@TEXT_STYLE)

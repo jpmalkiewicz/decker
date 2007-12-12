@@ -7,5 +7,6 @@ english
 			type = MANUFACTURING
 			rating = 1
 		goal[] = DOWNLOAD_FILE
-			name = "Product Information"
-			description = "This file contains the recipe you are looking for."
+			target = FILE
+				name = "Product Information"
+				description = "This file contains the recipe you are looking for."

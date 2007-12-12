@@ -1,4 +1,6 @@
 83%
+2007-12-12
+  contract screen displays missions in the list
 2007-12-10
   UIScrollpane glitch with maxed scrollbar position at the moment of content size reduction fixed
   improved array definition parsing errors a bit and changed the tab size to 3 spaces

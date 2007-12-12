@@ -46,3 +46,26 @@ english
 			createTableButton(3, "Deadline",    80, table_button_x, &compareRatings)
 			createTableButton(4, "Payment",     80, table_button_x, &compareCurrentRatings)
 			createTableButton(5, "Accepted",    80, table_button_x, &compareNumbersInverted)
+
+		setup = FUNCTION
+			with contract_screen
+				// create the table with the missions
+				LOCAL.t = createTable( , 18, 120, 80, 160, 80, 80, 80)
+				t.cell_x = createArray (3, CENTER, CENTER, CENTER, CENTER, CENTER)
+				t.cell_y = CENTER
+				t.selected_row_background = @TABLE_SELECTED_ROW_BACKGROUND
+				t.can_drag_rows = true
+				t.selected_row = scrollpane.displayed_element.selected_row
+				t.on_row_dragged = FUNCTION (table, old_row_index, new_row_index)
+// ***********
+				t.on_selection_change = FUNCTION (table, old_selected_row, new_selected_row)
+// ***********
+					if new_selected_row >= 0
+						debug(table.cell[new_selected_row][0].text)
+
+				LOCAL.m = player.mission_list
+				for i = 0 to m.size-1
+					LOCAL.title = m[i].title
+// ***********
+					addTableRow(t, createTableText(title), createTableText(m[i].rating), createTableText(m[i].target_system.name), createTableText(m[i].deadline), createTableText(m[i].payment), createTableText("x"))
+				list_scrollpane.displayed_element = t
