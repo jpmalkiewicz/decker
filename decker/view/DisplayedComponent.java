@@ -79,6 +79,8 @@ public class DisplayedComponent implements Comparable, ValueListener
 				ret = new UITable(_component, _parent, current_clip_source);
 			else if (t.equals("TEXT"))
 				ret = new UIText(_component, _parent, current_clip_source);
+			else if (t.equals("TEXTBLOCK"))
+				ret = new UITextBlock(_component, _parent, current_clip_source);
 			else if (t.equals("TEXTFIELD"))
 				ret = new UITextField(_component, _parent, current_clip_source);
 		}

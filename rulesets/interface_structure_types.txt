@@ -67,8 +67,8 @@ english
 		IMAGE
 			expandable = true
 			image
-			
-			
+
+
 		LINE
 			x
 			y
@@ -175,6 +175,16 @@ english
 			text
 			font           // a string, may contain several ; separated font settings (in arbitrary order, but later settings override earlier ones) : font face (Arial), font size (10pt) and font style (plain, bold, italic), e.g. "Arial;10pt;plain" or "bold;italic;Courier New;12pt". if style is omitted, plain is used. if font face or font size is omitted, the current settings are used, not the settings from the parent view element
 			color          // a color, using the html color format #rrggbb
+
+
+		TEXTBLOCK
+			x
+			y
+			v_align
+			h_align
+			width
+			height
+			component      // put the text to be displayed here. to make it start a new line, add a NEWLINE component. you can also put images and stuff here, they will then be inserted into the text
 
 
 		TEXTFIELD

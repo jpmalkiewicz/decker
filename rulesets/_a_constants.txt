@@ -11,3 +11,5 @@ english
 		RIGHT
 		TOP
 		BOTTOM
+
+		NEWLINE   // use this as a child component of a TEXTBLOCK to start a new line. empty lines will have the default line height. add dummy COMPONENT objects with a different height to empty lines to change their height

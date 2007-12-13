@@ -48,7 +48,6 @@ final class UIText extends DisplayedComponent
 
 
 	public void eventValueChanged (final int index, final ArrayWrapper wrapper, final Value old_value, final Value new_value) {
-System.out.println(index+"  changed");
 		updateText();
 		super.eventValueChanged(index, wrapper, old_value, new_value);
 	}
@@ -57,7 +56,6 @@ System.out.println(index+"  changed");
 
 
 	public void eventValueChanged (final String variable_name, final Structure container, final Value old_value, final Value new_value) {
-System.out.println(variable_name+"  changed");
 		updateText();
 		super.eventValueChanged(variable_name, container, old_value, new_value);
 	}
@@ -77,9 +75,7 @@ System.out.println(variable_name+"  changed");
 		final Structure t = component.structure();
 		Value v;
 		// fetch the text and its style settings
-final String old_text = text;
 		text = t.get("text").toString();
-// System.out.println("updating text    "+old_text+" -> "+text);
 		v = t.get("font");
 		font = AbstractView.getFont((v.type() == Value.STRING)?v.string():"", null, false);
 		color = ((v=t.get("color")).type() == Value.STRING) ? AbstractView.getColor(v.string()) : null;
