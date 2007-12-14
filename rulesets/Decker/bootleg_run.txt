@@ -1,5 +1,5 @@
 english
-	LOCAL.a = MISSION
+	RULESET.MISSION_LIST[] = MISSION
 		title = "Bootleg Run"
 		description = "Zony Music will release three bootleg albums in the near future. Steal those albums for us and we'll pay you 900 cash."
 		payment = 900
@@ -8,7 +8,8 @@ english
 
 		// this defines a system and makes it the target system
 		target_system = SYSTEM
-			rating = 9
+// replace this with 9
+			rating = 1
 			name = "Zony Music"
 			type = CONSUMER
 
