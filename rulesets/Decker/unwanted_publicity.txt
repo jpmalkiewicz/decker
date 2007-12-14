@@ -1,7 +1,7 @@
 english
 	MISSION_LIST[] = MISSION
 		title = "Unwanted Publicity"
-		description = "Someone is seeking to put a dent in the reputation of one of the heads of the city. You will hack into the city illumination system controls, edit a huge hologram on the marketplace, and turn it into a disgusting scene involving said politician and a hog"
+		description = "Someone is seeking to put a dent in the reputation of one of the heads of the city. You will hack into the city illumination controls, and turn a huge hologram on the market square into a disgusting scene involving said politician and a hog."
 		payment = 90
 		deadline = 3
 
@@ -13,9 +13,10 @@ english
 			type = GENERIC
 
 
-		// three goals are added to the mission
-		goal[] = EDIT_FILE
-			target = FILE
-				name = "a holovid"
-				description = "this is the hologram you are looking for"
-				size = 30
+		goal = ARRAY
+			NO_RED_ALARM
+			EDIT_FILE
+				target = FILE
+					name = "a holovid"
+					description = "this is the hologram you are looking for"
+					size = 30

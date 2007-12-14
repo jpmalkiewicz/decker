@@ -97,6 +97,10 @@ english
 		return_value = player.shop_inventory[b].type.id - player.shop_inventory[a].type.id
 
 
+	RULESET.compareMissionSystemRatings = FUNCTION (a,b)
+		return_value = player.mission_list[b].target_system.rating - player.mission_list[a].target_system.rating
+
+
 	RULESET.compareProgramsLoaded = FUNCTION (a, b)
 		return_value = ( player.deck.program[b].state == INSTALLED ? 0 : 1 ) - ( player.deck.program[a].state == INSTALLED ? 0 : 1 )
 
@@ -384,31 +388,47 @@ english
 		LOCAL.c = table.cell
 		LOCAL.swap
 		LOCAL.reverse = true
-		LOCAL.selected_row
-		if table.selected_row >= 0 && table.selected_row < table.rows
-			selected_row = table.cell[table.selected_row]
+		LOCAL.reverse_reverse = true
 		// determine if the table is already in order
 		for a = c.size-2 downto 0
-			reverse = reverse && comparator(a, a+1, table, column) >= 0
-		reverse = reverse ? -1 : 1
-		// perform a bubblesort on the table rows
-		for a = c.size-2 downto 0
-			for b = 0 to a
-				if reverse * comparator(b, b+1, table, column) < 0
-					swap = c[b+1]
-					c[b+1] = c[b]
-					c[b] = swap
-					// swap the corresponding entries in the displayed array, if there is one
-					if displayed_array != UNDEFINED
-						swap = displayed_array[b+1]
-						displayed_array[b+1] = displayed_array[b]
-						displayed_array[b] = swap
-		// move the row selection
-		if selected_row != UNDEFINED
-			for a = table.rows-1 downto 0
-				if c[a] == selected_row
-					table.selected_row = a
-					break
+			LOCAL.compared = comparator(a, a+1, table, column)
+			reverse = reverse && compared >= 0
+			reverse_reverse = reverse_reverse && compared <= 0
+		if reverse || reverse_reverse
+			// the table is already in order. reverse it
+			for a = (c.size-1)/2 downto 0
+				swap = c[a]
+				c[a] = c[c.size-a-1]
+				c[c.size-a-1] = swap
+				if displayed_array != UNDEFINED
+					swap = displayed_array[a]
+					displayed_array[a] = displayed_array[c.size-a-1]
+					displayed_array[c.size-a-1] = swap
+			if table.selected_row >= 0 && table.selected_row < table.rows
+				table.selected_row = table.rows - table.selected_row - 1
+		else
+			// remember the selected row
+			LOCAL.selected_row
+			if table.selected_row >= 0 && table.selected_row < table.rows
+				selected_row = table.cell[table.selected_row]
+			// perform a bubblesort on the table rows
+			for a = c.size-2 downto 0
+				for b = 0 to a
+					if comparator(b, b+1, table, column) < 0
+						swap = c[b+1]
+						c[b+1] = c[b]
+						c[b] = swap
+						// swap the corresponding entries in the displayed array, if there is one
+						if displayed_array != UNDEFINED
+							swap = displayed_array[b+1]
+							displayed_array[b+1] = displayed_array[b]
+							displayed_array[b] = swap
+			// move the row selection
+			if selected_row != UNDEFINED
+				for a = table.rows-1 downto 0
+					if c[a] == selected_row
+						table.selected_row = a
+						break
 
 
 	// comparator must return a value below zero if the compared rows are in the wrong order, 0 if they are identical, a positive value if they are in the correct order
