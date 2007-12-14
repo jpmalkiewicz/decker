@@ -1,5 +1,5 @@
 english
-	MISSION_LIST[] = MISSION
+	LOCAL.a = MISSION
 		title = "Bootleg Run"
 		description = "Zony Music will release three bootleg albums in the near future. Steal those albums for us and we'll pay you 900 cash."
 		payment = 900

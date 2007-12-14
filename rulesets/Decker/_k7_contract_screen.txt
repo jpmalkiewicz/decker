@@ -1,16 +1,42 @@
 english
 	RULESET.contract_screen = COMPONENT
-		title = "Decker - Thrifty Electronics"
+		title = "Decker - Contracts"
 		width = 640
 		height = 500
 
-		// the contract list
 		list_scrollpane = SCROLLPANE
 			x = 20
 			y = 61
 			width = COMPONENT.width - 2 * 20     //  = 600
-			height = 220
+			height = 150
 			vertical_scrollbar = createSimpleScrollbar(true, "blue")
+
+		description_scrollpane = SCROLLPANE
+			x = 20
+			y = list_scrollpane.y + list_scrollpane.height + 50
+			width = list_scrollpane.width
+			height = COMPONENT.height - y - 15
+			vertical_scrollbar = createSimpleScrollbar(true, "white")
+
+		displayContractDescription = FUNCTION
+			with contract_screen
+				LOCAL.r = list_scrollpane.displayed_element.selected_row
+				if !( r >= 0 )
+					description_scrollpane.displayed_element = UNDEFINED
+				else
+					LOCAL.m = player.mission_list[r]
+					description_scrollpane.displayed_element = TEXTBLOCK
+						width = description_scrollpane.width
+						if value_type(m.description) == "ARRAY"
+							component = m.description
+						else
+							component = ARRAY
+								m.title
+								NEWLINE
+								m.description
+
+
+
 		LOCAL.createTableButton = FUNCTION (_column, _text, _width, _x, _sorting_order_function)
 			return_value = BORDER_BUTTON
 				x = _x[0]
@@ -23,7 +49,7 @@ english
 				sorting_order_function = _sorting_order_function
 				column = _column
 				on_mouse_up = FUNCTION
-					sortTable(contract_screen.scrollpane.displayed_element, sorting_order_function, column, player.mission_list)
+					sortTable(contract_screen.list_scrollpane.displayed_element, sorting_order_function, column, player.mission_list)
 		LOCAL.table_button_x = ARRAY
 			list_scrollpane.x
 			list_scrollpane.y
@@ -40,49 +66,66 @@ english
 					image = "home/home"
 				on_mouse_up = FUNCTION
 					displayScreen(home_screen, false)
-			TEXTBLOCK
-				x = list_scrollpane.x
-				width = list_scrollpane.width
-				y = list_scrollpane.y + list_scrollpane.height + 50
-				height = COMPONENT.height - y - 15
-				component = ARRAY
-					IMAGE
-						image = "rest_screen/heal_hospital.bmp"
-					IMAGE
-						image = "home/home"
 
 			// the table
 			createBorder(list_scrollpane.x-2, list_scrollpane.y-22, list_scrollpane.width+4, list_scrollpane.height+24, @TABLE_BACKGROUND_COLOR, true)
 			list_scrollpane
-			createTableButton(0, "Title",      120, table_button_x, &compareShopItemsPreset)
-			createTableButton(1, "Difficulty",  80, table_button_x, &compareText)
-			createTableButton(2, "Target",     160, table_button_x, &compareText)
-			createTableButton(3, "Deadline",    80, table_button_x, &compareRatings)
-			createTableButton(4, "Payment",     80, table_button_x, &compareCurrentRatings)
-			createTableButton(5, "Accepted",    80, table_button_x, &compareNumbersInverted)
+			description_scrollpane
+			createTableButton(0, "Title",      120, table_button_x, &compareText)
+			createTableButton(1, "Difficulty",  80, table_button_x, &compareNumbers)
+			createTableButton(2, "Details",    160, table_button_x, &compareMissionSystemRatings)
+			createTableButton(3, "Deadline",    80, table_button_x, &compareNumbers)
+			createTableButton(4, "Payment",     80, table_button_x, &compareNumbersInverted)
+			createTableButton(5, "Accepted",    80, table_button_x)
 
 		setup = FUNCTION
 			with contract_screen
 				// create the table with the missions
-				LOCAL.t = createTable( , 18, 120, 80, 160, 80, 80, 80)
+				LOCAL.t = createTable( , 19, 120, 80, 160, 80, 80, 80)
 				t.cell_x = createArray (3, CENTER, CENTER, CENTER, CENTER, CENTER)
 				t.cell_y = CENTER
 				t.selected_row_background = @TABLE_SELECTED_ROW_BACKGROUND
 				t.can_drag_rows = true
 				t.selected_row = scrollpane.displayed_element.selected_row
 				t.on_row_dragged = FUNCTION (table, old_row_index, new_row_index)
-// ***********
-				t.on_selection_change = FUNCTION (table, old_selected_row, new_selected_row)
-// ***********
-					if new_selected_row >= 0
-						debug(table.cell[new_selected_row][0].text)
+					// rearrange the player's mission list accordingly
+					LOCAL.p = player.mission_list
+					LOCAL.backup = p[old_row_index]
+					if old_row_index > new_row_index
+						for i = old_row_index downto new_row_index+1
+							p[i] = p[i-1]
+					else
+						for i = old_row_index to new_row_index-1
+							p[i] = p[i+1]
+					p[new_row_index] = backup
+				t.on_selection_change = contract_screen.displayContractDescription
 
 				LOCAL.m = player.mission_list
 				if m.size > 0
 					for i = 0 to m.size-1
-						LOCAL.title = m[i].title
-// ***********
-						addTableRow(t, createTableText(title), createTableText(m[i].rating), createTableText(m[i].target_system.name), createTableText(m[i].deadline), createTableText(m[i].payment), createTableText("x"))
+						// generate the details text
+						LOCAL.target_count = 0
+						LOCAL.no_red_alarm = false
+						LOCAL.time_restriction = false
+						// there's either one goal or an array of goals
+						LOCAL.goal = m[i].goal
+						if value_type(goal) != "ARRAY"
+							if goal.structure_type == "NO_RED_ALARM"
+								no_red_alarm = true
+							else if goal.structure_type == "TIME_RESTRICTION"
+								time_restriction = true
+						else
+							target_count = goal.size
+							for j = goal.size-1 downto 0
+								if goal[j].structure_type == "NO_RED_ALARM" || goal[j].structure_type == "CREATE_BACKDOOR" || goal[j].structure_type == "CRASH_SYSTEM" || goal[j].structure_type == "TIME_RESTRICTION"
+									if goal[j].structure_type == "NO_RED_ALARM"
+										no_red_alarm = true
+									else if goal[j].structure_type == "TIME_RESTRICTION"
+										time_restriction = true
+									target_count = target_count - 1
+						LOCAL.details = (no_red_alarm?"N":"") + (time_restriction?"T":"") + (target_count>1?"("+target_count+")":"")
+						details = m[i].target_system.rating + (indexof(m[i].target_system,player.backdoors)>=0?"B":"") + (details==""?"":" " + details)
+						addTableRow(t, createTableText(m[i].title), createTableText(m[i].rating), createTableText(details), createTableText(m[i].deadline), createTableText(m[i].payment), createTableText("x"))
 					// always have a mission marked, if the list is not empty
 					if list_scrollpane.displayed_element.selected_row != UNDEFINED
 						t.selected_row = list_scrollpane.displayed_element.selected_row
@@ -91,3 +134,4 @@ english
 					if t.selected_row >= m.size
 						t.selected_row = m.size-1
 				list_scrollpane.displayed_element = t
+				displayContractDescription()

@@ -1,4 +1,6 @@
 83%
+2007-12-14
+  mission descriptions are displayed, sorting the mission table works
 2007-12-13
   UITextBlock displays everything but text
 2007-12-12

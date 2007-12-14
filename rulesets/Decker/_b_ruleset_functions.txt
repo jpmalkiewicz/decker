@@ -65,6 +65,7 @@ english
 				money = bonus_name[selected_bonus] == "money" ? 2000 : 100
 				mission_list = ARRAY
 				completed_missions = ARRAY
+				backdoors = ARRAY
 // debug stuff START
 				physical_damage = 3
 				money = money + 35000
