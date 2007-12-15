@@ -1,12 +1,14 @@
 english
 	RULESET.MISSION_LIST[] = MISSION
 		title = "Ice Run"
-		description = "Frozen Dreams, a local ice-cream producer is about to ship a new flavour. Hack into their system and bring us the recipe."
 
 		target_system = SYSTEM
 			name = "Frozen Dreams"
 			type = MANUFACTURING
 			rating = 1
+
+		description = "Frozen Dreams, a local ice-cream producer is about to ship a new flavour. Hack into their system and bring us the recipe. Their system's security rating is only 1. Easy."
+		add_details_to_description = false
 
 		goal[] = DOWNLOAD_FILE
 			target = FILE

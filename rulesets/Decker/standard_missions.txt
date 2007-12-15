@@ -181,7 +181,7 @@ english
 					b = THING
 						name = "Client Program " + c
 						rating = target_system.rating
-						size = item_rating * 4
+						size = rating * 4
 						state = INSTALLED
 						value = 0
 						type = THING_TYPE

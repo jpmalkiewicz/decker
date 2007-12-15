@@ -18,11 +18,22 @@ english
 			height = COMPONENT.height - y - 15
 			vertical_scrollbar = createSimpleScrollbar(true, "white")
 
+		left_button_wrapper = COMPONENT
+			x = list_scrollpane.x
+			y = list_scrollpane.y + list_scrollpane.height + 27
+
+		LOCAL.w = width
+		center_button_wrapper = COMPONENT
+			x = w/2+30
+			y = left_button_wrapper.y
+
 		displayContractDescription = FUNCTION
 			with contract_screen
 				LOCAL.r = list_scrollpane.displayed_element.selected_row
 				if !( r >= 0 )
 					description_scrollpane.displayed_element = UNDEFINED
+					left_button_wrapper.component = UNDEFINED
+					center_button_wrapper.component = UNDEFINED
 				else
 					LOCAL.m = player.mission_list[r]
 					description_scrollpane.displayed_element = TEXTBLOCK
@@ -36,6 +47,47 @@ english
 								m.description
 						if m.add_details_to_description
 							component[] = " " + generateMissionDetailsDescription(m)
+					if m.accepted
+						if left_button_wrapper.component.idle.text != "Start"
+							left_button_wrapper.component = BORDER_BUTTON
+								y = CENTER
+								idle = createText("Start")
+								padding = 3
+								padding_left = 6
+								padding_right = 6
+						center_button_wrapper.component = UNDEFINED
+					else
+						if left_button_wrapper.component.idle.text != "Accept and start"
+							left_button_wrapper.component = BORDER_BUTTON
+								y = CENTER
+								idle = createText("Accept and start")
+								padding = 3
+								padding_left = 6
+								padding_right = 6
+								on_mouse_up = FUNCTION
+									LOCAL.m = contract_screen.list_scrollpane.displayed_element.selected_row
+									if m >= 0 && m < player.mission_list.size
+										m = player.mission_list[m]
+										m.accepted = true
+										if value_type(m.on_accepted) == "FUNCTION"
+											m.accepted(m)
+										contract_screen.setup()
+						if left_button_wrapper.component.idle.text != "Accept"
+							center_button_wrapper.component = BORDER_BUTTON
+								x = CENTER
+								y = CENTER
+								idle = createText("Accept")
+								padding = 3
+								padding_left = 6
+								padding_right = 6
+								on_mouse_up = FUNCTION
+									LOCAL.m = contract_screen.list_scrollpane.displayed_element.selected_row
+									if m >= 0 && m < player.mission_list.size
+										m = player.mission_list[m]
+										m.accepted = true
+										if value_type(m.on_accepted) == "FUNCTION"
+											m.accepted(m)
+										contract_screen.setup()
 
 		LOCAL.createTableButton = FUNCTION (_column, _text, _width, _x, _sorting_order_function)
 			return_value = BORDER_BUTTON
@@ -58,10 +110,13 @@ english
 			SCREEN_BACKGROUND
 			home_button
 			createText("Available Contracts", CENTER, 16)
+			left_button_wrapper
+			center_button_wrapper
 			BORDER_BUTTON
 				x = list_scrollpane.x + list_scrollpane.width + DEFAULT_BORDER_THICKNESS
 				h_align = LEFT
-				y = list_scrollpane.y + list_scrollpane.height + 15
+				y = left_button_wrapper.y
+				v_align = CENTER
 				idle = IMAGE
 					image = "home/home"
 				on_mouse_up = FUNCTION
@@ -72,11 +127,11 @@ english
 			list_scrollpane
 			description_scrollpane
 			createTableButton(0, "Title",      120, table_button_x, &compareText)
-			createTableButton(1, "Difficulty",  80, table_button_x, &compareNumbers)
+			createTableButton(1, "Difficulty",  80, table_button_x, &compareNumbersInverted)
 			createTableButton(2, "Details",    160, table_button_x, &compareMissionSystemRatings)
 			createTableButton(3, "Deadline",    80, table_button_x, &compareNumbers)
-			createTableButton(4, "Payment",     80, table_button_x, &compareNumbersInverted)
-			createTableButton(5, "Accepted",    80, table_button_x)
+			createTableButton(4, "Payment",     80, table_button_x, &compareNumbers)
+			createTableButton(5, "Accepted",    80, table_button_x, &compareMissionStatus)
 
 		setup = FUNCTION
 			with contract_screen
