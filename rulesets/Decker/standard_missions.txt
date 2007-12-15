@@ -105,6 +105,9 @@ english
 								target = FILE
 									description = b
 
+					if goal_count > 1
+						description = description + " There will be " + goal_count + " targets."
+
 					if random(1,5) <= ( goal[0].structure_type == "EDIT_FILE" ? 2 : 1 )
 						goal[] = NO_RED_ALARM
 
@@ -193,7 +196,7 @@ english
 					a = random(1,3)   // 1 = IO node, 2 = DS node, 3 = CPU
 					if a != 3 && random(1,40) <= target_system.rating
 						goal_count = random(2,5)
-						description = "A client needs a special program activated on the "+target_system.name+" system. Locate the target nodes by running the program, then activate the program within each nodes. You must remain in each target node until the program has finished running. Upon accepting the mission you will receive the client's program "+c+"."
+						description = "A client needs a special program activated on the "+target_system.name+" system. Locate the "+goal_coount+" target nodes by running the program, then activate the program within each node. You must remain in each target node until the program has finished running. Upon accepting the mission you will receive the client's program "+c+"."
 					else
 						description = "A client needs a special program activated on the "+target_system.name+" system. Locate the target node by running the program, then activate the program within the node. You must remain in the node until the program has finished running. Upon accepting the mission you will receive the client's program "+c+"."
 
@@ -213,6 +216,9 @@ english
 						goal[0] = NO_RED_ALARM
 
 
+				if goal[0].structure_type == "NO_RED_ALARM"
+					description = description + " The target system must not become aware of any tampering."
+
 				// if the target system rating is 5 or higher, there's a 10% chance that the mission will be timed
 				if target_system.rating >= 5 && random(1,10) == 1
 					deadline = 0
@@ -220,7 +226,9 @@ english
 					goal[] = goal[a]
 					goal[a] = TIME_RESTRICTION
 						end_time = 180 * ((target_system.rating+3)/4)       // 3 minutes per area within the target system
+					description = description + " The mission must be completed within "+(goal[a].end_time/60)+" minutes of system entry."
 
+				description = description + " The "+target_system.name+" system has a security rating of "+target_system.rating+"."
 
 				return_value = defaultMissionRating(mission)
 
@@ -233,42 +241,15 @@ english
 // These missions turn themselves into a random mission from Decker 1.12 when
 // they becomes available. The five missions in this file are identical. This
 // means there may be five Decker 1.12 missions available at any given time
-	MISSION_LIST = MISSION_LIST + ARRAY
-		MISSION
+	for i = 1 to 5
+		MISSION_LIST[] = MISSION
 			reload_when_over = true
 			available = true
-			scriptname = "standard_mission_a.txt" // we'll use custom values here, to tell JDecker that these missions are not the same mission and can be available simultaneously
+			scriptname = "standard_mission_"+i+".txt" // we'll use custom values here, to tell JDecker that these missions are not the same mission and can be available simultaneously
+			add_details_to_description = false  // the mission details are already in the description
 			on_mission_over = FUNCTION
 				unmarkSystemInUse(target_system)
 			rating = generateStandardMission // if rating is a function, it gets called when the mission becomes available. we'll abuse that to initialize the mission when it becomes available
-		MISSION
-			reload_when_over = true
-			available = true
-			scriptname = "standard_mission_b.txt"
-			on_mission_over = FUNCTION
-				unmarkSystemInUse(target_system)
-			rating = generateStandardMission
-		MISSION
-			reload_when_over = true
-			available = true
-			scriptname = "standard_mission_c.txt"
-			on_mission_over = FUNCTION
-				unmarkSystemInUse(target_system)
-			rating = generateStandardMission
-		MISSION
-			reload_when_over = true
-			available = true
-			scriptname = "standard_mission_d.txt"
-			on_mission_over = FUNCTION
-				unmarkSystemInUse(target_system)
-			rating = generateStandardMission
-		MISSION
-			reload_when_over = true
-			available = true
-			scriptname = "standard_mission_e.txt"
-			on_mission_over = FUNCTION
-				unmarkSystemInUse(target_system)
-			rating = generateStandardMission
 
 
 // **************************************************************************************************
