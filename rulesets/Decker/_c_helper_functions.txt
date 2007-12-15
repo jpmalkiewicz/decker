@@ -101,6 +101,10 @@ english
 		return_value = player.mission_list[b].target_system.rating - player.mission_list[a].target_system.rating
 
 
+	RULESET.compareMissionStatus = FUNCTION (a,b)
+		return_value = (player.mission_list[a].accepted?1:0) - (player.mission_list[b].accepted?1:0)
+
+
 	RULESET.compareProgramsLoaded = FUNCTION (a, b)
 		return_value = ( player.deck.program[b].state == INSTALLED ? 0 : 1 ) - ( player.deck.program[a].state == INSTALLED ? 0 : 1 )
 
@@ -233,9 +237,11 @@ english
 
 	RULESET.defaultMissionPayment = FUNCTION (mission)
 		with mission
-			LOCAL.r = mission.rating
+			LOCAL.r = rating
 			if value_type(r) == "FUNCTION"
 				r = r(mission)
+			if (title == "Ice Run")
+				debug("*****"+rating)
 			return_value = (120 - 10*deadline) * ( rating + player.lifestyle ) * (85 + random(0,30)) / 100
 
 

@@ -156,7 +156,8 @@ english
 			reload_when_over = false     // if you set this to true, the mission will go back into the mission pool after it is removed from the list of available missions
 			// setup       // put a function here to have it called when the mission is added to the list of available missions. the first parameter in the function call will be the mission
 			scriptname     // leave this UNDEFINED. it will automatically be set to the name of the script that created the mission object
-			// on_success  // put trigger functions here
+			// on_accepted // put trigger functions here
+			// on_success
 			// on_failure  // called every time the player fails an attempt to complete the mission
 			// on_mission_over
 			initializer = FUNCTION
