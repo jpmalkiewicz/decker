@@ -545,7 +545,7 @@ final class ScriptParser extends ScriptReader
 //					throwException("the , between function call arguments must not sit at the beginning of a line");
 			}
 			// if the argument has been omitted, add an empty argument to the function call, otherwise parse the argument
-			if (s.equals(","))
+			if (s.equals(",") || s.equals(")"))
 				fc.addArgument(null);
 			else
 				fc.addArgument(parseExpression(getLine(), command_column, expression_column, es, est, true));

@@ -1,0 +1,174 @@
+english
+	debug("system generator modulo test " + 7%4 + " "+ 3%4 + " " + 8%5 + " " + 8%4)
+
+
+	// parameters : the node to be added and the coords of the node the algorithm should start at
+	// if the node the algorithm starts at is shifted, the start_coords are changed accordingly
+	RULESET.addNode = FUNCTION (type, area, start_coords)
+		return_value = createNode(type)
+		LOCAL.direction = random(0,3)
+		LOCAL.rotation = random(0,1)*2 + 1    // 1 or 3
+		for i = 0 to 3
+			if addNodeDirection(n, start_coords[0], start_coords[1], direction, area, start_coords)
+				break
+			direction = (direction + rotation) % 4
+
+
+	RULESET.addNodeDirection = FUNCTION (node, x, y, direction, start_coords)
+		// if the node K we're currently trying to connect to doesn't have a connection leading towards the target direction ...
+		if (!map[x][y].connection[direction]) {
+			// if the map cell is free, add the node n there
+			if (x+DELTA_X[direction] < 0 || x+DELTA_X[direction] >= map.length || y+DELTA_Y[direction] < 0 || y+DELTA_Y[direction] >= map[0].length || map[x+DELTA_X[direction]][y+DELTA_Y[direction]] == null) {
+				insertNode(n, x, y, direction, start_coords);
+				return true;
+			}
+		}
+		else {
+			// move to the node we've run into
+			x += DELTA_X[direction];
+			y += DELTA_Y[direction];
+			// if it's not a junction but has two empty neighbouring cells push it further out and replace it with a junction
+			if (map[x][y].type != xJUNCTION) {
+				// count the empty neighbouring cells
+				int emptyCells = 4;
+				final boolean[] emptyCell = { true, true, true, true };
+				for (int dir = 0; dir < 4; dir++) {
+					if (x+DELTA_X[dir] >= 0 && x+DELTA_X[dir] < map.length && y+DELTA_Y[dir] >= 0 && y+DELTA_Y[dir] < map[0].length && map[x+DELTA_X[dir]][y+DELTA_Y[dir]] != null) {
+						emptyCells--;
+						emptyCell[dir] = false;
+					}
+				}
+				if (emptyCells >=2) {
+					// it's possible to replace the node with a junction. do it
+					// remove the current node
+					final SystemNode a = map[x][y];
+					a.connection[(direction+2)&3] = false; // obsolete connection to K
+					// create the junction
+					map[x][y] = new SystemNode(xJUNCTION);
+					map[x][y].connection[(direction+2)&3] = true; // connection to K
+					// place the node a
+					int dir;
+					do dir = random.nextInt(4); while (!emptyCell[dir]);
+					emptyCell[dir] = false;
+					insertNode(a, x, y, dir, start_coords);
+					// if a new row or column has been added at the left or upper edge of the map, x or y has changed
+					x += ((x+DELTA_X[dir]<0)?1:0);
+					y += ((y+DELTA_Y[dir]<0)?1:0);
+					// place the new node n
+					do dir = random.nextInt(4); while (!emptyCell[dir]);
+					insertNode(n, x, y, dir, start_coords);
+					return true;
+				}
+			}
+			else {
+				// continue looking for a free cell for the new node from the junction
+				int dir = random.nextInt(4), rotation = random.nextBoolean() ? 3 : 1;
+				for (int i = 0; i < 4; i++) {
+					if (((dir+2)&3) != direction && addNodeDirection(n, x, y, dir, start_coords)) {
+						return true;
+					}
+					dir = ((dir + rotation) & 3);
+				}
+				return false;
+			}
+		}
+		return false;
+	}
+
+
+	RULESET.createNode = FUNCTION (_type)
+		return_value = NODE
+			type = _type
+
+
+	RULESET.generateSystemArea = FUNCTION (_rating, _system, _mission)
+		LOCAL.area = AREA
+		return_value = area
+		with area
+			system = _system
+			rating = _rating
+			id = 0
+
+			LOCAL.area_size = (rating-1)%4 + (rating+3)/4 + id
+			LOCAL.has_high_speed_access = random(0,30) < rating
+// mission_can_have_hints = missionCanHaveHints(_mission)
+			LOCAL.cpu_coords = createArray(0,0)
+			LOCAL.ds_count = 1 + random(0,area_size) + random(0,area_size)
+			LOCAL.io_count = 1 + random(0,area_size) + random(0,area_size)
+
+			// add the CPU
+			map = createArray(createArray(createNode(CPU)))
+
+			// CPU/SPU, junctions and security COP don't add to the basic nodes count, only DS and normal IO nodes, plus one ice entry IO node, maybe one high speed IO node, and if this is the CPU area one sys admin notification IO node
+			LOCAL.basic_nodes = ds_count + io_count + 1 + (has_high_speed_access?1:0) + (map[0][0].type==CPU?1:0)
+			debug("basic nodes = "+basic_nodes)
+			// we will end up with about basicNodes/4 clusters and already have one COP (the security COP) and don't need one for the CPU/SPU cluster, so we'll need about basic_nodes/4-2 COPs
+			// add that many DS and IO nodes so we'll end up with a system similar to one from Decker 1.12 after replacing them with COPs
+			if basicNodes/4 - 2 > 0
+				LOCAL.r = random(0, basicNodes/4-2)
+				ds_count = ds_count + r
+				io_count = io_count + (basicNodes/4-2) - r
+
+// the code below is identical for standard parent systems and sub systems
+			// add the security COP
+			addNode(COP_SECURITY, area, cpu_coords)
+
+// **************
+		// add datastores and IO nodes
+		for (int i = (DS_count>IO_count)?IO_count:DS_count; --i >= 0; ) {
+			if (random.nextBoolean()) {
+				addFiles(addNode(DATASTORE, cpu_coords));
+				addNode(IO, cpu_coords);
+			}
+			else {
+				addNode(IO, cpu_coords);
+				addFiles(addNode(DATASTORE, cpu_coords));
+			}
+		}
+		for (int i = DS_count-IO_count; --i >= 0; ) {
+			addFiles(addNode(DATASTORE, cpu_coords));
+		}
+		for (int i = IO_count-DS_count; --i >= 0; ) {
+			addNode(IO, cpu_coords);
+		}
+		// add the entrance point for ice
+		addNode(IO_ICE, cpu_coords); // add the ice entry point
+		// add an external alarms node if this is a CPU area
+		if (map[cpu_coords[0]][cpu_coords[1]].type == CPU) {
+			addNode(IO_EXTERNAL_ALERT, cpu_coords);
+		}
+		// possibly add a high-speed IO port
+		if (hasHighspeedAccess) {
+			addNode(IO_HIGH_SPEED_ACCESS, cpu_coords);
+		}
+		// add portals
+//*********************************************
+		// divide the area into clusters, for node name generation. also, gateway ice is placed on every connection that connects two clusters
+		final int[][] cluster = clusterizeArea(cpu_coords[0], cpu_coords[1], DS_count, IO_count);
+		nameClusterNodes(cluster, cpu_coords[0], cpu_coords[1]);
+		// add a few extra connections to make th area more interesting
+		final int W = map.length, H = map[0].length;
+		for (int x = W; --x >= 0; ) {
+			for (int y = H; --y >= 0; ) {
+				final SystemNode n = map[x][y];
+				if (n != null &&( n.type == DATASTORE || n.getCategory() == COP )) {
+					for (int direction = 0; direction < 4; direction++) {
+						final int x2 = x + DELTA_X[direction];
+						final int y2 = y + DELTA_Y[direction];
+						SystemNode n2;
+						// if there is no connection yet, there is a target node and we feel like making a connection (50% chance), make one
+						if (!n.connection[direction] && x2 >= 0 && x2 < W && y2 >= 0 && y2 < H && (n2=map[x2][y2]) != null && n2.type != PORTAL_IN && n2.type != PORTAL_OUT && random.nextBoolean()) {
+							n.connection[direction] = true;
+							n2.connection[(direction+2)&3] = true;
+						}
+					}
+				}
+			}
+		}
+		// add ice
+//*********************************************
+	}
+
+// ***********************************
+//			name
+//			ice_entry_node

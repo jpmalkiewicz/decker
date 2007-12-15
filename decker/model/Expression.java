@@ -5,11 +5,11 @@ import java.io.PrintStream;
 
 public class Expression extends ScriptNode
 {
-	final static int STRUCTURE_DEFINITION = 1, ARRAY_DEFINITION = 3, NOT_AN_OPERATOR = 4, VARIABLE = 5, CONSTANT = 6, BRACKET = 7, GLOBAL_VALUE = 8, MEMBER = 9, ARRAY_INDEX = 10, FUNCTION_CALL = 11, RAW_VALUE = 12, MULTIPLY = 13, DIVIDE = 14, NOT = 15, ADD = 16, SUBSTRACT = 17, NEGATIVE = 18, GREATER = 19, LESS = 20, GREATER_OR_EQUAL = 21, LESS_OR_EQUAL = 22, NOT_EQUAL = 23, EQUAL = 24, AND = 25, OR = 26, CONDITIONAL_COLON = 27, CONDITIONAL = 28;
-	final static int[] OPERATOR_PRIORITY = new int[29];
+	final static int STRUCTURE_DEFINITION = 1, ARRAY_DEFINITION = 3, NOT_AN_OPERATOR = 4, VARIABLE = 5, CONSTANT = 6, BRACKET = 7, GLOBAL_VALUE = 8, MEMBER = 9, ARRAY_INDEX = 10, FUNCTION_CALL = 11, RAW_VALUE = 12, MULTIPLY = 13, DIVIDE = 14, MODULO = 15, NOT = 16, ADD = 17, SUBSTRACT = 18, NEGATIVE = 19, GREATER = 20, LESS = 21, GREATER_OR_EQUAL = 22, LESS_OR_EQUAL = 23, NOT_EQUAL = 24, EQUAL = 25, AND = 26, OR = 27, CONDITIONAL_COLON = 28, CONDITIONAL = 29;
+	final static int[] OPERATOR_PRIORITY = new int[30];
 	// the string below contains all the one character operators, with OPERATOR_STRING.charAt(x) having the operator id x
-	final static String OPERATOR_STRING = "(.[*/!+-><:?@";
-	final static int[] OPERATOR_STRING_ID = { BRACKET, MEMBER, ARRAY_INDEX, MULTIPLY, DIVIDE, NOT, ADD, SUBSTRACT, GREATER, LESS, CONDITIONAL_COLON, CONDITIONAL, GLOBAL_VALUE };
+	final static String OPERATOR_STRING = "(.[*/!+-><:?@%";
+	final static int[] OPERATOR_STRING_ID = { BRACKET, MEMBER, ARRAY_INDEX, MULTIPLY, DIVIDE, NOT, ADD, SUBSTRACT, GREATER, LESS, CONDITIONAL_COLON, CONDITIONAL, GLOBAL_VALUE, MODULO };
 	final static String OPERATOR_STRING_2 = "==!=<>>=<=&&||";
 	final static int[] OPERATOR_STRING_2_ID = { EQUAL, NOT_EQUAL, NOT_EQUAL, GREATER_OR_EQUAL, LESS_OR_EQUAL, AND, OR };
 
@@ -31,6 +31,7 @@ public class Expression extends ScriptNode
 		OPERATOR_PRIORITY[FUNCTION_CALL] = MEMBER;
 
 		OPERATOR_PRIORITY[DIVIDE] = MULTIPLY;
+		OPERATOR_PRIORITY[MODULO] = MULTIPLY;
 
 		OPERATOR_PRIORITY[SUBSTRACT] = ADD;
 		OPERATOR_PRIORITY[NEGATIVE] = ADD;
@@ -286,6 +287,14 @@ try {
 						return_value.set(((at==Value.REAL)?a.real():a.integer()) / ((bt==Value.REAL)?b.real():b.integer()));
 					else
 						throwException("The / operator requires two integers or real numbers as operands.");
+				break;
+			case MODULO :
+					if(b.equals(0))
+						throwException("The second operand of the % operator must not be zero.");
+					if(at == Value.INTEGER && bt == Value.INTEGER)
+						return_value.set(a.integer() % b.integer());
+					else
+						throwException("The % operator requires two integers as operands.");
 				break;
 			case NOT :
 					if(at != Value.BOOLEAN)

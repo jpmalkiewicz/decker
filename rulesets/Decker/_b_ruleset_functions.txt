@@ -127,8 +127,7 @@ english
 		if target_count > 1
 			return_value = return_value + " There are "+target_count+" targets within the system."
 		if time_restriction != false
-			LOCAL.minute_seconds = (time_restriction.end_time/60)*60
-			return_value = return_value + " You must complete the mission and leave the system within "+(minute_seconds==time_restriction.end_time ? minute_seconds/60 + " minutes" : minute_seconds/60 + " minutes and "+(time_restriction.end_time-minute_seconds)+" seconds") + " of system entry."
+			return_value = return_value + " You must complete the mission and leave the system within "+time_restriction.end_time/60 + " minutes " + (time_restriction.end_time % 60 == 0 ? "" : "and "+time_restriction.end_time%60+" seconds ") + "of system entry."
 
 
 

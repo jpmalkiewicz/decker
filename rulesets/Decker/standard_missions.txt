@@ -60,8 +60,8 @@ english
 							markSystemInUse(a)
 							break
 						else
-							a = a + 1
-							if (a / 5) * 5 == a
+							a = (a + 1) % 5 + a/5*5
+							if a % 5 == 0
 								a = a - 5
 
 
