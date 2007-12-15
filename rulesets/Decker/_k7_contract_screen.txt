@@ -34,8 +34,8 @@ english
 								m.title
 								NEWLINE
 								m.description
-
-
+						if m.add_details_to_description
+							component[] = " " + generateMissionDetailsDescription(m)
 
 		LOCAL.createTableButton = FUNCTION (_column, _text, _width, _x, _sorting_order_function)
 			return_value = BORDER_BUTTON
@@ -125,7 +125,8 @@ english
 									target_count = target_count - 1
 						LOCAL.details = (no_red_alarm?"N":"") + (time_restriction?"T":"") + (target_count>1?"("+target_count+")":"")
 						details = m[i].target_system.rating + (indexof(m[i].target_system,player.backdoors)>=0?"B":"") + (details==""?"":" " + details)
-						addTableRow(t, createTableText(m[i].title), createTableText(m[i].rating), createTableText(details), createTableText(m[i].deadline), createTableText(m[i].payment), createTableText("x"))
+						// create the table row for the mission
+						addTableRow(t, createTableText(m[i].title), createTableText(m[i].rating), createTableText(details), createTableText(m[i].deadline), createTableText(m[i].payment), m[i].accepted?createTableText("yes"):UNDEFINED)
 					// always have a mission marked, if the list is not empty
 					if list_scrollpane.displayed_element.selected_row != UNDEFINED
 						t.selected_row = list_scrollpane.displayed_element.selected_row

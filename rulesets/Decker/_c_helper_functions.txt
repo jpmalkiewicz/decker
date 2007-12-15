@@ -226,15 +226,9 @@ english
 
 	// this function makes a mission available if it has a target system with a rating or it has a mission rating the rating is within +/-2 or +/-20% of the player's preferred mission rating
 	RULESET.defaultMissionAvailable = FUNCTION (mission)
-		with mission
-			return_value = false
-			LOCAL.r = rating
-			if value_type(r) == "FUNCTION"
-				r = r(mission)
-			if r != UNDEFINED
-				return_value = ( r >= player.mission_base_rating-2 || r >= player.mission_base_rating*4/5 ) && ( r <= player.mission_base_rating+2 || r <= player.mission_base_rating*6/5 )
-			else if target_system.rating != UNDEFINED
-				return_value = ( target_system.rating >= player.mission_base_rating-2 || target_system.rating >= player.mission_base_rating*4/5 ) && ( target_system.rating <= player.mission_base_rating+2 || target_system.rating <= player.mission_base_rating*6/5 )
+		LOCAL.r = mission.target_system.rating
+		LOCAL.b = player.mission_base_rating
+		return_value = r!=UNDEFINED &&( r>=b-2 || r>=b*4/5 )&&( r<=b+2 || r<=(b*6+4)/5 )    // rounds down the -20% limit and rounds up +20% limit
 
 
 	RULESET.defaultMissionPayment = FUNCTION (mission)

@@ -82,12 +82,54 @@ english
 			makeMissionsAvailable()
 
 
+	// checks whether an item already exists in the shop
 	RULESET.duplicateShopItem = FUNCTION (item, shop_list)
 		return_value = false
 		for i = shop_list.size-1 downto 0
 			if shop_list[i].type == item.type && shop_list[i].rating == item.rating
 				return_value = true
 				break
+
+
+	// returns a text that explains the technical details of a mission
+	RULESET.generateMissionDetailsDescription = FUNCTION (mission)
+		// the target system
+		if mission.target_system.name != UNDEFINED
+			return_value = "Your target is the "+mission.target_system.name+" system, which has a security rating of "+mission.target_system.rating+"."
+		else
+			return_value = "The target system has a security rating of "+mission.target_system.rating+"."
+		// the backdoor to the system
+		if indexof(mission.target_system,player.backdoors) >= 0
+			return_value = return_value + " You have a backdoor to the system."
+		// collect info about the goals
+		LOCAL.target_count = 1
+		LOCAL.no_red_alarm = false
+		LOCAL.time_restriction = false
+		// there's either one goal or an array of goals
+		LOCAL.goal = mission.goal
+		if value_type(goal) != "ARRAY"
+			if goal.structure_type == "NO_RED_ALARM"
+				no_red_alarm = true
+			else if goal.structure_type == "TIME_RESTRICTION"
+				time_restriction = goal
+		else
+			target_count = goal.size
+			for j = goal.size-1 downto 0
+				if goal[j].structure_type == "NO_RED_ALARM" || goal[j].structure_type == "CREATE_BACKDOOR" || goal[j].structure_type == "CRASH_SYSTEM" || goal[j].structure_type == "TIME_RESTRICTION"
+					if goal[j].structure_type == "NO_RED_ALARM"
+						no_red_alarm = true
+					else if goal[j].structure_type == "TIME_RESTRICTION"
+						time_restriction = goal[j]
+					target_count = target_count - 1
+		// describe the goals
+		if no_red_alarm
+			return_value = return_value + " The target system must not become aware of any tampering, so do not trigger a red alert."
+		if target_count > 1
+			return_value = return_value + " There are "+target_count+" targets within the system."
+		if time_restriction != false
+			LOCAL.minute_seconds = (time_restriction.end_time/60)*60
+			return_value = return_value + " You must complete the mission and leave the system within "+(minute_seconds==time_restriction.end_time ? minute_seconds/60 + " minutes" : minute_seconds/60 + " minutes and "+(time_restriction.end_time-minute_seconds)+" seconds") + " of system entry."
+
 
 
 	RULESET.healingTime1 = FUNCTION (human, use_hospital = false)
