@@ -1,6 +1,7 @@
 83%
 2007-12-14
-  mission descriptions are displayed, sorting the mission table works
+  mission descriptions are displayed, sorting the mission table works, details are automatically added to the mission descriptions
+  generic missions work
 2007-12-13
   UITextBlock displays everything but text
 2007-12-12

@@ -3,8 +3,8 @@ english
 	RULESET.HEALTH_INCREMENT = 5
 	RULESET.MAX_LIFESTYLE = 4
 	RULESET.HOSPITAL_COSTS = 100   // per day
-	
-	
+
+
 	RULESET.MISSION_LIST = ARRAY
 
 
@@ -119,6 +119,7 @@ english
 		AREA_ATTACK
 		ATTACK_BOOST
 		BOOST             // usually programs which add to rolls of a certain type. only one of them can be run simultaneously
+		CLIENT_PROGRAM
 		CONFUSE
 		DECEIVE
 		DECOY

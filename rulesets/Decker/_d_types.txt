@@ -70,6 +70,7 @@ english
 		NODE
 			name
 			area
+			type
 			smoke_level
 			objects       // ice and humans
 
@@ -142,7 +143,7 @@ english
 			expandable = true
 			available = defaultMissionAvailable   // this function will get called whenever we need to know whether this mission might become available
 			status = INCOMPLETE
-			can_be_started = true
+			accepted = false
 			title
 			description
 			payment = defaultMissionPayment
@@ -150,12 +151,14 @@ english
 			goal
 			rating = defaultMissionRating   // this function will get called when the actual mission is created from the template mission, and its return value will be used as the rating of the actual mission
 			deadline = 5
-			can_be_dropped = true
+			add_details_to_description = true  // if this is set to true, there will be a detailed description of the mission goals added to the end of the description
 			age = 0
-			failed_attempts = 0
-			reload_when_over = false
+			reload_when_over = false     // if you set this to true, the mission will go back into the mission pool after it is removed from the list of available missions
 			// setup       // put a function here to have it called when the mission is added to the list of available missions. the first parameter in the function call will be the mission
 			scriptname     // leave this UNDEFINED. it will automatically be set to the name of the script that created the mission object
+			// on_success  // put trigger functions here
+			// on_failure  // called every time the player fails an attempt to complete the mission
+			// on_mission_over
 			initializer = FUNCTION
 				goal = ARRAY
 
