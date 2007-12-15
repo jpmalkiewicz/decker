@@ -6,7 +6,7 @@ import java.io.*;
 abstract class ScriptReader
 {
 	private final static String WHITESPACE = " \t\r\n";
-	private final static String SINGLE_CHARACTER_ELEMENTS = ".*/+-(){}[],?:@;";
+	private final static String SINGLE_CHARACTER_ELEMENTS = ".*/+-(){}[],?:@;%";
 	final static String VARIABLE_NAME_CHARACTERS = "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	final static String VARIABLE_NAME_CHARACTERS_AND_DOT = VARIABLE_NAME_CHARACTERS + ".";
 	static int TABULATOR_SIZE = 3;

@@ -56,23 +56,31 @@ english
 			name
 			rating
 			type
-			status = GREEN
+			alert_level = GREEN
 			area
 			initializer = FUNCTION
 				area = ARRAY
 
 		AREA
 			name
+			id
 			system
+			rating
+			map   // contains a two dimentional array with the node grid
 			destroyed_ice
 			ice_entry_node
+			initializer = FUNCTION
+				destroyed_ice = ARRAY
 
 		NODE
 			name
 			area
+			connection
 			type
 			smoke_level
 			objects       // ice and humans
+			initializer = FUNCTION
+				connection = createArray(,,,)
 
 		FILE
 			name

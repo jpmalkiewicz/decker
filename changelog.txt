@@ -1,3 +1,8 @@
+84%
+2007-12-16
+  added the % operator
+  fixed the problem where the function call f(x,) would lead to a parser error because of the omitted last parameter
+
 83%
 2007-12-15
   finished up the standard missions
