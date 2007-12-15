@@ -1,0 +1,410 @@
+english
+
+
+// **************************************************************************************************
+// functions for marking which systems are currently in use *****************************************
+// **************************************************************************************************
+
+
+	RULESET.isSystemInUse = FUNCTION (id)
+		return_value = false
+		for i = player.standard_mission_target.size - 1 downto 0
+			if player.standard_mission_target[i] == id
+				return_value = true
+				break
+
+	RULESET.markSystemInUse = FUNCTION (id)
+		player.standard_mission_target[] = id
+
+	RULESET.unmarkSystemInUse = FUNCTION (system)
+		for i = player.standard_mission_target.size - 1 downto 0
+			if RULESET.standard_mission_system[player.standard_mission_target[i]]
+
+		i = player.standard_mission_data.current_target.size-1
+		while i > -1
+			if player.standard_mission_data.current_target[i] == system
+				player.standard_mission_data.current_target[i] = UNDEFINED
+				i = -1    // stop searching, just in case the target system appears more than once in the list (shouldn't ever happen)
+			i = i - 1
+
+
+// **************************************************************************************************
+// the function that creates a random Decker 1.12 mission *******************************************
+// **************************************************************************************************
+
+
+	LOCAL.generateStandardMission = FUNCTION (mission)
+			if player.standard_mission_target == UNDEFINED
+				player.standard_mission_target = ARRAY     // stores the target system of each standard mission to make sure no two missions have the same target system
+			with mission
+				LOCAL.a
+				LOCAL.b
+				LOCAL.c
+
+				deadline = random(0,4)
+
+
+				// make the target system rating similar to the player's base_mission_rating
+				target_system = UNDEFINED
+				while target_system == UNDEFINED
+					a = player.mission_base_rating + ( random(0,9) == 0 ? 0 : random(-1,1) + random(-1,1) )
+					if a < 1
+						a = 1
+					if a > 20
+						a = 20
+					// pick a system with the chosen rating that is not currently used by another standard mission
+					a = (a-1) * 5 + random(0,4)
+					for i = 0 to 4
+						if !isSystemInUse(a)
+							target_system = standard_mission_system[a]
+							markSystemInUse(a)
+							break
+						else
+							a = a + 1
+							if (a / 5) * 5 == a
+								a = a - 5
+
+
+				// generate the mission goal
+				a = random(1,100)
+				LOCAL.goal_count = 1
+				goal = ARRAY
+
+				// 45% chance of mission with a file target
+				if a <= 45
+					b = target_system.type.file[random(0,target_system.type.file.size-1)]
+					if random(1,40) <= target_system.rating
+						goal_count = random(2,5)
+
+					if a < 15
+						title = "Steal Files"
+						description = "A client needs access to "+b+" from the "+target_system.name+" system. You must recover a copy of this data."
+						for i = 1 to goal_count
+							goal[] = DOWNLOAD_FILE
+								target = FILE
+									description = b
+					else if a < 25
+						title = "Steal & Erase Files"
+						description = "A client desires sole access to "+b+" from the "+target_system.name+" system. You must recover a copy of this data and erase it from the system."
+						for i = 1 to goal_count
+							goal[] = DOWNLOAD_AND_ERASE_FILE
+								target = FILE
+									description = b
+					else if a < 35
+						title = "Erase Files"
+						description = "A client wishes to destroy "+b+" located on the "+target_system.name+" system. You must locate this data and erase it from the system."
+						for i = 1 to goal_count
+							goal[] = ERASE_FILE
+								target = FILE
+									description = b
+					else
+						title = "Edit Files"
+						description = "A client wishes to alter "+b+" located on the "+target_system.name+" system. You must locate this data in the system and edit it to the client's specifications."
+						for i = 1 to goal_count
+							goal[] = EDIT_FILE
+								target = FILE
+									description = b
+
+					if random(1,5) <= ( goal[0].structure_type == "EDIT_FILE" ? 2 : 1 )
+						goal[] = NO_RED_ALARM
+
+				// 40% chance for a mission with an IO target
+				else if a < 85
+					if random(1,40) <= target_system.rating
+						goal_count = random(2,5)
+
+					// to determine the mission target pick a random IO node type
+					a = random (0,target_system.type.deactivate_io_target.size + target_system.type.activate_io_target.size + target_system.type.sabotage_io_target.size - 1)
+					if a < target_system.type.deactivate_io_target.size
+						b = target_system.type.deactivate_io_target[a]
+						title = "Deactivate I/O"
+						if goal_count == 1
+							description = "A client wishes to deactivate "+b+" from the "+target_system.name+" system. You must locate the I/O node controlling this and deactivate it."
+						else
+							description = "A client wishes to deactivate "+b+" from the "+target_system.name+" system. You must locate the "+goal_count+" I/O nodes controlling this and deactivate them."
+					else
+						a = a - target_system.type.deactivate_io_target.size
+						if a < target_system.type.activate_io_target.size
+							b = target_system.type.activate_io_target[a]
+							title = "Activate I/O"
+							if goal_count == 1
+								description = "A client wishes to activate "+b+" from the "+target_system.name+" system. You must locate the I/O node controlling this and activate it."
+							else
+								description = "A client wishes to activate "+b+" from the "+target_system.name+" system. You must locate the "+goal_count+" I/O nodes controlling this and activate them."
+						else
+							b = target_system.type.sabotage_io_target[a-target_system.type.activate_io_target.size]
+							title = "Sabotage"
+							if goal_count == 1
+								description = "A client wishes to sabotage "+b+" at the "+target_system.name+" system. You must locate the I/O node controlling this and sabotage it."
+							else
+								description = "A client wishes to sabotage "+b+" at the "+target_system.name+" system. You must locate the "+goal_count+" I/O nodes controlling this and sabotage them."
+
+					a = 0
+					while a < goal_count
+						a = a + 1
+						goal[] = MANIPULATE_IO
+							target = NODE
+								type = b
+							incomplete = (c == "Deactivate I/O") ? "IO node has not been deactivated" : (c == "Activate I/O") ? "IO node has not been activated" : "IO node has not been sabotaged"
+							completed  = (c == "Deactivate I/O") ? "IO node has been deactivated"     : (c == "Activate I/O") ? "IO node has been activated"     : "IO node has been sabotaged"
+
+					if random(1,5) == 1
+						goal[] = goal[0]
+						goal[0] = NO_RED_ALARM
+
+				// 5% chance of a crash system mission
+				else if a < 90
+					title = "Crash System"
+					description = "A client wishes to crash the "+target_system.name+" system. You must locate the CPU of the system and initiate a system failure."
+					goal[] = CRASH_SYSTEM
+
+				// 5% chance of a create backdoor mission
+				else if a < 95
+					title = "Create Backdoor"
+					description = "A client wishes for a new backdoor to be created into the "+target_system.name+" system. You must locate the CPU for the system and create this back door. The client's decker will take care of the rest."
+					goal[] = CREATE_BACKDOOR
+					if random(1,2) == 1
+						goal[] = goal[0]
+						goal[0] = NO_RED_ALARM
+
+				// 5% chance of a run program mission
+				else
+					title = "Run Program"
+
+					// create the program the player will have to run
+					// base the name of the hack program on the index of the target system so we don't get duplicate names
+					c = indexof(target_system, RULESET.standard_mission_system)
+					c = random("a","z") + random("a","z") + random("a","z") + c + random(0,9) + random(0,9) + random(0,9) + random(0,9)
+					b = THING
+						name = "Client Program " + c
+						rating = target_system.rating
+						size = item_rating * 4
+						state = INSTALLED
+						value = 0
+						type = THING_TYPE
+							name = "Client Program"
+							complexity = 4
+							value = 0
+							image = "shop_item/attack"
+							type = ARRAY
+								SPECIAL
+								CLIENT_PROGRAM
+
+					a = random(1,3)   // 1 = IO node, 2 = DS node, 3 = CPU
+					if a != 3 && random(1,40) <= target_system.rating
+						goal_count = random(2,5)
+						description = "A client needs a special program activated on the "+target_system.name+" system. Locate the target nodes by running the program, then activate the program within each nodes. You must remain in each target node until the program has finished running. Upon accepting the mission you will receive the client's program "+c+"."
+					else
+						description = "A client needs a special program activated on the "+target_system.name+" system. Locate the target node by running the program, then activate the program within the node. You must remain in the node until the program has finished running. Upon accepting the mission you will receive the client's program "+c+"."
+
+					for i = goal_count-1 downto 0
+						goal[] = RUN_PROGRAM
+// run program target must be a node, not a node description !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+							target = NODE
+							debug("standard missions with run program target need target nodes")
+// END ************************************************
+							program = b
+							execution_time = 6 + b.rating / 2
+							incomplete = "Program has not been run in node"
+							completed = "Program was successfully run in node"
+
+					if random(1,5) == 1
+						goal[] = goal[0]
+						goal[0] = NO_RED_ALARM
+
+
+				// if the target system rating is 5 or higher, there's a 10% chance that the mission will be timed
+				if target_system.rating >= 5 && random(1,10) == 1
+					deadline = 0
+					a = goal[0].structure_type == "NO_RED_ALARM" ? 1 : 0
+					goal[] = goal[a]
+					goal[a] = TIME_RESTRICTION
+						end_time = 180 * ((target_system.rating+3)/4)       // 3 minutes per area within the target system
+
+
+				return_value = defaultMissionRating(mission)
+
+
+// **************************************************************************************************
+// the five standard missions ***********************************************************************
+// **************************************************************************************************
+
+
+// These missions turn themselves into a random mission from Decker 1.12 when
+// they becomes available. The five missions in this file are identical. This
+// means there may be five Decker 1.12 missions available at any given time
+	MISSION_LIST = MISSION_LIST + ARRAY
+		MISSION
+			reload_when_over = true
+			available = true
+			scriptname = "standard_mission_a.txt" // we'll use custom values here, to tell JDecker that these missions are not the same mission and can be available simultaneously
+			on_mission_over = FUNCTION
+				unmarkSystemInUse(target_system)
+			rating = generateStandardMission // if rating is a function, it gets called when the mission becomes available. we'll abuse that to initialize the mission when it becomes available
+		MISSION
+			reload_when_over = true
+			available = true
+			scriptname = "standard_mission_b.txt"
+			on_mission_over = FUNCTION
+				unmarkSystemInUse(target_system)
+			rating = generateStandardMission
+		MISSION
+			reload_when_over = true
+			available = true
+			scriptname = "standard_mission_c.txt"
+			on_mission_over = FUNCTION
+				unmarkSystemInUse(target_system)
+			rating = generateStandardMission
+		MISSION
+			reload_when_over = true
+			available = true
+			scriptname = "standard_mission_d.txt"
+			on_mission_over = FUNCTION
+				unmarkSystemInUse(target_system)
+			rating = generateStandardMission
+		MISSION
+			reload_when_over = true
+			available = true
+			scriptname = "standard_mission_e.txt"
+			on_mission_over = FUNCTION
+				unmarkSystemInUse(target_system)
+			rating = generateStandardMission
+
+
+// **************************************************************************************************
+// make the list of default systems *****************************************************************
+// **************************************************************************************************
+
+
+	LOCAL.createSystem = FUNCTION ( _name, _type)
+		return_value = SYSTEM
+			name = _name
+			type = _type
+
+
+	// define the 100 potential target systems
+	RULESET.standard_mission_system = ARRAY
+		createSystem(  "General Genetics",                       MEDICAL          ) // system 0
+		createSystem(  "Radio Shack",                            CONSUMER         )
+		createSystem(  "Digital Systems",                        ELECTRONICS      )
+		createSystem(  "Ron's Repos",                            CONSUMER         )
+		createSystem(  "Bubba's Discount Bait & Tackle",         CONSUMER         )
+
+		createSystem(  "North Carolina State University",        SCHOOL           ) // system 5
+		createSystem(  "Sperm & Ova Superstore",                 CONSUMER         )
+		createSystem(  "Ahab's Quickie Mart",                    CONSUMER         )
+		createSystem(  "Kellog-Post",                            CONSUMER         )
+		createSystem(  "Smith & Wesson",                         MANUFACTURING    )
+
+		createSystem(  "Meg-Lo-art",                             CONSUMER         ) // system 10
+		createSystem(  "ACME Industries",                        MANUFACTURING    )
+		createSystem(  "PETA's Flaky Granolas",                  CONSUMER         )
+		createSystem(  "SAAB",                                   MANUFACTURING    )
+		createSystem(  "Winchester",                             MANUFACTURING    )
+
+		createSystem(  "Limbs-R-Us",                             MEDICAL          ) // system 15
+		createSystem(  "Oxford University",                      SCHOOL           )
+		createSystem(  "Little Robot Factory",                   ELECTRONICS      )
+		createSystem(  "Henson's Toxic Waste Disposal",          ENVIRONMENTAL    )
+		createSystem(  "Kraft",                                  CONSUMER         )
+
+		createSystem(  "Nike-Adidas",                            MANUFACTURING    ) // system 20
+		createSystem(  "Me, Myself & I Cloning",                 LAB              )
+		createSystem(  "Luke's 'Danger Boy' RV's",               MANUFACTURING    )
+		createSystem(  "Kentucky Fried Rodents",                 CONSUMER         )
+		createSystem(  "Remington",                              MANUFACTURING    )
+
+		createSystem(  "Antarctica Bank & Trust",                BANK             ) // system 25
+		createSystem(  "CalTech",                                SCHOOL           )
+		createSystem(  "Noah's Livestock Engineering",           MEDICAL          )
+		createSystem(  "Mueller-Schluter Infotech",              ELECTRONICS      )
+		createSystem(  "Microdeck Technologies",                 ELECRONICS       )
+
+		createSystem(  "McWendys",                               CONSUMER         ) // system 30
+		createSystem(  "Multiplicity Cloning",                   MEDICAL          )
+		createSystem(  "Spacely's Sprockets",                    MANUFACTURING    )
+		createSystem(  "Cross Applied Technologies",             ELECTRONICS      )
+		createSystem(  "Mattel",                                 CONSUMER         )
+
+		createSystem(  "Walt Disney",                            CONSUMER         ) // system 35
+		createSystem(  "Watson Electronics",                     ELECTRONICS      )
+		createSystem(  "Transys Neuronet",                       ELECTRONICS      )
+		createSystem(  "Chevron",                                OIL              )
+		createSystem(  "Harley-Davidson",                        MANUFACTURING    )
+
+		createSystem(  "Texaco",                                 OIL              ) // system 40
+		createSystem(  "Shockwave Behavior Management",          MEDICAL          )
+		createSystem(  "Black Mesa Research Facilities",         LAB              )
+		createSystem(  "Shiawise",                               ELECTRONICS      )
+		createSystem(  "Kurita Labs",                            LAB              )
+
+		createSystem(  "Intel-TI",                               ELECTRONICS      ) // system 45
+		createSystem(  "Cybernetic Prosthetics",                 MEDICAL          )
+		createSystem(  "Envirocon",                              ENVIRONMENTAL    )
+		createSystem(  "Steiner-Davion Robotics",                MAUFACTURING     )
+		createSystem(  "Yamatetsu",                              ELECTRONICS      )
+
+		createSystem(  "Yamaha",                                 MANUFACTURING    ) // system 50
+		createSystem(  "Warren Pharmaceuticals",                 LAB              )
+		createSystem(  "Sara Lee",                               MEGACORP         )
+		createSystem(  "Heckler & Koch",                         MANUFACTURING    )
+		createSystem(  "Consolidated Asteroid Mining",           MANUFACTURING    )
+
+		createSystem(  "Exxon",                                  OIL              ) // system 55
+		createSystem(  "NASA Spaceyachts",                       MANUFACTURING    )
+		createSystem(  "Soilant Products",                       LAB              )
+		createSystem(  "Corning",                                MANUFACTURING    )
+		createSystem(  "Lear",                                   MANUFACTURING    )
+
+		createSystem(  "Ewing Oil",                              OIL              ) // system 60
+		createSystem(  "New Earth Terraforming",                 ENVIRONMENTAL    )
+		createSystem(  "Procter & Gamble",                       LAB              )
+		createSystem(  "Cessna",                                 MANUFACTURING    )
+		createSystem(  "Sendanku",                               MANUFACTURING    )
+
+		createSystem(  "Sony",                                   ELECTRONICS      ) // system 65
+		createSystem(  "Bayer Pharmaceuticals",                  LAB              )
+		createSystem(  "Lunar Waste Disposal",                   ENVIRONMENTAL    )
+		createSystem(  "Fisher-Rosemont",                        ELECTRONICS      )
+		createSystem(  "Motorola",                               ELECTRONICS      )
+
+		createSystem(  "Bank of AmeriCanada",                    BANK             ) // system 70
+		createSystem(  "CytoTech Labs",                          LAB              )
+		createSystem(  "Siemens",                                ELECTRONICS      )
+		createSystem(  "Fuchi",                                  MEGACORP         )
+		createSystem(  "Federated Boeing",                       MANUFACTURING    )
+
+		createSystem(  "Ford",                                   MANUFACTURING    ) // system 75
+		createSystem(  "Massachussets Institute of Technology",  SCHOOL           )
+		createSystem(  "Johnson & Johnson",                      MEGACORP         )
+		createSystem(  "Phillip-Morris Pharmaceuticals",         MEDICAL          )
+		createSystem(  "Integrated Matrix Systems",              ELECTRONICS      )
+
+		createSystem(  "Cyberdine",                              ELECTRONICS      ) // system 80
+		createSystem(  "IBM",                                    ELECTRONICS      )
+		createSystem(  "European Financial Conglomeration",      BANK             )
+		createSystem(  "Aztechnology",                           ELECTRONICS      )
+		createSystem(  "Chrysler-Nissan",                        MANUFACTURING    )
+
+		createSystem(  "Toyota",                                 MANUFACTURING    ) // system 85
+		createSystem(  "Gaeatronics",                            ELECTRONICS      )
+		createSystem(  "Pepsi Cola",                             MANUFACTURING    )
+		createSystem(  "CryoTech",                               MEDICAL          )
+		createSystem(  "Ares Macrotechnology",                   ELECTRONICS      )
+
+		createSystem(  "Weyland-Yutani",                         MEGACORP         ) // system 90
+		createSystem(  "ChildVision Embryonic Design",           MEDICAL          )
+		createSystem(  "Coca Cola",                              CONSUMER         )
+		createSystem(  "Zuerich Orbital Gemeinschafts-Bank",     BANK             )
+		createSystem(  "Renraku",                                MEGACORP         )
+
+		createSystem(  "Novatech",                               MEGACORP         ) // system 95
+		createSystem(  "Mitsuhama",                              MEGACORP         )
+		createSystem(  "Bell Labs",                              LAB              )
+		createSystem(  "World Banking Consortium",               BANK             )
+		createSystem(  "Saeder-Krupp",                           MEGACORP         )
+
+
+	// give each system a rating
+	for i = RULESET.standard_mission_system.size - 1 downto 0
+		RULESET.standard_mission_system[i].rating = i/5 + 1

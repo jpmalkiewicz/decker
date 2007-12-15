@@ -12,7 +12,3 @@ english
 			target = FILE
 				name = "Product Information"
 				description = "This file contains the recipe you are looking for."
-
-// remove this after testing
-		goal[] = TIME_RESTRICTION
-			end_time = 330
