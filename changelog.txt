@@ -1,4 +1,6 @@
 83%
+2007-12-15
+  finished up the standard missions
 2007-12-14
   mission descriptions are displayed, sorting the mission table works, details are automatically added to the mission descriptions
   generic missions work
