@@ -1,4 +1,6 @@
 84%
+2007-12-16
+  debugging the area map generator
 2007-12-15
   started to convert the system area generator from Java
   added the % operator, and the hardcoded functions copyArraySection() and createSizedArray()

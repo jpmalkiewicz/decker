@@ -1,0 +1,23 @@
+english
+	RULESET.printArea = FUNCTION (area)
+		if value_type(area) != "ARRAY"
+			debug("***** AREA NOT DEFINED *****")
+		else
+			debug("map:")
+			LOCAL.text
+			for y = 0 to area[0].size-1
+				text = ""
+				for x = 0 to area.size-1
+					if area[x][y].type == UNDEFINED
+						text = text + "."
+					else
+						text = text + substring(area[x][y].type+"", 0, 1)
+				debug(text)
+
+
+	LOCAL.a = SYSTEM
+		name = "test"
+		rating = 1
+		type = GENERIC
+		alert_level = GREEN
+	generateSystemArea(a.rating, a, )

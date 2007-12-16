@@ -1,17 +1,15 @@
 english
-// ****************
-	debug("system generator modulo test " + 7%4 + " "+ 3%4 + " " + 8%5 + " " + 8%4)
-// also test copyArraySection()
-
-
 	// parameters : the node to be added and the coords of the node the algorithm should start at
 	// if the node the algorithm starts at is shifted, the start_coords are changed accordingly
 	RULESET.addNode = FUNCTION (type, area, start_coords)
 		return_value = createNode(type)
+		debug("*")
+		debug(return_value)
+		printArea(area.map)
 		LOCAL.direction = random(0,3)
 		LOCAL.rotation = random(0,1)*2 + 1    // 1 or 3
 		for i = 0 to 3
-			if addNodeDirection(n, start_coords[0], start_coords[1], direction, area, start_coords)
+			if addNodeDirection(return_value, start_coords[0], start_coords[1], direction, area, start_coords)
 				break
 			direction = (direction + rotation) % 4
 
@@ -41,18 +39,18 @@ english
 					if empty_cells >=2
 						// it's possible to replace the node with a junction. do it
 						// remove the current node
-						LOCAL.a = map[x][y]
-						a.connection[(direction+2)%4] = false   // obsolete connection to K
+						LOCAL.n = map[x][y]
+						n.connection[(direction+2)%4] = false   // obsolete connection to K
 						// create the junction
 						map[x][y] = createNode(JUNCTION)
 						map[x][y].connection[(direction+2)%4] = true // connection to K
-						// place the node a
+						// place the node n
 						LOCAL.dir = random(0,3)
 						while !empty_cell[dir]
 							dir = random(0,3)
 						empty_cell[dir] = false
-						insertNode(a, x, y, dir, area, start_coords)
-						// if a new row or column has been added at the left or upper edge of the map, x or y has changed
+						insertNode(n, x, y, dir, area, start_coords)
+						// if n new row or column has been added at the left or upper edge of the map, x or y has changed
 						x = x + ((x+DELTA_X[dir]<0)?1:0)
 						y = y + ((y+DELTA_Y[dir]<0)?1:0)
 						// place the new node
@@ -69,6 +67,100 @@ english
 							return_value =true
 							break
 						dir = (dir + rotation) % 4
+
+
+	// determines the clusters. A cluster is a node group of at least five non-junction nodes which also contains a COP (all COP sub-type are okay)
+	RULESET.clusterizeArea = FUNCTION (cpu_x, cpu_y, ds_count, io_count, map)
+		// make the map that holds the cluster id for each node. every node starts with UNDEFINED for "not in a cluster"
+		return_value = createSizedArray(map.size)
+		for i = map.size-1 downto 0
+			return_value[i] = createSizedArray(map[i].size)
+		// determine where the clusters are
+		LOCAL.data = createArray(1, ds_count, io_count)
+		for i = 3 downto 0
+			if map[cpu_x][cpu_y].connection[i]
+				clusterizeAreaB(cpu_x+DELTA_X[i], cpu_y+DELTA_Y[i], (i+2)%4, data, cluster, map)
+
+
+	// returns { non-junction count, DS count, standard IO count, COP_SECURITY count }
+	RULESET.clusterizeAreaB = FUNCTION (x, y, blocked_direction, data, cluster, map)
+		LOCAL.n = map[x][y]
+		LOCAL.t = n.type
+
+		if t == PORTAL_IN || t == PORTAL_OUT
+			// it's a portal, turn it into a cluster all by itself. it still adds to the size of the potential cluster it is connected to
+			cluster[x][y] = data[0]
+			data[0]++
+		else if t == JUNCTION
+			// continue clusterizing the area in the nodes branching off from this junction
+			LOCAL.nodes = 0
+			LOCAL.ds = 0
+			LOCAL.io = 0
+			LOCAL.cop = 0
+			for dir = 3 downto 0
+				if dir != blocked_direction && n.connection[dir]
+					LOCAL.branch_data = clusterizeArea(x+DELTA_X[dir], y+DELTA_Y[dir], (dir+2)%4, data, cluster)
+					nodes = nodes + branch_data[0]
+					ds    = ds + branch_data[1]
+					io    = io + branch_data[2]
+					cop   = cop + branch_data[3]
+			// if we have collected at least 5 un-clustered nodes, including one security coprocessor or one DS or one normal IO, create a new cluster
+			// data[] is checked to make sure we do't turn the last IO or the last DS node the area has into a COP
+			if nodes >= 5 &&( cop > 0 ||( ds > 0 && data[1] > 1 )||( io > 0 && data[2] > 1 ))
+				// if the security coprocessor isn't in this cluster, we have to replace one IO node or datastore with a coprocessor
+				LOCAL.replaceNodeType
+				LOCAL.replaceNode = -1 // which node of the target type to replace
+				if cop == 0
+					// don't use nodes if there's only one of them left in the area
+					if data[1] <= 1
+						ds = 0
+					if data[2] <= 1
+						io = 0
+					// pick a node type and a node to be replaced with the COP
+					replaceNode = random(0, ds+io-1)
+					if (random(0,1)==1)    // this eliminates the error introduced by the faulty random number generator
+						// check whether we will replace an IO node
+						if replaceNode < io
+							replaceNodeType = IO
+							data[2]--
+						else // replace a datastore
+							replaceNode = replaceNode - io
+							replaceNodeType = DATASTORE
+							data[1]--
+					else
+						// check whether we will replace a datastore
+						if replaceNode < ds
+							replaceNodeType = DATASTORE
+							data[1]--
+						else // replace an IO node
+							replaceNode = replaceNode - ds
+							replaceNodeType = IO
+							data[2]--
+				clusterizeAreaC(x, y, blocked_direction, replaceNodeType, replaceNode, data[0], cluster)
+				data[0]++
+				return_value = createArray(0, 0, 0, 0)
+			else
+				return_value = createArray(nodes, ds, io, cop)
+		else
+			return_value = createArray(1, t==DATASTORE?1:0, t==IO?1:0, getNodeTypeCategory(t)==COP?1:0)
+
+
+	// marks the nodes of a new cluster as belonging to it. also turns the target DS or IO node into a COP. returns the number of nodes of the target node type which still need to be skipped
+	RULESET.clusterizeAreaC = FUNCTION (x, y, blocked_direction, replaceNodeType, replaceNode, clusterID, cluster, map)
+		cluster[x][y] = clusterID
+		LOCAL.n = map[x][y]
+		if n.type == JUNCTION
+			for dir = 3 downto 0
+				if dir != blocked_direction && n.connection[dir] && cluster[x+DELTA_X[dir]][y+DELTA_Y[dir]] == 0   // the last condition makes sure that the target node doesn't belong to any cluster yet
+					replaceNode = clusterizeArea(x+DELTA_X[dir], y+DELTA_Y[dir], (dir+2)%4, replaceNodeType, replaceNode, clusterID, cluster, map)
+			return_value = replaceNode
+		else if n.type == replaceNodeType
+			if replaceNode == 0
+				n.type = COP
+				n.data = UNDEFINED  // remove the list of files in the node, in case it was a datastore
+			return_value = replaceNode - 1
+		else
+			return_value = replaceNode
 
 
 	RULESET.createNode = FUNCTION (_type)
@@ -97,17 +189,17 @@ english
 			// CPU/SPU, junctions and security COP don't add to the basic nodes count, only DS and normal IO nodes, plus one ice entry IO node, maybe one high speed IO node, and if this is the CPU area one sys admin notification IO node
 			LOCAL.basic_nodes = ds_count + io_count + 1 + (has_high_speed_access?1:0) + (map[0][0].type==CPU?1:0)
 			debug("basic nodes = "+basic_nodes)
-			// we will end up with about basicNodes/4 clusters and already have one COP (the security COP) and don't need one for the CPU/SPU cluster, so we'll need about basic_nodes/4-2 COPs
+			// we will end up with about basic_nodes/4 clusters and already have one COP (the security COP) and don't need one for the CPU/SPU cluster, so we'll need about basic_nodes/4-2 COPs
 			// add that many DS and IO nodes so we'll end up with a system similar to one from Decker 1.12 after replacing them with COPs
-			if basicNodes/4 - 2 > 0
-				LOCAL.r = random(0, basicNodes/4-2)
+			if basic_nodes/4 - 2 > 0
+				LOCAL.r = random(0, basic_nodes/4-2)
 				ds_count = ds_count + r
-				io_count = io_count + (basicNodes/4-2) - r
+				io_count = io_count + (basic_nodes/4-2) - r
 
 // the code below is identical for standard parent systems and sub systems
 			// add the security COP
 			addNode(COP_SECURITY, area, cpu_coords)
-
+			debug("a")
 			// add datastores and IO nodes
 			for i = (ds_count>io_count)?io_count:ds_count downto 1
 				if (random(0,1)==0)
@@ -118,11 +210,13 @@ english
 					addNode(IO, area, cpu_coords)
 //					addFiles(addNode(DATASTORE, area, cpu_coords))
 					addNode(DATASTORE, area, cpu_coords)
+			debug("e")
 			for i = ds_count-io_count downto 1
 //				addFiles(addNode(DATASTORE, area, cpu_coords))
 				addNode(DATASTORE, area, cpu_coords)
 			for i = io_count-ds_count downto 1
 				addNode(IO, area, cpu_coords)
+			debug("b")
 			// add the entrance point for ice
 			ice_entry_node = addNode(IO_ICE, area, cpu_coords)
 			// add an external alarms node if this is a CPU area
@@ -132,32 +226,27 @@ english
 			if has_high_speed_access
 				addNode(IO_HIGH_SPEED_ACCESS, area, cpu_coords)
 			// add portals
+			debug("c")
 //*********************************************
 			// divide the area into clusters, for node name generation. also, gateway ice is placed on every connection that connects two clusters
-			final int[][] cluster = clusterizeArea(cpu_coords[0], cpu_coords[1], ds_count, io_count);
-			nameClusterNodes(cluster, cpu_coords[0], cpu_coords[1]);
+			LOCAL.cluster = clusterizeArea(cpu_coords[0], cpu_coords[1], ds_count, io_count, map)
+//			nameClusterNodes(cluster, cpu_coords[0], cpu_coords[1]);
 			// add a few extra connections to make th area more interesting
-			final int W = map.size, H = map[0].size;
-			for (int x = W; --x >= 0; ) {
-				for (int y = H; --y >= 0; ) {
-					final SystemNode n = map[x][y];
-					if (n != null &&( n.type == DATASTORE || n.getCategory() == COP )) {
-						for (int direction = 0; direction < 4; direction++) {
-							final int x2 = x + DELTA_X[direction];
-							final int y2 = y + DELTA_Y[direction];
-							SystemNode n2;
+			for x = map.size-1 downto 0
+				for y = map.size-1 downto 0
+					LOCAL.n = map[x][y]
+					if n != UNDEFINED &&( n.type == DATASTORE || getNodeTypeCategory(n.type) == COP )
+						for direction = 3 downto 0
+							LOCAL.x2 = x + DELTA_X[direction]
+							LOCAL.y2 = y + DELTA_Y[direction]
 							// if there is no connection yet, there is a target node and we feel like making a connection (50% chance), make one
-							if (!n.connection[direction] && x2 >= 0 && x2 < W && y2 >= 0 && y2 < H && (n2=map[x2][y2]) != null && n2.type != PORTAL_IN && n2.type != PORTAL_OUT && random.nextBoolean()) {
-								n.connection[direction] = true;
-								n2.connection[(direction+2)&3] = true;
-							}
-						}
-					}
-				}
-			}
+							if !n.connection[direction] && x2 >= 0 && x2 < map.size && y2 >= 0 && y2 < map[0].size
+								LOCAL.n2 = map[x2][y2]
+								if n2 != UNDEFINED && n2.type != PORTAL_IN && n2.type != PORTAL_OUT && random(0,1) == 1
+								n.connection[direction] = true
+								n2.connection[(direction+2)%4] = true
 			// add ice
 //*********************************************
-		}
 
 // ***********************************
 //			name
@@ -172,16 +261,16 @@ english
 			if x+DELTA_X[direction] < 0
 				copyArraySection(map, 0, map, 1, map.size)
 				map[0] = createSizedArray(map[0].size)
-				start_coords[0] = start_coords[0] + 1
-				x = x + 1
+				start_coords[0]++
+				x++
 			else if x+DELTA_X[direction] >= map.size
 				map[] = createSizedArray(map[0].size)
 			else if y+DELTA_Y[direction] < 0
 				for i = map.size-1 downto 0
 					copyArraySection(map[i], 0, map[i], 1, map.size)
 					map[i][0] = UNDEFINED
-				start_coords[1] = start_coords[1] + 1
-				y = y + 1
+				start_coords[1]++
+				y++
 			else if y+DELTA_Y[direction] >= map[0].size
 				for i = map.size-1 downto 0
 					map[i][] = UNDEFINED
