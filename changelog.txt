@@ -1,6 +1,7 @@
 84%
-2007-12-16
-  added the % operator
+2007-12-15
+  started to convert the system area generator from Java
+  added the % operator, and the hardcoded functions copyArraySection() and createSizedArray()
   fixed the problem where the function call f(x,) would lead to a parser error because of the omitted last parameter
 
 83%

@@ -21,6 +21,7 @@ english
 		4000
 		10000
 
+
 	RULESET.LIFESTYLE_UPGRADE_COST = ARRAY
 		3*1000
 		3*2000
@@ -75,6 +76,20 @@ english
 		10
 		5
 		1
+
+
+	// used to translate direction values into (dx,dy)
+	RULESET.DELTA_X = ARRAY
+		0
+		1
+		0
+		-1
+
+	RULESET.DELTA_Y = ARRAY
+		-1
+		0
+		1
+		0
 
 
 	// IDs for categories in which programs can be used as the default program

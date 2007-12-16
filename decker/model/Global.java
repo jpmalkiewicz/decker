@@ -22,8 +22,8 @@ public final class Global
 	final static int DEFAULT_PRINT_DEPTH = 10;
 
 	// id codes for hard coded functions. used by FunctionCall.executeFunctionCall() and Global.initializedataModel()
-	final static int F_SIZE = 0, F_FILELIST = 1, F_SUBSTRING = 2, F_PIXELWIDTH = 3, F_PIXELHEIGHT = 4, F_EXIT_PROGRAM = 5, F_REPAINT = 6, F_INDEXOF = 7, F_IMAGE_EXISTS = 8, F_TO_LOWER_CASE = 9, F_TO_UPPER_CASE = 10, F_DATE_TEXT = 11, F_DEBUG = 12, F_INSERT = 13, F_RANDOM = 14, F_VALUE_TYPE = 15, F_DATE_DAY_OF_MONTH = 16, F_DATE_DAYS_IN_MONTH = 17, F_DELETE = 18, F_GET_STRUCTURE_STACK = 19, F_IS_EXPANDABLE = 20, F_HAS_VARIABLE = 21, F_SCRIPT_NAME = 22;
-	final static String[] FUNCTION_NAME = { "size", "filelist", "substring", "pixelwidth", "pixelheight", "exit_program", "repaint", "indexof", "image_exists", "to_lower_case", "to_upper_case", "date_text", "debug", "insert", "random", "value_type", "date_day_of_month", "date_days_in_month", "delete", "getStructureStack", "isExpandable", "hasVariable", "scriptName" };
+	final static int F_SIZE = 0, F_FILELIST = 1, F_SUBSTRING = 2, F_PIXELWIDTH = 3, F_PIXELHEIGHT = 4, F_EXIT_PROGRAM = 5, F_REPAINT = 6, F_INDEXOF = 7, F_IMAGE_EXISTS = 8, F_TO_LOWER_CASE = 9, F_TO_UPPER_CASE = 10, F_DATE_TEXT = 11, F_DEBUG = 12, F_INSERT = 13, F_RANDOM = 14, F_VALUE_TYPE = 15, F_DATE_DAY_OF_MONTH = 16, F_DATE_DAYS_IN_MONTH = 17, F_DELETE = 18, F_GET_STRUCTURE_STACK = 19, F_IS_EXPANDABLE = 20, F_HAS_VARIABLE = 21, F_SCRIPT_NAME = 22, F_COPY_ARRAY_SECTION = 23, F_CREATE_SIZED_ARRAY = 24;
+	final static String[] FUNCTION_NAME = { "size", "filelist", "substring", "pixelwidth", "pixelheight", "exit_program", "repaint", "indexof", "image_exists", "to_lower_case", "to_upper_case", "date_text", "debug", "insert", "random", "value_type", "date_day_of_month", "date_days_in_month", "delete", "getStructureStack", "isExpandable", "hasVariable", "scriptName", "copyArraySection", "createSizedArray" };
 
 	public static Locale[] accepted_locales = { Locale.getDefault(), new Locale("en") };
 	public static Ruleset[] ruleset = new Ruleset[0];
@@ -47,6 +47,8 @@ public static Ruleset getCurrentRuleset ()  { return current_ruleset; }
 	/** sets things up for the game to launch and load the rulesets */
 	public final static void initializeDataModel ()  {
 		// set up the data stack
+		engine.data.add("copyArraySection").set(new Function(F_COPY_ARRAY_SECTION, new String[]{ "from_array", "from_index", "to_array", "to_index", "entries" }));
+		engine.data.add("createSizedArray").set(new Function(F_CREATE_SIZED_ARRAY, new String[]{ "size" }));
 		engine.data.add("date_day_of_month").set(new Function(F_DATE_DAY_OF_MONTH, new String[]{ "year", "month", "day" }));
 		engine.data.add("date_days_in_month").set(new Function(F_DATE_DAYS_IN_MONTH, new String[]{ "year", "month", "day" }));
 		engine.data.add("date_text").set(new Function(F_DATE_TEXT, new String[]{ "year", "month", "day" }));
