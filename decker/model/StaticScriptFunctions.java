@@ -28,6 +28,7 @@ final class StaticScriptFunctions extends ScriptNode
 			case Global.F_IMAGE_EXISTS : return execute_image_exists(args);
 			case Global.F_INDEXOF : return execute_indexof(args);
 			case Global.F_INSERT : return execute_insert(args);
+			case Global.F_INTEGER_TO_TEXT : return execute_integer_to_text(args);
 			case Global.F_IS_EXPANDABLE : return execute_isExpandable(args);
 			case Global.F_PIXELHEIGHT : return execute_pixelheight(args);
 			case Global.F_PIXELWIDTH : return execute_pixelwidth(args);
@@ -85,11 +86,32 @@ final class StaticScriptFunctions extends ScriptNode
 
 	/** executes the hard coded script function createSizedArray(size) */
 	private final static Value execute_create_sized_array (final Value[] args)  {
-		final int size = (args.length==0||args[0]==null||args[0].type()!=Value.INTEGER) ? 0 : args[0].integer();
-		final Value[] array = new Value[size];
-		for (int i = size; --i >= 0; )
-			array[i] = new Value();
-		return new Value().set(new ArrayWrapper(array));
+		if (args.length==0 || args[0]==null || args[0].type()!=Value.INTEGER || args[0].integer()<1)
+			return new Value().set(new ArrayWrapper(new Value[0]));
+		// if one of the args (except for the last arg) has an invalid value, return UNDEFINED
+		for (int i = args.length-1; --i >= 0; )
+			if (args[i] == null || args[i].type() != Value.INTEGER || args[i].integer() < 1)
+				return DUMMY_VALUE;
+		return execute_create_sized_array (args, 0);
+	}
+
+
+	private final static Value execute_create_sized_array (final Value[] args, final int index)  {
+		// if the last arg has an invalid value, return an empty array for the last dimension
+		if (index == args.length-1 &&( args[index] == null || args[index].type() != Value.INTEGER || args[index].integer() < 1 ))
+			return new Value().set(new ArrayWrapper(new Value[0]));
+		final Value[] ret = new Value[args[index].integer()];
+		if (index+1 < args.length) {
+			for (int i = ret.length; --i >= 0; ) {
+				ret[i] = execute_create_sized_array(args, index+1);
+			}
+		}
+		else {
+			for (int i = ret.length; --i >= 0; ) {
+				ret[i] = new Value();
+			}
+		}
+		return new Value().set(new ArrayWrapper(ret));
 	}
 
 
@@ -305,6 +327,18 @@ final class StaticScriptFunctions extends ScriptNode
 			}
 		}
 		return new Value().set(false);
+	}
+
+
+	private final static Value execute_integer_to_text (final Value[] args)  {
+		if (args.length > 0 && args[0] != null && args[0].type() == Value.INTEGER) {
+			int number = args[0].integer();
+			int radix = (args.length>1 && args[1]!=null && args[1].type() == Value.INTEGER) ? args[1].integer() : 10;
+			if (radix < 2)
+				radix = 10;
+			return new Value().set(Integer.toString(number,radix));
+		}
+		return DUMMY_VALUE;
 	}
 
 

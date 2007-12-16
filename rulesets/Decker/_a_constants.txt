@@ -177,6 +177,7 @@ english
 
 		CPU               // node types
 		SPU
+		COP
 		DATASTORE
 		IO
 		JUNCTION

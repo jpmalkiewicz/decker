@@ -64,21 +64,21 @@ english
 			debug("clusters:")
 			LOCAL.text
 			for y = 0 to cluster_map[0].size-1
-				text = ""
+				text = " "
 				for x = 0 to cluster_map.size-1
-					if cluster_map[x][y].type == UNDEFINED
-						text = text + "."
+					if cluster_map[x][y] == UNDEFINED
+						text = text + "  "
 					else
 						if (cluster_map[x][y] > 9)
-							text = text + "*"
+							text = text + "* "
 						else
-							text = text + cluster_map[x][y]
+							text = text + cluster_map[x][y] + " "
 				debug(text)
 
 
 	LOCAL.a = SYSTEM
 		name = "test"
-		rating = 9
+		rating = 8
 		type = GENERIC
 		alert_level = GREEN
 	generateSystemArea(a.rating, a, )
