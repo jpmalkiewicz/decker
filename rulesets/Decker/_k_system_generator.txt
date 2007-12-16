@@ -16,32 +16,6 @@ english
 			direction = (direction + rotation) % 4
 
 
-	// inserts the node n into the map, next to the node at (x,y) in the given direction, and connects the two nodes
-	RULESET.insertNode = FUNCTION (node, x, y, direction, area, start_coords)
-		with area
-			// if the target map cell is outside the map add a map row or column to make room for it and move the coords of K and the starting node accordingly
-			if x+DELTA_X[direction] < 0
-				copyArraySection(map, 0, map, 1, map.size)
-				map[0] = createSizedArray(map[0].size)
-				start_coords[0] = start_coords[0] + 1
-				x = x + 1
-			else if x+DELTA_X[direction] >= map.size
-				map[] = createSizedArray(map[0].size)
-			else if y+DELTA_Y[direction] < 0
-				for i = map.size-1 downto 0
-					copyArraySection(map[i], 0, map[i], 1, map.size)
-					map[i][0] = UNDEFINED
-				start_coords[1] = start_coords[1] + 1
-				y = y + 1
-			else if y+DELTA_Y[direction] >= map[0].size
-				for i = map.size-1 downto 0
-					map[i][] = UNDEFINED
-			// insert the node and connect it to the node at (x,y)
-			map[x+DELTA_X[direction]][y+DELTA_Y[direction]] = node
-			node.connection[(direction+2)%4] = true
-			map[x][y].connection[direction] = true
-
-
 	RULESET.addNodeDirection = FUNCTION (node, x, y, direction, area, start_coords)
 		return_value = false
 		with area
@@ -134,64 +108,84 @@ english
 			// add the security COP
 			addNode(COP_SECURITY, area, cpu_coords)
 
-// **************
-		// add datastores and IO nodes
-		for (int i = (DS_count>IO_count)?IO_count:DS_count; --i >= 0; ) {
-			if (random.nextBoolean()) {
-				addFiles(addNode(DATASTORE, cpu_coords));
-				addNode(IO, cpu_coords);
-			}
-			else {
-				addNode(IO, cpu_coords);
-				addFiles(addNode(DATASTORE, cpu_coords));
-			}
-		}
-		for (int i = DS_count-IO_count; --i >= 0; ) {
-			addFiles(addNode(DATASTORE, cpu_coords));
-		}
-		for (int i = IO_count-DS_count; --i >= 0; ) {
-			addNode(IO, cpu_coords);
-		}
-		// add the entrance point for ice
-		addNode(IO_ICE, cpu_coords); // add the ice entry point
-		// add an external alarms node if this is a CPU area
-		if (map[cpu_coords[0]][cpu_coords[1]].type == CPU) {
-			addNode(IO_EXTERNAL_ALERT, cpu_coords);
-		}
-		// possibly add a high-speed IO port
-		if (hasHighspeedAccess) {
-			addNode(IO_HIGH_SPEED_ACCESS, cpu_coords);
-		}
-		// add portals
+			// add datastores and IO nodes
+			for i = (ds_count>io_count)?io_count:ds_count downto 1
+				if (random(0,1)==0)
+					addNode(DATASTORE, area, cpu_coords)
+//					addFiles(addNode(DATASTORE, area, cpu_coords))
+					addNode(IO, area, cpu_coords)
+				else
+					addNode(IO, area, cpu_coords)
+//					addFiles(addNode(DATASTORE, area, cpu_coords))
+					addNode(DATASTORE, area, cpu_coords)
+			for i = ds_count-io_count downto 1
+//				addFiles(addNode(DATASTORE, area, cpu_coords))
+				addNode(DATASTORE, area, cpu_coords)
+			for i = io_count-ds_count downto 1
+				addNode(IO, area, cpu_coords)
+			// add the entrance point for ice
+			ice_entry_node = addNode(IO_ICE, area, cpu_coords)
+			// add an external alarms node if this is a CPU area
+			if map[cpu_coords[0]][cpu_coords[1]].type == CPU
+				addNode(IO_EXTERNAL_ALERT, area, cpu_coords)
+			// possibly add a high-speed IO port
+			if has_high_speed_access
+				addNode(IO_HIGH_SPEED_ACCESS, area, cpu_coords)
+			// add portals
 //*********************************************
-		// divide the area into clusters, for node name generation. also, gateway ice is placed on every connection that connects two clusters
-		final int[][] cluster = clusterizeArea(cpu_coords[0], cpu_coords[1], DS_count, IO_count);
-		nameClusterNodes(cluster, cpu_coords[0], cpu_coords[1]);
-		// add a few extra connections to make th area more interesting
-		final int W = map.size, H = map[0].size;
-		for (int x = W; --x >= 0; ) {
-			for (int y = H; --y >= 0; ) {
-				final SystemNode n = map[x][y];
-				if (n != null &&( n.type == DATASTORE || n.getCategory() == COP )) {
-					for (int direction = 0; direction < 4; direction++) {
-						final int x2 = x + DELTA_X[direction];
-						final int y2 = y + DELTA_Y[direction];
-						SystemNode n2;
-						// if there is no connection yet, there is a target node and we feel like making a connection (50% chance), make one
-						if (!n.connection[direction] && x2 >= 0 && x2 < W && y2 >= 0 && y2 < H && (n2=map[x2][y2]) != null && n2.type != PORTAL_IN && n2.type != PORTAL_OUT && random.nextBoolean()) {
-							n.connection[direction] = true;
-							n2.connection[(direction+2)&3] = true;
+			// divide the area into clusters, for node name generation. also, gateway ice is placed on every connection that connects two clusters
+			final int[][] cluster = clusterizeArea(cpu_coords[0], cpu_coords[1], ds_count, io_count);
+			nameClusterNodes(cluster, cpu_coords[0], cpu_coords[1]);
+			// add a few extra connections to make th area more interesting
+			final int W = map.size, H = map[0].size;
+			for (int x = W; --x >= 0; ) {
+				for (int y = H; --y >= 0; ) {
+					final SystemNode n = map[x][y];
+					if (n != null &&( n.type == DATASTORE || n.getCategory() == COP )) {
+						for (int direction = 0; direction < 4; direction++) {
+							final int x2 = x + DELTA_X[direction];
+							final int y2 = y + DELTA_Y[direction];
+							SystemNode n2;
+							// if there is no connection yet, there is a target node and we feel like making a connection (50% chance), make one
+							if (!n.connection[direction] && x2 >= 0 && x2 < W && y2 >= 0 && y2 < H && (n2=map[x2][y2]) != null && n2.type != PORTAL_IN && n2.type != PORTAL_OUT && random.nextBoolean()) {
+								n.connection[direction] = true;
+								n2.connection[(direction+2)&3] = true;
+							}
 						}
 					}
 				}
 			}
-		}
-		// add ice
+			// add ice
 //*********************************************
-	}
+		}
 
 // ***********************************
 //			name
-//			ice_entry_node
 
 
+
+
+	// inserts the node into the map, next to the node at (x,y) in the given direction, and connects the two nodes
+	RULESET.insertNode = FUNCTION (node, x, y, direction, area, start_coords)
+		with area
+			// if the target map cell is outside the map add a map row or column to make room for it and move the coords of K and the starting node accordingly
+			if x+DELTA_X[direction] < 0
+				copyArraySection(map, 0, map, 1, map.size)
+				map[0] = createSizedArray(map[0].size)
+				start_coords[0] = start_coords[0] + 1
+				x = x + 1
+			else if x+DELTA_X[direction] >= map.size
+				map[] = createSizedArray(map[0].size)
+			else if y+DELTA_Y[direction] < 0
+				for i = map.size-1 downto 0
+					copyArraySection(map[i], 0, map[i], 1, map.size)
+					map[i][0] = UNDEFINED
+				start_coords[1] = start_coords[1] + 1
+				y = y + 1
+			else if y+DELTA_Y[direction] >= map[0].size
+				for i = map.size-1 downto 0
+					map[i][] = UNDEFINED
+			// insert the node and connect it to the node at (x,y)
+			map[x+DELTA_X[direction]][y+DELTA_Y[direction]] = node
+			node.connection[(direction+2)%4] = true
+			map[x][y].connection[direction] = true
