@@ -56,7 +56,7 @@ final class StaticScriptFunctions extends ScriptNode
 				final ArrayWrapper w = args[2].arrayWrapper();
 				w.array = new Value[to_index + amount];
 				System.arraycopy(to_array, 0, w.array, 0, to_array.length);
-				for (int i = to_array.length; i < to_index; i++)
+				for (int i = to_array.length; i < to_index+amount; i++)
 					w.array[i] = new Value();
 				to_array = w.array;
 			}
@@ -362,7 +362,7 @@ final class StaticScriptFunctions extends ScriptNode
 	}
 
 
-	/** executes the hard coded script function substring(x) */
+	/** executes the hard coded script function substring(...) */
 	private final static Value execute_substring (final Value[] args)  {
 		if (args.length > 0 && args[0] != null) {
 			final String s = args[0].toString();
