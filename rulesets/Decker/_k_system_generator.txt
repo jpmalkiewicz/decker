@@ -1,5 +1,7 @@
 english
+// ****************
 	debug("system generator modulo test " + 7%4 + " "+ 3%4 + " " + 8%5 + " " + 8%4)
+// also test copyArraySection()
 
 
 	// parameters : the node to be added and the coords of the node the algorithm should start at
@@ -14,66 +16,85 @@ english
 			direction = (direction + rotation) % 4
 
 
-	RULESET.addNodeDirection = FUNCTION (node, x, y, direction, start_coords)
-		// if the node K we're currently trying to connect to doesn't have a connection leading towards the target direction ...
-		if (!map[x][y].connection[direction]) {
-			// if the map cell is free, add the node n there
-			if (x+DELTA_X[direction] < 0 || x+DELTA_X[direction] >= map.length || y+DELTA_Y[direction] < 0 || y+DELTA_Y[direction] >= map[0].length || map[x+DELTA_X[direction]][y+DELTA_Y[direction]] == null) {
-				insertNode(n, x, y, direction, start_coords);
-				return true;
-			}
-		}
-		else {
-			// move to the node we've run into
-			x += DELTA_X[direction];
-			y += DELTA_Y[direction];
-			// if it's not a junction but has two empty neighbouring cells push it further out and replace it with a junction
-			if (map[x][y].type != xJUNCTION) {
-				// count the empty neighbouring cells
-				int emptyCells = 4;
-				final boolean[] emptyCell = { true, true, true, true };
-				for (int dir = 0; dir < 4; dir++) {
-					if (x+DELTA_X[dir] >= 0 && x+DELTA_X[dir] < map.length && y+DELTA_Y[dir] >= 0 && y+DELTA_Y[dir] < map[0].length && map[x+DELTA_X[dir]][y+DELTA_Y[dir]] != null) {
-						emptyCells--;
-						emptyCell[dir] = false;
-					}
-				}
-				if (emptyCells >=2) {
-					// it's possible to replace the node with a junction. do it
-					// remove the current node
-					final SystemNode a = map[x][y];
-					a.connection[(direction+2)&3] = false; // obsolete connection to K
-					// create the junction
-					map[x][y] = new SystemNode(xJUNCTION);
-					map[x][y].connection[(direction+2)&3] = true; // connection to K
-					// place the node a
-					int dir;
-					do dir = random.nextInt(4); while (!emptyCell[dir]);
-					emptyCell[dir] = false;
-					insertNode(a, x, y, dir, start_coords);
-					// if a new row or column has been added at the left or upper edge of the map, x or y has changed
-					x += ((x+DELTA_X[dir]<0)?1:0);
-					y += ((y+DELTA_Y[dir]<0)?1:0);
-					// place the new node n
-					do dir = random.nextInt(4); while (!emptyCell[dir]);
-					insertNode(n, x, y, dir, start_coords);
-					return true;
-				}
-			}
-			else {
-				// continue looking for a free cell for the new node from the junction
-				int dir = random.nextInt(4), rotation = random.nextBoolean() ? 3 : 1;
-				for (int i = 0; i < 4; i++) {
-					if (((dir+2)&3) != direction && addNodeDirection(n, x, y, dir, start_coords)) {
-						return true;
-					}
-					dir = ((dir + rotation) & 3);
-				}
-				return false;
-			}
-		}
-		return false;
-	}
+	// inserts the node n into the map, next to the node at (x,y) in the given direction, and connects the two nodes
+	RULESET.insertNode = FUNCTION (node, x, y, direction, area, start_coords)
+		with area
+			// if the target map cell is outside the map add a map row or column to make room for it and move the coords of K and the starting node accordingly
+			if x+DELTA_X[direction] < 0
+				copyArraySection(map, 0, map, 1, map.size)
+				map[0] = createSizedArray(map[0].size)
+				start_coords[0] = start_coords[0] + 1
+				x = x + 1
+			else if x+DELTA_X[direction] >= map.size
+				map[] = createSizedArray(map[0].size)
+			else if y+DELTA_Y[direction] < 0
+				for i = map.size-1 downto 0
+					copyArraySection(map[i], 0, map[i], 1, map.size)
+					map[i][0] = UNDEFINED
+				start_coords[1] = start_coords[1] + 1
+				y = y + 1
+			else if y+DELTA_Y[direction] >= map[0].size
+				for i = map.size-1 downto 0
+					map[i][] = UNDEFINED
+			// insert the node and connect it to the node at (x,y)
+			map[x+DELTA_X[direction]][y+DELTA_Y[direction]] = node
+			node.connection[(direction+2)%4] = true
+			map[x][y].connection[direction] = true
+
+
+	RULESET.addNodeDirection = FUNCTION (node, x, y, direction, area, start_coords)
+		return_value = false
+		with area
+			// if the node K we're currently trying to connect to doesn't have a connection leading towards the target direction ...
+			if !map[x][y].connection[direction]
+				// if the map cell is free, add the node there
+				if x+DELTA_X[direction] < 0 || x+DELTA_X[direction] >= map.size || y+DELTA_Y[direction] < 0 || y+DELTA_Y[direction] >= map[0].size || map[x+DELTA_X[direction]][y+DELTA_Y[direction]] == UNDEFINED
+					insertNode(node, x, y, direction, area, start_coords)
+					return_value = true
+			else
+				// move to the node we've run into
+				x = x + DELTA_X[direction]
+				y = y + DELTA_Y[direction]
+				// if it's not a junction but has two empty neighbouring cells push it further out and replace it with a junction
+				if (map[x][y].type != xJUNCTION)
+					// count the empty neighbouring cells
+					LOCAL.empty_cells = 4
+					LOCAL.empty_cell = createArray(true, true, true, true)
+					for i = 3 downto 0
+						if x+DELTA_X[i] >= 0 && x+DELTA_X[i] < map.size && y+DELTA_Y[i] >= 0 && y+DELTA_Y[i] < map[0].size && map[x+DELTA_X[i]][y+DELTA_Y[i]] != UNDEFINED
+							empty_cells = empty_cells - 1
+							empty_cell[i] = false
+					if empty_cells >=2
+						// it's possible to replace the node with a junction. do it
+						// remove the current node
+						LOCAL.a = map[x][y]
+						a.connection[(direction+2)%4] = false   // obsolete connection to K
+						// create the junction
+						map[x][y] = createNode(JUNCTION)
+						map[x][y].connection[(direction+2)%4] = true // connection to K
+						// place the node a
+						LOCAL.dir = random(0,3)
+						while !empty_cell[dir]
+							dir = random(0,3)
+						empty_cell[dir] = false
+						insertNode(a, x, y, dir, area, start_coords)
+						// if a new row or column has been added at the left or upper edge of the map, x or y has changed
+						x = x + ((x+DELTA_X[dir]<0)?1:0)
+						y = y + ((y+DELTA_Y[dir]<0)?1:0)
+						// place the new node
+						while !empty_cell[dir]
+							dir = random(0,3)
+						insertNode(n, x, y, dir, area, start_coords)
+						return_value = true
+				else
+					// continue looking for a free cell for the new node from the junction
+					LOCAL.dir = random(0,3)
+					LOCAL.rotation = random(0,1) * 2 + 1    // 1 or 3
+					for i = 3 downto 0
+						if (dir+2) % 4 != direction && addNodeDirection(n, x, y, dir, area, start_coords)
+							return_value =true
+							break
+						dir = (dir + rotation) % 4
 
 
 	RULESET.createNode = FUNCTION (_type)
@@ -147,7 +168,7 @@ english
 		final int[][] cluster = clusterizeArea(cpu_coords[0], cpu_coords[1], DS_count, IO_count);
 		nameClusterNodes(cluster, cpu_coords[0], cpu_coords[1]);
 		// add a few extra connections to make th area more interesting
-		final int W = map.length, H = map[0].length;
+		final int W = map.size, H = map[0].size;
 		for (int x = W; --x >= 0; ) {
 			for (int y = H; --y >= 0; ) {
 				final SystemNode n = map[x][y];
@@ -172,3 +193,5 @@ english
 // ***********************************
 //			name
 //			ice_entry_node
+
+

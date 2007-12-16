@@ -75,12 +75,16 @@ english
 		NODE
 			name
 			area
-			connection
+			connection    // if connection[direction] set to true, there is a connection in that direction
 			type
 			smoke_level
 			objects       // ice and humans
 			initializer = FUNCTION
-				connection = createArray(,,,)
+				connection = ARRAY
+					false
+					false
+					false
+					false
 
 		FILE
 			name

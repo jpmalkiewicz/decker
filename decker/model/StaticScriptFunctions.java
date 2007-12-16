@@ -14,6 +14,8 @@ final class StaticScriptFunctions extends ScriptNode
 	final static Value execute (final int function_id, final Value[] args) {
 		Value v;
 		switch (function_id) {
+			case Global.F_COPY_ARRAY_SECTION : return execute_copy_array_section(args);
+			case Global.F_CREATE_SIZED_ARRAY : return execute_create_sized_array(args);
 			case Global.F_DATE_DAY_OF_MONTH : return execute_date_day_of_month(args);
 			case Global.F_DATE_DAYS_IN_MONTH : return execute_date_days_in_month(args);
 			case Global.F_DATE_TEXT : return execute_date_text(args);
@@ -38,6 +40,47 @@ final class StaticScriptFunctions extends ScriptNode
 			case Global.F_VALUE_TYPE : return (args.length==0 || args[0] == null) ? new Value() : new Value().set(args[0].typeName());
 		}
 		return null;
+	}
+
+
+	/** executes the hard coded script function copyArraySection(...) */
+	private final static Value execute_copy_array_section (final Value[] args)  {
+		if (args.length == 5 && args[0] != null && args[1] != null && args[2] != null && args[3] != null && args[4] != null && args[0].type() == Value.ARRAY && args[1].type() == Value.INTEGER && args[2].type() == Value.ARRAY && args[3].type() == Value.INTEGER && args[4].type() == Value.INTEGER) {
+			final Value[] from_array = args[0].array();
+			Value[] to_array = args[2].array();
+			final int from_index = args[1].integer();
+			final int to_index = args[3].integer();
+			int amount = args[4].integer();
+			// make sure the target array is big enough
+			if (to_index + amount > to_array.length) {
+				final ArrayWrapper w = args[2].arrayWrapper();
+				w.array = new Value[to_index + amount];
+				System.arraycopy(to_array, 0, w.array, 0, to_array.length);
+				for (int i = to_array.length; i < to_index; i++)
+					w.array[i] = new Value();
+				to_array = w.array;
+			}
+			// if the source array is smaller than (from_index + amount), treat the non-existant elements as having the value UNDEFINED
+			if (from_index + amount > from_array.length) {
+				for (int i = from_array.length; i < from_index + amount; i++) {
+					to_array[i-from_index+to_index].setConstant("UNDEFINED");
+				}
+				amount = from_array.length - from_index;
+			}
+			// do the actual copying
+			System.arraycopy(from_array, from_index, to_array, to_index, amount);
+		}
+		return args[2];
+	}
+
+
+	/** executes the hard coded script function createSizedArray(size) */
+	private final static Value execute_create_sized_array (final Value[] args)  {
+		final int size = (args.length==0||args[0]==null||args[0].type()!=Value.INTEGER) ? 0 : args[0].integer();
+		final Value[] array = new Value[size];
+		for (int i = size; --i >= 0; )
+			array[i] = new Value();
+		return new Value().set(new ArrayWrapper(array));
 	}
 
 
