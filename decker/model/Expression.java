@@ -325,7 +325,7 @@ try {
 					else if (( at == Value.REAL || at == Value.INTEGER )&&( bt == Value.REAL || bt == Value.INTEGER ))
 						return_value.set(((at==Value.REAL)?a.real():a.integer()) - ((bt==Value.REAL)?b.real():b.integer()));
 					else
-						throwException("The - operator requires two integers or real numbers as operands,  "+a+" ("+a.typeName()+")  -  "+b+" ("+a.typeName()+")  doesn't  work");
+						throwException("The - operator requires two integers or real numbers as operands,  "+a+" ("+a.typeName()+")  -  "+b+" ("+b.typeName()+")  doesn't  work");
 				break;
 			case NEGATIVE :
 					if(at == Value.INTEGER)

@@ -69,6 +69,15 @@ final class StaticScriptFunctions extends ScriptNode
 			}
 			// do the actual copying
 			System.arraycopy(from_array, from_index, to_array, to_index, amount);
+			// if there are now entries which are represented by the same non-global Value object replace one of each pair with a new Value
+			if (args[0].equals(args[2]) && to_index != from_index) {
+				if (from_index < to_index)
+					for (int i = from_index; i < to_index; i++)
+						to_array[i] = new Value().set(to_array[i]);
+				else
+					for (int i = to_index+amount; i < from_index+amount; i++)
+						to_array[i] = new Value().set(to_array[i]);
+			}
 		}
 		return args[2];
 	}
@@ -380,7 +389,7 @@ final class StaticScriptFunctions extends ScriptNode
 				if (to <= from)
 					return new Value().set("");
 				if (to > slength)
-					from = slength;
+					to = slength;
 			}
 			return new Value().set(s.substring(from,to));
 		}
