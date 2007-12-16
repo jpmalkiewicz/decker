@@ -240,8 +240,6 @@ english
 			LOCAL.r = rating
 			if value_type(r) == "FUNCTION"
 				r = r(mission)
-			if (title == "Ice Run")
-				debug("*****"+rating)
 			return_value = (120 - 10*deadline) * ( rating + player.lifestyle ) * (85 + random(0,30)) / 100
 
 
