@@ -1,5 +1,6 @@
 84%
 2007-12-16
+  placing nodes and connections works
   debugging the area map generator
 2007-12-15
   started to convert the system area generator from Java

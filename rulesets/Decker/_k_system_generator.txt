@@ -3,9 +3,7 @@ english
 	// if the node the algorithm starts at is shifted, the start_coords are changed accordingly
 	RULESET.addNode = FUNCTION (type, area, start_coords)
 		return_value = createNode(type)
-		debug("*")
 		debug(return_value)
-		printArea(area.map)
 		LOCAL.direction = random(0,3)
 		LOCAL.rotation = random(0,1)*2 + 1    // 1 or 3
 		for i = 0 to 3
@@ -28,7 +26,7 @@ english
 				x = x + DELTA_X[direction]
 				y = y + DELTA_Y[direction]
 				// if it's not a junction but has two empty neighbouring cells push it further out and replace it with a junction
-				if (map[x][y].type != xJUNCTION)
+				if map[x][y].type != JUNCTION
 					// count the empty neighbouring cells
 					LOCAL.empty_cells = 4
 					LOCAL.empty_cell = createArray(true, true, true, true)
@@ -50,20 +48,20 @@ english
 							dir = random(0,3)
 						empty_cell[dir] = false
 						insertNode(n, x, y, dir, area, start_coords)
-						// if n new row or column has been added at the left or upper edge of the map, x or y has changed
+						// if a new row or column has been added at the left or upper edge of the map, x or y has changed
 						x = x + ((x+DELTA_X[dir]<0)?1:0)
 						y = y + ((y+DELTA_Y[dir]<0)?1:0)
 						// place the new node
 						while !empty_cell[dir]
 							dir = random(0,3)
-						insertNode(n, x, y, dir, area, start_coords)
+						insertNode(node, x, y, dir, area, start_coords)
 						return_value = true
 				else
 					// continue looking for a free cell for the new node from the junction
 					LOCAL.dir = random(0,3)
 					LOCAL.rotation = random(0,1) * 2 + 1    // 1 or 3
 					for i = 3 downto 0
-						if (dir+2) % 4 != direction && addNodeDirection(n, x, y, dir, area, start_coords)
+						if (dir+2) % 4 != direction && addNodeDirection(node, x, y, dir, area, start_coords)
 							return_value =true
 							break
 						dir = (dir + rotation) % 4
@@ -99,7 +97,7 @@ english
 			LOCAL.cop = 0
 			for dir = 3 downto 0
 				if dir != blocked_direction && n.connection[dir]
-					LOCAL.branch_data = clusterizeArea(x+DELTA_X[dir], y+DELTA_Y[dir], (dir+2)%4, data, cluster)
+					LOCAL.branch_data = clusterizeAreaB(x+DELTA_X[dir], y+DELTA_Y[dir], (dir+2)%4, data, cluster, map)
 					nodes = nodes + branch_data[0]
 					ds    = ds + branch_data[1]
 					io    = io + branch_data[2]
@@ -197,9 +195,10 @@ english
 				io_count = io_count + (basic_nodes/4-2) - r
 
 // the code below is identical for standard parent systems and sub systems
+			debug("******* add COP_SECURITY ******")
 			// add the security COP
 			addNode(COP_SECURITY, area, cpu_coords)
-			debug("a")
+			debug("******* add IO and DS ******")
 			// add datastores and IO nodes
 			for i = (ds_count>io_count)?io_count:ds_count downto 1
 				if (random(0,1)==0)
@@ -210,13 +209,11 @@ english
 					addNode(IO, area, cpu_coords)
 //					addFiles(addNode(DATASTORE, area, cpu_coords))
 					addNode(DATASTORE, area, cpu_coords)
-			debug("e")
 			for i = ds_count-io_count downto 1
 //				addFiles(addNode(DATASTORE, area, cpu_coords))
 				addNode(DATASTORE, area, cpu_coords)
 			for i = io_count-ds_count downto 1
 				addNode(IO, area, cpu_coords)
-			debug("b")
 			// add the entrance point for ice
 			ice_entry_node = addNode(IO_ICE, area, cpu_coords)
 			// add an external alarms node if this is a CPU area
@@ -226,10 +223,14 @@ english
 			if has_high_speed_access
 				addNode(IO_HIGH_SPEED_ACCESS, area, cpu_coords)
 			// add portals
-			debug("c")
 //*********************************************
 			// divide the area into clusters, for node name generation. also, gateway ice is placed on every connection that connects two clusters
+			debug("************* map complete *************")
+			printSystemAreaMap(map)
 			LOCAL.cluster = clusterizeArea(cpu_coords[0], cpu_coords[1], ds_count, io_count, map)
+			debug("************* clusterized *************")
+			printSystemAreaMap(map)
+			printSystemAreaClusters(cluster)
 //			nameClusterNodes(cluster, cpu_coords[0], cpu_coords[1]);
 			// add a few extra connections to make th area more interesting
 			for x = map.size-1 downto 0
@@ -256,6 +257,7 @@ english
 
 	// inserts the node into the map, next to the node at (x,y) in the given direction, and connects the two nodes
 	RULESET.insertNode = FUNCTION (node, x, y, direction, area, start_coords)
+		debug()
 		with area
 			// if the target map cell is outside the map add a map row or column to make room for it and move the coords of K and the starting node accordingly
 			if x+DELTA_X[direction] < 0
@@ -263,18 +265,24 @@ english
 				map[0] = createSizedArray(map[0].size)
 				start_coords[0]++
 				x++
+				printSystemAreaMap(map)
 			else if x+DELTA_X[direction] >= map.size
 				map[] = createSizedArray(map[0].size)
+				printSystemAreaMap(map)
 			else if y+DELTA_Y[direction] < 0
 				for i = map.size-1 downto 0
-					copyArraySection(map[i], 0, map[i], 1, map.size)
+					copyArraySection(map[i], 0, map[i], 1, map[i].size)
 					map[i][0] = UNDEFINED
 				start_coords[1]++
 				y++
+				printSystemAreaMap(map)
 			else if y+DELTA_Y[direction] >= map[0].size
 				for i = map.size-1 downto 0
 					map[i][] = UNDEFINED
+				printSystemAreaMap(map)
 			// insert the node and connect it to the node at (x,y)
+			debug(x+" "+y+" -> "+(x+DELTA_X[direction])+" "+(y+DELTA_Y[direction]))
 			map[x+DELTA_X[direction]][y+DELTA_Y[direction]] = node
 			node.connection[(direction+2)%4] = true
 			map[x][y].connection[direction] = true
+			printSystemAreaMap(map)

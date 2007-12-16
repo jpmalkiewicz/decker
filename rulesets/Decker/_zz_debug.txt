@@ -1,23 +1,84 @@
 english
-	RULESET.printArea = FUNCTION (area)
-		if value_type(area) != "ARRAY"
+	RULESET.printSystemAreaMap = FUNCTION (map)
+		if value_type(map) != "ARRAY"
 			debug("***** AREA NOT DEFINED *****")
 		else
 			debug("map:")
 			LOCAL.text
-			for y = 0 to area[0].size-1
+			for y = 0 to map[0].size-1
+
+				// print the node row
 				text = ""
-				for x = 0 to area.size-1
-					if area[x][y].type == UNDEFINED
+				if map[0][y] != UNDEFINED && map[0][y].connection[3]
+					text = text + "~"
+				else
+					text = text + " "
+				for x = 0 to map.size-1
+					if map[x][y].type == UNDEFINED
+						text = text + " "
+						if x + 1 < map.size && map[x+1][y] != UNDEFINED && map[x+1][y].connection[3]
+							text = text + "<"
+						else
+							text = text + " "
+					else
+						LOCAL.t = map[x][y].type
+						if t == COP_SECURITY
+							text = text + "x"
+						else if t == CPU
+							text = text + "*"
+						else
+							text = text + substring(t+"", 0, 1)
+						if map[x][y].connection[1]
+							if x+1 >= map.size || map[x+1][y] == UNDEFINED || !map[x+1][y].connection[3]
+								text = text + ">"
+							else
+								text = text + "-"
+						else if x+1 < map.size && map[x+1][y] != UNDEFINED && map[x+1][y].connection[3]
+							text = text + "<"
+						else
+							text = text + " "
+				debug(text)
+
+				// print the vertical connections
+				text = " "
+				for x = 0 to map.size-1
+					LOCAL.a = map[x][y] != UNDEFINED && map[x][y].connection[2]
+					LOCAL.b = y < map[x].size && map[x][y+1] != UNDEFINED && map[x][y+1].connection[0]
+					if a
+						if b
+							text = text + "| "
+						else
+							text = text + "v "
+					else
+						if b
+							text = text + "^ "
+						else
+							text = text + "  "
+				debug(text)
+
+
+	RULESET.printSystemAreaClusters = FUNCTION (cluster_map)
+		if value_type(cluster_map) != "ARRAY"
+			debug("***** CLUSTERS NOT DEFINED *****")
+		else
+			debug("clusters:")
+			LOCAL.text
+			for y = 0 to cluster_map[0].size-1
+				text = ""
+				for x = 0 to cluster_map.size-1
+					if cluster_map[x][y].type == UNDEFINED
 						text = text + "."
 					else
-						text = text + substring(area[x][y].type+"", 0, 1)
+						if (cluster_map[x][y] > 9)
+							text = text + "*"
+						else
+							text = text + cluster_map[x][y]
 				debug(text)
 
 
 	LOCAL.a = SYSTEM
 		name = "test"
-		rating = 1
+		rating = 9
 		type = GENERIC
 		alert_level = GREEN
 	generateSystemArea(a.rating, a, )
