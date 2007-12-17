@@ -1,4 +1,7 @@
 84%
+2007-12-17
+  working on the system screen (where the action happens)
+  program list and time display work
 2007-12-16
   system area generator completely translated from Java
   (it still needs to place ICE and portals, and to create whole systems)

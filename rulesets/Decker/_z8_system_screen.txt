@@ -1,0 +1,166 @@
+english
+	RULESET.system_screen = COMPONENT
+		title = "Decker - Contracts"
+		width = 640
+		height = 480
+
+		program_scrollpane = SCROLLPANE
+			x = 12
+			y = 42 + 20
+			width = 165
+			height = 378
+			vertical_scrollbar = createSimpleScrollbar(true, "blue")
+
+		message_scrollpane = SCROLLPANE
+			x = 194
+			y = 367
+			width = 433
+			height = 100
+			vertical_scrollbar = createSimpleScrollbar(true, "blue")
+			optional_scrollbars = false
+
+		map_scrollpane = SCROLLPANE
+			x = 451
+			y = 12
+			width = 627
+			height = 177
+			vertical_scrollbar = createSimpleScrollbar(true, "blue")
+			horizontal_scrollbar = createSimpleScrollbar(false, "blue")
+
+		LOCAL.createTableButton = FUNCTION (_column, _text, _width, _x, _sorting_order_function)
+			return_value = BORDER_BUTTON
+				x = _x[0]
+				y = _x[1] - 20
+				idle = createText(_text)
+				idle.height = 14
+				width = _width
+				height = 20
+				_x[0] = _x[0] + _width
+				sorting_order_function = _sorting_order_function
+				column = _column
+				on_mouse_up = FUNCTION
+					sortTable(contract_screen.program_scrollpane.displayed_element, sorting_order_function, column, player.mission_list)
+		LOCAL.table_button_x = ARRAY
+			program_scrollpane.x
+			program_scrollpane.y
+
+
+		time_display = ARRAY
+			createImage("system/time_0", 132, 13)
+			createImage("system/time_0", 139, 13)
+			createImage("system/time_0", 147, 13)
+			createImage("system/time_0", 154, 13)
+			createImage("system/time_0", 162, 13)
+			createImage("system/time_0", 169, 13)
+
+
+		displayTime = FUNCTION
+			with system_screen
+				LOCAL.t = player.current_time
+				// hours
+				time_display[0].image = "system/time_"+(t/60/60/10%10)
+				time_display[1].image = "system/time_"+(t/60/60%10)
+				// minutes
+				time_display[2].image = "system/time_"+(t/60/10%6)
+				time_display[3].image = "system/time_"+(t/60%10)
+				// seconds
+				time_display[4].image = "system/time_"+(t/10%6)
+				time_display[5].image = "system/time_"+(t%10)
+
+
+		on_key_down = FUNCTION
+			player.current_time++
+			system_screen.displayTime()
+
+
+		component = ARRAY
+			IMAGE
+				image = "system/screen_background"
+			program_scrollpane
+			message_scrollpane
+			map_scrollpane
+			// the program table buttons
+			createTableButton(0, "",        19, table_button_x, &compareProgramsPreset)
+			createTableButton(2, "Name",    96, table_button_x, &compareText)
+			createTableButton(3, "Rating",  50, table_button_x, &compareNumbers)
+			// the other standard buttons
+			BORDER_BUTTON
+				x = 466
+				y = 274
+				idle = IMAGE
+					image = "home/deck"
+				on_mouse_up = FUNCTION
+					displayScreen(deck_screen, true)
+			BORDER_BUTTON
+				x = 466
+				y = 328
+				idle = IMAGE
+					image = "system/disconnect"
+				on_mouse_up = FUNCTION
+					displayScreen(home_screen, false)
+		// add the time display digits to the interface
+		for i = time_display.size-1 downto 0
+			component[] = time_display[i]
+
+		setup = FUNCTION
+// debug ******************************
+			player.current_time = 39*60*60 + 59*60 + 59
+// debug ****************************** END
+			with system_screen
+				displayTime()
+				// create the program table
+				LOCAL.t = createTable ( , 18, 20, 9, 86, 50)
+				t.cell_x = createArray (CENTER, -2, 8, CENTER)
+				t.cell_y = CENTER
+				t.selected_row_background = @TABLE_SELECTED_ROW_BACKGROUND
+				t.can_drag_rows = true
+				t.selected_row = program_scrollpane.displayed_element.selected_row
+				t.on_row_dragged = FUNCTION (table, old_row_index, new_row_index)
+					// rearrange the programs in the player deck accordingly
+					LOCAL.p = player.deck.program
+					LOCAL.backup = p[old_row_index]
+					if old_row_index > new_row_index
+						for i = old_row_index downto new_row_index+1
+							p[i] = p[i-1]
+					else
+						for i = old_row_index to new_row_index-1
+							p[i] = p[i+1]
+					p[new_row_index] = backup
+				t.on_selection_change = FUNCTION (table, old_selected_row, new_selected_row)
+// .......
+
+				LOCAL.p = player.deck.program
+				LOCAL.default = UNDEFINED
+
+				LOCAL.default_function = FUNCTION
+					with system_screen
+						if prog.state == DEFAULT
+							setProgramState(player.deck, prog, LOADED)
+							idle.image = "status_off"
+							debug("status off "+prog.name)
+						else
+							// switch off the default marker for the old default program in the table
+							LOCAL.p2 = player.deck.default_program[prog.type.default_category]
+							if p2 != UNDEFINED
+								LOCAL.c = program_scrollpane.displayed_element.cell
+								LOCAL.index = program_scrollpane.displayed_element.rows-1
+								while c[index][1].prog != p2
+									index--
+								program_scrollpane.displayed_element.cell[index][1].idle.image = "status_off"
+							setProgramState(player.deck, prog, DEFAULT)
+							idle.image = "status_on"
+							debug("status on  "+prog.name)
+
+				for i = 0 to p.size-1
+					if p[i].state == LOADED || p[i].state == DEFAULT
+						if p[i].type.default_category != UNDEFINED
+							default = BUTTON
+								idle = IMAGE
+									image = p[i].state == DEFAULT  ?  "status_on"  :  "status_off"
+								prog = p[i]
+								on_mouse_down = default_function
+						else
+							default = UNDEFINED
+						addTableRow(t, createImage(p[i].type.image), default, createTableText(p[i].name), createTableText(p[i].rating))
+				centerRightAlignedTableColumn(t, 3)
+				program_scrollpane.displayed_element = t

@@ -6,7 +6,7 @@ english
 		LOCAL.screen_height = 445
 		width = screen_width
 		height = screen_height
-		
+
 
 		back_button = BORDER_BUTTON
 			x = screen_width - 18 - 24
