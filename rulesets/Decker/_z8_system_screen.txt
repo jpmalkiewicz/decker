@@ -53,7 +53,6 @@ english
 			createImage("system/time_0", 162, 13)
 			createImage("system/time_0", 169, 13)
 
-
 		displayTime = FUNCTION
 			with system_screen
 				LOCAL.t = player.current_time
@@ -73,9 +72,32 @@ english
 			system_screen.displayTime()
 
 
+		node_display = COMPONENT
+			x = 194
+			y = 49
+			width = 240
+			height = 240
+			component
+
+		displayNode = FUNCTION
+			with system_screen.node_display
+				LOCAL.n = player.current_node
+				if n == UNDEFINED
+					component = UNDEFINED
+				else
+					// add the background image
+					component = ARRAY
+						createImage("system/node_"+toLowerCase(getNodeTypeCategory(n.type)))
+					// add the exit images
+					for i = 3 downto 0
+						if n.connection[i]
+							component[] = createImage("system/connection_"+DIRECTION_NAME[i], DIRECTION_EXIT_X[i], DIRECTION_EXIT_Y[i])
+
+
 		component = ARRAY
 			IMAGE
 				image = "system/screen_background"
+			node_display
 			program_scrollpane
 			message_scrollpane
 			map_scrollpane
@@ -108,25 +130,38 @@ english
 // debug ****************************** END
 			with system_screen
 				displayTime()
+				displayNode()
+
 				// create the program table
 				LOCAL.t = createTable ( , 18, 20, 9, 86, 50)
 				t.cell_x = createArray (CENTER, -2, 8, CENTER)
 				t.cell_y = CENTER
 				t.selected_row_background = @TABLE_SELECTED_ROW_BACKGROUND
-				t.can_drag_rows = true
+//				t.can_drag_rows = true
 				t.selected_row = program_scrollpane.displayed_element.selected_row
-				t.on_row_dragged = FUNCTION (table, old_row_index, new_row_index)
-					// rearrange the programs in the player deck accordingly
-					LOCAL.p = player.deck.program
-					LOCAL.backup = p[old_row_index]
-					if old_row_index > new_row_index
-						for i = old_row_index downto new_row_index+1
-							p[i] = p[i-1]
-					else
-						for i = old_row_index to new_row_index-1
-							p[i] = p[i+1]
-					p[new_row_index] = backup
+//				t.on_row_dragged = FUNCTION (table, old_row_index, new_row_index)
+//					// rearrange the programs in the player deck accordingly
+//					LOCAL.p = player.deck.program
+//					LOCAL.backup = p[old_row_index]
+//					if old_row_index > new_row_index
+//						for i = old_row_index downto new_row_index+1
+//							p[i] = p[i-1]
+//					else
+//						for i = old_row_index to new_row_index-1
+//							p[i] = p[i+1]
+//					p[new_row_index] = backup
 				t.on_selection_change = FUNCTION (table, old_selected_row, new_selected_row)
+					player.current_program = UNDEFINED
+					if new_selected_row >= 0
+						// find the selected program on the player's program list and make it the player's current program
+						LOCAL.p = player.deck.program
+						LOCAL.j = -1
+						for i = 0 to p.size-1
+							if p[i].state == LOADED || p[i].state == DEFAULT
+								j++
+								if j == new_selected_row
+									player.current_program = p[i]
+									break
 // .......
 
 				LOCAL.p = player.deck.program

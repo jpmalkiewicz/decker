@@ -5,8 +5,10 @@
 english
 	// parameters : the node to be added and the coords of the node the algorithm should start at
 	// if the node the algorithm starts at is shifted, the start_coords are changed accordingly
-	RULESET.addNode = FUNCTION (type, area, start_coords)
-		return_value = createNode(type)
+	RULESET.addNode = FUNCTION (node, area, start_coords)
+		// turn the first argument into a node if it's something else
+		return_value = node.structure_type != "NODE" ? createNode(node) : node
+		return_value.area = area
 		LOCAL.direction = random(0,3)
 		LOCAL.rotation = random(0,1)*2 + 1    // 1 or 3
 		for i = 0 to 3
@@ -95,6 +97,7 @@ english
 			// it's a portal, turn it into a cluster all by itself. it still adds to the size of the potential cluster it is connected to
 			cluster[x][y] = data[0]
 			data[0]++
+			return_value = createArray(1, 0, 0, 0)
 		else if t == JUNCTION
 			// continue clusterizing the area in the nodes branching off from this junction
 			LOCAL.nodes = 0
@@ -146,7 +149,7 @@ english
 			else
 				return_value = createArray(nodes, ds, io, cop)
 		else
-			return_value = createArray(1, t==DATASTORE?1:0, t==IO?1:0, getNodeTypeCategory(t)==COP?1:0)
+			return_value = createArray(1, t==DATASTORE?1:0, t==IO?1:0, t==CPU||t==SPU||getNodeTypeCategory(t)==COP?1:0)
 
 
 	// marks the nodes of a new cluster as belonging to it. also turns the target DS or IO node into a COP. returns the number of nodes of the target node type which still need to be skipped
@@ -179,13 +182,39 @@ english
 			type = _type
 
 
-	RULESET.generateSystemArea = FUNCTION (_rating, _system, _mission)
+	RULESET.createPortalNode = FUNCTION (_type, _target)
+		return_value = NODE
+			type = _type
+			target = _target
+
+
+	RULESET.generateSystem = FUNCTION (_system, _mission)
+		with _system
+			// create the areas. there will be (rating+3)/4 areas in this system
+			LOCAL.area_count = (rating+3)/4
+			area = createSizedArray(area_count)
+			entry_point = createPortalNode(PORTAL_OUT)
+			LOCAL.portal_in
+			LOCAL.portal_out = entry_point
+			for i = area.size-1 downto 0
+				// give the area an inbound portal unless it's the CPU area at the center of the system
+				portal_in = i==0 ? UNDEFINED : createPortalNode(PORTAL_IN)
+				// create the area
+				area[i] = generateSystemArea(i, rating, _system, _mission, portal_out, portal_in)
+				// create the outbound portal for the next area and connect it to the inbound portal of the current area
+				if portal_in != UNDEFINED
+					portal_out = createPortalNode(PORTAL_OUT, portal_in)
+					portal_in.target = portal_out
+
+
+	// additional parameters will be added to the system i they are nodes
+	RULESET.generateSystemArea = FUNCTION (_id, _rating, _system, _mission)
 		LOCAL.area = AREA
 		return_value = area
 		with area
 			system = _system
 			rating = _rating
-			id = 0
+			id = _id
 
 			LOCAL.area_size = (rating-1)%4 + (rating+3)/4 + id
 			LOCAL.has_high_speed_access = random(0,30) < rating
@@ -194,8 +223,8 @@ english
 			LOCAL.ds_count = 1 + random(0,area_size) + random(0,area_size)
 			LOCAL.io_count = 1 + random(0,area_size) + random(0,area_size)
 
-			// add the CPU
-			map = createArray(createArray(createNode(CPU)))
+			// add the CPU/SPU
+			map = createArray(createArray(createNode(id==0?CPU:SPU)))
 
 			// CPU/SPU, junctions and security COP don't add to the basic nodes count, only DS and normal IO nodes, plus one ice entry IO node, maybe one high speed IO node, and if this is the CPU area one sys admin notification IO node
 			LOCAL.basic_nodes = ds_count + io_count + 1 + (has_high_speed_access?1:0) + (map[0][0].type==CPU?1:0)
@@ -224,16 +253,23 @@ english
 				addNode(DATASTORE, area, cpu_coords)
 			for i = io_count-ds_count downto 1
 				addNode(IO, area, cpu_coords)
+
 			// add the entrance point for ice
 			ice_entry_node = addNode(IO_ICE, area, cpu_coords)
-			// add an external alarms node if this is a CPU area
-			if map[cpu_coords[0]][cpu_coords[1]].type == CPU
-				addNode(IO_EXTERNAL_ALERT, area, cpu_coords)
+
 			// possibly add a high-speed IO port
 			if has_high_speed_access
 				addNode(IO_HIGH_SPEED_ACCESS, area, cpu_coords)
-			// add portals
-//*********************************************
+
+			// add the specified custom nodes
+			for i = 4 to argument.size-1
+				if argument[i].structure_type == "NODE"
+					addNode(argument[i], area, cpu_coords)
+
+			// add an external alarms node if this is a CPU area
+			if map[cpu_coords[0]][cpu_coords[1]].type == CPU
+				addNode(IO_EXTERNAL_ALERT, area, cpu_coords)
+
 			// divide the area into clusters, for node name generation. also, gateway ice is placed on every connection that connects two clusters
 			debug("************* map complete *************")
 			printSystemAreaMap(map)
@@ -242,20 +278,24 @@ english
 			printSystemAreaMap(map)
 			printSystemAreaClusters(cluster)
 			nameClusterNodes(area, cluster, cpu_coords[0], cpu_coords[1])
+
 			// add a few extra connections to make th area more interesting
 			for x = map.size-1 downto 0
 				for y = map[x].size-1 downto 0
 					LOCAL.n = map[x][y]
-					if n != UNDEFINED &&( n.type == DATASTORE || getNodeTypeCategory(n.type) == COP )
-						for direction = 3 downto 0
-							LOCAL.x2 = x + DELTA_X[direction]
-							LOCAL.y2 = y + DELTA_Y[direction]
-							// if there is no connection yet, there is a target node and we feel like making a connection (50% chance), make one
-							if !n.connection[direction] && x2 >= 0 && x2 < map.size && y2 >= 0 && y2 < map[0].size
-								LOCAL.m = map[x2][y2]
-								if m != UNDEFINED && m.type != PORTAL_IN && m.type != PORTAL_OUT && random(0,1) == 1
-									n.connection[direction] = true
-									m.connection[(direction+2)%4] = true
+					if n != UNDEFINED
+						n.x = x
+						n.y = y
+						if ( n.type == DATASTORE || getNodeTypeCategory(n.type) == COP)
+							for direction = 3 downto 0
+								LOCAL.x2 = x + DELTA_X[direction]
+								LOCAL.y2 = y + DELTA_Y[direction]
+								// if there is no connection yet, there is a target node and we feel like making a connection (50% chance), make one
+								if !n.connection[direction] && x2 >= 0 && x2 < map.size && y2 >= 0 && y2 < map[0].size
+									LOCAL.m = map[x2][y2]
+									if m != UNDEFINED && m.type != PORTAL_IN && m.type != PORTAL_OUT && random(0,1) == 1
+										n.connection[direction] = true
+										m.connection[(direction+2)%4] = true
 			debug("************* more connections *************")
 			printSystemAreaMap(map)
 // add ice
@@ -302,7 +342,7 @@ english
 			// find the COP of each cluster and start naming the cluster from there
 			for x = cluster.size-1 downto 0
 				for y = cluster[x].size-1 downto 0
-					if map[x][y] != UNDEFINED && map[x][y].name == UNDEFINED && getNodeTypeCategory(map[x][y].type) == COP
+					if map[x][y] != UNDEFINED && map[x][y].name == UNDEFINED &&( map[x][y].type == CPU || map[x][y].type == SPU || map[x][y].type == PORTAL_IN || map[x][y].type == PORTAL_OUT || getNodeTypeCategory(map[x][y].type) == COP )
 						nameClusterNodesB(x, y, 0, cluster, area)
 
 
@@ -311,20 +351,18 @@ english
 			LOCAL.cluster_id = cluster[x][y]
 			LOCAL.n = map[x][y]
 			// make a name for the node
-			LOCAL.t = getNodeTypeCategory(n.type)
-			if t == DATASTORE
-				n.name = "DS"
-			else if t == IO
-				n.name = "IO"
-			else if t == JUNCTION
+			LOCAL.t = n.type
+			if t == JUNCTION
 				n.name = "JN"
-			else if n.type == CPU || n.type == SPU
+			else if t == DATASTORE
+				n.name = "DS"
+			else if t == CPU || t == SPU || t == IO
 				n.name = n.type + ""
 			else if t == PORTAL_IN
 				n.name = "PI"
 			else if t == PORTAL_OUT
 				n.name = "PO"
-			else if t == COP
+			else if getNodeTypeCategory(t) == COP
 				n.name = "COP"
 			else
 				n.name = "???"

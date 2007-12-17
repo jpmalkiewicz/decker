@@ -26,6 +26,12 @@ english
 							text = text + "x"
 						else if t == CPU
 							text = text + "*"
+						else if t == IO_EXTERNAL_ALERT
+							text = text + "A"
+						else if t == IO_HIGH_SPEED_ACCESS
+							text = text + "H"
+						else if t == IO_ICE
+							text = text + "X"
 						else
 							text = text + substring(t+"", 0, 1)
 						if map[x][y].connection[1]
@@ -74,11 +80,3 @@ english
 						else
 							text = text + cluster_map[x][y] + " "
 				debug(text)
-
-
-	LOCAL.a = SYSTEM
-		name = "test"
-		rating = 8
-		type = GENERIC
-		alert_level = GREEN
-	generateSystemArea(a.rating, a, )

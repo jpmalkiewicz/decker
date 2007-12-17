@@ -208,6 +208,15 @@ english
 					m.setup(m)
 
 
+	RULESET.startMission = FUNCTION (mission)
+		player.current_mission = mission
+		player.current_system = generateSystem(mission.target_system, mission)
+		player.current_node = mission.target_system.entry_point
+		player.current_time = 0
+		displayScreen(system_screen, false)
+
+
+
 	RULESET.updateShopInventory = FUNCTION
 		LOCAL.c = ARRAY
 		player.shop_inventory = c

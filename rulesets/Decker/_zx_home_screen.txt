@@ -12,17 +12,18 @@ english
 			x = 10
 			y = 10 + index * 27
 			target_screen = the_target_screen
-			on_mouse_up = FUNCTION
-				displayScreen(target_screen, true)
+			if target_screen != UNDEFINED
+				on_mouse_up = FUNCTION
+					displayScreen(target_screen, true)
 		home_screen.component[] = createText(button_text, 41, 14 + index * 27)
 	addEntry("home/char",     "View Character",        character_screen, 0)
 	addEntry("home/deck",     "View Cyberdeck",        deck_screen,      1)
 	addEntry("home/contract", "View Contracts",        contract_screen,  2)
 	addEntry("home/shop",     "Buy Hardware/Software", shop_screen,      3)
-	addEntry("home/project",  "Projects",              character_screen, 4)
+	addEntry("home/project",  "Projects",              ,                 4)
 	addEntry("home/rest",     "Rest and Recuperate",   rest_screen,      5)
-	addEntry("home/matrix",   "Enter the Matrix",      system_screen,    6)
-	addEntry("home/options",  "Options",               character_screen, 7)
+	addEntry("home/matrix",   "Enter the Matrix",      ,                 6)
+	addEntry("home/options",  "Options",               ,                 7)
 
 
 	RULESET.initial_screen = new_character_screen
