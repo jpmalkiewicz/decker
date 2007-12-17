@@ -1,8 +1,10 @@
 84%
 2007-12-17
   working on the system screen (where the action happens)
-  program list and time display work
+  program list displays programs (sorting and rowd ragging are not there yet)
+  time display work
   can now generate whole systems (minus datastore files and ice)
+  it's possible to walk around
 2007-12-16
   system area generator completely translated from Java
   (it still needs to place ICE and portals, and to create whole systems)

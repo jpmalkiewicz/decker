@@ -79,7 +79,7 @@ english
 					char_image
 					BORDER_BUTTON
 						idle = IMAGE
-							image = "arrow_w0"     // image for the idle state of the button. the pressed button image will be "home/arrow1" if that image exists
+							image = "system/arrow_west0"     // image for the idle state of the button. the pressed button image will be "home/arrow1" if that image exists
 						on_mouse_up = FUNCTION
 							with new_character_screen
 								if char_image_index == 0
@@ -90,7 +90,7 @@ english
 					BORDER_BUTTON
 						x = 54
 						idle = IMAGE
-							image = "arrow_e0"
+							image = "system/arrow_east0"
 						on_mouse_up = FUNCTION
 							with new_character_screen
 								if char_image_index == char_images.size - 1

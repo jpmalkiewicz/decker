@@ -8,7 +8,6 @@ english
 	RULESET.addNode = FUNCTION (node, area, start_coords)
 		// turn the first argument into a node if it's something else
 		return_value = node.structure_type != "NODE" ? createNode(node) : node
-		return_value.area = area
 		LOCAL.direction = random(0,3)
 		LOCAL.rotation = random(0,1)*2 + 1    // 1 or 3
 		for i = 0 to 3
@@ -279,11 +278,13 @@ english
 			printSystemAreaClusters(cluster)
 			nameClusterNodes(area, cluster, cpu_coords[0], cpu_coords[1])
 
-			// add a few extra connections to make th area more interesting
+			// tell the nodes where they are
+			// and add a few extra connections to make th area more interesting
 			for x = map.size-1 downto 0
 				for y = map[x].size-1 downto 0
 					LOCAL.n = map[x][y]
 					if n != UNDEFINED
+						n.area = area
 						n.x = x
 						n.y = y
 						if ( n.type == DATASTORE || getNodeTypeCategory(n.type) == COP)
