@@ -21,7 +21,7 @@ english
 	addEntry("home/shop",     "Buy Hardware/Software", shop_screen,      3)
 	addEntry("home/project",  "Projects",              character_screen, 4)
 	addEntry("home/rest",     "Rest and Recuperate",   rest_screen,      5)
-	addEntry("home/matrix",   "Enter the Matrix",      character_screen, 6)
+	addEntry("home/matrix",   "Enter the Matrix",      system_screen,    6)
 	addEntry("home/options",  "Options",               character_screen, 7)
 
 
