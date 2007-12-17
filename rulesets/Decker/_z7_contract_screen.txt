@@ -55,6 +55,8 @@ english
 								padding = 3
 								padding_left = 6
 								padding_right = 6
+								on_mouse_up = FUNCTION
+									startMission(m)
 						center_button_wrapper.component = UNDEFINED
 					else
 						if left_button_wrapper.component.idle.text != "Accept and start"
@@ -71,7 +73,9 @@ english
 										m.accepted = true
 										if value_type(m.on_accepted) == "FUNCTION"
 											m.accepted(m)
-										contract_screen.setup()
+										// just checking in case the on_accepted trigger has moved us to some other screen
+										if displayed_screen == contract_screen
+											startMission(m)
 						if left_button_wrapper.component.idle.text != "Accept"
 							center_button_wrapper.component = BORDER_BUTTON
 								x = CENTER

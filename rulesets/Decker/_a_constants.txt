@@ -84,12 +84,27 @@ english
 		1
 		0
 		-1
-
 	RULESET.DELTA_Y = ARRAY
 		-1
 		0
 		1
 		0
+	RULESET.DIRECTION_NAME = ARRAY
+		"north"
+		"east"
+		"south"
+		"west"
+	RULESET.DIRECTION_EXIT_X = ARRAY
+		CENTER
+		RIGHT
+		CENTER
+		LEFT
+	RULESET.DIRECTION_EXIT_Y = ARRAY
+		TOP
+		CENTER
+		BOTTOM
+		CENTER
+
 
 
 	// IDs for categories in which programs can be used as the default program
@@ -181,6 +196,7 @@ english
 		DATASTORE
 		IO
 		JUNCTION
+		PORTAL
 		PORTAL_IN
 		PORTAL_OUT
 		COP_SECURITY

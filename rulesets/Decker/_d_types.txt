@@ -58,6 +58,7 @@ english
 			type
 			alert_level = GREEN
 			area
+			entry_point      // usually a PORTAL_OUT node
 			initializer = FUNCTION
 				area = ARRAY
 
@@ -73,8 +74,11 @@ english
 				destroyed_ice = ARRAY
 
 		NODE
+			expandable = true
 			name
 			area
+			x
+			y
 			connection    // if connection[direction] set to true, there is a connection in that direction
 			type
 			smoke_level
@@ -195,8 +199,8 @@ english
 			programming = 1
 			chip_design = 1
 			deck
+			current_mission
 			current_system
-			current_area
 			current_node
 			current_target    // some ice or file
 			current_program   // the program this human is currently trying to use
