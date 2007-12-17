@@ -81,7 +81,6 @@ english
 				on_mouse_up = FUNCTION
 					player.current_node = player.current_node.area.map[player.current_node.x+DELTA_X[direction]][player.current_node.y+DELTA_Y[direction]]
 					system_screen.displayNode()
-					debug(player.current_node.x+","+player.current_node.y)
 
 
 		button_wrapper = createTable(3, 27, 27)
@@ -115,7 +114,6 @@ english
 							button_wrapper.cell[1+DELTA_Y[i]][1+DELTA_X[i]] = movement_button[i]
 						else
 							button_wrapper.cell[1+DELTA_Y[i]][1+DELTA_X[i]] = UNDEFINED
-					debug(button_wrapper,,3)
 
 
 
@@ -155,9 +153,6 @@ english
 			component[] = time_display[i]
 
 		setup = FUNCTION
-// debug ******************************
-			player.current_time = 39*60*60 + 59*60 + 59
-// debug ****************************** END
 			with system_screen
 				displayTime()
 				displayNode()
@@ -202,7 +197,6 @@ english
 						if prog.state == DEFAULT
 							setProgramState(player.deck, prog, LOADED)
 							idle.image = "status_off"
-							debug("status off "+prog.name)
 						else
 							// switch off the default marker for the old default program in the table
 							LOCAL.p2 = player.deck.default_program[prog.type.default_category]
@@ -214,7 +208,6 @@ english
 								program_scrollpane.displayed_element.cell[index][1].idle.image = "status_off"
 							setProgramState(player.deck, prog, DEFAULT)
 							idle.image = "status_on"
-							debug("status on  "+prog.name)
 
 				for i = 0 to p.size-1
 					if p[i].state == LOADED || p[i].state == DEFAULT
