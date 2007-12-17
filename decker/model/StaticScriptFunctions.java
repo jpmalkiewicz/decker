@@ -101,9 +101,11 @@ final class StaticScriptFunctions extends ScriptNode
 		if (index == args.length-1 &&( args[index] == null || args[index].type() != Value.INTEGER || args[index].integer() < 1 ))
 			return new Value().set(new ArrayWrapper(new Value[0]));
 		final Value[] ret = new Value[args[index].integer()];
+		ArrayWrapper aw = new ArrayWrapper(ret);
 		if (index+1 < args.length) {
 			for (int i = ret.length; --i >= 0; ) {
 				ret[i] = execute_create_sized_array(args, index+1);
+				ret[i].arrayWrapper().addValueListener(aw);
 			}
 		}
 		else {
@@ -111,7 +113,7 @@ final class StaticScriptFunctions extends ScriptNode
 				ret[i] = new Value();
 			}
 		}
-		return new Value().set(new ArrayWrapper(ret));
+		return new Value().set(aw);
 	}
 
 

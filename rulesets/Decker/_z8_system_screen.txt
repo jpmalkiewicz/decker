@@ -72,6 +72,24 @@ english
 			system_screen.displayTime()
 
 
+		movement_button = createSizedArray(4)
+		for i = 3 downto 0
+			movement_button[i] = BORDER_BUTTON
+				direction = i
+				idle = IMAGE
+					image = "system/arrow_"+DIRECTION_NAME[i]+"0"
+				on_mouse_up = FUNCTION
+					player.current_node = player.current_node.area.map[player.current_node.x+DELTA_X[direction]][player.current_node.y+DELTA_Y[direction]]
+					system_screen.displayNode()
+					debug(player.current_node.x+","+player.current_node.y)
+
+
+		button_wrapper = createTable(3, 27, 27)
+		button_wrapper.x = 439
+		button_wrapper.y = 193
+		button_wrapper.cell = createSizedArray(6,3)
+
+
 		node_display = COMPONENT
 			x = 194
 			y = 49
@@ -80,18 +98,26 @@ english
 			component
 
 		displayNode = FUNCTION
-			with system_screen.node_display
+			with system_screen
 				LOCAL.n = player.current_node
 				if n == UNDEFINED
-					component = UNDEFINED
+					node_display.component = UNDEFINED
+					for i = 3 downto 0
+						button_wrapper.cell[1+DELTA_Y[i]][1+DELTA_X[i]] = UNDEFINED
 				else
 					// add the background image
-					component = ARRAY
+					node_display.component = ARRAY
 						createImage("system/node_"+toLowerCase(getNodeTypeCategory(n.type)))
 					// add the exit images
 					for i = 3 downto 0
 						if n.connection[i]
-							component[] = createImage("system/connection_"+DIRECTION_NAME[i], DIRECTION_EXIT_X[i], DIRECTION_EXIT_Y[i])
+							node_display.component[] = createImage("system/connection_"+DIRECTION_NAME[i], DIRECTION_EXIT_X[i], DIRECTION_EXIT_Y[i])
+							button_wrapper.cell[1+DELTA_Y[i]][1+DELTA_X[i]] = movement_button[i]
+						else
+							button_wrapper.cell[1+DELTA_Y[i]][1+DELTA_X[i]] = UNDEFINED
+					debug(button_wrapper,,3)
+
+
 
 
 		component = ARRAY
@@ -101,25 +127,29 @@ english
 			program_scrollpane
 			message_scrollpane
 			map_scrollpane
+			button_wrapper
 			// the program table buttons
 			createTableButton(0, "",        19, table_button_x, &compareProgramsPreset)
 			createTableButton(2, "Name",    96, table_button_x, &compareText)
 			createTableButton(3, "Rating",  50, table_button_x, &compareNumbers)
-			// the other standard buttons
-			BORDER_BUTTON
-				x = 466
-				y = 274
-				idle = IMAGE
-					image = "home/deck"
-				on_mouse_up = FUNCTION
-					displayScreen(deck_screen, true)
-			BORDER_BUTTON
-				x = 466
-				y = 328
-				idle = IMAGE
-					image = "system/disconnect"
-				on_mouse_up = FUNCTION
-					displayScreen(home_screen, false)
+
+		// add the standard buttons to the button_wrapper
+		button_wrapper.cell[3][0] = BORDER_BUTTON
+			idle = IMAGE
+				image = "home/char"
+			on_mouse_up = FUNCTION
+				displayScreen(character_screen, true)
+		button_wrapper.cell[3][1] = BORDER_BUTTON
+			idle = IMAGE
+				image = "home/deck"
+			on_mouse_up = FUNCTION
+				displayScreen(deck_screen, true)
+		button_wrapper.cell[5][1] = BORDER_BUTTON
+			idle = IMAGE
+				image = "system/disconnect"
+			on_mouse_up = FUNCTION
+				displayScreen(home_screen, false)
+
 		// add the time display digits to the interface
 		for i = time_display.size-1 downto 0
 			component[] = time_display[i]
