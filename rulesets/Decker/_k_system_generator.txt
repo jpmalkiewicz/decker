@@ -223,7 +223,9 @@ english
 			LOCAL.io_count = 1 + random(0,area_size) + random(0,area_size)
 
 			// add the CPU/SPU
-			map = createArray(createArray(createNode(id==0?CPU:SPU)))
+// debug
+			map = createArray(createArray(createNode(id!=0?CPU:SPU)))
+// debug END
 
 			// CPU/SPU, junctions and security COP don't add to the basic nodes count, only DS and normal IO nodes, plus one ice entry IO node, maybe one high speed IO node, and if this is the CPU area one sys admin notification IO node
 			LOCAL.basic_nodes = ds_count + io_count + 1 + (has_high_speed_access?1:0) + (map[0][0].type==CPU?1:0)
