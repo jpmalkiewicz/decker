@@ -135,7 +135,7 @@ english
 		PROGRAM           // thing types
 		HARDWARE
 		CHIP
-		SOURCE
+		SOURCE_CODE
 
 		INSTALLED         // program states
 		LOADED

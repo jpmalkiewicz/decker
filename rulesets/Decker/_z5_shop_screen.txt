@@ -167,7 +167,8 @@ english
 					centerRightAlignedTableColumn(t, 4)
 				// display a check mark instead of a number if a piece of hardware has a max rating of 1 and the player already has it
 				if m == 1 && p[i].type.max_rating == 1
-					m = "check"
+					m = IMAGE
+						image = "check"
 				else if m != UNDEFINED
 					m = createText(m,,,@TABLE_TEXT_COLOR)
 				addTableRow(t, createImage(p[i].type.image), createText(p[i].name,,,@TABLE_TEXT_COLOR), createText(p[i].type.name,,,@TABLE_TEXT_COLOR), createText(rating,,,@TABLE_TEXT_COLOR), m, createText(p[i].value,,,@TABLE_TEXT_COLOR), createText(p[i].average_value,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR))

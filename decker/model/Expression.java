@@ -142,8 +142,8 @@ try {
 					throwException("found the : but not the corresponding ? of the a?b:c operator");
 			}
 			else { // all other expressions are sorted by their order of priority
-				// the ?'s of a?b:c are executed right before left so a ? that is added is stronger than an existing one
-				final int priority = OPERATOR_PRIORITY[operator] - ((operator==CONDITIONAL) ? 1 : 0);
+				// the ?'s of a?b:c are executed left to right so a ? that is added is weaker than an existing :
+				final int priority = OPERATOR_PRIORITY[operator] - ((operator==CONDITIONAL) ? 2 : 0);
 				// now find the place in the expression tree where this expression belongs
 				while (index > -1 && OPERATOR_PRIORITY[expression_stack[index].operator] <= priority) {
 					first_operand = expression_stack[index];

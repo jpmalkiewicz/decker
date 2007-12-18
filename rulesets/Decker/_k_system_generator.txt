@@ -3,6 +3,63 @@
 // (not counting junctions). That's the rule my clustering algorithm went by
 
 english
+
+
+	RULESET.addFiles = FUNCTION (node, system_type, rating, can_have_clues)
+		node.file = createSizedArray(random(1,4) + random(1,4) + random(1,4) + random(1,4) + random(1,4))
+		with node
+			for i = 0 to file.size-1
+				LOCAL.r = random(0,99)
+				if r < 10
+					file[i] = createFile(VALUABLE, system_type.file[random(0,system_type.file.size-1)])
+					file[i].value = (  10*rating + random(1,9) + random(1,9) + random(1,9) + random(1,9) + random(1,9)  )*(85+random(0,30))/100
+				else if r < 32
+					// about 25% of the useless files are false "valuable" files
+					file[i] = createFile(VALUABLE, system_type.file[random(0,system_type.file.size-1)], 0)
+				else if r < 97 ||( r == 99 && can_have_clues != true )
+					file[i] = createFile(USELESS, system_type.useless_file[random(0,system_type.useless_file.size-1)])
+				else if r == 97 // a program or source code
+					// the rating of the THING
+					LOCAL.a = random(0,99)
+					a = rating + ( a<15 ? -2 : a<45 ? -1 : a<85 ? 0 : a<95 ? 1 : 2 )
+					if a < 1
+						a = 1
+					r = random(0,99)
+					if r < 70
+						file[i] = FILE
+							type = PROGRAM
+							data = createProgram(PROGRAM_TYPES[random(0,PROGRAM_TYPES.size-1)], a)
+							size = data.size
+					else if r < 90
+						file[i] = FILE
+							type = SOURCE_CODE
+							data = createProgram(PROGRAM_TYPES[random(0,PROGRAM_TYPES.size-1)], a, true)
+							size = data.size
+					else
+						file[i] = FILE
+							type = SOURCE_CODE
+							data = createHardware(CHIP_TYPES[random(0,CHIP_TYPES.size-1)], a, true)
+							size = data.size
+				else if r == 98
+					file[i] = createFile(PASSWORD)
+				else   // r == 99 && can_have_clues
+					file[i] = createFile(CLUE)
+				// if the file doesn't have a size yet, give it a size of (rating*2) d4
+				if file[i].size == UNDEFINED
+					LOCAL.a = 0
+					for j = 2*rating-1 downto 0
+						a = a + random(1,4)
+					file[i].size = a
+				// name the file
+				while file[i].name == UNDEFINED
+					file[i].name = node.name + "-" + toUpperCase( integerToText(random(0,35),36) + integerToText(random(0,35),36) + integerToText(random(0,35),36) + integerToText(random(0,35),36) )
+					// make sure the file name isn't already used
+					for j = i-1 downto 0
+						if file[j] == file[i].name
+							file[i].name = UNDEFINED
+							break
+
+
 	// parameters : the node to be added and the coords of the node the algorithm should start at
 	// if the node the algorithm starts at is shifted, the start_coords are changed accordingly
 	RULESET.addNode = FUNCTION (node, area, start_coords)
@@ -176,6 +233,14 @@ english
 				clusterizeAreaD(x+DELTA_X[i], y+DELTA_Y[i], (i+2)%4, cluster, map)
 
 
+	RULESET.createFile = FUNCTION (_type, _data, _value, _size)
+		return_value = FILE
+			type = _type
+			data = _data
+			value = _value
+			size = _size
+
+
 	RULESET.createNode = FUNCTION (_type)
 		return_value = NODE
 			type = _type
@@ -217,15 +282,13 @@ english
 
 			LOCAL.area_size = (rating-1)%4 + (rating+3)/4 + id
 			LOCAL.has_high_speed_access = random(0,30) < rating
-// mission_can_have_hints = missionCanHaveHints(_mission)
+// mission_can_have_clues = missionCanHaveClues(_mission)
 			LOCAL.cpu_coords = createArray(0,0)
 			LOCAL.ds_count = 1 + random(0,area_size) + random(0,area_size)
 			LOCAL.io_count = 1 + random(0,area_size) + random(0,area_size)
 
 			// add the CPU/SPU
-// debug
-			map = createArray(createArray(createNode(id!=0?CPU:SPU)))
-// debug END
+			map = createArray(createArray(createNode(id==0?CPU:SPU)))
 
 			// CPU/SPU, junctions and security COP don't add to the basic nodes count, only DS and normal IO nodes, plus one ice entry IO node, maybe one high speed IO node, and if this is the CPU area one sys admin notification IO node
 			LOCAL.basic_nodes = ds_count + io_count + 1 + (has_high_speed_access?1:0) + (map[0][0].type==CPU?1:0)
@@ -236,21 +299,17 @@ english
 				ds_count = ds_count + r
 				io_count = io_count + (basic_nodes/4-2) - r
 
-// the code below is identical for standard parent systems and sub systems
 			// add the security COP
 			addNode(COP_SECURITY, area, cpu_coords)
 			// add datastores and IO nodes
 			for i = (ds_count>io_count)?io_count:ds_count downto 1
 				if (random(0,1)==0)
 					addNode(DATASTORE, area, cpu_coords)
-//					addFiles(addNode(DATASTORE, area, cpu_coords))
 					addNode(IO, area, cpu_coords)
 				else
 					addNode(IO, area, cpu_coords)
-//					addFiles(addNode(DATASTORE, area, cpu_coords))
 					addNode(DATASTORE, area, cpu_coords)
 			for i = ds_count-io_count downto 1
-//				addFiles(addNode(DATASTORE, area, cpu_coords))
 				addNode(DATASTORE, area, cpu_coords)
 			for i = io_count-ds_count downto 1
 				addNode(IO, area, cpu_coords)
@@ -281,6 +340,7 @@ english
 			nameClusterNodes(area, cluster, cpu_coords[0], cpu_coords[1])
 
 			// tell the nodes where they are
+			// add files to datastore nodes
 			// and add a few extra connections to make th area more interesting
 			for x = map.size-1 downto 0
 				for y = map[x].size-1 downto 0
@@ -290,6 +350,8 @@ english
 						n.x = x
 						n.y = y
 						if ( n.type == DATASTORE || getNodeTypeCategory(n.type) == COP)
+							if n.type == DATASTORE
+								addFiles(n, _system.type, _rating, mission_can_have_clues)
 							for direction = 3 downto 0
 								LOCAL.x2 = x + DELTA_X[direction]
 								LOCAL.y2 = y + DELTA_Y[direction]
