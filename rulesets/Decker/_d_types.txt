@@ -94,9 +94,10 @@ english
 		FILE
 			name
 			type
-			description
 			size
-			value = 0
+			value
+			data
+			info_level = 0
 
 		ICE
 			expandable = true

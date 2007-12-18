@@ -27,12 +27,12 @@ english
 				if b != UNDEFINED && b != ""
 					return_value = -1
 				else
-					return_value = b < a ? -1 : ( b > a ? 1 : 0 )
+					return_value = b<a ? -1 : b>a ? 1 : 0
 			else
 				if b == UNDEFINED || b == ""
 					return_value = 1
 				else
-					return_value = b < a ? -1 : ( b > a ? 1 : 0 )
+					return_value = b<a ? -1 : b>a ? 1 : 0
 
 	RULESET.compareNumbersInverted = FUNCTION (row_a, row_b, table, column)
 		LOCAL.a = table.cell[row_a][column].text
@@ -44,12 +44,12 @@ english
 				if b != UNDEFINED && b != ""
 					return_value = -1
 				else
-					return_value = b < a ? -1 : ( b > a ? 1 : 0 )
+					return_value = b<a ? -1 : b>a ? 1 : 0
 			else
 				if b == UNDEFINED || b == ""
 					return_value = 1
 				else
-					return_value = b < a ? -1 : ( b > a ? 1 : 0 )
+					return_value = b<a ? -1 : b>a ? 1 : 0
 
 
 	RULESET.compareProgramsPreset = FUNCTION (a, b)
@@ -85,12 +85,12 @@ english
 				if b != UNDEFINED && b != ""
 					return_value = -1
 				else
-					return_value = b < a ? -1 : ( b > a ? 1 : 0 )
+					return_value = b<a ? -1 : b>a ? 1 : 0
 			else
 				if b == UNDEFINED || b == ""
 					return_value = 1
 				else
-					return_value = b < a ? -1 : ( b > a ? 1 : 0 )
+					return_value = b<a ? -1 : b>a ? 1 : 0
 
 
 	RULESET.compareShopItemsPreset = FUNCTION (a, b)
@@ -110,13 +110,13 @@ english
 
 
 	RULESET.compareProgramsDefault = FUNCTION (a, b)
-		return_value = ( player.deck.program[b].type.default_category == UNDEFINED ? 2 : ( player.deck.program[b].state == DEFAULT ? 0 : 1 )) - ( player.deck.program[a].type.default_category == UNDEFINED ? 2 : ( player.deck.program[a].state == DEFAULT ? 0 : 1 ))
+		return_value = ( player.deck.program[b].type.default_category==UNDEFINED ? 2 : player.deck.program[b].state==DEFAULT ? 0 : 1 ) - ( player.deck.program[a].type.default_category==UNDEFINED ? 2 : player.deck.program[a].state==DEFAULT ? 0 : 1 )
 
 
 	RULESET.compareText = FUNCTION (row_a, row_b, table, column)
 		LOCAL.a = table.cell[row_a][column].text
 		LOCAL.b = table.cell[row_b][column].text
-		return_value = b < a ? -1 : ( b > a ? 1 : 0 )
+		return_value = b<a ? -1 : b>a ? 1 : 0
 
 
 	RULESET.createChip = FUNCTION (_type, _rating)
@@ -175,7 +175,7 @@ english
 				setProgramState(return_value, return_value.program[a], return_value.program[a].type.default_category != UNDEFINED ? DEFAULT : LOADED)
 
 
-	RULESET.createHardware = FUNCTION (_type, _rating)
+	RULESET.createHardware = FUNCTION (_type, _rating, _source_code)
 		// find the hardware type
 		if value_type(_type) == "CONSTANT"
 			LOCAL.c
@@ -202,9 +202,13 @@ english
 						return_value.name = basename
 					else
 						return_value.name = basename + " " + getRomanNumber(_rating)
+			// if it's a source code, mark it as such and give it a size
+			if _source_code
+				return_value.source_code = true
+				return_value.size = _rating * _type.complexity * 2
 
 
-	RULESET.createProgram = FUNCTION (_type, _rating)
+	RULESET.createProgram = FUNCTION (_type, _rating, _source_code)
 		// find the program type
 		if value_type(_type) == "CONSTANT"
 			LOCAL.c
@@ -218,6 +222,7 @@ english
 			return_value = THING
 				type = _type
 				rating = _rating
+				source_code = _source_code
 				size = getThingSize(THING.this)
 			// determine its default name
 			if _rating >= 1
@@ -276,7 +281,7 @@ english
 			else if chip_type == COPROCESSOR
 				return_value = deck.coprocessor
 			else if chip_type == ATTACK
-				return_value = deck.cpu
+				return_value = deck.attack
 			else if chip_type == DEFENSE
 				return_value = deck.defense
 			else if chip_type == STEALTH
@@ -322,15 +327,12 @@ english
 
 	// this function only makes sense for stuff that can be downloaded during a run or loaded onto a deck
 	RULESET.getThingSize = FUNCTION (thing)
-		LOCAL.type = thing.type
-		if thing.source_code
-// calculate the size of a source code here
-			debug("getThingSize(<source_code>) RETURNS UNDEFINED")
+		if thing.type.size_function != UNDEFINED
+			return_value = thing.type.size_function(thing)
 		else
-			if type.size_function != UNDEFINED
-				return_value = type.size_function(thing)
-			else
-				return_value = type.complexity * thing.rating
+			return_value = thing.type.complexity * thing.rating
+		if thing.source_code
+			return_value = return_value * 2
 
 
 	RULESET.getThingValue = FUNCTION (thing)
@@ -388,7 +390,7 @@ english
 				if program.state == DEFAULT
 					deck.default_program[program.type.default_category] = UNDEFINED
 			program.state = state
-			deck.current_load = deck.used_memory <= max_load / 3 ? 0 : ( deck.used_memory <= max_load * 2 / 3 ? 1 : 2 )
+			deck.current_load = deck.used_memory<=max_load/3 ? 0 : deck.used_memory<=max_load*2/3 ? 1 : 2
 
 
 	// comparator must return a value below zero if the compared rows are in the wrong order, 0 if they are identical, a positive value if they are in the correct order

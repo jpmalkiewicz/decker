@@ -56,6 +56,9 @@ english
 								padding_left = 6
 								padding_right = 6
 								on_mouse_up = FUNCTION
+									LOCAL.m = contract_screen.list_scrollpane.displayed_element.selected_row
+									if m >= 0 && m < player.mission_list.size
+										m = player.mission_list[m]
 									startMission(m)
 						center_button_wrapper.component = UNDEFINED
 					else
@@ -91,7 +94,8 @@ english
 										m.accepted = true
 										if value_type(m.on_accepted) == "FUNCTION"
 											m.accepted(m)
-										contract_screen.setup()
+										if displayed_screen == contract_screen
+											contract_screen.setup()
 
 		LOCAL.createTableButton = FUNCTION (_column, _text, _width, _x, _sorting_order_function)
 			return_value = BORDER_BUTTON
