@@ -23,6 +23,7 @@ final class StaticScriptFunctions extends ScriptNode
 			case Global.F_DELETE : return execute_delete(args);
 			case Global.F_EXIT_PROGRAM : System.exit(0); return null;
 			case Global.F_FILELIST : return execute_filelist(args);
+			case Global.F_GET_STRUCTURE_MEMBER : return execute_get_structure_member(args);
 			case Global.F_GET_STRUCTURE_STACK : return execute_get_structure_stack(args);
 			case Global.F_HAS_VARIABLE : return execute_hasVariable(args);
 			case Global.F_IMAGE_EXISTS : return execute_image_exists(args);
@@ -236,6 +237,15 @@ final class StaticScriptFunctions extends ScriptNode
 			}
 		}
 		return new Value().set(new ArrayWrapper(new Value[0]));
+	}
+
+
+	/** executes the hard coded script function getStructureStack(year,month,day) */
+	private final static Value execute_get_structure_member (final Value[] args)  {
+		Value ret;
+		if (args.length > 1 && args[0] != null && args[1] != null && args[0].type() == Value.STRUCTURE && (ret=args[0].structure().get(args[1].toString())) != null)
+			return ret;
+		return new Value();
 	}
 
 
