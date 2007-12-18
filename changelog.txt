@@ -1,4 +1,6 @@
 84%
+2007-12-18
+  added blocked regions to node types
 2007-12-17
   working on the system screen (where the action happens)
   program list displays programs (sorting and rowd ragging are not there yet)

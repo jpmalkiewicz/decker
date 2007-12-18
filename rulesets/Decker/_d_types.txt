@@ -89,6 +89,7 @@ english
 					false
 					false
 					false
+				objects = ARRAY
 
 		FILE
 			name
