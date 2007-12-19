@@ -3,6 +3,7 @@
   added blocked regions to node types
   datastore nodes now have files
   the ? operators in a ? b : c ? d : e now execute left to right
+  started to collect data on ICE
 2007-12-17
   working on the system screen (where the action happens)
   program list displays programs (sorting and rowd ragging are not there yet)
