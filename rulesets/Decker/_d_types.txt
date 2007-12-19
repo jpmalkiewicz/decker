@@ -99,6 +99,30 @@ english
 			data
 			info_level = 0
 
+		ICE_TYPE
+			expandable = true
+			type          // one of the ice types, or SPECIAL or CUSTOM
+			name          // the name for an ice with rating x is name[x-min_level]
+			image         // the image for an ice with rating x is image[x-min_level]
+			min_level = 0 // many ice types only have ice from a certain rating upwards
+			description
+			// **** below are flags which can be set for ice types
+			// hardened   // takes reduced damage from area and normal attacks, normal damage from piercing attacks
+			// phasing    // takes reduced damage from piercing and normal attacks, normal damage from area attacks
+			// killer     // damage goes directly to the decker (as mental damage) instead of the deck. damage that overflows from either mental or deck damagebecomes physical damage
+			// crasher    // when attacking, there is a (damage dealt on attack * 10%) chance that the ice will crash (stop and unload) a random program loaded on the decker's deck
+			// attack_on_death
+			// white      // GATEWAY, PROBE, GUARDIAN, TAPEWORM ice
+			// black      // ATTACK, TRACE ice
+			// probe
+			// roam
+			// guard_file
+			// guard_exit
+			// attack
+			// trace
+			// dump_on_trace
+			// fry_chip_on_dump
+
 		ICE
 			expandable = true
 			name
