@@ -116,8 +116,6 @@ english
 							button_wrapper.cell[1+DELTA_Y[i]][1+DELTA_X[i]] = UNDEFINED
 
 
-
-
 		component = ARRAY
 			IMAGE
 				image = "system/screen_background"

@@ -1,4 +1,6 @@
 84%
+2007-12-19
+  changed the attack crash 9 ICE image from snake2 to snake3
 2007-12-18
   added blocked regions to node types
   datastore nodes now have files
