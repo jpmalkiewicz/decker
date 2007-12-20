@@ -63,7 +63,6 @@ english
 				area = ARRAY
 
 		AREA
-			name
 			id
 			system
 			rating

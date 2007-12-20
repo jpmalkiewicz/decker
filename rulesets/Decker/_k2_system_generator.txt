@@ -129,19 +129,22 @@ english
 
 
 	// determines the clusters. A cluster is a node group of at least five non-junction nodes which also contains a COP (all COP sub-type are okay)
+	// returns the array { cluster_map, ds_count, io_count }
 	RULESET.clusterizeArea = FUNCTION (cpu_x, cpu_y, ds_count, io_count, map)
 		// make the map that holds the cluster id for each node. every node starts with UNDEFINED for "not in a cluster"
-		return_value = createSizedArray(map.size, map[0].size)
+		LOCAL.cluster = createSizedArray(map.size, map[0].size)
 		// determine where the clusters are
 		LOCAL.data = createArray(1, ds_count, io_count)
 		for i = 3 downto 0
 			if map[cpu_x][cpu_y].connection[i]
-				clusterizeAreaB(cpu_x+DELTA_X[i], cpu_y+DELTA_Y[i], (i+2)%4, data, return_value, map)
+				clusterizeAreaB(cpu_x+DELTA_X[i], cpu_y+DELTA_Y[i], (i+2)%4, data, cluster, map)
 		// give the CPU/SPU cluster the id 0
-		return_value[cpu_x][cpu_y] = 0
+		cluster[cpu_x][cpu_y] = 0
 		for i = 3 downto 0
-			if map[cpu_x][cpu_y].connection[i] && return_value[cpu_x+DELTA_X[i]][cpu_y+DELTA_Y[i]] == UNDEFINED
-				clusterizeAreaD(cpu_x+DELTA_X[i], cpu_y+DELTA_Y[i], (i+2)%4, return_value, map)
+			if map[cpu_x][cpu_y].connection[i] && cluster[cpu_x+DELTA_X[i]][cpu_y+DELTA_Y[i]] == UNDEFINED
+				clusterizeAreaD(cpu_x+DELTA_X[i], cpu_y+DELTA_Y[i], (i+2)%4, cluster, map)
+		data[0] = cluster
+		return_value = data
 
 
 	// returns { non-junction count, DS count, standard IO count, COP_SECURITY count }
@@ -169,15 +172,15 @@ english
 					cop   = cop + branch_data[3]
 			// if we have collected at least 5 un-clustered nodes, including one security coprocessor or one DS or one normal IO, create a new cluster
 			// data[] is checked to make sure we do't turn the last IO or the last DS node the area has into a COP
-			if nodes >= 5 &&( cop > 0 ||( ds > 0 && data[1] > 1 )||( io > 0 && data[2] > 1 ))
+			if nodes >= 5 &&( cop > 0 ||( ds > 0 && data[1] > 0 )||( io > 0 && data[2] > 0 ))
 				// if the security coprocessor isn't in this cluster, we have to replace one IO node or datastore with a coprocessor
 				LOCAL.replaceNodeType
 				LOCAL.replaceNode = -1 // which node of the target type to replace
 				if cop == 0
-					// don't use nodes if there's only one of them left in the area
-					if data[1] <= 1
+					// don't replace nodes with the COP if all the dummy ones of that type have been used up
+					if data[1] <= 0
 						ds = 0
-					if data[2] <= 1
+					if data[2] <= 0
 						io = 0
 					// pick a node type and a node to be replaced with the COP
 					replaceNode = random(0, ds+io-1)
@@ -220,7 +223,6 @@ english
 		else if n.type == replaceNodeType
 			if replaceNode == 0
 				n.type = COP
-				n.objects = UNDEFINED  // remove the list of files in the node, in case it was a datastore
 			return_value = replaceNode - 1
 		else
 			return_value = replaceNode
@@ -286,6 +288,8 @@ english
 			LOCAL.cpu_coords = createArray(0,0)
 			LOCAL.ds_count = 1 + random(0,area_size) + random(0,area_size)
 			LOCAL.io_count = 1 + random(0,area_size) + random(0,area_size)
+			LOCAL.extra_ds_count
+			LOCAL.extra_io_count
 
 			// add the CPU/SPU
 			map = createArray(createArray(createNode(id==0?CPU:SPU)))
@@ -294,10 +298,12 @@ english
 			LOCAL.basic_nodes = ds_count + io_count + 1 + (has_high_speed_access?1:0) + (map[0][0].type==CPU?1:0)
 			// we will end up with about basic_nodes/4 clusters and already have one COP (the security COP) and don't need one for the CPU/SPU cluster, so we'll need about basic_nodes/4-2 COPs
 			// add that many DS and IO nodes so we'll end up with a system similar to one from Decker 1.12 after replacing them with COPs
-			if basic_nodes/4 - 2 > 0
-				LOCAL.r = random(0, basic_nodes/4-2)
-				ds_count = ds_count + r
-				io_count = io_count + (basic_nodes/4-2) - r
+			if basic_nodes/4 > 0
+				LOCAL.r = random(0, basic_nodes/4)
+				extra_ds_count = r
+				extra_io_count = (basic_nodes/4) - r
+				ds_count = ds_count + extra_ds_count
+				io_count = io_count + extra_io_count
 
 			// add the security COP
 			addNode(COP_SECURITY, area, cpu_coords)
@@ -333,10 +339,38 @@ english
 			// divide the area into clusters, for node name generation. also, gateway ice is placed on every connection that connects two clusters
 			debug("************* map complete *************")
 			printSystemAreaMap(map)
-			LOCAL.cluster = clusterizeArea(cpu_coords[0], cpu_coords[1], ds_count, io_count, map)
-			debug("************* clusterized *************")
+			debug("************* clusterize *************")
+			ds_count = ds_count - extra_ds_count
+			io_count = io_count - extra_io_count
+			LOCAL.cluster = clusterizeArea(cpu_coords[0], cpu_coords[1], extra_ds_count, extra_io_count, map)
+			extra_ds_count = cluster[1]
+			extra_io_count = cluster[2]
+			cluster = cluster[0]
 			printSystemAreaMap(map)
 			printSystemAreaClusters(cluster)
+			// swap in any remaining COP place holder nodes
+			while extra_ds_count > 0
+				LOCAL.r = random (0, ds_count + extra_ds_count - 1)
+				for x = map.size-1 downto 0
+					for y = map[x].size-1 downto 0
+						if map[x][y].type == DATASTORE
+							r--
+							if r < 0
+								map[x][y].type = COP
+								extra_ds_count--
+								x = -1 // this makes the outer loop stop too
+								break
+			while extra_io_count > 0
+				LOCAL.r = random (0, io_count + extra_io_count - 1)
+				for x = map.size-1 downto 0
+					for y = map[x].size-1 downto 0
+						if map[x][y].type == IO
+							r--
+							if r < 0
+								map[x][y].type = COP
+								extra_io_count--
+								x = -1 // this makes the outer loop stop too
+								break
 			nameClusterNodes(area, cluster, cpu_coords[0], cpu_coords[1])
 
 			// tell the nodes where they are
@@ -363,13 +397,12 @@ english
 										m.connection[(direction+2)%4] = true
 			debug("************* more connections *************")
 			printSystemAreaMap(map)
-// add ice
-//*********************************************
-
-// ***********************************
-//			name
-
-
+			for x = map.size-1 downto 0
+				for y = map[x].size-1 downto 0
+					LOCAL.n = map[x][y]
+					if n != UNDEFINED
+						generateNodeIce(n, _rating, cluster)
+			debug("************* ice added *************")
 
 
 	// inserts the node into the map, next to the node at (x,y) in the given direction, and connects the two nodes
@@ -427,6 +460,8 @@ english
 				n.name = "PI"
 			else if t == PORTAL_OUT
 				n.name = "PO"
+			else if getNodeTypeCategory(t) == IO
+				n.name = "IO"
 			else if getNodeTypeCategory(t) == COP
 				n.name = "COP"
 			else

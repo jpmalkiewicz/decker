@@ -80,17 +80,3 @@ english
 						else
 							text = text + cluster_map[x][y] + " "
 				debug(text)
-
-
-	LOCAL.a = NODE
-		type = CPU
-	generateIce(GUARD_FILE,  1, a, 1)
-	generateIce(GUARD_FILE,  5, a, 1)
-	generateIce(GUARD_FILE,  6, a, 1)
-	generateIce(GUARD_FILE,  7, a, 1)
-	generateIce(GUARD_FILE,  8, a, 1)
-	generateIce(GUARD_FILE,  9, a, 1)
-	generateIce(GUARD_FILE, 10, a, 1)
-	generateIce(GUARD_FILE, 11, a, 1)
-	generateIce(GUARD_FILE, 15, a, 1)
-	generateIce(GUARD_FILE, 20, a, 1)
