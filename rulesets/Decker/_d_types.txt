@@ -105,6 +105,7 @@ english
 			name
 			image
 			min_rating     // many ice types only have ice from a certain rating upwards
+			probability = 100   // probability of this ice type being picked from a list. actual probability is (probability/sum of probabilities of listed ice types)
 			description
 			initializer = FUNCTION
 				name = ARRAY
@@ -119,6 +120,7 @@ english
 			node
 			x
 			y
+			// home_node
 			// trace_time
 			// trace_target
 // ******************************************************************

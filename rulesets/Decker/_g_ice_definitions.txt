@@ -381,6 +381,3 @@ english
 	for i = ICE_TYPES.size-1 downto 0
 		if ICE_TYPES[i].min_rating == UNDEFINED
 			ICE_TYPES[i].min_rating = ICE_TYPES[i].name.size>20 ? 1 : 21 - ICE_TYPES[i].name.size
-
-	debug(ICE_TYPES.size)
-	debug(ICE_TYPES[ICE_TYPES.size-1])

@@ -297,9 +297,8 @@ try {
 						throwException("The % operator requires two integers as operands.");
 				break;
 			case NOT :
-					if(at != Value.BOOLEAN)
-						throwException("The ! operator requires a boolean as its operand.");
-					return_value.set(!a.bool());
+					// returns false for all non boolean values
+					return_value.set(!a.equals(true));
 				break;
 			case ADD :
 					if(at == Value.ARRAY && bt == Value.ARRAY) {
