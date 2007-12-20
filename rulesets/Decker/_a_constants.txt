@@ -203,3 +203,9 @@ english
 		IO_ICE
 		IO_EXTERNAL_ALERT
 		IO_HIGH_SPEED_ACCESS
+
+		GUARD_ACCESS      // ice related constants
+		GUARD_EXIT
+		GUARD_FILE
+		PROBE
+		TRACE

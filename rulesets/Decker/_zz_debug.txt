@@ -80,3 +80,9 @@ english
 						else
 							text = text + cluster_map[x][y] + " "
 				debug(text)
+
+
+	generateIce(PROBE,15)
+	generateIce(TRACE,15)
+	generateIce(ATTACK,15)
+	generateIce(ATTACK,15)
