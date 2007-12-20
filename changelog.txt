@@ -2,6 +2,9 @@
 2007-12-20
   !x now returns true for non-boolean values
   ice now has pretty much the same probability of being of a certain type as it had in Decker 1.12
+  the two surplus COPs are back in and the area generator doesn't replace DATASTOREs with COPs anymore if there are only dummy IOs left and vice versa
+  changed the default debug() depth to 3
+  all ice is generated (the only things left to do are adding / marking mission goals and displaying ice)
 2007-12-19
   changed the attack crash 9 ICE image from snake2 to snake3
   added all the ice images and data

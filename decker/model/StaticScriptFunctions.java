@@ -166,7 +166,7 @@ final class StaticScriptFunctions extends ScriptNode
 			boolean new_line = true;
 			final PrintStream where = (args.length >= 2 && args[1] != null && args[1].equals(false)) ? System.err : System.out;
 			final Value v = args[0];
-			final int depth = (args.length >= 3 && args[2] != null && args[2].type() == Value.INTEGER) ? args[2].integer() : 10;
+			final int depth = (args.length >= 3 && args[2] != null && args[2].type() == Value.INTEGER) ? args[2].integer() : 3;
 			if (v.type() == Value.FUNCTION)
 				new_line = v.function().print(where, "", true, depth);
 			else if (v.type() == Value.STRUCTURE)
