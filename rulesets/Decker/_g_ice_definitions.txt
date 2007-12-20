@@ -33,6 +33,8 @@ english
 		ICE_TYPE
 			type = GUARD_EXIT
 			image = "guard_exit"
+			attributes = SET
+				white = true
 			name = ARRAY
 				"Gateway"
 				"Fence"
@@ -61,6 +63,7 @@ english
 			attributes = SET
 				roaming = true
 				probing = true
+				white = true
 			name = ARRAY
 				"Probe"
 				"Gazer"
@@ -86,6 +89,8 @@ english
 		ICE_TYPE
 			type = GUARD_ACCESS
 			image = "guard_access"
+			attributes = SET
+				white = true
 			name = ARRAY
 				"Guardian"
 				"Protector"
@@ -111,6 +116,10 @@ english
 		ICE_TYPE
 			type = GUARD_FILE
 			image = "guard_file"
+			attributes = SET
+				white = true
+			probability = FUNCTION (rating)
+				return_value = rating < 10 ? 100 : 150 - rating * 5
 			name = ARRAY
 				"Tapeworm"
 				"Boa"
@@ -138,6 +147,9 @@ english
 			image = "guard_file_explode"
 			attributes = SET
 				attack_on_death = true
+				white = true
+			probability = FUNCTION (rating)
+				return_value = (rating-10) * 5
 			name = ARRAY
 				"Data Bomb"
 				"Dynamyte 1.0"
@@ -153,6 +165,8 @@ english
 		ICE_TYPE
 			type = ATTACK
 			image = "attack"
+			probability = FUNCTION (rating)
+				return_value = rating < 11 ? 100 : 150 - rating * 5
 			name = ARRAY
 				"Attack"
 				"Brute"
@@ -180,6 +194,8 @@ english
 			image = "attack_hardened"
 			attributes = SET
 				hardened = true
+			probability = FUNCTION (rating)
+				return_value =  ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 100 : 150-rating*5) / 100
 			name = ARRAY
 				"Attack-H"
 				"Knight"
@@ -202,6 +218,8 @@ english
 			image = "attack_phasing"
 			attributes = SET
 				phasing = true
+			probability = FUNCTION (rating)
+				return_value = ( ( ( rating - 5 ) * 36 + 8 ) / 15  ) * (rating<11 ? 100 : 150-rating*5) / 100
 			name = ARRAY
 				"Attack-P"
 				"Bugs"
@@ -224,6 +242,8 @@ english
 			image = "attack_crash"
 			attributes = SET
 				crasher = true
+			probability = FUNCTION (rating)
+				return_value = ( ( ( rating - 5 ) * 18 + 8 ) / 15 ) * (rating<11 ? 100 : 150-rating*5) / 100
 			name = ARRAY
 				"Attack-C"
 				"Spider"
@@ -246,6 +266,8 @@ english
 			image = "attack_stun"
 			attributes = SET
 				stun_damage = true
+			probability = FUNCTION (rating)
+				return_value = ( rating - 10 ) * 5
 			name = ARRAY
 				"Attack-S"
 				"Cowboy"
@@ -264,6 +286,8 @@ english
 			attributes = SET
 				stun_damage = true
 				hardened = true
+			probability = FUNCTION (rating)
+				return_value = ( ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5) + 99 ) / 100
 			name = ARRAY
 				"Attack-SH"
 				"Killbot"
@@ -282,6 +306,8 @@ english
 			attributes = SET
 				stun_damage = true
 				phasing = true
+			probability = FUNCTION (rating)
+				return_value = ( ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5) + 99 ) / 100
 			name = ARRAY
 				"Attack-SP"
 				"Wraith"
@@ -300,6 +326,8 @@ english
 			attributes = SET
 				stun_damage = true
 				crasher = true
+			probability = FUNCTION (rating)
+				return_value = ( ( ( ( rating - 5 ) * 18 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5 ) + 99 ) / 100
 			name = ARRAY
 				"Attack-SC"
 				"Two-Step"
@@ -315,6 +343,8 @@ english
 		ICE_TYPE
 			type = TRACE
 			image = "trace"
+			probability = FUNCTION (rating)
+				return_value = 125 - rating * 5
 			name = ARRAY
 				"Trace"
 				"Hound"
@@ -342,6 +372,8 @@ english
 			image = "trace_dump"
 			attributes = SET
 				dump_on_trace = true
+			probability = FUNCTION (rating)
+				return_value = rating <= 10 ? ( rating - 5 ) * 5 : rating * 3 - 5
 			name = ARRAY
 				"Trace & Dump"
 				"Detective"
@@ -365,6 +397,8 @@ english
 			attributes = SET
 				dump_on_trace = true
 				fry_chip_on_dump = true
+			probability = FUNCTION (rating)
+				return_value = ( rating - 10 ) * 2
 			name = ARRAY
 				"Trace & Fry"
 				"Mindworm"
