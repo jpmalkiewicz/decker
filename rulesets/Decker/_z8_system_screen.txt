@@ -79,7 +79,8 @@ english
 				idle = IMAGE
 					image = "system/arrow_"+DIRECTION_NAME[i]+"0"
 				on_mouse_up = FUNCTION
-					player.current_node = player.current_node.area.map[player.current_node.x+DELTA_X[direction]][player.current_node.y+DELTA_Y[direction]]
+					// remove the player from the last node
+					moveObject(player, direction)
 					system_screen.displayNode()
 
 
@@ -98,7 +99,7 @@ english
 
 		displayNode = FUNCTION
 			with system_screen
-				LOCAL.n = player.current_node
+				LOCAL.n = player.node
 				if n == UNDEFINED
 					node_display.component = UNDEFINED
 					for i = 3 downto 0
@@ -114,6 +115,18 @@ english
 							button_wrapper.cell[1+DELTA_Y[i]][1+DELTA_X[i]] = movement_button[i]
 						else
 							button_wrapper.cell[1+DELTA_Y[i]][1+DELTA_X[i]] = UNDEFINED
+					// add the ice images
+					LOCAL.a
+					for i = n.objects.size-1 downto 0
+						a = n.objects[i]
+						if a.structure_type == "ICE"
+							node_display.component[] = createImage("ice/"+a.type.image+"_"+a.rating, 12+a.x*24, 12+a.y*24)
+						else
+							if a.image != UNDEFINED
+								node_display.component[] = createImage(a.image, 12+a.x*24, 12+a.y*24)
+//					node_display.component[] = createImage(player.image, 12+player.x*24, 12+player.y*24)
+
+
 
 
 		component = ARRAY

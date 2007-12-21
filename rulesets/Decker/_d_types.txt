@@ -236,7 +236,7 @@ english
 			deck
 			current_mission
 			current_system
-			current_node
+			node
 			current_target    // some ice or file
 			current_program   // the program this human is currently trying to use
 			current_time      // time for the current matrix run

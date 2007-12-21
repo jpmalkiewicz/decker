@@ -3,7 +3,7 @@ english
 		if node.structure_type == "NODE"
 			return_value = getStructureMember(BLOCKED_NODE_REGIONS, toLowerCase(getNodeTypeCategory(node.type)))
 			if return_value != UNDEFINED
-				return_value = return_value[x][y] == true
+				return_value = return_value[y][x] == true
 				if !return_value
 					for i = node.objects.size-1 downto 0
 						if node.objects[i].x == x && node.objects[i].y == y

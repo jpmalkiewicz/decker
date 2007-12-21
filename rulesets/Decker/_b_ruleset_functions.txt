@@ -145,7 +145,7 @@ english
 
 	RULESET.humanActionModifier = FUNCTION (human,stealth_action)        // if stealth_action is false it can be omitted
 		return_value = DECK_LOAD_MODIFIER[human.deck] - human.deck.damage/8 - min(human.physical_damage,human.mental_damage)/4
-		if human.current_node.smoke_level > 0
+		if human.node.smoke_level > 0
 			return_value = return_value + ( stealth_action ? 4 : -4 )
 
 
@@ -211,8 +211,9 @@ english
 	RULESET.startMission = FUNCTION (mission)
 		player.current_mission = mission
 		player.current_system = generateSystem(mission.target_system, mission)
-		player.current_node = mission.target_system.entry_point
+		player.node = mission.target_system.entry_point
 		player.current_time = 0
+		placeObject(player, player.node, CENTER)
 		displayScreen(system_screen, false)
 
 

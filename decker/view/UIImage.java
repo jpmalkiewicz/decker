@@ -15,7 +15,7 @@ class UIImage extends DisplayedComponent
 		if (!_component.equalsConstant("UNDEFINED")) {
 			image = AbstractView.getImage((_component.type()==Value.STRUCTURE&&_component.get("structure_type").equals("IMAGE")) ? _component.get("image").toString() : _component.toString());
 			if (image == null)
-				System.out.println("UIImage : undefined image "+_component);
+				System.out.println("UIImage : undefined image "+((_component.type()==Value.STRUCTURE&&_component.get("structure_type").equals("IMAGE")) ? _component.get("image").toString() : _component.toString()));
 		}
 		if (_component.type() == Value.STRUCTURE)
 			_component.structure().addValueListener(this);
