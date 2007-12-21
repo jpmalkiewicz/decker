@@ -1,0 +1,141 @@
+english
+	// (x,y) is the node to be added
+	RULESET.adjustPlayerMapSize = FUNCTION (area, x, y, info_level)
+		LOCAL.p = area.player_map
+		// increase the size of the known area
+		if x < p.x
+			p.width = p.width + p.x - x
+			p.x = x
+		if x >= p.x + p.width
+			p.width = x - p.x + 1
+		if y < p.y
+			p.height = p.height + p.y - y
+			p.y = y
+		if y >= p.y + p.height
+			p.height = y - p.y + 1
+		// mark the new node
+		if !(area.map[x][y].info_level >= info_level)
+			LOCAL.c = area.map[x][y].info_level
+			// portals are analyzed when you enter them
+			area.map[x][y].info_level = info_level!=2 || getNodeTypeCategory(area.map[x][y].type)!=PORTAL ? info_level : 3
+			debug("raising info level "+c+" -> "+area.map[x][y].info_level)
+			// if the player is in this node and hasn't been here before, tell it to display connections
+			if player.node.x == x && player.node.y == y && info_level > 1 && !(c > 1)
+				area.map[x][y].display_connections = true
+				// make sure the surrounding nodes we have connections to would fit on the map too
+				// if the player has a proximity mapper and hasn't been to this node before, also map out the surrounding nodes
+				c = area.map[x][y].connection
+				LOCAL.x2
+				LOCAL.y2
+				for i = 3 downto 0
+					if c[i]
+						x2 = x + DELTA_X[i]
+						y2 = y + DELTA_Y[i]
+						if area.map[x2][y2].info_level == UNDEFINED
+							adjustPlayerMapSize(area, x2, y2, player.deck.proximity_mapper?1:0)
+
+
+
+
+	RULESET.moveObject = FUNCTION (object, target)
+		debug("** "+object.x+","+object.y+"  "+target)
+		if object.node != UNDEFINED
+			delete(object.node.objects, indexof(object, object.node.objects))
+		if target >= 0 && target <= 3
+			object.node = object.node.area.map[object.node.x+DELTA_X[target]][object.node.y+DELTA_Y[target]]
+			placeObject(object, object.node, (target+2)%4)
+		else
+			object.node = target
+			placeObject(object, object.node, CENTER)
+
+
+	RULESET.movePlayer = FUNCTION (target)
+		moveObject(player, target)
+		// update the area map
+		LOCAL.n = player.node
+		if n.area != UNDEFINED
+			LOCAL.m = n.area.player_map
+			if m == UNDEFINED
+				m = PLAYER_AREA_MAP
+					x = n.x
+					y = n.y
+					width = 1
+					height = 1
+				n.area.player_map = m
+			if !(n.info_level >= 2)
+				adjustPlayerMapSize(n.area, n.x, n.y, 2)
+				debug(m)
+
+
+	RULESET.placeObject = FUNCTION (object, node, from_direction)
+		LOCAL.x
+		LOCAL.y
+		LOCAL.node_map = getStructureMember(BLOCKED_NODE_REGIONS, toLowerCase(getNodeTypeCategory(node.type)))
+		if object.structure_type == "ICE" && node == object.home_node
+			if object.type.type == GUARD_EXIT
+				x = 4 + DELTA_X[object.guarded_direction] * 4
+				y = 4 + DELTA_Y[object.guarded_direction] * 4
+			else if object.type.type == GUARD_ACCESS
+				x = 4
+				y = 4
+		if x == UNDEFINED
+			if from_direction != UNDEFINED
+				if from_direction < 4
+					x = 4 + DELTA_X[from_direction] * 4
+					y = 4 + DELTA_Y[from_direction] * 4
+				else
+					x = 4
+					y = 4
+			else
+				x = random(0,8)
+				y = random(0,8)
+				while !node_map[y][x]
+					x = random(0,8)
+					y = random(0,8)
+		// now that we have a point to start from, find the nearest free spot
+		if !node_map[y][x] && notOccupied(node, x, y)
+			object.x = x
+			object.y = y
+		else
+			LOCAL.radius = 0
+			LOCAL.x2
+			LOCAL.y2
+			LOCAL.blocked = true
+			while blocked && radius <= 8
+				// search the next outer ring of cells
+				radius++
+				for i = -radius+1 to radius
+					x2 = x + i
+					y2 = y - radius
+					if x2 >= 0 && x2 <= 8 && y2 >= 0 && y2 <= 8 && !node_map[y2][x2] && notOccupied(node, x2, y2)
+						object.x = x2
+						object.y = y2
+						blocked = false
+						break
+					x2 = x - i
+					y2 = y + radius
+					if x2 >= 0 && x2 <= 8 && y2 >= 0 && y2 <= 8 && !node_map[y2][x2] && notOccupied(node, x2, y2)
+						object.x = x2
+						object.y = y2
+						blocked = false
+						break
+					x2 = x + radius
+					y2 = y + i
+					if x2 >= 0 && x2 <= 8 && y2 >= 0 && y2 <= 8 && !node_map[y2][x2] && notOccupied(node, x2, y2)
+						object.x = x2
+						object.y = y2
+						blocked = false
+						break
+					x2 = x - radius
+					y2 = y - i
+					if x2 >= 0 && x2 <= 8 && y2 >= 0 && y2 <= 8 && !node_map[y2][x2] && notOccupied(node, x2, y2)
+						object.x = x2
+						object.y = y2
+						blocked = false
+						break
+			// if there is no free location in the node, just put the object at a random exit (this should never happen)
+			if radius > 8
+				LOCAL.direction = random(0,3)
+				object.x = 4 + DELTA_X[direction] * 4
+				object.y = 4 + DELTA_Y[direction] * 4
+		node.objects[] = object
