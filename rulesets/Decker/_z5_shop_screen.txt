@@ -64,6 +64,9 @@ english
 								swap = h[b+1]
 								h[b+1] = h[b]
 								h[b] = swap
+					// the deck also gets markers for installed hardware
+					if indexof(PROXIMITY_MAPPER, item.type.category) >= 0
+						player.deck.proximity_mapper = true
 				else   // item.type.category[0] == PROGRAM
 					insert(player.deck.program,0)
 					player.deck.program[0] = item

@@ -22,8 +22,8 @@ class UIScrollpane extends DisplayedComponent
 		super(_component, _parent);
 		content_clip = new UIClip(null, this, current_clip_source);
 		content_parent = new DisplayedComponent(null, content_clip, current_clip_source);
-		content_parent.x = Integer.MIN_VALUE;
-		content_parent.y = Integer.MIN_VALUE;
+//		content_parent.x = Integer.MIN_VALUE;
+//		content_parent.y = Integer.MIN_VALUE;
 		if (_component != null && _component.type() == Value.STRUCTURE)
 			_component.structure().addValueListener(this);
 		update(0, current_clip_source);
@@ -93,12 +93,12 @@ class UIScrollpane extends DisplayedComponent
 
 	void sliderMoved (final UIScrollpaneScrollbar source, final int new_position) {
 		if (content != null) {
-			if (content_parent.y > Integer.MIN_VALUE) {
+//			if (content_parent.y > Integer.MIN_VALUE) {
 				if (source == vertical_scrollbar)
 					content_parent.y = y - new_position;
 				else
 					content_parent.x = x - new_position;
-			}
+//			}
 			content.update(0, content_clip);
 		}
 	}
@@ -124,6 +124,8 @@ class UIScrollpane extends DisplayedComponent
 				content = createDisplayedComponent(v, content_parent, content_clip);
 		}
 		// update the scrollbars
+		final boolean had_horizontal_scrollbar = horizontal_scrollbar !=  null;
+		final boolean had_vertical_scrollbar = vertical_scrollbar !=  null;
 		final boolean optional_scrollbars = d.get("optional_scrollbars").equals(true);
 		// check whether we need a vertical scrollbar
 		boolean needs_vertical = (v=d.get("vertical_scrollbar")).type() == Value.STRUCTURE && v.get("structure_type").equals("SCROLLBAR") &&( !optional_scrollbars ||( content != null && content.h > h ));
@@ -198,7 +200,7 @@ class UIScrollpane extends DisplayedComponent
 			if (needs_vertical)
 				v_vertical_scrollbar.get("height").set(content_clip.h);
 			// make sure the scrollbars have valid values
-			int dx = (content_parent.x>Integer.MIN_VALUE) ? (x - content_parent.x) : (needs_horizontal?horizontal_scrollbar.getSliderPosition():0);
+			int dx = had_horizontal_scrollbar ? (x - content_parent.x) : (needs_horizontal?horizontal_scrollbar.getSliderPosition():0);
 			if (!needs_horizontal)
 				dx = 0;
 			else {
@@ -207,11 +209,10 @@ class UIScrollpane extends DisplayedComponent
 				v_horizontal_scrollbar.get("slider_max").set(content.w - content_clip.w);
 				v_horizontal_scrollbar.get("slider_position").set(dx);
 			}
-			int dy = (content_parent.y>Integer.MIN_VALUE) ? (y - content_parent.y) : (needs_vertical?vertical_scrollbar.getSliderPosition():0);
+			int dy = had_vertical_scrollbar ? (y - content_parent.y) : (needs_vertical?vertical_scrollbar.getSliderPosition():0);
 			if (!needs_vertical)
 				dy = 0;
 			else {
-System.out.println("determining v scroll values ");
 				if (dy + content_clip.h > content.h)
 					dy = content.h - content_clip.h;
 				v_vertical_scrollbar.get("slider_max").set(content.h - content_clip.h);
@@ -224,10 +225,21 @@ System.out.println("determining v scroll values ");
 			// adjust the content parent
 			content_parent.x = x-dx;
 			content_parent.y = y-dy;
-			content_parent.w = w;
-			content_parent.h = h;
+			content_parent.w = content_clip.w;
+			content_parent.h = content_clip.h;
 			// adjust the content
+
 			content.update(0, content_clip);
+if (d.get("horizontal_scrollbar").type() == Value.STRUCTURE && d.get("vertical_scrollbar").type() == Value.STRUCTURE)
+System.out.println(x+" "+y+" "+x+" "+h+"   "+content_parent.x+" "+content_parent.y+" "+content_parent.w+" "+content_parent.h+"   "+content.x+" "+content.y);
+			if (horizontal_scrollbar != null && content.x != content_parent.x) {
+System.out.println("moving componentwithout updating its script position. ");
+				content.x = content_parent.x;
+			}
+			if (vertical_scrollbar != null && content.y != content_parent.y) {
+System.out.println("moving componentwithout updating its script position. ");
+				content.y = content_parent.y;
+			}
 		}
 	}
 }
