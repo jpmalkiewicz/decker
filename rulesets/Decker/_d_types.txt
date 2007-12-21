@@ -69,8 +69,15 @@ english
 			map   // contains a two dimentional array with the node grid
 			destroyed_ice
 			ice_entry_node
+			player_map
 			initializer = FUNCTION
 				destroyed_ice = ARRAY
+
+		PLAYER_AREA_MAP
+			x
+			y
+			width
+			height
 
 		NODE
 			expandable = true
@@ -81,6 +88,7 @@ english
 			connection    // if connection[direction] set to true, there is a connection in that direction
 			type
 			smoke_level
+			info_level    // UNDEFINED = unknown, 1 = has seen it, 2 = has been there and knows what exits exist, 3 = knows its sub_type
 			objects       // ice and humans
 			initializer = FUNCTION
 				connection = ARRAY
@@ -169,6 +177,7 @@ english
 			// value       // the sale / purchase price
 
 		DECK
+			expandable = true
 			model = "(custom built)"
 			damage = 0
 			current_load = 0      // 0 = light, 1 = medium, 2 = high

@@ -3,6 +3,7 @@ english
 		title = "Decker - Contracts"
 		width = 640
 		height = 480
+		map_size = 16
 
 		program_scrollpane = SCROLLPANE
 			x = 12
@@ -22,8 +23,8 @@ english
 		map_scrollpane = SCROLLPANE
 			x = 451
 			y = 12
-			width = 627
-			height = 177
+			width = 176
+			height = 166
 			vertical_scrollbar = createSimpleScrollbar(true, "blue")
 			horizontal_scrollbar = createSimpleScrollbar(false, "blue")
 
@@ -80,7 +81,7 @@ english
 					image = "system/arrow_"+DIRECTION_NAME[i]+"0"
 				on_mouse_up = FUNCTION
 					// remove the player from the last node
-					moveObject(player, direction)
+					movePlayer(direction)
 					system_screen.displayNode()
 
 
@@ -96,6 +97,40 @@ english
 			width = 240
 			height = 240
 			component
+
+
+		displayMap = FUNCTION
+			with system_screen
+				LOCAL.m = player.node.area.player_map
+				debug("displayMap "+(m!=UNDEFINED))
+				if m == UNDEFINED
+					map_scrollpane.component = UNDEFINED
+				else
+					LOCAL.c = COMPONENT
+						x = CENTER
+						y = CENTER
+						width = m.width * map_size
+						height = m.height * map_size
+						component = ARRAY
+					LOCAL.map = player.node.area.map
+					LOCAL.n
+					for x = m.width-1 downto 0
+						for y = m.height-1 downto 0
+							n = map[x+m.x][y+m.y]
+							if n != UNDEFINED
+								// first add the connections
+								if n.connection[0] &&( n.display_connections || map[x+m.x][y+m.y-1].display_connections )
+									c.component[] = createImage("system/connection_ns_"+map_size, map_size*x, map_size*y-map_size/2)
+								if n.connection[3] &&( n.display_connections || map[x+m.x-1][y+m.y].display_connections )
+									c.component[] = createImage("system/connection_ew_"+map_size, map_size*x-map_size/2, map_size*y)
+								// then add the node
+								if n.info_level > 0
+									c.component[] = createImage("system/node_"+toLowerCase(n.info_level<=2?getNodeTypeCategory(n.type):n.type)+"_"+n.info_level+"_"+map_size, map_size*x, map_size*y)
+					// finally mark the player position
+					c.component[] = createImage("system/player_position_"+map_size, map_size*(player.node.x-m.x), map_size*(player.node.y-m.y))
+					map_scrollpane.displayed_element = c
+
+
 
 		displayNode = FUNCTION
 			with system_screen
@@ -121,10 +156,10 @@ english
 						a = n.objects[i]
 						if a.structure_type == "ICE"
 							node_display.component[] = createImage("ice/"+a.type.image+"_"+a.rating, 12+a.x*24, 12+a.y*24)
-						else
-							if a.image != UNDEFINED
-								node_display.component[] = createImage(a.image, 12+a.x*24, 12+a.y*24)
-//					node_display.component[] = createImage(player.image, 12+player.x*24, 12+player.y*24)
+						else if a.image != UNDEFINED
+							node_display.component[] = createImage(a.image, 12+a.x*24, 12+a.y*24)
+				displayMap()
+
 
 
 

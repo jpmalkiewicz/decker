@@ -70,6 +70,7 @@ english
 				physical_damage = 3
 				money = money + 35000
 				skill_points = 8
+				deck.proximity_mapper = true
 // debug stuff END
 
 		updateShopInventory()
@@ -211,9 +212,9 @@ english
 	RULESET.startMission = FUNCTION (mission)
 		player.current_mission = mission
 		player.current_system = generateSystem(mission.target_system, mission)
-		player.node = mission.target_system.entry_point
+		player.node = UNDEFINED
+		movePlayer(mission.target_system.entry_point)
 		player.current_time = 0
-		placeObject(player, player.node, CENTER)
 		displayScreen(system_screen, false)
 
 
