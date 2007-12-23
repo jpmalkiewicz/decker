@@ -85,6 +85,11 @@ english
 				"SuperFuzz"
 				"Wizard Eye"
 				"Beholder"
+			action = FUNCTION (ice)
+				with ice
+					// if we are not currently busy, move to an adjacent node and scan it for the player
+					if status == UNDEFINED
+						iceRoam(ice)
 
 		ICE_TYPE
 			type = GUARD_ACCESS

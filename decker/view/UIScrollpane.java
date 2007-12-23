@@ -230,8 +230,6 @@ class UIScrollpane extends DisplayedComponent
 			// adjust the content
 
 			content.update(0, content_clip);
-if (d.get("horizontal_scrollbar").type() == Value.STRUCTURE && d.get("vertical_scrollbar").type() == Value.STRUCTURE)
-System.out.println(x+" "+y+" "+x+" "+h+"   "+content_parent.x+" "+content_parent.y+" "+content_parent.w+" "+content_parent.h+"   "+content.x+" "+content.y);
 			if (horizontal_scrollbar != null && content.x != content_parent.x) {
 System.out.println("moving componentwithout updating its script position. ");
 				content.x = content_parent.x;

@@ -70,8 +70,10 @@ english
 			destroyed_ice
 			ice_entry_node
 			player_map
+			active_ice
 			initializer = FUNCTION
 				destroyed_ice = ARRAY
+				active_ice = ARRAY
 
 		PLAYER_AREA_MAP
 			x
@@ -114,6 +116,7 @@ english
 			min_rating     // many ice types only have ice from a certain rating upwards
 			probability = 100   // probability of this ice type being picked from a list. actual probability is (probability/sum of probabilities of listed ice types)
 			description
+			action
 			initializer = FUNCTION
 				name = ARRAY
 				image = ARRAY
@@ -127,7 +130,7 @@ english
 			node
 			x
 			y
-			// home_node
+			home_node
 			// trace_time
 			// trace_target
 // ******************************************************************

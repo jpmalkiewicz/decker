@@ -17,6 +17,5 @@ class UIGenericComponent extends DisplayedComponent
 	void update (final int customSettings, final DisplayedComponent current_clip_source) {
 		super.update(customSettings, current_clip_source);
 		updateChildren(current_clip_source);
-System.out.println("generic component "+x+","+y+" "+w+"x"+h);
 	}
 }

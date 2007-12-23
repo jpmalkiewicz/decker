@@ -120,9 +120,12 @@ english
 			return_value.guarded_file = data
 		else if data
 			return_value.response_ice = true
-		if _type == GUARD_FILE || _type == GUARD_EXIT || _type == GUARD_ACCESS
-			return_value.home_node = _node
+		return_value.home_node = _node
 		placeObject(return_value, _node)
+		// add the ice to the list of currently active ice, if it's always active
+		if _node.area != UNDEFINED &&( _type == PROBE || return_value.type.roaming )
+			_node.area.active_ice[] = return_value
+
 
 
 	RULESET.notOccupied = FUNCTION (node, x, y)
