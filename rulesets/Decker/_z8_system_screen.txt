@@ -71,9 +71,31 @@ english
 				time_display[5].image = "system/time_"+(t%10)
 
 
-		on_key_down = FUNCTION
+		on_key_down = FUNCTION (key)
+			LOCAL.command = indexof(key, system_screen_key)
+			if command >= 0
+				command = system_screen_function[command]
+				if command == "left" && player.node != UNDEFINED && player.node.connection[3]
+					movePlayer(3)
+					system_screen.displayNode()
+				else if command == "right" && player.node != UNDEFINED && player.node.connection[1]
+					movePlayer(1)
+					system_screen.displayNode()
+				else if command == "up" && player.node != UNDEFINED && player.node.connection[0]
+					movePlayer(0)
+					system_screen.displayNode()
+				else if command == "down" && player.node != UNDEFINED && player.node.connection[2]
+					movePlayer(2)
+					system_screen.displayNode()
+				else if command == "wait"
+					advanceSystemTime()
+				else
+					debug(command)
+			else
+				debug("key="+key)
 			player.current_time++
 			system_screen.displayTime()
+			system_screen.displayNode()
 
 
 		movement_button = createSizedArray(4)
@@ -105,7 +127,6 @@ english
 		displayMap = FUNCTION
 			with system_screen
 				LOCAL.m = player.node.area.player_map
-				debug("displayMap "+(m!=UNDEFINED))
 				if m == UNDEFINED
 					map_scrollpane.component = UNDEFINED
 				else

@@ -67,9 +67,7 @@ english
 				completed_missions = ARRAY
 				backdoors = ARRAY
 // debug stuff START
-				physical_damage = 3
-				money = money + 35000
-				skill_points = 8
+				deck.optional_hardware[] = createHardware(PROXIMITY_MAPPER, 1)
 				deck.proximity_mapper = true
 // debug stuff END
 
