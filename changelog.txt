@@ -1,4 +1,7 @@
 84%
+2007-12-23
+  probe ice walks around
+  you can mark ice
 2007-12-21
   the minimap works
 2007-12-20

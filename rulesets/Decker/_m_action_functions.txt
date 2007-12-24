@@ -75,20 +75,25 @@ english
 
 
 	RULESET.movePlayer = FUNCTION (target)
-		moveObject(player, target)
-		// update the area map
 		LOCAL.n = player.node
-		if n.area != UNDEFINED
-			LOCAL.m = n.area.player_map
-			if m == UNDEFINED
-				m = PLAYER_AREA_MAP
-					x = n.x
-					y = n.y
-					width = 1
-					height = 1
-				n.area.player_map = m
-			if !(n.info_level >= 2)
-				adjustPlayerMapSize(n.area, n.x, n.y, 2)
+		moveObject(player, target)
+		// only do something if the player has actually moved
+		if n != player.node
+			// if the player had selected an ICE in the previous node, that selection is gone
+			player.current_target = UNDEFINED
+			// update the area map
+			n = player.node
+			if n.area != UNDEFINED
+				LOCAL.m = n.area.player_map
+				if m == UNDEFINED
+					m = PLAYER_AREA_MAP
+						x = n.x
+						y = n.y
+						width = 1
+						height = 1
+					n.area.player_map = m
+				if !(n.info_level >= 2)
+					adjustPlayerMapSize(n.area, n.x, n.y, 2)
 
 
 	RULESET.placeObject = FUNCTION (object, node, from_direction)

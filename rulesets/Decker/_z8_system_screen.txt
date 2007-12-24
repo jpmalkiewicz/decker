@@ -122,6 +122,17 @@ english
 			width = 240
 			height = 240
 			component
+			on_mouse_down = FUNCTION (x, y, inside)
+				if player.node != UNDEFINED && (x-12) >= 0 && (y-12) >= 0 && (x-12)/24 <= 8 && (y-12)/24 <= 8
+					x = (x-12)/24
+					y = (y-12)/24
+					LOCAL.a = player.node.objects
+					for i = a.size-1 downto 0
+						if a[i].structure_type == "ICE" && a[i].x == x && a[i].y == y
+							player.current_target = a[i]
+							debug(a[i].type.name[a[i].rating])
+							system_screen.displayNode()
+							break
 
 
 		displayMap = FUNCTION
@@ -184,6 +195,9 @@ english
 							node_display.component[] = createImage("ice/"+a.type.image+"_"+a.rating, 12+a.x*24, 12+a.y*24)
 						else if a.image != UNDEFINED
 							node_display.component[] = createImage(a.image, 12+a.x*24, 12+a.y*24)
+					// add the target marker
+					if player.current_target != UNDEFINED
+						node_display.component[] = createImage("system/target_marker", 24+player.current_target.x*24, 24+player.current_target.y*24, CENTER, CENTER)
 				displayMap()
 
 

@@ -36,11 +36,17 @@ english
 				image = &_face
 
 
-	ENGINE.createImage = FUNCTION (_image, _x, _y)
+	ENGINE.createImage = FUNCTION (_image, _x, _y, _h_align, _v_align)
 		return_value = IMAGE
 			image = &_image
-			x = _x
-			y = _y
+			if _x != UNDEFINED
+				x = _x
+			if _y != UNDEFINED
+				y = _y
+			if _h_align != UNDEFINED
+				h_align = _h_align
+			if _v_align != UNDEFINED
+				v_align = _v_align
 
 
 	// the first argument must be a component or the text (as a string) that is to be displayed in the popup (or leave it out, if your popup doesn't have a content section)
