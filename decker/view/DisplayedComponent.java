@@ -10,16 +10,21 @@ import java.awt.image.BufferedImage;
 
 public class DisplayedComponent implements Comparable, ValueListener
 {
-	final static String[] EVENT_FUNCTION_NAME = { "on_key_down",   "on_mouse_down",   "on_mouse_dragged",   "on_mouse_entered",   "on_mouse_exited",   "on_mouse_moved",   "on_mouse_up" };
-	final static int                               ON_KEY_DOWN = 0, ON_MOUSE_DOWN = 1, ON_MOUSE_DRAGGED = 2, ON_MOUSE_ENTERED = 3, ON_MOUSE_EXITED = 4, ON_MOUSE_MOVED = 5, ON_MOUSE_UP =6;
+	final static String[] EVENT_FUNCTION_NAME = { "on_key_down",   "on_mouse_down",   "on_mouse_dragged",   "on_mouse_entered",   "on_mouse_exited",   "on_mouse_moved",   "on_mouse_up", "on_double_click" };
+	final static int                               ON_KEY_DOWN = 0, ON_MOUSE_DOWN = 1, ON_MOUSE_DRAGGED = 2, ON_MOUSE_ENTERED = 3, ON_MOUSE_EXITED = 4, ON_MOUSE_MOVED = 5, ON_MOUSE_UP =6, ON_DOUBLE_CLICK = 7;
 	// when calling DisplayedComponentt.update(), derived classes use these constants to tell the default update algorithm which settings have custom functions
 	final static int CUSTOM_SIZE = 0x1;
+	// number of pixels the mouse may move during each event associated with a double click
+	static int MOUSE_DOUBLE_CLICK_RADIUS = 1;
+	static long MOUSE_DOUBLE_CLICK_DURATION = 1000; // a double click may last this many milliseconds
 
 	private final static DisplayedComponent[][] eventListener = new DisplayedComponent[EVENT_FUNCTION_NAME.length][5];
 	private final static int[] eventListenerCount = new int[EVENT_FUNCTION_NAME.length];
 	private static DisplayedComponent[] mouseIsInside = new DisplayedComponent[10]; // this is the list of components where the mouse was inside the last time a mouse event occured. only components which listen to on_mouse_entered or to on_mouse_exited will get added
 	private static int mouseIsInsideCount;
 	private static DisplayedComponent currentScreen;
+	private static int last_mouse_down_x, last_mouse_down_y, last_mouse_up_x, last_mouse_up_y;
+	private static long last_mouse_down_time;
 
 
 
@@ -423,6 +428,56 @@ System.out.println("mouse event : "+c.hashCode()+"  "+i+"    "+e);
 		}
 if (eventID == ON_MOUSE_UP)
 System.out.println("mouse up END");
+		// check whether it was a double click (mouse down + mouse up + mouse down within MOUSE_CLICK_RADIUS pixels of each other
+		if (eventID == ON_MOUSE_DOWN) {
+			final long time = System.currentTimeMillis();
+			if (time - last_mouse_down_time <= MOUSE_DOUBLE_CLICK_DURATION && mouse_x >= last_mouse_up_x-MOUSE_DOUBLE_CLICK_RADIUS && mouse_x <= last_mouse_up_x+MOUSE_DOUBLE_CLICK_RADIUS && mouse_y >= last_mouse_up_y-MOUSE_DOUBLE_CLICK_RADIUS && mouse_y <= last_mouse_up_y+MOUSE_DOUBLE_CLICK_RADIUS) {
+				// it's a double click event. tell everybody about it
+				final int listenerCountDD = eventListenerCount[ON_DOUBLE_CLICK];
+				if (listenerCountDD > 0) {
+					final DisplayedComponent[] el = new DisplayedComponent[listenerCountDD];
+					System.arraycopy(eventListener[ON_DOUBLE_CLICK], 0, el, 0, listenerCountDD);
+					for (int i = listenerCountDD; --i >= 0; ) {
+						final DisplayedComponent c = el[i];
+
+						if (mouse_x >= c.cx && mouse_x < c.cx+c.cw && mouse_y >= c.cy && mouse_y < c.cy+c.ch &&( c.shape == null || (c.shape.getRGB(mouse_x-c.x, mouse_y-c.y)&0xff000000) != 0 )) {
+							// if there is no hardcoded function or the hardcoded function doesn't block the scripted one, call the scripted function
+							if (( !c.hasHardcodedEventFunction[ON_DOUBLE_CLICK] || c.eventUserInput(ON_DOUBLE_CLICK, e, mouse_x, mouse_y, mouse_dx, mouse_dy) )&& c.scriptedEventFunction[ON_DOUBLE_CLICK] != null) {
+								FunctionCall.executeFunctionCall(c.scriptedEventFunction[ON_DOUBLE_CLICK], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(true) }, (c.component.type()==Value.STRUCTURE)?c.component.structure():null);
+							}
+						}
+					}
+				}
+				// start waiting for another double click
+				last_mouse_down_time = 0;
+			}
+			else {
+				last_mouse_down_time = time;
+				last_mouse_down_x = mouse_x;
+				last_mouse_down_y = mouse_y;
+			}
+		}
+		else if (last_mouse_down_time > 0) {
+			if (eventID == ON_MOUSE_UP) {
+				final long time = System.currentTimeMillis();
+				// it can only be a double click if the mouse hasn't moved very far
+				if (time - last_mouse_down_time <= MOUSE_DOUBLE_CLICK_DURATION && mouse_x >= last_mouse_down_x-MOUSE_DOUBLE_CLICK_RADIUS && mouse_x <= last_mouse_down_x+MOUSE_DOUBLE_CLICK_RADIUS && mouse_y >= last_mouse_down_y-MOUSE_DOUBLE_CLICK_RADIUS && mouse_y <= last_mouse_down_y+MOUSE_DOUBLE_CLICK_RADIUS) {
+					last_mouse_up_x = mouse_x;
+					last_mouse_up_y = mouse_y;
+				}
+				else {
+					// double click opportunity over, start waiting again
+					last_mouse_down_time = 0;
+				}
+			}
+			else {  // it's some other mouse event
+				final long time = System.currentTimeMillis();
+				if (time - last_mouse_down_time > MOUSE_DOUBLE_CLICK_DURATION || mouse_x < last_mouse_down_x-2*MOUSE_DOUBLE_CLICK_RADIUS || mouse_x > last_mouse_down_x+2*MOUSE_DOUBLE_CLICK_RADIUS || mouse_y < last_mouse_down_y-2*MOUSE_DOUBLE_CLICK_RADIUS || mouse_y >= last_mouse_down_y+2*MOUSE_DOUBLE_CLICK_RADIUS) {
+					// double click opportunity over, start waiting again
+					last_mouse_down_time = 0;
+				}
+			}
+		}
 		return false;
 	}
 

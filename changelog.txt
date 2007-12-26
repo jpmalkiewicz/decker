@@ -1,4 +1,6 @@
 84%
+2007-12-26
+  double click event added
 2007-12-23
   probe ice walks around
   you can mark ice
