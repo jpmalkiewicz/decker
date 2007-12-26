@@ -5,8 +5,8 @@ english
 		height = 480
 		map_size = 16
 
-		node_name = createTextBold("", 196, 304, @TABLE_TEXT_COLOR)
-		node_name.v_align = CENTER
+		node_name = createTextBold("", 4, CENTER, @TABLE_TEXT_COLOR)
+		ice_name  = createTextBold("", 4, CENTER, @TABLE_TEXT_COLOR)
 
 		program_scrollpane = SCROLLPANE
 			x = 12
@@ -56,6 +56,7 @@ english
 			createImage("system/time_0", 154, 13)
 			createImage("system/time_0", 162, 13)
 			createImage("system/time_0", 169, 13)
+
 
 		displayTime = FUNCTION
 			with system_screen
@@ -135,6 +136,12 @@ english
 							break
 
 
+		displayTarget = FUNCTION
+			with system_screen
+				LOCAL.a = getName(player.current_target)
+				ice_name.text = a == UNDEFINED ? "" : a
+
+
 		displayMap = FUNCTION
 			with system_screen
 				LOCAL.m = player.node.area.player_map
@@ -172,10 +179,12 @@ english
 				LOCAL.n = player.node
 				if n == UNDEFINED
 					node_name.text = UNDEFINED
+					ice_name.text = UNDEFINED
 					node_display.component = UNDEFINED
 					for i = 3 downto 0
 						button_wrapper.cell[1+DELTA_Y[i]][1+DELTA_X[i]] = UNDEFINED
 				else
+					displayTarget()
 					node_name.text = n.name
 					// add the background image
 					node_display.component = ARRAY
@@ -212,7 +221,18 @@ english
 			message_scrollpane
 			map_scrollpane
 			button_wrapper
-			node_name
+			CLIP
+				x = 192
+				y = 297 // should be 296 but Java is incapable of centering text vertically
+				width = 96
+				height = 16
+				component = node_name
+			CLIP
+				x = 338
+				y = 297 // should be 296 but Java is incapable of centering text vertically
+				width = 96
+				height = 16
+				component = ice_name
 			// the program table buttons
 			createTableButton(0, "",        19, table_button_x, &compareProgramsPreset)
 			createTableButton(2, "Name",    96, table_button_x, &compareText)
@@ -275,6 +295,9 @@ english
 									player.current_program = p[i]
 									break
 // .......
+
+				t.on_double_click = FUNCTION (x, y)
+					debug("double_click "+x+","+y+" "+selected_row)
 
 				LOCAL.p = player.deck.program
 				LOCAL.default = UNDEFINED

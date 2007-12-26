@@ -160,7 +160,6 @@ english
 		if program_rating > 0
 			return_value.program = ARRAY
 				createProgram(ATTACK, program_rating)
-				createProgram(PIERCING_ATTACK, program_rating+2)
 				createProgram(SILENCE, program_rating)
 				createProgram(SMOKE, program_rating)
 				createProgram(ARMOR, program_rating)
@@ -293,6 +292,15 @@ english
 			for j = h.size-1 downto 0
 				if item_type == h[j].type
 					return_value = max(return_value, h[j].rating)
+
+
+	RULESET.getName = FUNCTION (a)
+		if a.structure_type != "ICE"
+			return_value = a.name
+		else if value_type(a.type.name) == "ARRAY"
+			return_value = a.rating >= a.type.min_rating ? a.rating-a.type.min_rating < a.type.name.size ? a.type.name[a.rating-a.type.min_rating] : a.type.name[a.type.name.size-1] + " " + getRomanNumber(a.rating-a.type.min_rating-a.type.name.size+1) : a.type.name[0]
+		else
+			return_value = a.type.name
 
 
 	RULESET.getMaxLoad = FUNCTION (deck)
