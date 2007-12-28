@@ -63,7 +63,7 @@ public static Ruleset getCurrentRuleset ()  { return current_ruleset; }
 		engine.data.add("image_exists").set(new Function(F_IMAGE_EXISTS, new String[]{ "name" }));
 		engine.data.add("indexof").set(new Function(F_INDEXOF, new String[]{ "what", "where", "direction", "start_at" }));
 		engine.data.add("insert").set(new Function(F_INSERT, new String[]{ "array", "index" }));
-		engine.data.add("integerToText").set(new Function(F_INTEGER_TO_TEXT, new String[]{ "integer", "radix" }));
+		engine.data.add("integerToText").set(new Function(F_INTEGER_TO_TEXT, new String[]{ "integer", "radix", "min_digits" }));
 		engine.data.add("isExpandable").set(new Function(F_IS_EXPANDABLE, new String[]{ "component" }));
 		engine.data.add("pixelheight").set(new Function(F_PIXELHEIGHT, new String[]{ "component" }));
 		engine.data.add("pixelwidth").set(new Function(F_PIXELWIDTH, new String[]{ "component" }));

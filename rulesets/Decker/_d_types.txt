@@ -198,6 +198,8 @@ english
 			program
 			default_program
 			optional_hardware
+			// boost_program
+			// slow_program    // a SLOW_SCANNER or CLIENT_PROGRAM that is currently running
 			effects
 			initializer = FUNCTION
 				program = ARRAY
