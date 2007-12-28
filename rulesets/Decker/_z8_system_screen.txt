@@ -4,6 +4,7 @@ english
 		width = 640
 		height = 480
 		map_size = 16
+		loaded_programs = ARRAY
 		ice_health_bar_max_width = 80
 
 		node_name = createTextBold("", 4, CENTER, @TABLE_TEXT_COLOR)
@@ -310,7 +311,12 @@ english
 // .......
 
 				t.on_double_click = FUNCTION (x, y)
-					debug("double_click "+x+","+y+" "+selected_row)
+					with system_screen
+						debug(selected_row+"   "+loaded_programs[selected_row].name)
+						debug(loaded_programs[selected_row].type)
+						loaded_programs[selected_row].type.effect(player, loaded_programs[selected_row], player.current_target)
+						if displayed_screen == system_screen
+							displayNode()
 
 				LOCAL.p = player.deck.program
 				LOCAL.default = UNDEFINED
@@ -332,8 +338,10 @@ english
 							setProgramState(player.deck, prog, DEFAULT)
 							idle.image = "status_on"
 
+				loaded_programs = ARRAY
 				for i = 0 to p.size-1
 					if p[i].state == LOADED || p[i].state == DEFAULT
+						loaded_programs[] = p[i]
 						if p[i].type.default_category != UNDEFINED
 							default = BUTTON
 								idle = IMAGE
