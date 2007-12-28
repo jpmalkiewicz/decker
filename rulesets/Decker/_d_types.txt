@@ -59,8 +59,10 @@ english
 			alert_level = GREEN
 			area
 			entry_point      // usually a PORTAL_OUT node
+			effects
 			initializer = FUNCTION
 				area = ARRAY
+				effects = ARRAY
 
 		AREA
 			id
@@ -92,6 +94,7 @@ english
 			smoke_level
 			info_level    // UNDEFINED = unknown, 1 = has seen it, 2 = has been there and knows what exits exist, 3 = knows its sub_type
 			objects       // ice and humans
+			effects       // something that has an expiry_time and on_expire() function defined, or an on_tick() function
 			initializer = FUNCTION
 				connection = ARRAY
 					false
@@ -99,6 +102,7 @@ english
 					false
 					false
 				objects = ARRAY
+				effects = ARRAY
 
 		FILE
 			name
@@ -194,9 +198,11 @@ english
 			program
 			default_program
 			optional_hardware
+			effects
 			initializer = FUNCTION
 				program = ARRAY
 				optional_hardware = ARRAY
+				effects = ARRAY
 				default_program = ARRAY
 					UNDEFINED
 					UNDEFINED

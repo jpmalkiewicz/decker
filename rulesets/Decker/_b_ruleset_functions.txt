@@ -1,30 +1,4 @@
 english
-	RULESET.actionHumanAttackICE = FUNCTION (ice,program,target_number)
-		successes = rollDice(target_number)
-		if successes < 0
-			print program.name + " program missed"
-		else
-			print program.name + " program does " + successes*successes*HEALTH_INCREMENT + "% damage to " + ice.name
-			ice.damage = ice.damage + successes*successes
-			if ice.damage >= LETHAL_DAMAGE
-				actionCrashICE(human,ice)
-		human.time = human.time + 1       // an action has been taken, advance the time
-		debug("actionHumanAttackICE() : advance the mission time")
-
-
-	RULESET.actionCrashICE = FUNCTION (ice)
-		if ice.node == PLAYER.node
-			print "<#success>" + ice.name + " has crashed"
-			if PLAYER.current_target == ice
-				PLAYER.current_target = UNDEFINED
-			delete(ice.node.objects,ARRAY_INDEX(ice.node.objects,ice))
-			// if the ice is a tapeworm it dies never to come back. otherwise it goes to the ice respawn list
-			if ice.guards != UNDEFINED && ice.guards.structure_type == "FILE"
-				delete(ice)
-			else
-				ice.node.area.destroyed_ice[] = ice
-
-
 	RULESET.advanceDate = FUNCTION (day_count)
 		for i = 1 to day_count
 			player.age++
@@ -65,7 +39,9 @@ english
 				money = bonus_name[selected_bonus] == "money" ? 2000 : 100
 				mission_list = ARRAY
 				completed_missions = ARRAY
+// *********************
 				backdoors = ARRAY
+// ********************* END
 // debug stuff START
 				deck.optional_hardware[] = createHardware(PROXIMITY_MAPPER, 1)
 				deck.proximity_mapper = true
@@ -140,19 +116,6 @@ english
 		return_value = human.physical_damage * (human.physical_damage+2) / 3
 		if use_hospital
 			return_value = ( return_value + 1 ) / 2
-
-
-	RULESET.humanActionModifier = FUNCTION (human,stealth_action)        // if stealth_action is false it can be omitted
-		return_value = DECK_LOAD_MODIFIER[human.deck] - human.deck.damage/8 - min(human.physical_damage,human.mental_damage)/4
-		if human.node.smoke_level > 0
-			return_value = return_value + ( stealth_action ? 4 : -4 )
-
-
-	RULESET.humanRatingAttack = FUNCTION (human)
-		return_value = humanActionModifier(human) + min(human.deck.attack,human.deck.cpu) + human.attack
-		for i = human.deck.program.size-1 downto 0
-			if human.deck.program[i].attack_modifier != UNDEFINED
-				return_value = return_value + human.deck.program[i].attack_modifier
 
 
 	// tries to make 0 to 2 missions available to the player

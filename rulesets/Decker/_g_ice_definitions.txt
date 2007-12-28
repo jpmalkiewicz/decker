@@ -15,19 +15,6 @@ english
 				return_value = return_value + 2                                           // white ice gets a +2 sensor modifier during yellow and red alert
 
 
-	// returns the current combat rating for an ice. the value can be negative
-	RULESET.iceRatingCombat = FUNCTION (ice, include_analyzed=true)
-		if ice.structure_type == "ICE"
-			return_value = ice.rating - ice.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
-			if ice.weaken > 0
-				return_value = return_value - 4
-			if include_analyzed && ice.analyzed > 0
-				return_value = return_value - ice.analyzed                                // substract the maximum number of successes achieved in a single analyze attempt on this ice
-			if ice.white
-				return_value = return_value - 2                                           // white ice gets a -2 combat modifier
-
-
-
 
 	RULESET.ICE_TYPES = ARRAY
 		ICE_TYPE

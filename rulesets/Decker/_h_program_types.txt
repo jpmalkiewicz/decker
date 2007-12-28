@@ -33,14 +33,12 @@ english
 				"CyberKatana"
 				"IceBreaker Mk3"
 				"GigaBlaster"
-			effect = FUNCTION (human,thing)
-				if human.current_target.structure_type != "ICE"
-					print "<#error>Select some ICE before attacking with "+thing.name
+			effect = FUNCTION (human, program, target)
+				if target.structure_type != "ICE"
+					if human == player
+						print "<#error>Select some ICE before attacking with "+thing.name
 				else
-					target_number = 10  +  2 * human.target_system.rating  + ICE_RATING_COMBAT(human.current_target) - humanRatingAttack(human) - thing.rating
-					if human.current_target.hardened || human.current_target.phasing
-						target_number = target_number + 3
-					actionHumanAttackICE(ice,thing,target_number)
+					actionDefaultAttackProgram(human, program, target)
 		THING_TYPE
 			name = "Area Attack"
 			complexity = 3
