@@ -1,4 +1,42 @@
 english
+//************
+	RULESET.actionDefaultAttackProgram = FUNCTION (human, program, target, target_number)
+		// determine the target number
+		LOCAL.target_number = 10  +  2 * human.current_system.rating  + iceRatingCombat(target) - humanRatingAttack(human) - program.rating
+		if target.type.attributes.hardened || target.type.attributes.phasing
+			target_number = target_number + 3
+
+		// roll the dice and determine the outcome
+		LOCAL.successes = rollDice(target_number)
+		if successes < 0
+			if human == player
+				print program.name + " program missed"
+		else
+			if human == player
+				print program.name + " program does " + successes*successes*HEALTH_INCREMENT + "% damage to " + getName(target)
+			if target.structure_type == "ICE"
+				target.damage = target.damage + successes*successes
+				if target.damage >= LETHAL_DAMAGE
+					actionCrashICE(human, target)
+			if human == player
+				advanceSystemTime()
+
+
+
+//************
+	RULESET.actionCrashICE = FUNCTION (ice)
+		if ice.node == PLAYER.node
+			print "<#success>" + ice.name + " has crashed"
+			if PLAYER.current_target == ice
+				PLAYER.current_target = UNDEFINED
+			delete(ice.node.objects,ARRAY_INDEX(ice.node.objects,ice))
+			// if the ice is a tapeworm it dies never to come back. otherwise it goes to the ice respawn list
+			if ice.guards != UNDEFINED && ice.guards.structure_type == "FILE"
+				delete(ice)
+			else
+				ice.node.area.destroyed_ice[] = ice
+
+
 	// (x,y) is the node to be added
 	RULESET.adjustPlayerMapSize = FUNCTION (area, x, y, info_level)
 		LOCAL.p = area.player_map
@@ -41,6 +79,13 @@ english
 			for i = a.size-1 downto 0
 				debug(a[i].type.type, true)
 				a[i].type.action(a[i])
+
+
+//************
+	RULESET.humanActionModifier = FUNCTION (human,stealth_action)        // if stealth_action is false it can be omitted
+		return_value = DECK_LOAD_MODIFIER[human.deck] - human.deck.damage/8 - min(human.physical_damage,human.mental_damage)/4
+		if human.node.smoke_level > 0
+			return_value = return_value + ( stealth_action ? 4 : -4 )
 
 
 	RULESET.iceRoam = FUNCTION (ice)
@@ -168,3 +213,35 @@ english
 				object.x = 4 + DELTA_X[direction] * 4
 				object.y = 4 + DELTA_Y[direction] * 4
 		node.objects[] = object
+
+
+// **********************
+	// returns the current attack rating for an ice or human. the value can be negative
+	RULESET.ratingAttack = FUNCTION (object, include_analyzed=true)
+		if object.structure_type == "ICE"
+			return_value = object.rating - object.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
+			if object.weaken > 0
+				return_value = return_value - 4
+			if include_analyzed && object.analyzed > 0
+				return_value = return_value - object.analyzed                                // substract the maximum number of successes achieved in a single analyze attempt on this object
+			if object.white
+				return_value = return_value - 2                                           // white object gets a -2 combat modifier
+		else if object.structure_type == "HUMAN"
+			return_value = humanActionModifier(human) + min(human.deck.attack,human.deck.cpu) + human.attack
+			for i = human.deck.program.size-1 downto 0
+				if human.deck.program[i].attack_modifier != UNDEFINED
+					return_value = return_value + human.deck.program[i].attack_modifier
+
+
+
+// **********************
+	// returns the current attack rating for an ice or human. the value can be negative
+	RULESET.ratingDefense = FUNCTION (object, include_analyzed=true)
+		if object.structure_type == "ICE"
+			return_value = object.rating - object.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
+			if object.weaken > 0
+				return_value = return_value - 4
+			if include_analyzed && object.analyzed > 0
+				return_value = return_value - object.analyzed                                // substract the maximum number of successes achieved in a single analyze attempt on this object
+			if object.white
+				return_value = return_value - 2                                           // white object gets a -2 combat modifier
