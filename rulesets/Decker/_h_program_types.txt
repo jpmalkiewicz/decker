@@ -11,6 +11,7 @@ english
 			category = ARRAY
 				PROGRAM
 				ATTACK
+			effect = actionDefaultAttackProgram
 			default_name = ARRAY
 				UNDEFINED                                 // there's no level 0 program so we don't need a name for it
 				"Zap 1.0"
@@ -33,17 +34,12 @@ english
 				"CyberKatana"
 				"IceBreaker Mk3"
 				"GigaBlaster"
-			effect = FUNCTION (human, program, target)
-				if target.structure_type != "ICE"
-					if human == player
-						print "<#error>Select some ICE before attacking with "+thing.name
-				else
-					actionDefaultAttackProgram(human, program, target)
 		THING_TYPE
 			name = "Area Attack"
 			complexity = 3
 			image = "shop_item/area_attack"
 			default_category = DEFAULT_ATTACK
+			effect = actionDefaultAreaAttackProgram
 			category = ARRAY
 				PROGRAM
 				ATTACK
@@ -75,6 +71,7 @@ english
 			complexity = 3
 			image = "shop_item/piercing_attack"
 			default_category = DEFAULT_ATTACK
+			effect = actionDefaultAttackProgram
 			category = ARRAY
 				PROGRAM
 				ATTACK

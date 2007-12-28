@@ -8,58 +8,59 @@ english
 
 
 	RULESET.actionDefaultAttackProgram = FUNCTION (human, program, target)
-		// determine the target number
-		LOCAL.target_number = 10  +  2 * human.current_system.rating  + getDefenseRating(target) - getAttackRating(human) - program.rating
+		if target != UNDEFINED
+			// determine the target number
+			LOCAL.target_number = 10  +  2 * human.current_system.rating  + getDefenseRating(target) - getAttackRating(human) - program.rating
 
-		LOCAL.reduced_damage = false
-		LOCAL.a = program.type.category
-		a = a[a.size-1]
-		if target.structure_type == "ICE"
-			// normal attack programs don't work well against phasing or hardened ice
-			if a == ATTACK &&( target.type.attributes.hardened || target.type.attributes.phasing )
-				target_number = target_number + 3
+			LOCAL.reduced_damage = false
+			LOCAL.a = program.type.category
+			a = a[a.size-1]
+			if target.structure_type == "ICE"
+				// normal attack programs don't work well against phasing or hardened ice
+				if a == ATTACK &&( target.type.attributes.hardened || target.type.attributes.phasing )
+					target_number = target_number + 3
+				else if a == AREA_ATTACK
+					// area attack programs suck vs hardened ice and only work well against phasing ice
+					if target.type.attributes.hardened
+						target_number = target_number + 6
+						reduced_damage = true
+					else if !target.type.attributes.phasing
+						target_number = target_number + 2
+				else if a == PIERCING_ATTACK
+					// piercing attack programs suck vs phasing ice and only work well against phasing ice. against everything else they have increased hit chance, but only do half damage
+					if target.type.attributes.phasing
+						target_number = target_number + 6
+						reduced_damage = true
+					else if !target.type.attributes.hardened
+						target_number = target_number - 3
+						reduced_damage = true
 			else if a == AREA_ATTACK
-				// area attack programs suck vs hardened ice and only work well against phasing ice
-				if target.type.attributes.hardened
-					target_number = target_number + 6
-					reduced_damage = true
-				else if !target.type.attributes.phasing
-					target_number = target_number + 2
+				target_number = target_number + 2
 			else if a == PIERCING_ATTACK
-				// piercing attack programs suck vs phasing ice and only work well against phasing ice. against everything else they have increased hit chance, but only do half damage
-				if target.type.attributes.phasing
-					target_number = target_number + 6
-					reduced_damage = true
-				else if !target.type.attributes.hardened
-					target_number = target_number - 3
-					reduced_damage = true
-		else if a == AREA_ATTACK
-			target_number = target_number + 2
-		else if a == PIERCING_ATTACK
-			target_number = target_number - 3
-			reduced_damage = true
+				target_number = target_number - 3
+				reduced_damage = true
 
 // *******
-		debug("attack target number : "+target_number+" "+reduced_damage+" "+getName(target))
+			debug("attack target number : "+target_number+" "+reduced_damage+" "+getName(target))
 // *******END
 
-		// roll the die and determine the outcome
-		LOCAL.successes = rollDie(target_number)
-		if successes < 0
-			if human == player
-				print program.name + " program missed"
-		else
-			LOCAL.damage = successes*successes
-			if reduced_damage
-				damage = (damage+1)/2
-			if human == player
-				print program.name + " program does " + damage*HEALTH_INCREMENT + "% damage to " + getName(target)
-			if target.structure_type == "ICE"
-				target.damage = target.damage + damage
-				if target.damage >= LETHAL_DAMAGE
-					crashICE(target)
-			if human == player
-				advanceSystemTime()
+			// roll the die and determine the outcome
+			LOCAL.successes = rollDie(target_number)
+			if successes < 0
+				if human == player
+					print program.name + " program missed"
+			else
+				LOCAL.damage = successes*successes
+				if reduced_damage
+					damage = (damage+1)/2
+				if human == player
+					print program.name + " program does " + damage*HEALTH_INCREMENT + "% damage to " + getName(target)
+				if target.structure_type == "ICE"
+					target.damage = target.damage + damage
+					if target.damage >= LETHAL_DAMAGE
+						crashICE(target)
+				if human == player
+					advanceSystemTime()
 
 
 	// (x,y) is the node to be added
