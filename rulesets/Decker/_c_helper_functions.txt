@@ -366,7 +366,7 @@ english
 			return_value = return_value * a
 
 
-	RULESET.rollDice = FUNCTION (target_number)
+	RULESET.rollDie = FUNCTION (target_number)
 		x = random(1,20)
 		if x == 1
 			return_value = -1         // 5% critical failure

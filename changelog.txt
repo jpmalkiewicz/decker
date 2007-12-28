@@ -1,9 +1,14 @@
-84%
+85%
+2007-12-28
+  the code for the default attack programs is mostly done
+  the damage bar for the selected target works
 2007-12-26
   double click event added
 2007-12-23
   probe ice walks around
   you can mark ice
+
+84%
 2007-12-21
   the minimap works
 2007-12-20

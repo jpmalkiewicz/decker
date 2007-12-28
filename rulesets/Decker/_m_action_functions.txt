@@ -1,40 +1,65 @@
 english
-//************
-	RULESET.actionDefaultAttackProgram = FUNCTION (human, program, target, target_number)
-		// determine the target number
-		LOCAL.target_number = 10  +  2 * human.current_system.rating  + iceRatingCombat(target) - humanRatingAttack(human) - program.rating
-		if target.type.attributes.hardened || target.type.attributes.phasing
-			target_number = target_number + 3
+	RULESET.actionDefaultAreaAttackProgram = FUNCTION (human, program)
+		// attack everything in the node
+		LOCAL.o = human.node.objects
+		for i = o.size-1 downto 0
+			if o[i] != human
+				actionDefaultAttackProgram(human, program, o[i])
 
-		// roll the dice and determine the outcome
-		LOCAL.successes = rollDice(target_number)
+
+	RULESET.actionDefaultAttackProgram = FUNCTION (human, program, target)
+		// determine the target number
+		LOCAL.target_number = 10  +  2 * human.current_system.rating  + getDefenseRating(target) - getAttackRating(human) - program.rating
+
+		LOCAL.reduced_damage = false
+		LOCAL.a = program.type.category
+		a = a[a.size-1]
+		if target.structure_type == "ICE"
+			// normal attack programs don't work well against phasing or hardened ice
+			if a == ATTACK &&( target.type.attributes.hardened || target.type.attributes.phasing )
+				target_number = target_number + 3
+			else if a == AREA_ATTACK
+				// area attack programs suck vs hardened ice and only work well against phasing ice
+				if target.type.attributes.hardened
+					target_number = target_number + 6
+					reduced_damage = true
+				else if !target.type.attributes.phasing
+					target_number = target_number + 2
+			else if a == PIERCING_ATTACK
+				// piercing attack programs suck vs phasing ice and only work well against phasing ice. against everything else they have increased hit chance, but only do half damage
+				if target.type.attributes.phasing
+					target_number = target_number + 6
+					reduced_damage = true
+				else if !target.type.attributes.hardened
+					target_number = target_number - 3
+					reduced_damage = true
+		else if a == AREA_ATTACK
+			target_number = target_number + 2
+		else if a == PIERCING_ATTACK
+			target_number = target_number - 3
+			reduced_damage = true
+
+// *******
+		debug("attack target number : "+target_number+" "+reduced_damage+" "+getName(target))
+// *******END
+
+		// roll the die and determine the outcome
+		LOCAL.successes = rollDie(target_number)
 		if successes < 0
 			if human == player
 				print program.name + " program missed"
 		else
+			LOCAL.damage = successes*successes
+			if reduced_damage
+				damage = (damage+1)/2
 			if human == player
-				print program.name + " program does " + successes*successes*HEALTH_INCREMENT + "% damage to " + getName(target)
+				print program.name + " program does " + damage*HEALTH_INCREMENT + "% damage to " + getName(target)
 			if target.structure_type == "ICE"
-				target.damage = target.damage + successes*successes
+				target.damage = target.damage + damage
 				if target.damage >= LETHAL_DAMAGE
-					actionCrashICE(human, target)
+					crashICE(target)
 			if human == player
 				advanceSystemTime()
-
-
-
-//************
-	RULESET.actionCrashICE = FUNCTION (ice)
-		if ice.node == PLAYER.node
-			print "<#success>" + ice.name + " has crashed"
-			if PLAYER.current_target == ice
-				PLAYER.current_target = UNDEFINED
-			delete(ice.node.objects,ARRAY_INDEX(ice.node.objects,ice))
-			// if the ice is a tapeworm it dies never to come back. otherwise it goes to the ice respawn list
-			if ice.guards != UNDEFINED && ice.guards.structure_type == "FILE"
-				delete(ice)
-			else
-				ice.node.area.destroyed_ice[] = ice
 
 
 	// (x,y) is the node to be added
@@ -81,11 +106,82 @@ english
 				a[i].type.action(a[i])
 
 
-//************
-	RULESET.humanActionModifier = FUNCTION (human,stealth_action)        // if stealth_action is false it can be omitted
-		return_value = DECK_LOAD_MODIFIER[human.deck] - human.deck.damage/8 - min(human.physical_damage,human.mental_damage)/4
-		if human.node.smoke_level > 0
-			return_value = return_value + ( stealth_action ? 4 : -4 )
+	RULESET.crashICE = FUNCTION (ice)
+		if ice.node == player.node
+			print "<#success>" + ice.name + " has crashed"
+			if player.current_target == ice
+				player.current_target = UNDEFINED
+			delete(ice.node.objects, indexof(ice, ice.node.objects))
+			// if the ice guards a file it never comes back. otherwise it goes to the ice respawn list
+			if ice.type.type != GUARD_FILE
+				ice.node.area.destroyed_ice[] = ice
+
+
+	// returns the current analysis rating for an ice or human. the value can be negative
+	RULESET.getAnalysisRating = FUNCTION (object)
+		if object.structure_type == "ICE"
+// ***************
+		else if object.structure_type == "HUMAN"
+			// an analysis boost program will give +3
+			LOCAL.a = human.deck.boost_program.type.category
+			return_value = humanConditionModifier(human) + min(human.deck.analysis,human.deck.cpu) + human.analysis + (a.size>0&&a[a.size-1]==ANALYSIS_BOOST?3:0)
+		// everybody has a lowered analysis rating in a smoked node
+		if object.node.smoke_level != UNDEFINED
+			return_value = return_value - 4
+
+
+	// returns the current attack rating for an ice or human. the value can be negative
+	RULESET.getAttackRating = FUNCTION (object, include_analyzed=true)
+		if object.structure_type == "ICE"
+			return_value = object.rating - object.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
+			if object.weaken > 0
+				return_value = return_value - 4
+			if include_analyzed && object.analyzed > 0
+				return_value = return_value - object.analyzed                                // substract the maximum number of successes achieved in a single analyze attempt on this object
+			if object.white
+				return_value = return_value - 2                                           // white object gets a -2 combat modifier
+		else if object.structure_type == "HUMAN"
+			// an attack boost program will give +3
+			LOCAL.a = human.deck.boost_program.type.category
+			return_value = humanConditionModifier(human) + min(human.deck.attack,human.deck.cpu) + human.attack + (a.size>0&&a[a.size-1]==ATTACK_BOOST?3:0)
+		// everybody has a lowered attack in a smoked node
+		if object.node.smoke_level != UNDEFINED
+			return_value = return_value - 4
+
+
+	// returns the current defense rating for an ice or human. the value can be negative
+	RULESET.getDefenseRating = FUNCTION (object, include_analyzed=true)
+		if object.structure_type == "ICE"
+			return_value = object.rating - object.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
+			if object.weaken > 0
+				return_value = return_value - 4
+			if include_analyzed && object.analyzed > 0
+				return_value = return_value - object.analyzed                                // substract the maximum number of successes achieved in a single analyze attempt on this object
+			if object.white
+				return_value = return_value - 2                                           // white object gets a -2 combat modifier
+		else
+			// a defense boost program will give +3
+			LOCAL.a = human.deck.boost_program.type.category
+			return_value = humanConditionModifier(human) + min(human.deck.defense,human.deck.cpu) + human.defense + (a.size>0&&a[a.size-1]==DEFENSE_BOOST?3:0)
+
+
+	// returns the current stealth rating for a human. the value can be negative
+	RULESET.getStealthRating = FUNCTION (object)
+		if object.structure_type == "HUMAN"
+			// a stealth boost program will give +3
+			LOCAL.a = human.deck.boost_program.type.category
+			return_value = humanConditionModifier(human) + min(human.deck.stealth,human.deck.cpu) + human.stealth + (a.size>0&&a[a.size-1]==STEALTH_BOOST?3:0)
+			// if the player has been traced, s/he gets a -4 to the stealth rating
+			if deck.traced
+				return_value = return_value - 4
+
+
+	RULESET.humanConditionModifier = FUNCTION (human)
+		return_value = DECK_LOAD_MODIFIER[human.deck] - human.deck.damage/8 - max(human.physical_damage,human.mental_damage)/4
+		// if the human is currently running a CLIENT_PROGRAM, all actions are modified by -3
+		LOCAL.a = human.deck.slow_program.category
+		if a != UNDEFINED && indexof(CLIENT_PROGRAM, a) != UNDEFINED
+			return_value = return_value - 3
 
 
 	RULESET.iceRoam = FUNCTION (ice)
@@ -213,35 +309,3 @@ english
 				object.x = 4 + DELTA_X[direction] * 4
 				object.y = 4 + DELTA_Y[direction] * 4
 		node.objects[] = object
-
-
-// **********************
-	// returns the current attack rating for an ice or human. the value can be negative
-	RULESET.ratingAttack = FUNCTION (object, include_analyzed=true)
-		if object.structure_type == "ICE"
-			return_value = object.rating - object.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
-			if object.weaken > 0
-				return_value = return_value - 4
-			if include_analyzed && object.analyzed > 0
-				return_value = return_value - object.analyzed                                // substract the maximum number of successes achieved in a single analyze attempt on this object
-			if object.white
-				return_value = return_value - 2                                           // white object gets a -2 combat modifier
-		else if object.structure_type == "HUMAN"
-			return_value = humanActionModifier(human) + min(human.deck.attack,human.deck.cpu) + human.attack
-			for i = human.deck.program.size-1 downto 0
-				if human.deck.program[i].attack_modifier != UNDEFINED
-					return_value = return_value + human.deck.program[i].attack_modifier
-
-
-
-// **********************
-	// returns the current attack rating for an ice or human. the value can be negative
-	RULESET.ratingDefense = FUNCTION (object, include_analyzed=true)
-		if object.structure_type == "ICE"
-			return_value = object.rating - object.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
-			if object.weaken > 0
-				return_value = return_value - 4
-			if include_analyzed && object.analyzed > 0
-				return_value = return_value - object.analyzed                                // substract the maximum number of successes achieved in a single analyze attempt on this object
-			if object.white
-				return_value = return_value - 2                                           // white object gets a -2 combat modifier

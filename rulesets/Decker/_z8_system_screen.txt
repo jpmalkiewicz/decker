@@ -4,9 +4,11 @@ english
 		width = 640
 		height = 480
 		map_size = 16
+		ice_health_bar_max_width = 80
 
 		node_name = createTextBold("", 4, CENTER, @TABLE_TEXT_COLOR)
 		ice_name  = createTextBold("", 4, CENTER, @TABLE_TEXT_COLOR)
+		ice_health_bar = createRectangle(354, 342, ice_health_bar_max_width, 8)
 
 		program_scrollpane = SCROLLPANE
 			x = 12
@@ -129,17 +131,27 @@ english
 					y = (y-12)/24
 					LOCAL.a = player.node.objects
 					for i = a.size-1 downto 0
-						if a[i].structure_type == "ICE" && a[i].x == x && a[i].y == y
+						if a[i].x == x && a[i].y == y
 							player.current_target = a[i]
-							debug(a[i].type.name[a[i].rating])
 							system_screen.displayNode()
 							break
 
 
 		displayTarget = FUNCTION
 			with system_screen
-				LOCAL.a = getName(player.current_target)
-				ice_name.text = a == UNDEFINED ? "" : a
+				if player.current_target == UNDEFINED
+					ice_name.text = ""
+					ice_health_bar.width = 0
+				else
+					ice_name.text = getName(player.current_target)
+					// the color of the damage bar shifts from green to yellow to red as the damage goes up
+					LOCAL.damage = player.current_target.structure_type == "ICE" ? player.current_target.damage : player.current_target.deck.damage
+					ice_health_bar.width = ( ice_health_bar_max_width * (LETHAL_DAMAGE - damage) + LETHAL_DAMAGE - 1 ) / LETHAL_DAMAGE
+					LOCAL.a = 7 * LETHAL_DAMAGE / 20
+					if damage <= a
+						ice_health_bar.color = createColor(255 * damage / a, 255, 0)
+					else
+						ice_health_bar.color = createColor(255, 255 - 255 * (damage-a) / (LETHAL_DAMAGE-a), 0)
 
 
 		displayMap = FUNCTION
@@ -221,6 +233,7 @@ english
 			message_scrollpane
 			map_scrollpane
 			button_wrapper
+			ice_health_bar
 			CLIP
 				x = 192
 				y = 297 // should be 296 but Java is incapable of centering text vertically

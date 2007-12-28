@@ -348,7 +348,13 @@ final class StaticScriptFunctions extends ScriptNode
 			int radix = (args.length>1 && args[1]!=null && args[1].type() == Value.INTEGER) ? args[1].integer() : 10;
 			if (radix < 2)
 				radix = 10;
-			return new Value().set(Integer.toString(number,radix));
+			String ret = Integer.toString(number,radix);
+			if (args.length >= 3 && args[2] != null && args[2].type() == Value.INTEGER) {
+				for (int i = args[2].integer()-ret.length(); --i >= 0; ) {
+					ret = "0" + ret;
+				}
+			}
+			return new Value().set(ret);
 		}
 		return DUMMY_VALUE;
 	}

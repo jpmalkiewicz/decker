@@ -36,6 +36,10 @@ english
 				image = &_face
 
 
+	ENGINE.createColor = FUNCTION (red, green, blue, alpha)
+		return_value = "#" + ( alpha!=UNDEFINED ? integerToText(alpha,16,2) : "" ) + integerToText(red,16,2) + integerToText(green,16,2) + integerToText(blue,16,2)
+
+
 	ENGINE.createImage = FUNCTION (_image, _x, _y, _h_align, _v_align)
 		return_value = IMAGE
 			image = &_image
@@ -118,6 +122,15 @@ english
 						component[i].h_align = UNDEFINED
 			// add the event blocker to keep input events from reaching the underlying screen
 			component[] = EVENT_BLOCKER
+
+
+	ENGINE.createRectangle = FUNCTION (_x, _y, _width, _height, _color)
+		return_value = RECTANGLE
+			x = _x
+			y = _y
+			width = _width
+			height = _height
+			color = _color
 
 
 	ENGINE.createScrollbar = FUNCTION (_x, _y, _width, _height, _vertical, _slider, _slider_max, _up_left_arrow, _down_right_arrow, _slider_stepping, _slider_position)
