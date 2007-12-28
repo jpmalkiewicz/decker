@@ -174,7 +174,7 @@ english
 		player.current_mission = mission
 		player.current_system = generateSystem(mission.target_system, mission)
 		player.node = UNDEFINED
-		movePlayer(mission.target_system.entry_point)
+		movePlayer(player.current_system.entry_point)
 		player.current_time = 0
 		debug("_b_ startMission() it would be better to reset the player's deck everytime s/he goes offline")
 		player.deck.damage = 0
@@ -182,6 +182,7 @@ english
 		player.deck.slow_program = UNDEFINED
 		player.deck.boost_program = UNDEFINED
 		player.deck.effects = ARRAY
+		debug("****************** "+player.deck.current_load)
 		displayScreen(system_screen, false)
 
 

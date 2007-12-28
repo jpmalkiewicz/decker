@@ -312,8 +312,6 @@ english
 
 				t.on_double_click = FUNCTION (x, y)
 					with system_screen
-						debug(selected_row+"   "+loaded_programs[selected_row].name)
-						debug(loaded_programs[selected_row].type)
 						loaded_programs[selected_row].type.effect(player, loaded_programs[selected_row], player.current_target)
 						if displayed_screen == system_screen
 							displayNode()

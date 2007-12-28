@@ -124,8 +124,8 @@ english
 // ***************
 		else if object.structure_type == "HUMAN"
 			// an analysis boost program will give +3
-			LOCAL.a = human.deck.boost_program.type.category
-			return_value = humanConditionModifier(human) + min(human.deck.analysis,human.deck.cpu) + human.analysis + (a.size>0&&a[a.size-1]==ANALYSIS_BOOST?3:0)
+			LOCAL.a = object.deck.boost_program.type.category
+			return_value = humanConditionModifier(object) + min(object.deck.analysis,object.deck.cpu) + object.analysis + (a.size>0&&a[a.size-1]==ANALYSIS_BOOST?3:0)
 		// everybody has a lowered analysis rating in a smoked node
 		if object.node.smoke_level != UNDEFINED
 			return_value = return_value - 4
@@ -143,14 +143,14 @@ english
 				return_value = return_value - 2                                           // white object gets a -2 combat modifier
 		else if object.structure_type == "HUMAN"
 			// an attack boost program will give +3
-			LOCAL.a = human.deck.boost_program.type.category
-			return_value = humanConditionModifier(human) + min(human.deck.attack,human.deck.cpu) + human.attack + (a.size>0&&a[a.size-1]==ATTACK_BOOST?3:0)
+			LOCAL.a = object.deck.boost_program.type.category
+			return_value = humanConditionModifier(object) + min(object.deck.attack,object.deck.cpu) + object.attack + (a.size>0&&a[a.size-1]==ATTACK_BOOST?3:0)
 		// everybody has a lowered attack in a smoked node
 		if object.node.smoke_level != UNDEFINED
 			return_value = return_value - 4
 
 
-	// returns the current defense rating for an ice or human. the value can be negative
+	// returns the current defense rating for an ice or object. the value can be negative
 	RULESET.getDefenseRating = FUNCTION (object, include_analyzed=true)
 		if object.structure_type == "ICE"
 			return_value = object.rating - object.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
@@ -162,23 +162,23 @@ english
 				return_value = return_value - 2                                           // white object gets a -2 combat modifier
 		else
 			// a defense boost program will give +3
-			LOCAL.a = human.deck.boost_program.type.category
-			return_value = humanConditionModifier(human) + min(human.deck.defense,human.deck.cpu) + human.defense + (a.size>0&&a[a.size-1]==DEFENSE_BOOST?3:0)
+			LOCAL.a = object.deck.boost_program.type.category
+			return_value = humanConditionModifier(object) + min(object.deck.defense,object.deck.cpu) + object.defense + (a.size>0&&a[a.size-1]==DEFENSE_BOOST?3:0)
 
 
-	// returns the current stealth rating for a human. the value can be negative
+	// returns the current stealth rating for a object. the value can be negative
 	RULESET.getStealthRating = FUNCTION (object)
 		if object.structure_type == "HUMAN"
 			// a stealth boost program will give +3
-			LOCAL.a = human.deck.boost_program.type.category
-			return_value = humanConditionModifier(human) + min(human.deck.stealth,human.deck.cpu) + human.stealth + (a.size>0&&a[a.size-1]==STEALTH_BOOST?3:0)
+			LOCAL.a = object.deck.boost_program.type.category
+			return_value = humanConditionModifier(object) + min(object.deck.stealth,object.deck.cpu) + object.stealth + (a.size>0&&a[a.size-1]==STEALTH_BOOST?3:0)
 			// if the player has been traced, s/he gets a -4 to the stealth rating
 			if deck.traced
 				return_value = return_value - 4
 
 
 	RULESET.humanConditionModifier = FUNCTION (human)
-		return_value = DECK_LOAD_MODIFIER[human.deck] - human.deck.damage/8 - max(human.physical_damage,human.mental_damage)/4
+		return_value = DECK_LOAD_MODIFIER[human.deck.current_load] - human.deck.damage/8 - max(human.physical_damage,human.mental_damage)/4
 		// if the human is currently running a CLIENT_PROGRAM, all actions are modified by -3
 		LOCAL.a = human.deck.slow_program.category
 		if a != UNDEFINED && indexof(CLIENT_PROGRAM, a) != UNDEFINED

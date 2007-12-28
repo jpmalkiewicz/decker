@@ -271,6 +271,7 @@ english
 				if portal_in != UNDEFINED
 					portal_out = createPortalNode(PORTAL_OUT, portal_in)
 					portal_in.target = portal_out
+		return_value = _system
 
 
 	// additional parameters will be added to the system i they are nodes
