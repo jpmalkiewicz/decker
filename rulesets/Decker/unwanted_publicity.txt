@@ -16,6 +16,5 @@ english
 			NO_RED_ALARM
 			EDIT_FILE
 				target = FILE
-					name = "a holovid"
-					description = "this is the hologram you are looking for"
+					name = "A holovid"
 					size = 30

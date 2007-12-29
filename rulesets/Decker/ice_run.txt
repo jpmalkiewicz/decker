@@ -12,5 +12,4 @@ english
 
 		goal[] = DOWNLOAD_FILE
 			target = FILE
-				name = "Product Information"
-				description = "This file contains the recipe you are looking for."
+				name = "product information"

@@ -17,13 +17,13 @@ english
 		goal = ARRAY
 			DOWNLOAD_FILE
 				target = FILE
-					description="album data"
+					name = "product information"
 			DOWNLOAD_FILE
 				target = FILE
-					description="album data"
+					name = "product information"
 			DOWNLOAD_FILE
 				target = FILE
-					description="album data"
+					name = "product information"
 
 
 //deutsch extends english
