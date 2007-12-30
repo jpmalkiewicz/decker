@@ -164,7 +164,7 @@ System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").t
 		if (old_globals != null && old_globals != new_globals) {
 //System.out.println("replacing globals in ENGINE      ("+old_ruleset.getName()+" -> "+r.getName()+")  "+(old_globals==Value.getGlobalValues())+"   "+Value.getGlobalValues());
 			// create the set of structures and array wrappers which have already been remapped
-			final TreeSet remapped_containers = new TreeSet();
+			final TreeSet<Object> remapped_containers = new TreeSet<Object>();
 			// add the variables which should be omitted during the remapping to the set
 			final Structure e = ScriptNode.stack[ScriptNode.ENGINE_STACK_SLOT];
 			remapped_containers.add(e.get("GLOBAL_VALUES").structure());
