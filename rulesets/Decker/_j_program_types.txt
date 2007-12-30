@@ -24,7 +24,7 @@ english
 				"Bazooka"
 				"Magnum II"
 				"Zap 4.2"
-				"Bazooka"
+				"Bazooka 2.0"
 				"CyberDagger"
 				"SuperBlaster"
 				"Zap 5.0"
@@ -88,7 +88,7 @@ english
 				"FMJ"
 				"Teflon"
 				"Stiletto 1.1.0"
-				"Awl 1.0"
+				"Needler 1.0"
 				"Drill 3.1"
 				"Scalpel II"
 				"IcePick 2.0"
@@ -221,6 +221,7 @@ english
 			category = ARRAY
 				PROGRAM
 				SILENCE
+         effect = silenceProgram
 			default_name = ARRAY
 				UNDEFINED
 				"Silence"
@@ -360,6 +361,7 @@ english
 				"ForceField 2.0"
 				"Blocker 7.0"
 				"Aegis"
+
 		THING_TYPE
 			name = "Medic"
 			complexity = 4
@@ -367,6 +369,7 @@ english
 			category = ARRAY
 				PROGRAM
 				MEDIC
+         effect = healProgram
 			default_name = ARRAY
 				UNDEFINED
 				"Medic"
@@ -389,6 +392,7 @@ english
 				"Restoration IV"
 				"VirtualSurgeon"
 				"M.A.S.H"
+
 		THING_TYPE
 			name = "Hide"
 			complexity = 3
@@ -419,6 +423,7 @@ english
 				"Hide Mk5"
 				"SuperCloak"
 				"HollowMan"
+
 		THING_TYPE
 			name = "Deceive"
 			complexity = 2
@@ -448,6 +453,7 @@ english
 				"Forge 2.0"
 				"Forge 2.3a"
 				"Politician"
+
 		THING_TYPE
 			name = "Relocate"
 			complexity = 2
@@ -477,6 +483,7 @@ english
 				"RedHerring II"
 				"TraceBuster 3.0"
 				"Trail-B-Gone"
+
 		THING_TYPE
 			name = "Analyze"
 			complexity = 1
@@ -507,6 +514,7 @@ english
 				"WhatzIt 3.2"
 				"Identify 3.0.3"
 				"Forensics"
+
 		THING_TYPE
 			name = "Scan"
 			complexity = 1
