@@ -1,6 +1,6 @@
 english
 	RULESET.system_screen = COMPONENT
-		title = "Decker - Contracts"
+		title = "Decker - System"
 		width = 640
 		height = 480
 		map_size = 16
@@ -275,6 +275,10 @@ english
 
 		setup = FUNCTION
 			with system_screen
+				if player.current_system.name != UNDEFINED
+					title = "Decker - System - "+ player.current_system.name
+				else
+					title = "Decker - System"
 				displayTime()
 				displayNode()
 
