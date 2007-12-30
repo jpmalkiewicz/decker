@@ -97,9 +97,6 @@ english
 					debug(command)
 			else
 				debug("key="+key)
-			player.current_time++
-			system_screen.displayTime()
-			system_screen.displayNode()
 
 
 		movement_button = createSizedArray(4)
