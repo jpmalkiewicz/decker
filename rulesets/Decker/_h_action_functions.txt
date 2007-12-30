@@ -21,7 +21,7 @@ english
 
    RULESET.healProgram = FUNCTION (human, program)
       deck = human.deck
-      debug("Damage" +deck.damage)
+      debug("Local Deck Damage " + deck.damage)
       if deck.damage == 0
          print "Healing failed because you are not damaged"
       else
@@ -43,10 +43,10 @@ english
             if deck.damage < 0
                deck.damage = 0
             //Specify how successful it was
-            print "Healed " + healed + "%"
-         debug("Damage" + deck.damage)
-         program.rating--
-         debug("Rating" +program.rating)
+            print "Healed " + healed*RULESET.HEALTH_INCREMENT + "%"
+            program.rating--
+      debug("Damage " + human.deck.damage)
+      debug("Rating: " +program.rating)
 
 	RULESET.actionDefaultAttackProgram = FUNCTION (human, program, target)
 		if target != UNDEFINED
