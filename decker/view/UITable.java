@@ -2,12 +2,9 @@ package decker.view;
 import decker.model.*;
 import java.awt.*;
 
-
-
-
 class UITable extends DisplayedComponent
 {
-	private int[] column_width, column_x;
+//	private int[] column_width, column_x;
 	private int row_height, total_width, columns;
 	private TableCellWrapper[][] cell; // cell[row][column]
 	private boolean can_drag_rows, can_select_rows;
@@ -15,17 +12,11 @@ class UITable extends DisplayedComponent
 	private int current_row = -1; // the selected or dragged row
 	private final Value selected_row_background = new Value();
 
-
-
-
-	UITable (final Value _component, final DisplayedComponent _parent, final DisplayedComponent current_clip_source) {
+	UITable (Value _component, DisplayedComponent _parent, DisplayedComponent current_clip_source) {
 		super(_component, _parent);
 		update(0, current_clip_source);
 		_component.structure().addValueListener(this);
 	}
-
-
-
 
 	void destroy () {
 		if (cell != null) {
@@ -46,15 +37,10 @@ class UITable extends DisplayedComponent
 	}
 
 
-
-
 	void determineSize (final boolean width_already_determined, final boolean height_already_determined, final DisplayedComponent current_clip_source) {
 		w = total_width;
 		h = (cell != null) ? (row_height * cell.length) : 0;
 	}
-
-
-
 
 	public void draw (final Graphics g) {
 		if (cell != null) {
@@ -318,8 +304,8 @@ if (true) {
 				}
 			}
 			// create the new table
-			column_width = colw;
-			column_x = colx;
+//			column_width = colw;
+//			column_x = colx;
 			row_height = rowh;
 			total_width = totalw;
 			w = totalw;

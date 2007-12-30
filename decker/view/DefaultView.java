@@ -165,6 +165,7 @@ public final class DefaultView extends AbstractView
 				g.fillRect(dx, dy, w, h);
 			}
 			else if (type.equals("TABLE")) {
+				UITable.drawScreen(g);
 //				UITable.draw(dx, dy, d, g, this);
 			}
 			// draw the child components of this view component
