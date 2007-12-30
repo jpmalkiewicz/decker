@@ -274,9 +274,9 @@ class UIScrollbar extends DisplayedComponent
 			}
 		}
 		// if the scrollbar orientation or size has changed, update its size
-		final boolean old_vertical = vertical;
-		final int old_x = x, old_y = y;
-		final int old_w = w, old_h = h;
+//		final boolean old_vertical = vertical;
+//		final int old_x = x, old_y = y;
+//		final int old_w = w, old_h = h;
 		vertical = d.get("vertical").equals(true);
 		super.update(CUSTOM_SIZE, current_clip_source);
 		// update the logical (as opposed to pixel position) maximum position for the slider

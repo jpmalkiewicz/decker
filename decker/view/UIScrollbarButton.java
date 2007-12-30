@@ -1,18 +1,11 @@
 package decker.view;
 import decker.model.*;
 import java.awt.*;
-import java.awt.event.*;
-
-
-
 
 class UIScrollbarButton extends UIButton
 {
 	boolean listens_everywhere; // true for dragged sliders
 	int drag_offset; // position of the mouse within the button while dragging it
-
-
-
 
 	UIScrollbarButton (final Value _component, final UIScrollbar _parent, final DisplayedComponent current_clip_source, final boolean _listens_everywhere, final boolean _is_slider) {
 		super(_component, _parent, current_clip_source);
