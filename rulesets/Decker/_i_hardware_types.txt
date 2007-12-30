@@ -59,7 +59,7 @@ english
 			base_value = 1000
 			max_rating = 4
 		THING_TYPE
-			name = "Surge Processor"
+			name = "Surge Suppressor"
 			image = "shop_item/hardware"
 			category = ARRAY
 				HARDWARE
