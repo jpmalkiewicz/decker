@@ -43,9 +43,9 @@ english
 				backdoors = ARRAY
 // ********************* END
 // debug stuff START
-				deck.optional_hardware[] = createHardware(PROXIMITY_MAPPER, 1)
-				deck.proximity_mapper = true
-				deck.optional_hardware[] = createHardware(BIO_MONITOR, 1)
+            deck.optional_hardware[] = createHardware(PROXIMITY_MAPPER, 1)
+            deck.optional_hardware[] = createHardware(BIO_MONITOR, 1)
+            deck.proximity_mapper = true
 // debug stuff END
 
 		updateShopInventory()
