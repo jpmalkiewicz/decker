@@ -9,13 +9,9 @@ public final class ArrayWrapper implements Comparable, ValueListener
 	private int[] valueListenerAddCount; // if the same ValueListener gets added to this array again, this number counts the times
 	private int valueListenerCount;
 
-
-
 	public ArrayWrapper (final Value[] _array)  {
 		array = _array;
 	}
-
-
 
 	public void addValueListener (final ValueListener vl) {
 		// check whether the listener is already listed
@@ -47,8 +43,6 @@ public final class ArrayWrapper implements Comparable, ValueListener
 		valueListenerAddCount[valueListenerCount] = 1;
 		valueListenerCount++;
 	}
-
-
 
 	public int compareTo (Object o) {
 		if (o == null)
@@ -141,7 +135,7 @@ public final class ArrayWrapper implements Comparable, ValueListener
 
 
 	/** solely used by test classes */
-	public Object[] testGetValueListenerData () {
+	public Object[] getValueListenerData () {
 		return new Object[]{ valueListener, valueListenerAddCount, new Value().set(valueListenerCount) };
 	}
 }

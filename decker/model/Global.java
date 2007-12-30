@@ -30,8 +30,6 @@ public final class Global
 	private final static Ruleset engine = new Ruleset("");
 	private static Ruleset current_ruleset = new Ruleset("(dummy)");
 
-
-
 	static {
 		Value.setGlobalValues(current_ruleset.data.get("GLOBAL_VALUES").structure());
 	}
@@ -114,11 +112,20 @@ System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").t
 	}
 
 
+	/**
+	 * Loads the scripts from the rulesets subfolder of the folder the jar sits in
+	 */
 	public static void loadRulesets ()  {
-		// load the scripts from the rulesets subfolder of the folder the jar sits in
-		final File rulsets_dir = new File("rulesets");
-		if (rulsets_dir.exists() && rulsets_dir.isDirectory()) {
-			final File[] dir_list = rulsets_dir.listFiles();
+		File rulesetsFolder = new File("rulesets");
+		File here = new File(".");
+		System.out.println(here.getAbsolutePath());
+		String[] files = here.list();
+		for (String str: files)
+			System.out.println(str);
+		if (!rulesetsFolder.exists() || !rulesetsFolder.isDirectory()) {
+			throw new RuntimeException("Can not find 'rulesets' directory");
+		}
+			final File[] dir_list = rulesetsFolder.listFiles();
 			bubblesort(dir_list);
 			for (int d = 0; d < dir_list.length; d++) {
 				if (dir_list[d].isDirectory() && !dir_list[d].getName().toLowerCase().endsWith(".svn")) {
@@ -144,14 +151,11 @@ System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").t
 			for (int i = 0; i < dir_list.length; i++)
 				if (dir_list[i].getName().toLowerCase().endsWith(".txt"))
 					engine.addScript(ScriptParser.parse(dir_list[i]));
-		}
 	}
 
-
-	@SuppressWarnings("unchecked")
 	public static void setCurrentRuleset (final Ruleset r)  {
 		final Structure old_globals = (current_ruleset==null) ? null : ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT].get("GLOBAL_VALUES").structure();
-final Ruleset old_ruleset = current_ruleset;
+//final Ruleset old_ruleset = current_ruleset;
 		current_ruleset = r;
 		ScriptNode.stack[ScriptNode.RULESET_STACK_SLOT] = r.data;
 		final Structure new_globals = r.data.get("GLOBAL_VALUES").structure();
