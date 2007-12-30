@@ -68,4 +68,10 @@ public class ArrayWrapper_ListenerTest implements ValueListener
 
 	public void eventValueChanged (final String variable_name, final Structure container, final Value old_value, final Value new_value) {
 	}
+
+
+	public void eventValueChanged(int index, ArrayWrapper wrapper, Value old_value, Value new_value) {
+		// TODO Auto-generated method stub
+		
+	}
 }
