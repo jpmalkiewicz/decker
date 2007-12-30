@@ -86,7 +86,7 @@ class UIScrollbar extends DisplayedComponent
 	private Value createButton (final Value data) {
 		if (data.type() == Value.STRUCTURE &&( data.get("structure_type").equals("BUTTON") || data.get("structure_type").equals("BORDER_BUTTON") ))
 			return data;
-		Structure t = new Structure("BUTTON");
+		Structure t = new Structure("BUTTON", null);
 		t.get("idle").set(data);
 		t.get("x").setConstant("CENTER");
 		t.get("y").setConstant("CENTER");
