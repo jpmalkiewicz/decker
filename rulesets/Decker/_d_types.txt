@@ -131,7 +131,7 @@ english
 			expandable = true
 			type   // an ICE_TYPE
 			rating
-			status
+			current_action
 			damage = 0
 			node
 			x
