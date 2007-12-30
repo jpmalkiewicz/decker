@@ -73,9 +73,11 @@ english
 			ice_entry_node
 			player_map
 			active_ice
+			active_effects
 			initializer = FUNCTION
 				destroyed_ice = ARRAY
 				active_ice = ARRAY
+				active_effects = ARRAY
 
 		PLAYER_AREA_MAP
 			x
@@ -89,12 +91,12 @@ english
 			area
 			x
 			y
-			connection    // if connection[direction] set to true, there is a connection in that direction
+			connection      // if connection[direction] set to true, there is a connection in that direction
 			type
 			smoke_level
-			info_level    // UNDEFINED = unknown, 1 = has seen it, 2 = has been there and knows what exits exist, 3 = knows its sub_type
-			objects       // ice and humans
-			effects       // something that has an expiry_time and on_expire() function defined, or an on_tick() function
+			info_level      // UNDEFINED = unknown, 1 = has seen it, 2 = has been there and knows what exits exist, 3 = knows its sub_type
+			objects         // ice and humans
+			active_effects  // something that has an expiry_time and on_expire() function defined, or an on_tick() function
 			initializer = FUNCTION
 				connection = ARRAY
 					false
@@ -102,7 +104,7 @@ english
 					false
 					false
 				objects = ARRAY
-				effects = ARRAY
+				active_effects = ARRAY
 
 		FILE
 			name
@@ -200,11 +202,11 @@ english
 			optional_hardware
 			// boost_program
 			// slow_program    // a SLOW_SCANNER or CLIENT_PROGRAM that is currently running
-			effects
+			active_effects
 			initializer = FUNCTION
 				program = ARRAY
 				optional_hardware = ARRAY
-				effects = ARRAY
+				active_effects = ARRAY
 				default_program = ARRAY
 					UNDEFINED
 					UNDEFINED
