@@ -1,8 +1,7 @@
 package decker.model;
+
 import java.io.*;
 import decker.util.*;
-
-
 
 public final class Structure implements Comparable, ValueListener
 {
@@ -10,10 +9,7 @@ public final class Structure implements Comparable, ValueListener
 	private ValueListener[] valueListener;
 	private int valueListenerCount;
 
-
-
-
-	public Structure (final String type_name, final ScriptNode caller)  {
+	public Structure (String type_name, ScriptNode caller)  {
 		if (type_name == null)
 			throw new RuntimeException("trying to use null as a structure type");
 		add("structure_type").set(type_name);
@@ -44,8 +40,6 @@ public final class Structure implements Comparable, ValueListener
 			}
 		}
 	}
-
-
 
 	Structure (final Structure original)  {
 		StringTreeMap.Iterator i = original.members.getIterator();
