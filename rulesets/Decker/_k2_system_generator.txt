@@ -77,12 +77,14 @@ english
 		return_value = false
 		with area
 			// if the node K we're currently trying to connect to doesn't have a connection leading towards the target direction ...
-			if !map[x][y].connection[direction]
+			if map[x][y].connection[direction] == UNDEFINED
 				// if the map cell is free, add the node there
 				if x+DELTA_X[direction] < 0 || x+DELTA_X[direction] >= map.size || y+DELTA_Y[direction] < 0 || y+DELTA_Y[direction] >= map[0].size || map[x+DELTA_X[direction]][y+DELTA_Y[direction]] == UNDEFINED
 					insertNode(node, x, y, direction, area, start_coords)
 					return_value = true
 			else
+				// remember the node we're currently at
+				LOCAL.K = map[x][y]
 				// move to the node we've run into
 				x = x + DELTA_X[direction]
 				y = y + DELTA_Y[direction]
@@ -99,10 +101,11 @@ english
 						// it's possible to replace the node with a junction. do it
 						// remove the current node
 						LOCAL.n = map[x][y]
-						n.connection[(direction+2)%4] = false   // obsolete connection to K
+						n.connection[(direction+2)%4] = UNDEFINED   // obsolete connection to K
 						// create the junction
 						map[x][y] = createNode(JUNCTION)
-						map[x][y].connection[(direction+2)%4] = true // connection to K
+						map[x][y].connection[(direction+2)%4] = K // connection to K
+						K.connection[direction] = map[x][y]       // connection from K to the new junction
 						// place the node n
 						LOCAL.dir = random(0,3)
 						while !empty_cell[dir]
@@ -136,12 +139,12 @@ english
 		// determine where the clusters are
 		LOCAL.data = createArray(1, ds_count, io_count)
 		for i = 3 downto 0
-			if map[cpu_x][cpu_y].connection[i]
+			if map[cpu_x][cpu_y].connection[i] != UNDEFINED
 				clusterizeAreaB(cpu_x+DELTA_X[i], cpu_y+DELTA_Y[i], (i+2)%4, data, cluster, map)
 		// give the CPU/SPU cluster the id 0
 		cluster[cpu_x][cpu_y] = 0
 		for i = 3 downto 0
-			if map[cpu_x][cpu_y].connection[i] && cluster[cpu_x+DELTA_X[i]][cpu_y+DELTA_Y[i]] == UNDEFINED
+			if map[cpu_x][cpu_y].connection[i] != UNDEFINED && cluster[cpu_x+DELTA_X[i]][cpu_y+DELTA_Y[i]] == UNDEFINED
 				clusterizeAreaD(cpu_x+DELTA_X[i], cpu_y+DELTA_Y[i], (i+2)%4, cluster, map)
 		data[0] = cluster
 		return_value = data
@@ -164,7 +167,7 @@ english
 			LOCAL.io = 0
 			LOCAL.cop = 0
 			for dir = 3 downto 0
-				if dir != blocked_direction && n.connection[dir]
+				if dir != blocked_direction && n.connection[dir] != UNDEFINED
 					LOCAL.branch_data = clusterizeAreaB(x+DELTA_X[dir], y+DELTA_Y[dir], (dir+2)%4, data, cluster, map)
 					nodes = nodes + branch_data[0]
 					ds    = ds + branch_data[1]
@@ -217,7 +220,7 @@ english
 		LOCAL.n = map[x][y]
 		if n.type == JUNCTION
 			for dir = 3 downto 0
-				if dir != blocked_direction && n.connection[dir] && cluster[x+DELTA_X[dir]][y+DELTA_Y[dir]] == UNDEFINED   // the last condition makes sure that the target node doesn't belong to any cluster yet
+				if dir != blocked_direction && n.connection[dir] != UNDEFINED && cluster[x+DELTA_X[dir]][y+DELTA_Y[dir]] == UNDEFINED   // the last condition makes sure that the target node doesn't belong to any cluster yet
 					replaceNode = clusterizeAreaC(x+DELTA_X[dir], y+DELTA_Y[dir], (dir+2)%4, replaceNodeType, replaceNode, clusterID, cluster, map)
 			return_value = replaceNode
 		else if n.type == replaceNodeType
@@ -231,7 +234,7 @@ english
 	RULESET.clusterizeAreaD = FUNCTION (x, y, blocked_direction, cluster, map)
 		cluster[x][y] = 0
 		for i = 3 downto 0
-			if map[x][y].connection[i] && cluster[x+DELTA_X[i]][y+DELTA_Y[i]] == UNDEFINED
+			if map[x][y].connection[i] != UNDEFINED && cluster[x+DELTA_X[i]][y+DELTA_Y[i]] == UNDEFINED
 				clusterizeAreaD(x+DELTA_X[i], y+DELTA_Y[i], (i+2)%4, cluster, map)
 
 
@@ -391,11 +394,11 @@ english
 								LOCAL.x2 = x + DELTA_X[direction]
 								LOCAL.y2 = y + DELTA_Y[direction]
 								// if there is no connection yet, there is a target node and we feel like making a connection (50% chance), make one
-								if !n.connection[direction] && x2 >= 0 && x2 < map.size && y2 >= 0 && y2 < map[0].size
+								if n.connection[direction] == UNDEFINED && x2 >= 0 && x2 < map.size && y2 >= 0 && y2 < map[0].size
 									LOCAL.m = map[x2][y2]
 									if m != UNDEFINED && m.type != PORTAL_IN && m.type != PORTAL_OUT && random(0,1) == 1
-										n.connection[direction] = true
-										m.connection[(direction+2)%4] = true
+										n.connection[direction] = m
+										m.connection[(direction+2)%4] = n
 			debug("************* more connections *************")
 			printSystemAreaMap(map)
 			for x = map.size-1 downto 0
@@ -428,8 +431,8 @@ english
 					map[i][] = UNDEFINED
 			// insert the node and connect it to the node at (x,y)
 			map[x+DELTA_X[direction]][y+DELTA_Y[direction]] = node
-			node.connection[(direction+2)%4] = true
-			map[x][y].connection[direction] = true
+			node.connection[(direction+2)%4] = map[x][y]
+			map[x][y].connection[direction] = node
 
 
 
@@ -471,6 +474,6 @@ english
 			// continue through the cluster
 			node_id++
 			for i = 3 downto 0
-				if n.connection[i] && map[x+DELTA_X[i]][y+DELTA_Y[i]].name == UNDEFINED && cluster[x+DELTA_X[i]][y+DELTA_Y[i]] == cluster_id
+				if n.connection[i] != UNDEFINED && n.connection[i].name == UNDEFINED && cluster[x+DELTA_X[i]][y+DELTA_Y[i]] == cluster_id
 					node_id = nameClusterNodesB(x+DELTA_X[i], y+DELTA_Y[i], node_id, cluster, area)
 			return_value = node_id

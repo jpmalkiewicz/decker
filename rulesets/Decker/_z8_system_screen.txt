@@ -79,16 +79,16 @@ english
 			LOCAL.command = indexof(key, system_screen_key)
 			if command >= 0
 				command = system_screen_function[command]
-				if command == "left" && player.node != UNDEFINED && player.node.connection[3]
+				if command == "left" && player.node != UNDEFINED && player.node.connection[3] != UNDEFINED
 					movePlayer(3)
 					system_screen.displayNode()
-				else if command == "right" && player.node != UNDEFINED && player.node.connection[1]
+				else if command == "right" && player.node != UNDEFINED && player.node.connection[1] != UNDEFINED
 					movePlayer(1)
 					system_screen.displayNode()
-				else if command == "up" && player.node != UNDEFINED && player.node.connection[0]
+				else if command == "up" && player.node != UNDEFINED && player.node.connection[0] != UNDEFINED
 					movePlayer(0)
 					system_screen.displayNode()
-				else if command == "down" && player.node != UNDEFINED && player.node.connection[2]
+				else if command == "down" && player.node != UNDEFINED && player.node.connection[2] != UNDEFINED
 					movePlayer(2)
 					system_screen.displayNode()
 				else if command == "wait"
@@ -171,9 +171,9 @@ english
 							n = map[x+m.x][y+m.y]
 							if n != UNDEFINED
 								// first add the connections
-								if n.connection[0] &&( n.display_connections || map[x+m.x][y+m.y-1].display_connections )
+								if n.connection[0] != UNDEFINED &&( n.display_connections || map[x+m.x][y+m.y-1].display_connections )
 									c.component[] = createImage("system/connection_ns_"+map_size, map_size*x, map_size*y-map_size/2)
-								if n.connection[3] &&( n.display_connections || map[x+m.x-1][y+m.y].display_connections )
+								if n.connection[3] != UNDEFINED &&( n.display_connections || map[x+m.x-1][y+m.y].display_connections )
 									c.component[] = createImage("system/connection_ew_"+map_size, map_size*x-map_size/2, map_size*y)
 								// then add the node
 								if n.info_level > 0
@@ -201,7 +201,7 @@ english
 						createImage("system/node_"+toLowerCase(getNodeTypeCategory(n.type)))
 					// add the exit images
 					for i = 3 downto 0
-						if n.connection[i]
+						if n.connection[i] != UNDEFINED
 							node_display.component[] = createImage("system/connection_"+DIRECTION_NAME[i], DIRECTION_EXIT_X[i], DIRECTION_EXIT_Y[i])
 							button_wrapper.cell[1+DELTA_Y[i]][1+DELTA_X[i]] = movement_button[i]
 						else

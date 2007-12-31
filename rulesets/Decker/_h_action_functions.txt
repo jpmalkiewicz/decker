@@ -91,7 +91,7 @@ english
 				LOCAL.x2
 				LOCAL.y2
 				for i = 3 downto 0
-					if c[i]
+					if c[i] != UNDEFINED
 						x2 = x + DELTA_X[i]
 						y2 = y + DELTA_Y[i]
 						if area.map[x2][y2].info_level == UNDEFINED
@@ -226,7 +226,7 @@ english
 		if object.node != UNDEFINED
 			delete(object.node.objects, indexof(object, object.node.objects))
 		if target >= 0 && target <= 3
-			object.node = object.node.area.map[object.node.x+DELTA_X[target]][object.node.y+DELTA_Y[target]]
+			object.node = object.node.connection[target]
 			placeObject(object, object.node, (target+2)%4)
 		else
 			object.node = target

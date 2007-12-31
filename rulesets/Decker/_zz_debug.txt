@@ -9,14 +9,14 @@ english
 
 				// print the node row
 				text = ""
-				if map[0][y] != UNDEFINED && map[0][y].connection[3]
+				if map[0][y] != UNDEFINED && map[0][y].connection[3] != UNDEFINED
 					text = text + "~"
 				else
 					text = text + " "
 				for x = 0 to map.size-1
 					if map[x][y].type == UNDEFINED
 						text = text + " "
-						if x + 1 < map.size && map[x+1][y] != UNDEFINED && map[x+1][y].connection[3]
+						if x + 1 < map.size && map[x+1][y] != UNDEFINED && map[x+1][y].connection[3] != UNDEFINED
 							text = text + "<"
 						else
 							text = text + " "
@@ -34,12 +34,15 @@ english
 							text = text + "X"
 						else
 							text = text + substring(t+"", 0, 1)
-						if map[x][y].connection[1]
-							if x+1 >= map.size || map[x+1][y] == UNDEFINED || !map[x+1][y].connection[3]
+						if map[x][y].connection[1] != UNDEFINED
+							if x+1 >= map.size || map[x+1][y] == UNDEFINED || map[x+1][y].connection[3] == UNDEFINED
 								text = text + ">"
 							else
-								text = text + "-"
-						else if x+1 < map.size && map[x+1][y] != UNDEFINED && map[x+1][y].connection[3]
+								if map[x][y].connection[1] != map[x+1][y] || map[x+1][y].connection[3] != map[x][y]
+									text = text + "@"
+								else
+									text = text + "-"
+						else if x+1 < map.size && map[x+1][y] != UNDEFINED && map[x+1][y].connection[3] != UNDEFINED
 							text = text + "<"
 						else
 							text = text + " "
@@ -48,11 +51,14 @@ english
 				// print the vertical connections
 				text = " "
 				for x = 0 to map.size-1
-					LOCAL.a = map[x][y] != UNDEFINED && map[x][y].connection[2]
-					LOCAL.b = y < map[x].size && map[x][y+1] != UNDEFINED && map[x][y+1].connection[0]
+					LOCAL.a = map[x][y] != UNDEFINED && map[x][y].connection[2] != UNDEFINED
+					LOCAL.b = y < map[x].size && map[x][y+1] != UNDEFINED && map[x][y+1].connection[0] != UNDEFINED
 					if a
 						if b
-							text = text + "| "
+							if map[x][y].connection[2] != map[x][y+1] || map[x][y+1].connection[0] != map[x][y]
+								text = text + "@ "
+							else
+								text = text + "| "
 						else
 							text = text + "v "
 					else
