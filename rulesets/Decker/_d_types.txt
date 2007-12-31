@@ -98,11 +98,7 @@ english
 			objects         // ice and humans
 			active_effects  // something that has an expiry_time and on_expire() function defined, or an on_tick() function
 			initializer = FUNCTION
-				connection = ARRAY
-					false
-					false
-					false
-					false
+				connection = createSizedArray(4)
 				objects = ARRAY
 				active_effects = ARRAY
 

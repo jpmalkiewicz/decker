@@ -11,7 +11,7 @@ english
 		if ice.node != player.node && ice.node.smoke_level == 0
 			LOCAL.n = ice.node
 			for i = 3 downto 0
-				if n.connection[i] && n.area.map[n.x+DELTA_X[i]][n.y+DELTA_Y[i]] == player.node
+				if n.connection[i] != UNDEFINED && n.connection[i] == player.node
 					moveObject(ice, i)
 					n = true // this will tell the next if command that the ice has already taken its action this turn
 					break
@@ -54,7 +54,7 @@ english
 			if node != player.node || !iceNoticesPlayer(ice) || !iceQuery(ice)
 				LOCAL.count = 0
 				for i = 3 downto 0
-					if node.connection[i]
+					if node.connection[i] != UNDEFINED
 						count++
 				// if there is at least one exit, move
 				if count > 0
@@ -62,7 +62,7 @@ english
 					if count == 1
 						previous_node = UNDEFINED
 					i = random(0,3)
-					while !node.connection[i] || node.area.map[node.x+DELTA_X[i]][node.y+DELTA_Y[i]] == previous_node
+					while node.connection[i] == UNDEFINED || node.connection[i] == previous_node
 						i = random(0,3)
 					previous_node = node
 					moveObject(ice, i)

@@ -5,7 +5,7 @@ english
 			LOCAL.r
 			// add guard_exit ice
 			for i = 3 downto 0
-				if connection[i] && cluster[x][y] != cluster[x+DELTA_X[i]][y+DELTA_Y[i]]
+				if connection[i] != UNDEFINED && cluster[x][y] != cluster[x+DELTA_X[i]][y+DELTA_Y[i]]
 					generateIce(GUARD_EXIT, node_rating, node, i)
 			// add the normal ice. junctions don't have any ice beyond the GUARD_EXIT ice generated above
 			if type != JUNCTION
