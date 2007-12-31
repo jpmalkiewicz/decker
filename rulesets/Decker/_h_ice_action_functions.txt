@@ -1,20 +1,73 @@
 english
+	RULESET.iceAction = FUNCTION (ice)
+		if ice.hostile
+			iceSoundAlarm(ice)
+
+
+	// called when the ice is currently following the player and trying to query him/her
+	RULESET.iceFollow = FUNCTION (ice)
+		ice.current_action = FOLLOWING
+		// if this node is not smoked and the player is in a neighbouring node, move there
+		if ice.node != player.node && ice.node.smoke_level == 0
+			LOCAL.n = ice.node
+			for i = 3 downto 0
+				if n.connection[i] && n.area.map[n.x+DELTA_X[i]][n.y+DELTA_Y[i]] == player.node
+					moveObject(ice, i)
+					n = true // this will tell the next if command that the ice has already taken its action this turn
+					break
+		// if the player cannot be found or s/he has passed a query, roam
+		if !n &&( ice.node != player.node || !iceQuery(ice) )
+			iceRoam(ice)
+
+
+// ***************
+	RULESET.iceGoingHome = FUNCTION (ice)
+		if ice.hostile
+
+		// if the player is currently in this node and we're looking for intruders, query him/her
+		if !ice.hostile && !ice.bypassed && player.node == ice.node && ice.node.area.system.alert_level == RED &&( ice.type.type == ATTACK || ice.type.type == TRACE )
+
+
+	RULESET.iceNoticesPlayer = FUNCTION (ice)
+		return_value = true
+		LOCAL.p = player.deck.default_program[DEFAULT_HIDE]
+		if p != UNDEFINED
+			LOCAL.target_number = 10 + 2*player.system.rating + getAnalysisRating(ice) - getStealthRating(player) - p.rating
+// ************* player.decoy_level isn't defined yet
+			// If decoys are in use, it is far more difficult to hide from ice
+			if player.decoy_level > 0
+				target_number = target_number + 4
+			LOCAL.successes = rollDie(target_number)
+			if successess > 0
+// play the sound of the hide program p
+				print getName(ice) + " fails to notice you."
+			return_value = successess <= 0
+
+
+// ***************
+	RULESET.iceQuery = FUNCTION (ice)
+
+
 	RULESET.iceRoam = FUNCTION (ice)
 		with ice
-			LOCAL.count = 0
-			for i = 3 downto 0
-				if node.connection[i]
-					count++
-			// if there is at least one exit, move
-			if count > 0
-				// if there is only one exit, move there even if we just came from there
-				if count == 1
-					previous_node = UNDEFINED
-				i = random(0,3)
-				while !node.connection[i] || node.area.map[node.x+DELTA_X[i]][node.y+DELTA_Y[i]] == previous_node
+			current_action = ROAMING
+			if node != player.node || !iceNoticesPlayer(ice) || !iceQuery(ice)
+				LOCAL.count = 0
+				for i = 3 downto 0
+					if node.connection[i]
+						count++
+				// if there is at least one exit, move
+				if count > 0
+					// if there is only one exit, move there even if we just came from there
+					if count == 1
+						previous_node = UNDEFINED
 					i = random(0,3)
-				previous_node = node
-				moveObject(ice, i)
-				debug("moving probe "+type.name[rating]+"  ("+previous_node.x+","+previous_node.y+") -> ("+node.x+","+node.y+")")
+					while !node.connection[i] || node.area.map[node.x+DELTA_X[i]][node.y+DELTA_Y[i]] == previous_node
+						i = random(0,3)
+					previous_node = node
+					moveObject(ice, i)
+					debug("moving roaming ice "+type.name[rating]+"  ("+previous_node.x+","+previous_node.y+") -> ("+node.x+","+node.y+")")
 
 
+// ***************
+	RULESET.iceSoundAlarm = FUNCTION (ice)

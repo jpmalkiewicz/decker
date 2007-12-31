@@ -6,47 +6,6 @@ english
 			if o[i] != human
 				actionDefaultAttackProgram(human, program, o[i])
 
-   RULESET.silenceProgram = FUNCTION (human, program)
-      LOCAL.target_number = 10  +  3 * human.current_system.rating  - (getStealthRating(human) + program.rating)
-
-      // roll the die and determine the outcome
-      LOCAL.successes = rollDie(target_number)
-      if success <= 0
-         if human == player
-            print "Failed to silence node"
-      else
-         //g_pChar->m_pCurrentNode->m_nActiveSilenceLevel = 2 + (2*iSuccess);
-         advanceSystemTime()
-         // Update icons on panel with silence
-
-   RULESET.healProgram = FUNCTION (human, program)
-      deck = human.deck
-      debug("Local Deck Damage " + deck.damage)
-      if deck.damage == 0
-         print "Healing failed because you are not damaged"
-      else
-         LOCAL.target_number = 8 + (3*human.current_system.rating) - (getDefenseRating(human) + program.rating)
-
-         // Roll the die
-         LOCAL.success = rollDie(target_number)
-         debug("Rolled: " + success)
-         if success < 0
-            //TODO Program crashed, so far it is set to 0, actually it has to be removed
-            program.rating = 0
-            print "Healing failed and program crashed"
-         else if success == 0
-            print "Healing failed"
-         if success > 0
-            LOCAL.healed = 4*success
-            deck.damage = deck.damage - healed
-            //Damage can not go lower than 0
-            if deck.damage < 0
-               deck.damage = 0
-            //Specify how successful it was
-            print "Healed " + healed*RULESET.HEALTH_INCREMENT + "%"
-            program.rating--
-      debug("Damage " + human.deck.damage)
-      debug("Rating: " +program.rating)
 
 	RULESET.actionDefaultAttackProgram = FUNCTION (human, program, target)
 		if target != UNDEFINED
@@ -160,9 +119,15 @@ english
 
 
 	// returns the current analysis rating for an ice or human. the value can be negative
-	RULESET.getAnalysisRating = FUNCTION (object)
+	RULESET.getAnalysisRating = FUNCTION (object, include_analyzed=true)
 		if object.structure_type == "ICE"
-// ***************
+			return_value = object.rating - object.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
+			if object.weaken > 0
+				return_value = return_value - 4
+			if include_analyzed && object.analyzed > 0
+				return_value = return_value - object.analyzed                                // substract the maximum number of successes achieved in a single analyze attempt on this object
+			if object.white && object.node.area.system.alert_level != GREEN
+				return_value = return_value + 2                                           // white object gets a +2 analysis modifier during YELLOW and RED alert
 		else if object.structure_type == "HUMAN"
 			// an analysis boost program will give +3
 			LOCAL.a = object.deck.boost_program.type.category
@@ -208,7 +173,7 @@ english
 
 
 	// returns the current stealth rating for a object. the value can be negative
-	RULESET.getStealthRating = FUNCTION (object)
+	RULESET.getStealthRating = FUNCTION (object, include_analyzed=true)
 		if object.structure_type == "HUMAN"
 			// a stealth boost program will give +3
 			LOCAL.a = object.deck.boost_program.type.category
@@ -216,6 +181,36 @@ english
 			// if the player has been traced, s/he gets a -4 to the stealth rating
 			if deck.traced
 				return_value = return_value - 4
+
+
+   RULESET.healProgram = FUNCTION (human, program)
+      deck = human.deck
+      debug("Local Deck Damage " + deck.damage)
+      if deck.damage == 0
+         print "Healing failed because you are not damaged"
+      else
+         LOCAL.target_number = 8 + (3*human.current_system.rating) - (getDefenseRating(human) + program.rating)
+
+         // Roll the die
+         LOCAL.success = rollDie(target_number)
+         debug("Rolled: " + success)
+         if success < 0
+            //TODO Program crashed, so far it is set to 0, actually it has to be removed
+            program.rating = 0
+            print "Healing failed and program crashed"
+         else if success == 0
+            print "Healing failed"
+         if success > 0
+            LOCAL.healed = 4*success
+            deck.damage = deck.damage - healed
+            //Damage can not go lower than 0
+            if deck.damage < 0
+               deck.damage = 0
+            //Specify how successful it was
+            print "Healed " + healed*RULESET.HEALTH_INCREMENT + "%"
+            program.rating--
+      debug("Damage " + human.deck.damage)
+      debug("Rating: " +program.rating)
 
 
 	RULESET.humanConditionModifier = FUNCTION (human)
@@ -332,3 +327,18 @@ english
 				object.x = 4 + DELTA_X[direction] * 4
 				object.y = 4 + DELTA_Y[direction] * 4
 		node.objects[] = object
+
+
+   RULESET.silenceProgram = FUNCTION (human, program)
+      LOCAL.target_number = 10  +  3 * human.current_system.rating  - (getStealthRating(human) + program.rating)
+
+      // roll the die and determine the outcome
+      LOCAL.successes = rollDie(target_number)
+      if success <= 0
+         if human == player
+            print "Failed to silence node"
+      else
+         //g_pChar->m_pCurrentNode->m_nActiveSilenceLevel = 2 + (2*iSuccess);
+         advanceSystemTime()
+         // Update icons on panel with silence
+
