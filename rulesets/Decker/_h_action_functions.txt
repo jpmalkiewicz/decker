@@ -192,25 +192,25 @@ english
          LOCAL.target_number = 8 + (3*human.current_system.rating) - (getDefenseRating(human) + program.rating)
 
          // Roll the die
-         LOCAL.success = rollDie(target_number)
-         debug("Rolled: " + success)
-         if success < 0
-            //TODO Program crashed, so far it is set to 0, actually it has to be removed
-            program.rating = 0
-            print "Healing failed and program crashed"
-         else if success == 0
-            print "Healing failed"
-         if success > 0
-            LOCAL.healed = 4*success
-            deck.damage = deck.damage - healed
-            //Damage can not go lower than 0
-            if deck.damage < 0
-               deck.damage = 0
-            //Specify how successful it was
-            print "Healed " + healed*RULESET.HEALTH_INCREMENT + "%"
-            program.rating--
-      debug("Damage " + human.deck.damage)
-      debug("Rating: " +program.rating)
+			LOCAL.success = rollDie(target_number)
+			debug("Rolled: " + success)
+			if success < 0
+				//TODO Program crashed, so far it is set to 0, actually it has to be removed
+				program.rating = 0
+				print "Healing failed and program crashed"
+			else if success == 0
+				print "Healing failed"
+			if success > 0
+				LOCAL.healed = 4*success
+				deck.damage = deck.damage - healed
+				//Damage can not go lower than 0
+				if deck.damage < 0
+					deck.damage = 0
+				//Specify how successful it was
+				print "Healed " + healed*RULESET.HEALTH_INCREMENT + "%"
+				program.rating--
+		debug("Damage " + human.deck.damage)
+		debug("Rating: " +program.rating)
 
 
 	RULESET.humanConditionModifier = FUNCTION (human)
@@ -330,15 +330,15 @@ english
 
 
    RULESET.silenceProgram = FUNCTION (human, program)
-      LOCAL.target_number = 10  +  3 * human.current_system.rating  - (getStealthRating(human) + program.rating)
+		LOCAL.target_number = 10  +  3 * human.current_system.rating  - (getStealthRating(human) + program.rating)
 
-      // roll the die and determine the outcome
-      LOCAL.successes = rollDie(target_number)
-      if success <= 0
-         if human == player
-            print "Failed to silence node"
-      else
-         //g_pChar->m_pCurrentNode->m_nActiveSilenceLevel = 2 + (2*iSuccess);
-         advanceSystemTime()
-         // Update icons on panel with silence
+		// roll the die and determine the outcome
+		LOCAL.successes = rollDie(target_number)
+		if success <= 0
+			if human == player
+				print "Failed to silence node"
+		else
+			//g_pChar->m_pCurrentNode->m_nActiveSilenceLevel = 2 + (2*iSuccess);
+			advanceSystemTime()
+			// Update icons on panel with silence
 

@@ -10,6 +10,7 @@ abstract class ScriptReader
 	final static String VARIABLE_NAME_CHARACTERS = "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	final static String VARIABLE_NAME_CHARACTERS_AND_DOT = VARIABLE_NAME_CHARACTERS + ".";
 	static int TABULATOR_SIZE = 3;
+	static boolean FORCE_TABULATOR_BLOCK_INDENTATION = true;
 
 
 	private String script_name;
@@ -197,6 +198,7 @@ abstract class ScriptReader
 	/** moves through the stream until a non-whitespace character is encountered */
 	private void skipWhitespace ()  {
 		int c;
+		boolean at_line_start = false;
 		do {
 			c = preview();
 			// check whether there's a comment starting
@@ -207,10 +209,18 @@ abstract class ScriptReader
 					while (c2 != '\n' && c2 != -1)
 						c2 = read();
 					c = ' ';
+					at_line_start = true;
 				}
 			}
-			else if (c != -1 && WHITESPACE.indexOf(c) > -1)
+			else if (c != -1 && WHITESPACE.indexOf(c) > -1) {
+				if (c == ' ' && at_line_start && FORCE_TABULATOR_BLOCK_INDENTATION) {
+					current_line = next_line;
+					current_column = next_column;
+					throwException("space instead of tab used to indent block. only tabs are allowed for block indentation in the current ruleset");
+				}
 				read();
+			}
+
 		} while(c != -1 && WHITESPACE.indexOf(c) > -1);
 		if (next_line_start == 0) {
 			previous_line_start = current_line_start;
