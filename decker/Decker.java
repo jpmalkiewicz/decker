@@ -5,19 +5,19 @@ import java.awt.*;
 import java.awt.event.*;
 import decker.view.SplashScreen;
 
-/** 
- *  Main class, that is used to start the game.   
+/**
+ *  Main class, that is used to start the game.
  */
 public class Decker
 {
 	public static void main(String[] args) {
-//		
+//
 //		try {
 //			System.setErr(new PrintStream(new FileOutputStream("ERROR.JAVA", false)));
 //		} catch (FileNotFoundException ex) {
 //			System.exit(1);
 //		}
-		
+
 		/* loading the rulesets */
 		SplashScreen ss = new SplashScreen();
 		Global.setDisplayedComponent(ss);
@@ -49,7 +49,6 @@ public class Decker
 				Global.getViewWrapper().requestFocus();
 			}
 		});
-		Global.getViewWrapper().setView(new DefaultView());
 		AbstractView.reloadArtwork(true);
 		Global.getDisplayedScreen().set(Global.getCurrentRuleset().data.get("initial_screen"));
 		Global.getViewWrapper().repaint();
