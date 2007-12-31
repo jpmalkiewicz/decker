@@ -93,7 +93,7 @@ english
 			y
 			connection      // if connection[direction] set to true, there is a connection in that direction
 			type
-			smoke_level
+			smoke_level = 0
 			info_level      // UNDEFINED = unknown, 1 = has seen it, 2 = has been there and knows what exits exist, 3 = knows its sub_type
 			objects         // ice and humans
 			active_effects  // something that has an expiry_time and on_expire() function defined, or an on_tick() function
@@ -207,10 +207,7 @@ english
 				program = ARRAY
 				optional_hardware = ARRAY
 				active_effects = ARRAY
-				default_program = ARRAY
-					UNDEFINED
-					UNDEFINED
-					UNDEFINED
+				default_program = createSizedArray(DEFAULT_PROGRAM_GROUP_COUNT)
 
 		MISSION
 			expandable = true
