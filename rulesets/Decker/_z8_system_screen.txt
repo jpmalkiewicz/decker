@@ -171,10 +171,22 @@ english
 							n = map[x+m.x][y+m.y]
 							if n != UNDEFINED
 								// first add the connections
-								if n.connection[0] != UNDEFINED &&( n.display_connections || map[x+m.x][y+m.y-1].display_connections )
-									c.component[] = createImage("system/connection_ns_"+map_size, map_size*x, map_size*y-map_size/2)
-								if n.connection[3] != UNDEFINED &&( n.display_connections || map[x+m.x-1][y+m.y].display_connections )
-									c.component[] = createImage("system/connection_ew_"+map_size, map_size*x-map_size/2, map_size*y)
+								if n.connection[0] != UNDEFINED &&( n.display_connections || n.connection[0].display_connections )
+									if n.display_connections || n.info_level > 0
+										if n.connection[0].display_connections || n.connection[0].info_level > 0
+											c.component[] = createImage("system/connection_ns_"+map_size, map_size*x, map_size*y-map_size/2)
+										else
+											c.component[] = createImage("system/connection_north_"+map_size, map_size*x, map_size*y-map_size/2)
+									else
+										c.component[] = createImage("system/connection_south_"+map_size, map_size*x, map_size*y-map_size/2)
+								if n.connection[3] != UNDEFINED &&( n.display_connections || n.connection[3].display_connections )
+									if n.display_connections || n.info_level > 0
+										if n.connection[3].display_connections || n.connection[3].info_level > 0
+											c.component[] = createImage("system/connection_ew_"+map_size, map_size*x-map_size/2, map_size*y)
+										else
+											c.component[] = createImage("system/connection_west_"+map_size, map_size*x-map_size/2, map_size*y)
+									else
+										c.component[] = createImage("system/connection_east_"+map_size, map_size*x-map_size/2, map_size*y)
 								// then add the node
 								if n.info_level > 0
 									c.component[] = createImage("system/node_"+toLowerCase(n.info_level<=2?getNodeTypeCategory(n.type):n.type)+"_"+n.info_level+"_"+map_size, map_size*x, map_size*y)
