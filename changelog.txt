@@ -1,4 +1,8 @@
 85%
+2008-02-29
+	removed the "global value" language construct
+2008-02-28
+  recreated half the central ICE action function in script
 2007-12-28
   the code for the default attack programs is mostly done
   the damage bar for the selected target works

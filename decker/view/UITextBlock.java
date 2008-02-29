@@ -92,7 +92,7 @@ final class UITextBlock extends DisplayedComponent
 				text = c.toString();
 			// if we don't have a color or font yet, use the default values
 			if (font == null || color == null) {
-				v = ScriptNode.getGlobalValue("TEXT_STYLE");
+				v = ScriptNode.getVariable("TEXT_STYLE");
 				if (font == null)
 					font = AbstractView.getFont(v.get("font").toString());
 				if (color == null)
@@ -219,7 +219,7 @@ final class UITextBlock extends DisplayedComponent
 		children_relative_to_height = 0;
 		// add the new children
 		Value v = component.get("component");
-		final int default_font_height = AbstractView.getFontMetrics(AbstractView.getFont(ScriptNode.getGlobalValue("TEXT_STYLE").get("font").toString())).getHeight();
+		final int default_font_height = AbstractView.getFontMetrics(AbstractView.getFont(ScriptNode.getVariable("TEXT_STYLE").get("font").toString())).getHeight();
 		int[] row_data = { 0, 0, 0, 0, 0, default_font_height };
 		DisplayedComponent[][] row_elements = new DisplayedComponent[1][50];
 		DisplayedComponent[][] children = new DisplayedComponent[1][50];

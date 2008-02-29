@@ -9,13 +9,17 @@ english
 			width
 			height
 			inverted = false
-			top_color = @BORDER_COLOR1
+			top_color
 			left_color
 			right_color
-			bottom_color = @BORDER_COLOR2
+			bottom_color
 			background_color
 			component
 			thickness = 2
+			initializer = FUNCTION
+				top_color = BORDER_COLOR1
+				bottom_color = BORDER_COLOR2
+
 
 
 		BORDER_BUTTON
@@ -99,8 +103,8 @@ english
 			on_resize = FUNCTION (new_width, new_height)
 				component[0].width = new_width
 				component[0].height = new_height
-				if @BACKGROUND_COLOR2 == UNDEFINED
-					component[0].background_color = @BACKGROUND_COLOR
+				if BACKGROUND_COLOR2 == UNDEFINED
+					component[0].background_color = BACKGROUND_COLOR
 					if component[1] != UNDEFINED
 						component[1] = UNDEFINED
 				else
@@ -108,8 +112,8 @@ english
 						component[1] = createBorder(5, 5, 0, 0)
 					component[1].width = new_width-10
 					component[1].height = new_height-10
-					component[1].background_color = @BACKGROUND_COLOR
-					component[0].background_color = @BACKGROUND_COLOR2
+					component[1].background_color = BACKGROUND_COLOR
+					component[0].background_color = BACKGROUND_COLOR2
 
 
 		SCROLLBAR  // a vertical scrollbar

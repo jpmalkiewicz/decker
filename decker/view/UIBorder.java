@@ -17,18 +17,17 @@ final class UIBorder extends DisplayedComponent
 
 	UIBorder (final DisplayedComponent _parent, final DisplayedComponent current_clip_source, final boolean use_default_background_color) {
 		super(null, _parent, current_clip_source);
-		final Structure global_values = ScriptNode.getStackEntry(ScriptNode.RULESET_STACK_SLOT).get("GLOBAL_VALUES").structure();;
-		left = AbstractView.getColor(global_values.get("BORDER_COLOR1").string());
+		left = AbstractView.getColor(ScriptNode.getVariable("BORDER_COLOR1").string());
 		top = left;
-		right = AbstractView.getColor(global_values.get("BORDER_COLOR2").string());
+		right = AbstractView.getColor(ScriptNode.getVariable("BORDER_COLOR2").string());
 		bottom = right;
 		inverted = false;
 		thickness = 2;
 		Value v;
-		if ((v=ScriptNode.getValue("DEFAULT_BORDER_THICKNESS")).type() == Value.INTEGER)
+		if ((v=ScriptNode.getVariable("DEFAULT_BORDER_THICKNESS")).type() == Value.INTEGER)
 			thickness = v.integer();
 		if (use_default_background_color)
-			background = AbstractView.getColor(global_values.get("BACKGROUND_COLOR").string());
+			background = AbstractView.getColor(ScriptNode.getVariable("BACKGROUND_COLOR").string());
 		child_count = 0;
 		inner_area = new UIInnerArea(this);
 		inner_area.update(0, current_clip_source);
@@ -162,7 +161,7 @@ final class UIBorder extends DisplayedComponent
 			thickness = 2;
 			if ((v=component.get("thickness")).type() == Value.INTEGER)
 				thickness = v.integer();
-			else if ((v=ScriptNode.getValue("DEFAULT_BORDER_THICKNESS")).type() == Value.INTEGER)
+			else if ((v=ScriptNode.getVariable("DEFAULT_BORDER_THICKNESS")).type() == Value.INTEGER)
 				thickness = v.integer();
 		}
 	}

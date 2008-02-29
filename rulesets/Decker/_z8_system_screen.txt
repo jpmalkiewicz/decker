@@ -7,8 +7,8 @@ english
 		loaded_programs = ARRAY
 		ice_health_bar_max_width = 80
 
-		node_name = createTextBold("", 4, CENTER, @TABLE_TEXT_COLOR)
-		ice_name  = createTextBold("", 4, CENTER, @TABLE_TEXT_COLOR)
+		node_name = createTextBold("", 4, CENTER, TABLE_TEXT_COLOR)
+		ice_name  = createTextBold("", 4, CENTER, TABLE_TEXT_COLOR)
 		ice_health_bar = createRectangle(354, 342, ice_health_bar_max_width, 8)
 
 		program_scrollpane = SCROLLPANE
@@ -295,7 +295,7 @@ english
 				LOCAL.t = createTable ( , 18, 20, 9, 86, 50)
 				t.cell_x = createArray (CENTER, -2, 8, CENTER)
 				t.cell_y = CENTER
-				t.selected_row_background = @TABLE_SELECTED_ROW_BACKGROUND
+				t.selected_row_background = TABLE_SELECTED_ROW_BACKGROUND
 //				t.can_drag_rows = true
 				t.selected_row = program_scrollpane.displayed_element.selected_row
 //				t.on_row_dragged = FUNCTION (table, old_row_index, new_row_index)

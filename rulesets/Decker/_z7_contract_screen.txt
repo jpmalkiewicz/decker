@@ -131,7 +131,7 @@ english
 					displayScreen(home_screen, false)
 
 			// the table
-			createBorder(list_scrollpane.x-2, list_scrollpane.y-22, list_scrollpane.width+4, list_scrollpane.height+24, @TABLE_BACKGROUND_COLOR, true)
+			createBorder(list_scrollpane.x-2, list_scrollpane.y-22, list_scrollpane.width+4, list_scrollpane.height+24, TABLE_BACKGROUND_COLOR, true)
 			list_scrollpane
 			description_scrollpane
 			createTableButton(0, "Title",      120, table_button_x, &compareText)
@@ -147,7 +147,7 @@ english
 				LOCAL.t = createTable( , 19, 120, 80, 160, 80, 80, 80)
 				t.cell_x = createArray (3, CENTER, CENTER, CENTER, CENTER, CENTER)
 				t.cell_y = CENTER
-				t.selected_row_background = @TABLE_SELECTED_ROW_BACKGROUND
+				t.selected_row_background = TABLE_SELECTED_ROW_BACKGROUND
 				t.can_drag_rows = true
 				t.selected_row = scrollpane.displayed_element.selected_row
 				t.on_row_dragged = FUNCTION (table, old_row_index, new_row_index)

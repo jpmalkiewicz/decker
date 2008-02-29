@@ -118,11 +118,6 @@ public abstract class ScriptNode
 	public abstract Value execute ();
 
 
-	public final static Value getGlobalValue (final String name)  {
-		return stack[RULESET_STACK_SLOT].get("GLOBAL_VALUES").get(name);
-	}
-
-
 	int getScriptColumn () { return script_column; }
 
 
@@ -139,12 +134,6 @@ public abstract class ScriptNode
 		if ((ret=stack[ENGINE_STACK_SLOT].get("STRUCTURE_TYPES").get(name)) != null)
 			return ret;
 		return null;
-	}
-
-
-	final public static Value getValue (final String name)  {
-		final Value ret = getVariable(name);
-		return (ret == null) ? null : ret;
 	}
 
 

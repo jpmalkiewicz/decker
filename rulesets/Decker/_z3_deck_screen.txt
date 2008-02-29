@@ -71,7 +71,7 @@ english
 			createText("Analysis",    28, 17+16*6)
 
 			// the software section
-			createBorder(scrollpane.x-2, scrollpane.y-22, scrollpane.width+4, scrollpane.height+24, @TABLE_BACKGROUND_COLOR, true)
+			createBorder(scrollpane.x-2, scrollpane.y-22, scrollpane.width+4, scrollpane.height+24, TABLE_BACKGROUND_COLOR, true)
 			scrollpane
 			createTableButton(0, "",        19, table_button_x, &compareProgramsPreset)
 			createTableButton(1, "Name",   136, table_button_x, &compareText)
@@ -131,7 +131,7 @@ english
 				LOCAL.t = createTable ( , 18, 19, 136, 109, 59, 59, 59, 59)
 				t.cell_x = createArray (CENTER, 8, CENTER, CENTER, CENTER, CENTER, CENTER)
 				t.cell_y = CENTER
-				t.selected_row_background = @TABLE_SELECTED_ROW_BACKGROUND
+				t.selected_row_background = TABLE_SELECTED_ROW_BACKGROUND
 				t.can_drag_rows = true
 				t.selected_row = scrollpane.displayed_element.selected_row
 				t.on_row_dragged = FUNCTION (table, old_row_index, new_row_index)
@@ -224,7 +224,7 @@ english
 					else
 						state = UNDEFINED
 
-					addTableRow(t, createImage(p[i].type.image), createText(p[i].name,,,@TABLE_TEXT_COLOR), createText(p[i].type.name,,,@TABLE_TEXT_COLOR), createText(p[i].rating,,,@TABLE_TEXT_COLOR), createText(p[i].size,,,@TABLE_TEXT_COLOR), loaded, state)
+					addTableRow(t, createImage(p[i].type.image), createText(p[i].name,,,TABLE_TEXT_COLOR), createText(p[i].type.name,,,TABLE_TEXT_COLOR), createText(p[i].rating,,,TABLE_TEXT_COLOR), createText(p[i].size,,,TABLE_TEXT_COLOR), loaded, state)
 				centerRightAlignedTableColumn(t, 3)
 				centerRightAlignedTableColumn(t, 4)
 				scrollpane.displayed_element = t
