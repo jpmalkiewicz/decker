@@ -295,7 +295,7 @@ final class ScriptParser extends ScriptReader
 						e = parseStructureDefinition(s, command_column, expression_column, current_line, column, expression_stack, expression_stack_top, allow_structure_definition_blocks);
 						break;
 					}
-					throwException("variable, constant, structure, ARRAY, FUNCTION, -, !, @ or ( expected but "+s+" found");
+					throwException("variable, constant, structure, ARRAY, FUNCTION, -, !, or ( expected but "+s+" found");
 		}
 		// check whether there's an operator following the operand e
 		if (ret == null)

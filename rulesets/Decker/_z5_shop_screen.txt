@@ -28,53 +28,54 @@ english
 			text_padding = 3
 			on_mouse_up = FUNCTION
 				LOCAL.index = shop_screen.scrollpane.displayed_element.selected_row
-				LOCAL.item = player.shop_inventory[index]
-				player.money = player.money - item.value
-				if item.type.category[0] == CHIP
-					LOCAL.chip_type = item.type.category[item.type.category.size-1]
-					if chip_type == CPU
-						player.deck.cpu = item.rating
-					else if chip_type == COPROCESSOR
-						player.deck.coprocessor = item.rating
-					else if chip_type == ATTACK
-						player.deck.cpu = item.rating
-					else if chip_type == DEFENSE
-						player.deck.defense = item.rating
-					else if chip_type == STEALTH
-						player.deck.stealth = item.rating
-					else if chip_type == ANALYSIS
-						player.deck.analysis = item.rating
-				else if item.type.category[0] == HARDWARE
-					// the player cannot have two pieces of hardware of the same type
-					LOCAL.h = player.deck.optional_hardware
-					LOCAL.append = true
-					for i = 0 to h.size-1
-						if h[i].type.id == item.id
-							if h[i].type.id == item.type.id
-								h[i] = item
-								append = false
-								break
-					if append
-						h[] = item
-					// optional hardware is sorted alphabetically
-					LOCAL.swap
-					for a = h.size-2 downto 0
-						for b = 0 to a
-							if h[b].name > h[b+1].name
-								swap = h[b+1]
-								h[b+1] = h[b]
-								h[b] = swap
-					// the deck also gets markers for installed hardware
-					if indexof(PROXIMITY_MAPPER, item.type.category) >= 0
-						player.deck.proximity_mapper = true
-				else   // item.type.category[0] == PROGRAM
-					insert(player.deck.program,0)
-					player.deck.program[0] = item
-					item.state = INSTALLED
-				delete(player.shop_inventory, index)
-				deleteTableRow(shop_screen.scrollpane.displayed_element, index)
-				shop_screen.purchase_button_wrapper.component = UNDEFINED
-				shop_screen.setup()
+				if index != UNDEFINED
+					LOCAL.item = player.shop_inventory[index]
+					player.money = player.money - item.value
+					if item.type.category[0] == CHIP
+						LOCAL.chip_type = item.type.category[item.type.category.size-1]
+						if chip_type == CPU
+							player.deck.cpu = item.rating
+						else if chip_type == COPROCESSOR
+							player.deck.coprocessor = item.rating
+						else if chip_type == ATTACK
+							player.deck.cpu = item.rating
+						else if chip_type == DEFENSE
+							player.deck.defense = item.rating
+						else if chip_type == STEALTH
+							player.deck.stealth = item.rating
+						else if chip_type == ANALYSIS
+							player.deck.analysis = item.rating
+					else if item.type.category[0] == HARDWARE
+						// the player cannot have two pieces of hardware of the same type
+						LOCAL.h = player.deck.optional_hardware
+						LOCAL.append = true
+						for i = 0 to h.size-1
+							if h[i].type.id == item.id
+								if h[i].type.id == item.type.id
+									h[i] = item
+									append = false
+									break
+						if append
+							h[] = item
+						// optional hardware is sorted alphabetically
+						LOCAL.swap
+						for a = h.size-2 downto 0
+							for b = 0 to a
+								if h[b].name > h[b+1].name
+									swap = h[b+1]
+									h[b+1] = h[b]
+									h[b] = swap
+						// the deck also gets markers for installed hardware
+						if indexof(PROXIMITY_MAPPER, item.type.category) >= 0
+							player.deck.proximity_mapper = true
+					else   // item.type.category[0] == PROGRAM
+						insert(player.deck.program,0)
+						player.deck.program[0] = item
+						item.state = INSTALLED
+					delete(player.shop_inventory, index)
+					deleteTableRow(shop_screen.scrollpane.displayed_element, index)
+					shop_screen.purchase_button_wrapper.component = UNDEFINED
+					shop_screen.setup()
 		special_order_button = BORDER_BUTTON
 			x = COMPONENT.width*68/100
 			y = home_button.y
