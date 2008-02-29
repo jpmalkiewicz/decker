@@ -5,7 +5,7 @@ import java.io.PrintStream;
 
 public class Expression extends ScriptNode
 {
-	final static int STRUCTURE_DEFINITION = 1, ARRAY_DEFINITION = 3, NOT_AN_OPERATOR = 4, VARIABLE = 5, CONSTANT = 6, BRACKET = 7, /* = 8, */ MEMBER = 9, ARRAY_INDEX = 10, FUNCTION_CALL = 11, RAW_VALUE = 12, MULTIPLY = 13, DIVIDE = 14, MODULO = 15, NOT = 16, ADD = 17, SUBSTRACT = 18, NEGATIVE = 19, GREATER = 20, LESS = 21, GREATER_OR_EQUAL = 22, LESS_OR_EQUAL = 23, NOT_EQUAL = 24, EQUAL = 25, AND = 26, OR = 27, CONDITIONAL_COLON = 28, CONDITIONAL = 29;
+	final static int STRUCTURE_DEFINITION = 1, ARRAY_DEFINITION = 3, NOT_AN_OPERATOR = 4, VARIABLE = 5, CONSTANT = 6, BRACKET = 7, /* = 8, */ MEMBER = 9, ARRAY_INDEX = 10, FUNCTION_CALL = 11, /* = 12,*/ MULTIPLY = 13, DIVIDE = 14, MODULO = 15, NOT = 16, ADD = 17, SUBSTRACT = 18, NEGATIVE = 19, GREATER = 20, LESS = 21, GREATER_OR_EQUAL = 22, LESS_OR_EQUAL = 23, NOT_EQUAL = 24, EQUAL = 25, AND = 26, OR = 27, CONDITIONAL_COLON = 28, CONDITIONAL = 29;
 	final static int[] OPERATOR_PRIORITY = new int[30];
 	// the string below contains all the one character operators, with OPERATOR_STRING.charAt(x) having the operator id x
 	final static String OPERATOR_STRING = "(.[*/!+-><:?%";
@@ -53,10 +53,6 @@ public class Expression extends ScriptNode
 		index = OPERATOR_STRING_2.indexOf(operator);
 		if(index > -1 && (index&1) == 0 && operator.length() == 2)
 			return OPERATOR_STRING_2_ID[index/2];
-
-		// check whether it's the & operator
-		if(operator.equals("&"))
-			return RAW_VALUE;
 
 		if(operator.startsWith("\""))
 			return CONSTANT;
@@ -178,10 +174,8 @@ try {
 
 
 	void addExpression (final Expression expression)  {
-		if (operator == RAW_VALUE && expression.operator != VARIABLE && expression.operator != MEMBER && expression.operator != ARRAY_INDEX)
-			throwException("the "+operator_element.toString()+" operator requires a variable as its operand");
 		// add the expression to this expression as the first or second operand
-		if (first_operand != null && operator != NEGATIVE && operator != NOT && operator != BRACKET && operator != RAW_VALUE)
+		if (first_operand != null && operator != NEGATIVE && operator != NOT && operator != BRACKET)
 			second_operand = expression;
 		else
 			first_operand = expression;
@@ -231,9 +225,6 @@ try {
 					if(bt != Value.INTEGER && !b.toString().equals(""))
 						throwException("The array index operator [] requires an integer inside the brackets, or empty brackets, not the value "+b.toString()+" ("+b.typeName()+")");
 				return (bt==Value.INTEGER) ? a.get(b.integer()) : a.get(b.toString());
-			case RAW_VALUE :
-					return_value.set(a);
-				break;
 			case MEMBER :
 					if (second_operand.operator != VARIABLE)
 						throwException("The . operator requires a variable name as the right operand.");
@@ -438,10 +429,6 @@ try {
 				break;
 			case NOT :
 			case NEGATIVE :
-			case RAW_VALUE :
-					out.print((line_start?indentation:""));
-					ret = print(out, indentation, false, first_operand, depth);
-				break;
 			case FUNCTION_CALL:
 					out.print((line_start?indentation:"")+toString());
 				break;
