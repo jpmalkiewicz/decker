@@ -271,10 +271,6 @@ final class ScriptParser extends ScriptReader
 					e.setOperator(Expression.NEGATIVE);
 					ret = parseExpression(current_line, command_column, expression_column, expression_stack, expression_stack_top, allow_structure_definition_blocks); // parse the expression that the - negates
 				break;
-			case Expression.RAW_VALUE :
-					e = new Expression(s, script_name, current_line, column, expression_stack, expression_stack_top);
-					ret = parseExpression(current_line, command_column, expression_column, expression_stack, expression_stack_top, allow_structure_definition_blocks); // parse the expression behind the &
-				break;
 			case Expression.NOT :
 					e = new Expression("!", script_name, current_line, column, expression_stack, expression_stack_top);
 					ret = parseExpression(current_line, command_column, expression_column, expression_stack, expression_stack_top, allow_structure_definition_blocks); // parse the expression behind the !

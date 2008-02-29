@@ -122,14 +122,14 @@ english
 			// the table
 			createBorder(scrollpane.x-2, scrollpane.y-22, scrollpane.width+4, scrollpane.height+24, TABLE_BACKGROUND_COLOR, true)
 			scrollpane
-			createTableButton(0, "",         19, table_button_x, &compareShopItemsPreset)
-			createTableButton(1, "Name",    141, table_button_x, &compareText)
-			createTableButton(2, "Type",    100, table_button_x, &compareText)
-			createTableButton(3, "Rating",   50, table_button_x, &compareRatings)
-			createTableButton(4, "Current",  50, table_button_x, &compareCurrentRatings)
-			createTableButton(5, "Cost",     50, table_button_x, &compareNumbersInverted)
-			createTableButton(6, "Avg Cost", 60, table_button_x, &compareNumbersInverted)
-			createTableButton(7, "Size",     50, table_button_x, &compareNumbersInverted)
+			createTableButton(0, "",         19, table_button_x, compareShopItemsPreset)
+			createTableButton(1, "Name",    141, table_button_x, compareText)
+			createTableButton(2, "Type",    100, table_button_x, compareText)
+			createTableButton(3, "Rating",   50, table_button_x, compareRatings)
+			createTableButton(4, "Current",  50, table_button_x, compareCurrentRatings)
+			createTableButton(5, "Cost",     50, table_button_x, compareNumbersInverted)
+			createTableButton(6, "Avg Cost", 60, table_button_x, compareNumbersInverted)
+			createTableButton(7, "Size",     50, table_button_x, compareNumbersInverted)
 
 		setup = FUNCTION
 			shop_screen.char_money.text = player.money

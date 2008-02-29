@@ -73,13 +73,13 @@ english
 			// the software section
 			createBorder(scrollpane.x-2, scrollpane.y-22, scrollpane.width+4, scrollpane.height+24, TABLE_BACKGROUND_COLOR, true)
 			scrollpane
-			createTableButton(0, "",        19, table_button_x, &compareProgramsPreset)
-			createTableButton(1, "Name",   136, table_button_x, &compareText)
-			createTableButton(2, "Type",   109, table_button_x, &compareText)
-			createTableButton(3, "Rating",  59, table_button_x, &compareNumbers)
-			createTableButton(4, "Size",    59, table_button_x, &compareNumbers)
-			createTableButton(5, "Loaded",  59, table_button_x, &compareProgramsLoaded)
-			createTableButton(6, "Default", 59, table_button_x, &compareProgramsDefault)
+			createTableButton(0, "",        19, table_button_x, compareProgramsPreset)
+			createTableButton(1, "Name",   136, table_button_x, compareText)
+			createTableButton(2, "Type",   109, table_button_x, compareText)
+			createTableButton(3, "Rating",  59, table_button_x, compareNumbers)
+			createTableButton(4, "Size",    59, table_button_x, compareNumbers)
+			createTableButton(5, "Loaded",  59, table_button_x, compareProgramsLoaded)
+			createTableButton(6, "Default", 59, table_button_x, compareProgramsDefault)
 			optional_hardware   // the optional hardware texts will be stored in optional_hardware.component
 
 			// the current load section
@@ -214,13 +214,13 @@ english
 						idle = IMAGE
 							image = p[i].state != INSTALLED ?  "status_on"  :  "status_off"
 						prog = p[i]
-						on_mouse_down = &load_function
+						on_mouse_down = load_function
 					if p[i].type.default_category != UNDEFINED
 						state = BUTTON
 							idle = IMAGE
 								image = p[i].state == DEFAULT  ?  "status_on"  :  "status_off"
 							prog = p[i]
-							on_mouse_down = &default_function
+							on_mouse_down = default_function
 					else
 						state = UNDEFINED
 

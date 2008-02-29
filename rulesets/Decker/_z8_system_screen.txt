@@ -257,9 +257,9 @@ english
 				height = 16
 				component = ice_name
 			// the program table buttons
-			createTableButton(0, "",        19, table_button_x, &compareProgramsPreset)
-			createTableButton(2, "Name",    96, table_button_x, &compareText)
-			createTableButton(3, "Rating",  50, table_button_x, &compareNumbers)
+			createTableButton(0, "",        19, table_button_x, compareProgramsPreset)
+			createTableButton(2, "Name",    96, table_button_x, compareText)
+			createTableButton(3, "Rating",  50, table_button_x, compareNumbers)
 
 		// add the standard buttons to the button_wrapper
 		button_wrapper.cell[3][0] = BORDER_BUTTON

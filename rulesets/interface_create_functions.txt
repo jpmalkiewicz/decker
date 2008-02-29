@@ -2,38 +2,38 @@ english
 	// creates a border with the given values
 	ENGINE.createBorder = FUNCTION (bx, by, bwidth, bheight, bbackground_color, binverted, bcolor1 = BORDER_COLOR1, bcolor2 = BORDER_COLOR2)
 		return_value = BORDER
-			x        = &bx
-			y        = &by
-			width    = &bwidth
-			height   = &bheight
-			background_color = &bbackground_color
+			x        = bx
+			y        = by
+			width    = bwidth
+			height   = bheight
+			background_color = bbackground_color
 			inverted = binverted == true
-			if &bcolor1 != UNDEFINED
-				top_color = &bcolor1
-			if &bcolor2 != UNDEFINED
-				bottom_color = &bcolor2
+			if bcolor1 != UNDEFINED
+				top_color = bcolor1
+			if bcolor2 != UNDEFINED
+				bottom_color = bcolor2
 
 
 	ENGINE.createBorderButton = FUNCTION (_face, _x, _y)
 		return_value = BORDER_BUTTON
-			x = &_x
-			y = &_y
+			x = _x
+			y = _y
 		if value_type(_face) != "STRING"
-			idle = &_face
+			idle = _face
 		else
 			idle = IMAGE
-				image = &_face
+				image = _face
 
 
 	ENGINE.createButton = FUNCTION (_face, _x, _y)
 		return_value = BUTTON
-			x = &_x
-			y = &_y
+			x = _x
+			y = _y
 		if value_type(_face) != "STRING"
-			idle = &_face
+			idle = _face
 		else
 			idle = IMAGE
-				image = &_face
+				image = _face
 
 
 	ENGINE.createColor = FUNCTION (red, green, blue, alpha)
@@ -42,7 +42,7 @@ english
 
 	ENGINE.createImage = FUNCTION (_image, _x, _y, _h_align, _v_align)
 		return_value = IMAGE
-			image = &_image
+			image = _image
 			if _x != UNDEFINED
 				x = _x
 			if _y != UNDEFINED
@@ -201,15 +201,15 @@ english
 
 	ENGINE.createTable = FUNCTION (pcolumns, pcell_height, pcell_width)
 		return_value = TABLE
-			columns = &pcolumns
-			cell_height = &pcell_height
+			columns = pcolumns
+			cell_height = pcell_height
 			if argument.size == 3
 				cell_width = pcell_width
 			else
 				cell_width = ARRAY
 				for i = 2 to argument.size-1
 					width = width + argument[i]  // the width of the table
-					cell_width[] = &argument[i]
+					cell_width[] = argument[i]
 				columns = cell_width.size
 
 
@@ -224,40 +224,40 @@ english
 		return_value = copy(TEXT_STYLE)
 		// for all settings which are not defined, the default settings will be used
 		if text != UNDEFINED
-			return_value.text = &text
+			return_value.text = text
 		else
 			return_value.text = ""
 		if x != UNDEFINED
-			return_value.x = &x
+			return_value.x = x
 		if y != UNDEFINED
-			return_value.y = &y
+			return_value.y = y
 		if color != UNDEFINED
-			return_value.color = &color
+			return_value.color = color
 		if font != UNDEFINED
-			return_value.font = &font
+			return_value.font = font
 		if h_align != UNDEFINED
-			return_value.h_align = &h_align
+			return_value.h_align = h_align
 		if v_align != UNDEFINED
-			return_value.v_align = &v_align
+			return_value.v_align = v_align
 		if width != UNDEFINED
-			return_value.v_align = &width
+			return_value.v_align = width
 		if height != UNDEFINED
-			return_value.v_align = &height
+			return_value.v_align = height
 
 
 	// returns a new TEXT with the default settings as defined in the TEXT stored in TEXT_STYLE
 	ENGINE.createTextBold = FUNCTION (text, x, y, color, font)
 		return_value = copy(TEXT_STYLE_BOLD)
 		if text != UNDEFINED
-			return_value.text = &text
+			return_value.text = text
 		else
 			return_value.text = ""
 		// for all settings which are not defined, the default settings will be used
 		if x != UNDEFINED
-			return_value.x = &x
+			return_value.x = x
 		if y != UNDEFINED
-			return_value.y = &y
+			return_value.y = y
 		if color != UNDEFINED
-			return_value.color = &color
+			return_value.color = color
 		if font != UNDEFINED
-			return_value.font = &font
+			return_value.font = font

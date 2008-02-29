@@ -134,12 +134,12 @@ english
 			createBorder(list_scrollpane.x-2, list_scrollpane.y-22, list_scrollpane.width+4, list_scrollpane.height+24, TABLE_BACKGROUND_COLOR, true)
 			list_scrollpane
 			description_scrollpane
-			createTableButton(0, "Title",      120, table_button_x, &compareText)
-			createTableButton(1, "Difficulty",  80, table_button_x, &compareNumbersInverted)
-			createTableButton(2, "Details",    160, table_button_x, &compareMissionSystemRatings)
-			createTableButton(3, "Deadline",    80, table_button_x, &compareNumbers)
-			createTableButton(4, "Payment",     80, table_button_x, &compareNumbers)
-			createTableButton(5, "Accepted",    80, table_button_x, &compareMissionStatus)
+			createTableButton(0, "Title",      120, table_button_x, compareText)
+			createTableButton(1, "Difficulty",  80, table_button_x, compareNumbersInverted)
+			createTableButton(2, "Details",    160, table_button_x, compareMissionSystemRatings)
+			createTableButton(3, "Deadline",    80, table_button_x, compareNumbers)
+			createTableButton(4, "Payment",     80, table_button_x, compareNumbers)
+			createTableButton(5, "Accepted",    80, table_button_x, compareMissionStatus)
 
 		setup = FUNCTION
 			with contract_screen

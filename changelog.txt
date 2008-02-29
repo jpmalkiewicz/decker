@@ -1,5 +1,6 @@
 85%
 2008-02-29
+	removed the defunct & operator
 	removed the "global value" language construct
 2008-02-28
   recreated half the central ICE action function in script
