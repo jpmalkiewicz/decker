@@ -1,7 +1,57 @@
 english
+	// called for an ice when it's turn to act has arrived
 	RULESET.iceAction = FUNCTION (ice)
-		if ice.hostile
-			iceSoundAlarm(ice)
+		if ice.type.updateState(ice)
+			if !(ice.confused > 0)
+				LOCAL.a = getStructureMember(ice.type, "action"+ice.current_action)
+				if value_type(a) == "FUNCTION"
+					a(ice)
+			else
+				if player.tracing_ice == ice && random(0,3) == 0
+					player.tracing_ice = UNDEFINED
+					player.trace_countdown = UNDEFINED
+					print getName(ice) + " cancels its trace!"
+				LOCAL.a = random(0,4)
+				if a == 0
+					LOCAL.b = rollDie(10)    // = (random(1,20)-10+3)/4
+					if b > 0
+						b = b*b
+						ice.damage = ice.damage + b
+						print getName(ice) + " does " + b*HEALTH_INCREMENT +"% damage to itself"
+						if ice.damage >= LETHAL_DAMAGE
+							crashICE(ice)
+				if a == 1
+// **********
+
+
+
+	// returns true if the ice can act, false otherwise
+	RULESET.iceActionUpdateState = FUNCTION (ice)
+		return_value = true
+		if ice.slowed > 0
+			ice.slowed--
+			if ice.slowed == 0
+				print getName(ice) + " is no longer slowed"
+			else if ice.slowed%2 == 1
+				return_value = false     // skip odd turns. ice always starts with an even value so it skips directly after getting slowed
+		if return_value && ice.virus > 0
+				ice.virus--
+				if ice.virus == 0
+					print getName(ice) + " is no longer slowed"
+				else
+					ice.damage++
+					if ice.damage >= LETHAL_DAMAGE
+						crashICE(ice)
+						return_value = false
+		if return_value && ice.confused > 0
+			ice.confused--
+			if ice.confused == 0
+				print getName(ice) + " is no longer confused"
+		if return_value && ice.weakened > 0
+			ice.weakened--
+			if ice.weakened == 0
+				print getName(ice) + " is no longer weakened"
+
 
 
 	// called when the ice is currently following the player and trying to query him/her
@@ -71,3 +121,15 @@ english
 
 // ***************
 	RULESET.iceSoundAlarm = FUNCTION (ice)
+
+
+	// returns the current sensor rating for an ice. the value can be negative
+	RULESET.iceRatingSensor = FUNCTION (ice, include_analyzed=true)
+		if ice.structure_type == "ICE"
+			return_value = ice.rating - ice.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
+			if ice.weaken > 0
+				return_value = return_value - 4
+			if include_analyzed && ice.analyzed > 0
+				return_value = return_value - ice.analyzed                                // substract the maximum number of successes achieved in a single analyze attempt on this ice
+			if ice.white  &&  player.current_system.status != UNDEFINED  &&  player.current_system.status != GREEN
+				return_value = return_value + 2                                           // white ice gets a +2 sensor modifier during yellow and red alert
