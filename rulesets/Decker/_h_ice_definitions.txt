@@ -1,39 +1,14 @@
 english
 	RULESET.ICE_TYPES = ARRAY
 		ICE_TYPE
-			type = GUARD_EXIT
-			image = "guard_exit"
-			attributes = SET
-				white = true
-			name = ARRAY
-				"Gateway"
-				"Fence"
-				"Barrier"
-				"Doorway"
-				"Blockade"
-				"Checkpoint"
-				"Bouncer"
-				"Doorman"
-				"Gateway Mk2"
-				"Reinforced Fence"
-				"Roadblock"
-				"Gate"
-				"Barrier II"
-				"Checkpoint"
-				"BouncerEx"
-				"Doorman 2.0"
-				"Gateway Mk 3"
-				"Reinforced Door"
-				"Electric Fence"
-				"Big Bouncer"
-
-		ICE_TYPE
 			type = PROBE
 			image = "probe"
 			attributes = SET
 				roaming = true
 				probing = true
 				white = true
+			initial_action = SEARCHING
+			respawn_action = SEARCHING
 			name = ARRAY
 				"Probe"
 				"Gazer"
@@ -62,10 +37,41 @@ english
 						iceRoam(ice)
 
 		ICE_TYPE
+			type = GUARD_EXIT
+			image = "guard_exit"
+			attributes = SET
+				white = true
+			initial_action = GUARDING
+			actionGUARDING = iceAction_GUARD_GUARDING
+			name = ARRAY
+				"Gateway"
+				"Fence"
+				"Barrier"
+				"Doorway"
+				"Blockade"
+				"Checkpoint"
+				"Bouncer"
+				"Doorman"
+				"Gateway Mk2"
+				"Reinforced Fence"
+				"Roadblock"
+				"Gate"
+				"Barrier II"
+				"Checkpoint"
+				"BouncerEx"
+				"Doorman 2.0"
+				"Gateway Mk 3"
+				"Reinforced Door"
+				"Electric Fence"
+				"Big Bouncer"
+
+		ICE_TYPE
 			type = GUARD_ACCESS
 			image = "guard_access"
 			attributes = SET
 				white = true
+			initial_action = GUARDING
+			actionGUARDING = iceAction_GUARD_GUARDING
 			name = ARRAY
 				"Guardian"
 				"Protector"
@@ -95,6 +101,8 @@ english
 				white = true
 			probability = FUNCTION (rating)
 				return_value = rating < 10 ? 100 : 150 - rating * 5
+			initial_action = GUARDING
+			actionGUARDING = iceAction_GUARD_GUARDING
 			name = ARRAY
 				"Tapeworm"
 				"Boa"
@@ -125,6 +133,8 @@ english
 				white = true
 			probability = FUNCTION (rating)
 				return_value = (rating-10) * 5
+			initial_action = GUARDING
+			actionGUARDING = iceAction_GUARD_GUARDING
 			name = ARRAY
 				"Data Bomb"
 				"Dynamyte 1.0"
@@ -142,6 +152,8 @@ english
 			image = "attack"
 			probability = FUNCTION (rating)
 				return_value = rating < 11 ? 100 : 150 - rating * 5
+			initial_action = INACTIVE
+			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Attack"
 				"Brute"
@@ -171,6 +183,8 @@ english
 				hardened = true
 			probability = FUNCTION (rating)
 				return_value =  ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 100 : 150-rating*5) / 100
+			initial_action = INACTIVE
+			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Attack-H"
 				"Knight"
@@ -195,6 +209,8 @@ english
 				phasing = true
 			probability = FUNCTION (rating)
 				return_value = ( ( ( rating - 5 ) * 36 + 8 ) / 15  ) * (rating<11 ? 100 : 150-rating*5) / 100
+			initial_action = INACTIVE
+			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Attack-P"
 				"Bugs"
@@ -219,6 +235,8 @@ english
 				crasher = true
 			probability = FUNCTION (rating)
 				return_value = ( ( ( rating - 5 ) * 18 + 8 ) / 15 ) * (rating<11 ? 100 : 150-rating*5) / 100
+			initial_action = INACTIVE
+			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Attack-C"
 				"Spider"
@@ -243,6 +261,8 @@ english
 				stun_damage = true
 			probability = FUNCTION (rating)
 				return_value = ( rating - 10 ) * 5
+			initial_action = INACTIVE
+			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Attack-S"
 				"Cowboy"
@@ -263,6 +283,8 @@ english
 				hardened = true
 			probability = FUNCTION (rating)
 				return_value = ( ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5) + 99 ) / 100
+			initial_action = INACTIVE
+			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Attack-SH"
 				"Killbot"
@@ -283,6 +305,8 @@ english
 				phasing = true
 			probability = FUNCTION (rating)
 				return_value = ( ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5) + 99 ) / 100
+			initial_action = INACTIVE
+			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Attack-SP"
 				"Wraith"
@@ -303,6 +327,8 @@ english
 				crasher = true
 			probability = FUNCTION (rating)
 				return_value = ( ( ( ( rating - 5 ) * 18 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5 ) + 99 ) / 100
+			initial_action = INACTIVE
+			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Attack-SC"
 				"Two-Step"
@@ -320,6 +346,8 @@ english
 			image = "trace"
 			probability = FUNCTION (rating)
 				return_value = 125 - rating * 5
+			initial_action = INACTIVE
+			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Trace"
 				"Hound"
@@ -349,6 +377,8 @@ english
 				dump_on_trace = true
 			probability = FUNCTION (rating)
 				return_value = rating <= 10 ? ( rating - 5 ) * 5 : rating * 3 - 5
+			initial_action = INACTIVE
+			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Trace & Dump"
 				"Detective"
@@ -374,6 +404,8 @@ english
 				fry_chip_on_dump = true
 			probability = FUNCTION (rating)
 				return_value = ( rating - 10 ) * 2
+			initial_action = INACTIVE
+			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Trace & Fry"
 				"Mindworm"

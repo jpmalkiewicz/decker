@@ -7,6 +7,8 @@ english
 				actionDefaultAttackProgram(human, program, o[i])
 
 
+
+
 	RULESET.actionDefaultAttackProgram = FUNCTION (human, program, target)
 		if target != UNDEFINED
 			// determine the target number
@@ -63,6 +65,21 @@ english
 					advanceSystemTime()
 
 
+
+
+	// this is a passive_effect function which gets called when an ice tries to notice the player
+	// returns true iff hide attempt succeeds
+	RULESET.actionDefaultHideProgram = FUNCTION (human, program, target)
+		LOCAL.target_number = 10  +  2 * human.current_system.rating  + getAnalysisRating(target) - getStealthRating(human) - program.rating
+		if player.deck.decoys.size > 0
+			target_number = target_number + 4
+		// roll the die and determine the outcome
+		return_value = rollDie(target_number) > 0
+// play a sound effect if ( return_value == true )
+
+
+
+
 	// (x,y) is the node to be added
 	RULESET.adjustPlayerMapSize = FUNCTION (area, x, y, info_level)
 		LOCAL.p = area.player_map
@@ -98,6 +115,8 @@ english
 							adjustPlayerMapSize(area, x2, y2, player.deck.proximity_mapper?1:0)
 
 
+
+
 	RULESET.advanceSystemTime = FUNCTION
 		LOCAL.area = player.node.area
 		if area != UNDEFINED
@@ -105,6 +124,8 @@ english
 			for i = a.size-1 downto 0
 				debug(a[i].type.type, true)
 				a[i].type.action(a[i])
+
+
 
 
 	RULESET.crashICE = FUNCTION (ice)
@@ -121,6 +142,8 @@ english
 			if ice.type.type != GUARD_FILE
 				ice.node.area.destroyed_ice[] = ice
 				ice.node = UNDEFINED
+
+
 
 
 	// returns the current analysis rating for an ice or human. the value can be negative
@@ -142,6 +165,8 @@ english
 			return_value = return_value - 4
 
 
+
+
 	// returns the current attack rating for an ice or human. the value can be negative
 	RULESET.getAttackRating = FUNCTION (object, include_analyzed=true)
 		if object.structure_type == "ICE"
@@ -161,6 +186,8 @@ english
 			return_value = return_value - 4
 
 
+
+
 	// returns the current defense rating for an ice or object. the value can be negative
 	RULESET.getDefenseRating = FUNCTION (object, include_analyzed=true)
 		if object.structure_type == "ICE"
@@ -177,6 +204,8 @@ english
 			return_value = humanConditionModifier(object) + min(object.deck.defense,object.deck.cpu) + object.defense + (a.size>0&&a[a.size-1]==DEFENSE_BOOST?3:0)
 
 
+
+
 	// returns the current stealth rating for a object. the value can be negative
 	RULESET.getStealthRating = FUNCTION (object, include_analyzed=true)
 		if object.structure_type == "HUMAN"
@@ -186,6 +215,8 @@ english
 			// if the player has been traced, s/he gets a -4 to the stealth rating
 			if deck.traced
 				return_value = return_value - 4
+
+
 
 
    RULESET.healProgram = FUNCTION (human, program)
@@ -218,12 +249,16 @@ english
 		debug("Rating: " +program.rating)
 
 
+
+
 	RULESET.humanConditionModifier = FUNCTION (human)
 		return_value = DECK_LOAD_MODIFIER[human.deck.current_load] - human.deck.damage/8 - max(human.physical_damage,human.mental_damage)/4
 		// if the human is currently running a CLIENT_PROGRAM, all actions are modified by -3
 		LOCAL.a = human.deck.slow_program.category
 		if a != UNDEFINED && indexof(CLIENT_PROGRAM, a) != UNDEFINED
 			return_value = return_value - 3
+
+
 
 
 	RULESET.moveObject = FUNCTION (object, target)
@@ -238,6 +273,8 @@ english
 		else
 			object.node = target
 			placeObject(object, object.node, CENTER)
+
+
 
 
 	RULESET.movePlayer = FUNCTION (target)
@@ -260,6 +297,8 @@ english
 					n.area.player_map = m
 				if !(n.info_level >= 2)
 					adjustPlayerMapSize(n.area, n.x, n.y, 2)
+
+
 
 
 	RULESET.placeObject = FUNCTION (object, node, from_direction)
@@ -334,6 +373,8 @@ english
 				object.x = 4 + DELTA_X[direction] * 4
 				object.y = 4 + DELTA_Y[direction] * 4
 		node.objects[] = object
+
+
 
 
    RULESET.silenceProgram = FUNCTION (human, program)

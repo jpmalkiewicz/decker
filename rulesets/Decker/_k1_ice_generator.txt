@@ -30,7 +30,7 @@ english
 							// a GUARD_EXIT ice is usually pointless in a node that leads out of the system, so we use an ATTACK ice instead
 							generateIce(ATTACK, node_rating, node, true)
 						else
-							// all other ice types get a GUARD_ACCESS ice
+							// all other node types get a GUARD_ACCESS ice
 							generateIce(GUARD_ACCESS, node_rating, node)
 					else if i == 1
 						// the second ice in a node is attack or trace
@@ -114,6 +114,7 @@ english
 			type = pickIceType(_type, _rating)
 			rating = _rating
 			node = _node
+			current_action = type.initial_action
 		if _type == GUARD_EXIT
 			return_value.guarded_direction = data
 		else if _type == GUARD_FILE

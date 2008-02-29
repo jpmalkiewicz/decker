@@ -111,6 +111,7 @@ english
 			info_level = 0
 
 		ICE_TYPE
+			expandable = true
 			type
 			attributes
 			name
@@ -120,6 +121,8 @@ english
 			description
 			action         // the variables below hold functions for each action
 			updateState
+			initial_action
+			respawn_action = GOING_HOME   // automatically replaced with SEARCHING for ice with ( ice.response_ice == true )
 			initializer = FUNCTION
 				name = ARRAY
 				image = ARRAY
@@ -170,7 +173,8 @@ english
 			// value_function      // an optional function to calculate the value of things of this type
 			// size_function       // an optional function to calculate the size of things of this type
 			// default_name        // an array : default_name[x] is the default name of a thing of this type and item_rating x. for items with rating < 1 default_name[1] is used, for items with a higher rating than the array size, the last array entry is used, with the appendix "MK x" where x is (rating-max rating with name + 1) as a roman number
-			// effect              // a function that gets executed when things of this type are used
+			// effect              // a function that gets executed when things of this type are used by the player
+			// passive_effect      // a function that gets executed when programs of this type are passively executed
 			// max_rating          // some types of hardware have a max rating
 			// image               // for programs
 
@@ -201,6 +205,7 @@ english
 			optional_hardware
 			// boost_program
 			// slow_program    // a SLOW_SCANNER or CLIENT_PROGRAM that is currently running
+			// decoys
 			active_effects
 			initializer = FUNCTION
 				program = ARRAY

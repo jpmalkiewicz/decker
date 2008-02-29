@@ -7,6 +7,7 @@ english
 
 
 
+
 	// called for an ice when it's turn to act has arrived
 	RULESET.iceAction = FUNCTION (ice)
 		if ice.type.updateState(ice)
@@ -36,9 +37,7 @@ english
 						ice.hostile = true
 						iceAct(ice)
 					else
-// ******************************************************
 						iceSoundAlarm(ice,RED)
-// ******************************************************
 						a = 2
 				if a == 2
 					// attack another ice, but only if we are an ATTACK ice
@@ -79,6 +78,23 @@ english
 
 
 
+
+	// this is an ATTACK or TRACE ice that is guarding the node where the player has last been sighted and recognized as hostile. this ice is currently not hostile
+	RULESET.iceAction_ATTACK_GUARDING = FUNCTION (ice)
+		if ice.node == player.node && iceNoticesPlayer(ice)
+			iceQueryPlayer(ice)
+
+
+
+
+	// this is a GUARD_ACCESS, GUARD_EXIT or GUARD_FILE ice in its normal state
+	RULESET.iceAction_GUARD_GUARDING = FUNCTION (ice)
+		if ice.hostile
+			iceSoundAlarm(ice,RED)
+
+
+
+
 	// returns true if the ice can act, false otherwise
 	RULESET.iceActionUpdateState = FUNCTION (ice)
 		return_value = true
@@ -105,6 +121,45 @@ english
 			ice.weakened--
 			if ice.weakened == 0
 				print getName(ice) + " is no longer weakened"
+
+
+
+
+	RULESET.iceNoticesPlayer = FUNCTION (ice)
+		LOCAL.a = player.deck.default_program[DEFAULT_HIDE]
+		return_value = a == UNDEFINED || value_type(a.type.passive_effect) != "FUNCTION" || !a.type.passive_effect(player, a, ice)
+
+
+
+
+	RULESET.iceQueryPlayer = FUNCTION (ice)
+		if ice.rating <= player.highest_deceived_ice
+			return_value = false
+		else
+			return_value = true
+			// if there is currently no querying ice or its rating is lower than ours, it's time for us to query
+			if !( player.querying_ice.rating >= ice.rating )
+				if player.deck.decoys.size > 0
+					iceSoundAlarm(ice,RED)
+			else
+				LOCAL.a = player.querying_ice
+				if a != UNDEFINED
+					a.state = substring(a.type.type, 0, 6) == "GUARD_" ? GUARDING : FOLLOWING
+				player.querying_ice = ice
+				ice.current_action = QUERYING1
+				player.current_target = ice
+				print getName(ice) + " is querying you"
+
+
+
+
+	RULESET.iceSoundAlarm = FUNCTION (ice, alarm_level)
+		if ice.node.silenced > 0
+// ***************
+// ***************
+// ***************
+// ***************
+
 
 
 
@@ -173,10 +228,6 @@ english
 // play the sound of the hide program p
 				print getName(ice) + " fails to notice you."
 			return_value = successess <= 0
-
-
-// ***************
-	RULESET.iceQuery = FUNCTION (ice)
 
 
 	RULESET.iceRoam = FUNCTION (ice)
