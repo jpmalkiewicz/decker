@@ -27,16 +27,16 @@ english
 		adjust_button = FUNCTION (button, is_selected)
 			if is_selected == true
 				// it is selected, mark it
-				button.idle.font = @TEXT_STYLE_BOLD.font
-				button.idle.color = @NCS_SELECTED_SKILL_COLOR
+				button.idle.font = TEXT_STYLE_BOLD.font
+				button.idle.color = NCS_SELECTED_SKILL_COLOR
 				button.pressed.font = button.idle.font
 				button.pressed.color = button.idle.color
 			else
 				// it is not selected, unmark it
-				button.idle.font = @TEXT_STYLE.font
-				button.idle.color = @NCS_UNSELECTED_SKILL_COLOR
-				button.pressed.font = @TEXT_STYLE_BOLD.font
-				button.pressed.color = @NCS_PRESSED_SKILL_COLOR
+				button.idle.font = TEXT_STYLE.font
+				button.idle.color = NCS_UNSELECTED_SKILL_COLOR
+				button.pressed.font = TEXT_STYLE_BOLD.font
+				button.pressed.color = NCS_PRESSED_SKILL_COLOR
 		LOCAL.bonus_button_function = FUNCTION
 			with new_character_screen
 				// mark this button and unmark the old selected button unless it's the same button
@@ -50,10 +50,10 @@ english
 		adjust_on_off_text = FUNCTION (string,is_on)
 			if is_on
 				string.text = "on"
-				string.color = @NCS_ON_COLOR
+				string.color = NCS_ON_COLOR
 			else
 				string.text = "off"
-				string.color = @NCS_OFF_COLOR
+				string.color = NCS_OFF_COLOR
 		//********************************* data for the character name **********************************
 		char_name = TEXTFIELD
 			x = 60
@@ -61,8 +61,8 @@ english
 			width = 178
 			height = 20
 			text = "Hacker X"
-			font = @TEXT_STYLE_BOLD.font
-			color = @NCS_USER_INPUT_COLOR
+			font = TEXT_STYLE_BOLD.font
+			color = NCS_USER_INPUT_COLOR
 			cursor = IMAGE
 				image = "new_character/cursor"
 		//************************************************************************************************
@@ -74,7 +74,7 @@ english
 				width = 82
 				height = 28
 				inverted = true
-				background_color = @NCS_IMAGE_BACKGROUND_COLOR
+				background_color = NCS_IMAGE_BACKGROUND_COLOR
 				component = ARRAY
 					char_image
 					BORDER_BUTTON
@@ -98,7 +98,7 @@ english
 								else
 									char_image_index = char_image_index + 1
 								char_image.image = "character_image/"+char_images[char_image_index]
-			createBorder(55, 47, 187, 24, @NCS_USER_INPUT_BACKGROUND_COLOR, true)
+			createBorder(55, 47, 187, 24, NCS_USER_INPUT_BACKGROUND_COLOR, true)
 			char_name
 			createText("New Decker Character", CENTER, 18)
 			createText("Name", 17, 51)
@@ -110,8 +110,8 @@ english
 				y = 207
 				width = 105
 				height = 15
-				idle = createText("Ironman Mode", 0, 0, @NCS_OPTION_TEXT_COLOR)
-				pressed = createText("Ironman Mode", 0, 0, @NCS_PRESSED_OPTION_TEXT_COLOR)
+				idle = createText("Ironman Mode", 0, 0, NCS_OPTION_TEXT_COLOR)
+				pressed = createText("Ironman Mode", 0, 0, NCS_PRESSED_OPTION_TEXT_COLOR)
 				hover = pressed
 				on_off_text = createTextBold(UNDEFINED, RIGHT, 0)
 				component = ARRAY
@@ -126,8 +126,8 @@ english
 				y = 227
 				width = 105
 				height = 15
-				idle = createText("Tooltips", 0, 0, @NCS_OPTION_TEXT_COLOR)
-				pressed = createText("Tooltips", 0, 0, @NCS_PRESSED_OPTION_TEXT_COLOR)
+				idle = createText("Tooltips", 0, 0, NCS_OPTION_TEXT_COLOR)
+				pressed = createText("Tooltips", 0, 0, NCS_PRESSED_OPTION_TEXT_COLOR)
 				hover = pressed
 				on_off_text = createTextBold(UNDEFINED, RIGHT, 0)
 				component = ARRAY

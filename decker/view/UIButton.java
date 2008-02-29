@@ -85,7 +85,7 @@ updateButtonState();
 
 
 	void determineSize (final boolean width_already_determined, final boolean height_already_determined, final DisplayedComponent current_clip_source) {
-		final int border_thickness = component.get("structure_type").equals("BORDER_BUTTON") ? ScriptNode.getValue("DEFAULT_BORDER_THICKNESS").integer() : 0;
+		final int border_thickness = component.get("structure_type").equals("BORDER_BUTTON") ? ScriptNode.getVariable("DEFAULT_BORDER_THICKNESS").integer() : 0;
 		Value v;
 		final int padding        = ((v=component.get("padding"))        != null && v.type() == Value.INTEGER) ? v.integer() : 0;
 		final int padding_left   = ((v=component.get("padding_left"))   != null && v.type() == Value.INTEGER) ? v.integer() : padding;

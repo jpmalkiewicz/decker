@@ -8,8 +8,6 @@ public final class Value
 	public final static int CONSTANT = 0, BOOLEAN = 1, INTEGER = 2, STRING = 3, STRUCTURE = 4, FUNCTION = 5, REAL = 6, ARRAY = 7;
 	private final static String[] TYPE_NAME = { "CONSTANT", "BOOLEAN", "INTEGER", "STRING", "STRUCTURE", "FUNCTION", "REAL", "ARRAY" };
 
-	private static Structure global_values;
-
 
 
 	private int type;
@@ -19,18 +17,6 @@ public final class Value
 	private Object object;
 
 	private Structure enclosing_structure;
-
-
-	/** TEST method */
-	static Structure getGlobalValues () {
-		return global_values;
-	}
-
-
-	static void setGlobalValues (final Structure _global_values) {
-		global_values = _global_values;
-	}
-
 
 
 
@@ -130,7 +116,7 @@ public final class Value
 	public boolean equals (final Value value)  {
 		if(type != value.type || type == REAL || value.type == REAL) {
 			if (( type == INTEGER || type == REAL )&&( value.type == INTEGER || value.type == REAL)) {
-				final Value v = ScriptNode.getValue("REAL_EQUAL_RANGE");
+				final Value v = ScriptNode.getVariable("REAL_EQUAL_RANGE");
 				final double range = (v==null||v.type!=REAL) ? 0.000000001 : v.real;
 				final double a = (type==INTEGER) ? integer : real;
 				final double b = (value.type==INTEGER) ? value.integer : value.real;
@@ -160,7 +146,7 @@ public final class Value
 
 	public boolean equals (final int i)  {
 		if (type == REAL) {
-			final Value rer = ScriptNode.getValue("REAL_EQUAL_RANGE");
+			final Value rer = ScriptNode.getVariable("REAL_EQUAL_RANGE");
 			final double range = (rer==null||rer.type!=REAL) ? 0.000000001 : rer.real;
 			final double difference = real-i;
 			return difference < range && -difference < range;
@@ -172,7 +158,7 @@ public final class Value
 	public boolean equals (final double r)  {
 		if (type != REAL && type != INTEGER)
 			return false;
-		final Value rer = ScriptNode.getValue("REAL_EQUAL_RANGE");
+		final Value rer = ScriptNode.getVariable("REAL_EQUAL_RANGE");
 		final double range = (rer==null||rer.type!=REAL) ? 0.000000001 : rer.real;
 		final double difference = r - ((type==REAL)?real:integer);
 		return difference < range && -difference < range;
@@ -228,9 +214,6 @@ public final class Value
 
 
 	public Structure getEnclosingStructure ()  { return enclosing_structure; }
-
-
-	public boolean isGlobal ()  { return enclosing_structure == global_values; }
 
 
 	public int type ()  { return type; }

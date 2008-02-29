@@ -5,11 +5,11 @@ import java.io.PrintStream;
 
 public class Expression extends ScriptNode
 {
-	final static int STRUCTURE_DEFINITION = 1, ARRAY_DEFINITION = 3, NOT_AN_OPERATOR = 4, VARIABLE = 5, CONSTANT = 6, BRACKET = 7, GLOBAL_VALUE = 8, MEMBER = 9, ARRAY_INDEX = 10, FUNCTION_CALL = 11, RAW_VALUE = 12, MULTIPLY = 13, DIVIDE = 14, MODULO = 15, NOT = 16, ADD = 17, SUBSTRACT = 18, NEGATIVE = 19, GREATER = 20, LESS = 21, GREATER_OR_EQUAL = 22, LESS_OR_EQUAL = 23, NOT_EQUAL = 24, EQUAL = 25, AND = 26, OR = 27, CONDITIONAL_COLON = 28, CONDITIONAL = 29;
+	final static int STRUCTURE_DEFINITION = 1, ARRAY_DEFINITION = 3, NOT_AN_OPERATOR = 4, VARIABLE = 5, CONSTANT = 6, BRACKET = 7, /* = 8, */ MEMBER = 9, ARRAY_INDEX = 10, FUNCTION_CALL = 11, RAW_VALUE = 12, MULTIPLY = 13, DIVIDE = 14, MODULO = 15, NOT = 16, ADD = 17, SUBSTRACT = 18, NEGATIVE = 19, GREATER = 20, LESS = 21, GREATER_OR_EQUAL = 22, LESS_OR_EQUAL = 23, NOT_EQUAL = 24, EQUAL = 25, AND = 26, OR = 27, CONDITIONAL_COLON = 28, CONDITIONAL = 29;
 	final static int[] OPERATOR_PRIORITY = new int[30];
 	// the string below contains all the one character operators, with OPERATOR_STRING.charAt(x) having the operator id x
-	final static String OPERATOR_STRING = "(.[*/!+-><:?@%";
-	final static int[] OPERATOR_STRING_ID = { BRACKET, MEMBER, ARRAY_INDEX, MULTIPLY, DIVIDE, NOT, ADD, SUBSTRACT, GREATER, LESS, CONDITIONAL_COLON, CONDITIONAL, GLOBAL_VALUE, MODULO };
+	final static String OPERATOR_STRING = "(.[*/!+-><:?%";
+	final static int[] OPERATOR_STRING_ID = { BRACKET, MEMBER, ARRAY_INDEX, MULTIPLY, DIVIDE, NOT, ADD, SUBSTRACT, GREATER, LESS, CONDITIONAL_COLON, CONDITIONAL, MODULO };
 	final static String OPERATOR_STRING_2 = "==!=<>>=<=&&||";
 	final static int[] OPERATOR_STRING_2_ID = { EQUAL, NOT_EQUAL, NOT_EQUAL, GREATER_OR_EQUAL, LESS_OR_EQUAL, AND, OR };
 
@@ -178,13 +178,10 @@ try {
 
 
 	void addExpression (final Expression expression)  {
-		// if this expression is the GLOBAL_VALUE operator @, make sure that the added expression describes a variable
-		if ( operator == GLOBAL_VALUE && expression.operator != VARIABLE)
-			throwException("the "+operator_element.toString()+" operator requires the name of a global value as its operand");
 		if (operator == RAW_VALUE && expression.operator != VARIABLE && expression.operator != MEMBER && expression.operator != ARRAY_INDEX)
 			throwException("the "+operator_element.toString()+" operator requires a variable as its operand");
 		// add the expression to this expression as the first or second operand
-		if (first_operand != null && operator != NEGATIVE && operator != NOT && operator != BRACKET && operator != GLOBAL_VALUE && operator != RAW_VALUE)
+		if (first_operand != null && operator != NEGATIVE && operator != NOT && operator != BRACKET && operator != RAW_VALUE)
 			second_operand = expression;
 		else
 			first_operand = expression;
@@ -199,7 +196,7 @@ try {
 
 		// most operators use the value of their two operands. fetch them unless they won't be used
 		Value a = null, b = null;
-		if (operator != MEMBER && operator != GLOBAL_VALUE) {
+		if (operator != MEMBER) {
 			if(first_operand != null) {
 				a = first_operand.execute();
 				if (a == null && operator != CONDITIONAL_COLON)
@@ -234,11 +231,6 @@ try {
 					if(bt != Value.INTEGER && !b.toString().equals(""))
 						throwException("The array index operator [] requires an integer inside the brackets, or empty brackets, not the value "+b.toString()+" ("+b.typeName()+")");
 				return (bt==Value.INTEGER) ? a.get(b.integer()) : a.get(b.toString());
-			case GLOBAL_VALUE :
-					final Value gv = stack[RULESET_STACK_SLOT].get("GLOBAL_VALUES").get(first_operand.toString());
-					if (gv != null)
-						return gv;
-				break;
 			case RAW_VALUE :
 					return_value.set(a);
 				break;
@@ -446,10 +438,6 @@ try {
 				break;
 			case NOT :
 			case NEGATIVE :
-			case GLOBAL_VALUE :
-					out.print((line_start?indentation:"") + operator_element.toString());
-					ret = print(out, indentation, false, first_operand, depth);
-				break;
 			case RAW_VALUE :
 					out.print((line_start?indentation:""));
 					ret = print(out, indentation, false, first_operand, depth);

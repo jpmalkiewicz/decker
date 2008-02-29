@@ -1,6 +1,6 @@
 english
 	// creates a border with the given values
-	ENGINE.createBorder = FUNCTION (bx, by, bwidth, bheight, bbackground_color, binverted, bcolor1 = @BORDER_COLOR1, bcolor2 = @BORDER_COLOR2)
+	ENGINE.createBorder = FUNCTION (bx, by, bwidth, bheight, bbackground_color, binverted, bcolor1 = BORDER_COLOR1, bcolor2 = BORDER_COLOR2)
 		return_value = BORDER
 			x        = &bx
 			y        = &by
@@ -94,7 +94,7 @@ english
 			component[0] = BORDER
 				width = COMPONENT.width
 				height = COMPONENT.height
-				background_color = @BACKGROUND_COLOR
+				background_color = BACKGROUND_COLOR
 			// place the content
 			if argument[0] != UNDEFINED
 				argument[0].x = CENTER
@@ -216,12 +216,12 @@ english
 	ENGINE.createTableText = FUNCTION (text, x, y, color, font, h_align, v_align, width, height)
 		return_value = createText(text, x, y, color, font, h_align, v_align, width, height)
 		if color == UNDEFINED
-			return_value.color = @TABLE_TEXT_COLOR
+			return_value.color = TABLE_TEXT_COLOR
 
 
 	// returns a new TEXT with the default settings as defined in the TEXT stored in TEXT_STYLE
 	ENGINE.createText = FUNCTION (text, x, y, color, font, h_align, v_align, width, height)
-		return_value = copy(@TEXT_STYLE)
+		return_value = copy(TEXT_STYLE)
 		// for all settings which are not defined, the default settings will be used
 		if text != UNDEFINED
 			return_value.text = &text
@@ -247,7 +247,7 @@ english
 
 	// returns a new TEXT with the default settings as defined in the TEXT stored in TEXT_STYLE
 	ENGINE.createTextBold = FUNCTION (text, x, y, color, font)
-		return_value = copy(@TEXT_STYLE_BOLD)
+		return_value = copy(TEXT_STYLE_BOLD)
 		if text != UNDEFINED
 			return_value.text = &text
 		else

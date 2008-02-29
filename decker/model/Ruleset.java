@@ -21,7 +21,6 @@ public final class Ruleset
 			constants.add("UNDEFINED");
 		}
 		data.add("CONSTANTS").set(constants);
-		data.add("GLOBAL_VALUES").set(new Structure("SET", null));
 		// add the set of structure types
 		final Structure structure_types = new Structure("SET", null);
 		data.add("STRUCTURE_TYPES").set(structure_types);
