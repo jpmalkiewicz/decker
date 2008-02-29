@@ -211,4 +211,6 @@ english
 		ATTACKING         // ice state constants
 		FOLLOWING
 		GOING_HOME
-		ROAMING
+		GUARDING
+		INACTIVE
+		SEARCHING

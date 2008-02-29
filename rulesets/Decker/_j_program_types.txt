@@ -398,6 +398,7 @@ english
 			complexity = 3
 			image = "shop_item/hide"
 			default_category = DEFAULT_HIDE
+			passive_effect = actionDefaultHideProgram
 			category = ARRAY
 				PROGRAM
 				HIDE

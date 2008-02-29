@@ -1,0 +1,16 @@
+the following code conventions apply to the Java code, to the general scripts and to the jdecker scripts
+other projects realized with the JDecker engine may use their own code conventions
+
+4 empty rows between all function definitions
+block indentation is done with tabs, not with spaces
+blocks sit exactly 1 tab further right than their enclosing block
+indentation within rows must be done with spaces not with tabs
+function names are written with internal leading capitals, e.g.            someFunctionName
+constants are written with all CAPITALS and underscores, e.g.              SOME_CONSTANT_NAME
+all non-constant script variables are written with underscores, e.g.       some_variable_name
+non-constant Java variables are either written with underscores or internal leading capitals, e.g.     someVariableName or some_variable_name
+function parameters may be written with a leading underscore, no other variables may have a leading underscore
+
+in the Java code, { sits on the end of a row unless it's a class definition bracket or a method is defined in a single row
+in the Java code, { } even around single row blocks is preferable but not mandatory (because of the clutter it can create)
+in the Java code, temporary code may be written without block indentation (aka left aligned) to set it apart from the other code
