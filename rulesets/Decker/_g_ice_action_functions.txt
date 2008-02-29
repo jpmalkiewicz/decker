@@ -1,18 +1,26 @@
 english
+	// this is just a helper function. it gets called when the actionSTATE() function needs to be called
+	RULESET.iceAct = FUNCTION (ice)
+		LOCAL.a = getStructureMember(ice.type, "action"+ice.current_action)
+		if value_type(a) == "FUNCTION"
+			a(ice)
+
+
+
 	// called for an ice when it's turn to act has arrived
 	RULESET.iceAction = FUNCTION (ice)
 		if ice.type.updateState(ice)
 			if !(ice.confused > 0)
-				LOCAL.a = getStructureMember(ice.type, "action"+ice.current_action)
-				if value_type(a) == "FUNCTION"
-					a(ice)
+				iceAct(ice)
 			else
+				// trace ice ay stop tracing
 				if player.tracing_ice == ice && random(0,3) == 0
 					player.tracing_ice = UNDEFINED
-					player.trace_countdown = UNDEFINED
 					print getName(ice) + " cancels its trace!"
+				// choose a random action
 				LOCAL.a = random(0,4)
 				if a == 0
+					// attack self
 					LOCAL.b = rollDie(10)    // = (random(1,20)-10+3)/4
 					if b > 0
 						b = b*b
@@ -21,7 +29,53 @@ english
 						if ice.damage >= LETHAL_DAMAGE
 							crashICE(ice)
 				if a == 1
-// **********
+					// attack player
+					LOCAL.b = ice.type.type
+					if ice.node == player.node &&( b == ATTACK || b == TRACE || b == PROBE )
+						ice.current_action = ATTACKING
+						ice.hostile = true
+						iceAct(ice)
+					else
+// ******************************************************
+						iceSoundAlarm(ice,RED)
+// ******************************************************
+						a = 2
+				if a == 2
+					// attack another ice, but only if we are an ATTACK ice
+					if ice.type.type != ATTACK
+						a = random(3,4)
+					else
+						// count the other ice in the node
+						LOCAL.b = 0
+						LOCAL.o = ice.node.objects
+						for i = o.size-1 downto 0
+							if o[i].structure_type == "ICE" && o[i] != ice
+								b++
+						if b == 0
+							a = random(3,4)
+						else
+							b = random(1,b)
+							for i = o.size-1 downto 0
+								if o[i].structure_type == "ICE" && o[i] != ice
+									b--
+									if b == 0
+										o = o[i]
+										// attack this ice
+										b = rollDie(10 - getAttackRating(ice, false) + getDefenseRating(o, false))
+										if b > 0
+											b = b*b
+											o.damage = o.damage + b
+											print getName(ice) + " attacks " + getName(o) + " for " + b*HEALTH_INCREMENT + " damage!"
+											if o.damage >= LETHAL_DAMAGE
+												crashIce(o)
+										break
+				if a == 3
+					LOCAL.b = ice.type.type
+					if b == ATTACK || b == TRACE || b == PROBE
+						if player.querying_ice == ice
+							player.querying_ice = UNDEFINED
+						iceWander(ice)
+				// a == 4 means the ice doesn't do anything
 
 
 
@@ -51,6 +105,33 @@ english
 			ice.weakened--
 			if ice.weakened == 0
 				print getName(ice) + " is no longer weakened"
+
+
+
+	RULESET.iceWander = FUNCTION (ice)
+		with ice
+			current_action = ROAMING
+				LOCAL.count = 0
+				for i = 3 downto 0
+					if node.connection[i] != UNDEFINED
+						count++
+				// if there is at least one exit, move
+				if count > 0
+					// if there is only one exit, move there even if we just came from there
+					if count == 1
+						previous_node = UNDEFINED
+					i = random(0,3)
+					while node.connection[i] == UNDEFINED || node.connection[i] == previous_node
+						i = random(0,3)
+					moveObject(ice, node.connection[i])
+					debug("moving wandering ice "+getName(ice)+"  ("+previous_node.x+","+previous_node.y+") -> ("+node.x+","+node.y+")")
+
+
+
+// ***************************************************************************************
+// ***************************************************************************************
+// ***************************************************************************************
+// ***************************************************************************************
 
 
 
@@ -102,21 +183,7 @@ english
 		with ice
 			current_action = ROAMING
 			if node != player.node || !iceNoticesPlayer(ice) || !iceQuery(ice)
-				LOCAL.count = 0
-				for i = 3 downto 0
-					if node.connection[i] != UNDEFINED
-						count++
-				// if there is at least one exit, move
-				if count > 0
-					// if there is only one exit, move there even if we just came from there
-					if count == 1
-						previous_node = UNDEFINED
-					i = random(0,3)
-					while node.connection[i] == UNDEFINED || node.connection[i] == previous_node
-						i = random(0,3)
-					previous_node = node
-					moveObject(ice, i)
-					debug("moving roaming ice "+type.name[rating]+"  ("+previous_node.x+","+previous_node.y+") -> ("+node.x+","+node.y+")")
+				iceWander(ice)
 
 
 // ***************

@@ -206,6 +206,7 @@ english
 		GUARD_FILE
 		PROBE
 		TRACE
+		// ATTACK
 
 		ATTACKING         // ice state constants
 		FOLLOWING

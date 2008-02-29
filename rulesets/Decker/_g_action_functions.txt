@@ -109,13 +109,18 @@ english
 
 	RULESET.crashICE = FUNCTION (ice)
 		if ice.node == player.node
-			print "<#success>" + ice.name + " has crashed"
-			if player.current_target == ice
-				player.current_target = UNDEFINED
+			print "<#success>" + getName(ice) + " has crashed"
+			if player.tracing_ice == ice
+				player.tracing_ice = UNDEFINED
+				if ice.node == player.node
+					print "you are no longer being traced"
+			if player.querying_ice == ice
+				player.querying_ice = UNDEFINED
 			delete(ice.node.objects, indexof(ice, ice.node.objects))
 			// if the ice guards a file it never comes back. otherwise it goes to the ice respawn list
 			if ice.type.type != GUARD_FILE
 				ice.node.area.destroyed_ice[] = ice
+				ice.node = UNDEFINED
 
 
 	// returns the current analysis rating for an ice or human. the value can be negative
@@ -225,6 +230,8 @@ english
 		debug("** "+object.x+","+object.y+"  "+target)
 		if object.node != UNDEFINED
 			delete(object.node.objects, indexof(object, object.node.objects))
+		if object.structure_type == "ICE"
+			object.previous_node = object.node
 		if target >= 0 && target <= 3
 			object.node = object.node.connection[target]
 			placeObject(object, object.node, (target+2)%4)
