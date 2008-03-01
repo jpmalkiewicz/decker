@@ -1,6 +1,7 @@
 85%
 2008-03-01
-	a probe queried the player for the first time :)
+	querying should qork completely
+	a probe initiated a query for the first time :)
 	ice should react correctly to alarms
 	ice is now grouped into active, waiting and ungrouped passive ice, per area
 2008-02-29
