@@ -10,6 +10,7 @@ english
 			initial_action = SEARCHING
 			respawn_action = SEARCHING
 			initial_state = ACTIVE
+			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Probe"
 				"Gazer"
@@ -31,11 +32,6 @@ english
 				"SuperFuzz"
 				"Wizard Eye"
 				"Beholder"
-			action = FUNCTION (ice)
-				with ice
-					// if we are not currently busy, move to an adjacent node and scan it for the player
-					if status == UNDEFINED
-						iceRoam(ice)
 
 		ICE_TYPE
 			type = GUARD_EXIT
@@ -44,7 +40,7 @@ english
 				white = true
 			initial_action = GUARDING
 			initial_state = PASSIVE
-			actionGUARDING = iceAction_GUARD_GUARDING
+			actionGUARDING = iceAction_GUARDING_GUARD
 			name = ARRAY
 				"Gateway"
 				"Fence"
@@ -74,7 +70,7 @@ english
 				white = true
 			initial_action = GUARDING
 			initial_state = PASSIVE
-			actionGUARDING = iceAction_GUARD_GUARDING
+			actionGUARDING = iceAction_GUARDING_GUARD
 			name = ARRAY
 				"Guardian"
 				"Protector"
@@ -106,7 +102,7 @@ english
 				return_value = rating < 10 ? 100 : 150 - rating * 5
 			initial_action = GUARDING
 			initial_state = PASSIVE
-			actionGUARDING = iceAction_GUARD_GUARDING
+			actionGUARDING = iceAction_GUARDING_GUARD
 			name = ARRAY
 				"Tapeworm"
 				"Boa"
@@ -139,7 +135,7 @@ english
 				return_value = (rating-10) * 5
 			initial_action = GUARDING
 			initial_state = PASSIVE
-			actionGUARDING = iceAction_GUARD_GUARDING
+			actionGUARDING = iceAction_GUARDING_GUARD
 			name = ARRAY
 				"Data Bomb"
 				"Dynamyte 1.0"
@@ -160,7 +156,8 @@ english
 			initial_action = INACTIVE
 			initial_state = WAITING
 			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_ATTACK_GUARDING
+			actionGUARDING = iceAction_GUARDING_ATTACK
+			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack"
 				"Brute"
@@ -193,7 +190,8 @@ english
 			initial_action = INACTIVE
 			initial_state = WAITING
 			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_ATTACK_GUARDING
+			actionGUARDING = iceAction_GUARDING_ATTACK
+			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-H"
 				"Knight"
@@ -221,7 +219,8 @@ english
 			initial_action = INACTIVE
 			initial_state = WAITING
 			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_ATTACK_GUARDING
+			actionGUARDING = iceAction_GUARDING_ATTACK
+			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-P"
 				"Bugs"
@@ -249,7 +248,8 @@ english
 			initial_action = INACTIVE
 			initial_state = WAITING
 			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_ATTACK_GUARDING
+			actionGUARDING = iceAction_GUARDING_ATTACK
+			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-C"
 				"Spider"
@@ -277,7 +277,8 @@ english
 			initial_action = INACTIVE
 			initial_state = WAITING
 			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_ATTACK_GUARDING
+			actionGUARDING = iceAction_GUARDING_ATTACK
+			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-S"
 				"Cowboy"
@@ -301,7 +302,8 @@ english
 			initial_action = INACTIVE
 			initial_state = WAITING
 			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_ATTACK_GUARDING
+			actionGUARDING = iceAction_GUARDING_ATTACK
+			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-SH"
 				"Killbot"
@@ -325,7 +327,8 @@ english
 			initial_action = INACTIVE
 			initial_state = WAITING
 			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_ATTACK_GUARDING
+			actionGUARDING = iceAction_GUARDING_ATTACK
+			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-SP"
 				"Wraith"
@@ -349,7 +352,8 @@ english
 			initial_action = INACTIVE
 			initial_state = WAITING
 			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_ATTACK_GUARDING
+			actionGUARDING = iceAction_GUARDING_ATTACK
+			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-SC"
 				"Two-Step"
@@ -370,7 +374,8 @@ english
 			initial_action = INACTIVE
 			initial_state = WAITING
 			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_ATTACK_GUARDING
+			actionGUARDING = iceAction_GUARDING_ATTACK
+			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Trace"
 				"Hound"
@@ -403,7 +408,8 @@ english
 			initial_action = INACTIVE
 			initial_state = WAITING
 			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_ATTACK_GUARDING
+			actionGUARDING = iceAction_GUARDING_ATTACK
+			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Trace & Dump"
 				"Detective"
@@ -432,7 +438,8 @@ english
 			initial_action = INACTIVE
 			initial_state = WAITING
 			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_ATTACK_GUARDING
+			actionGUARDING = iceAction_GUARDING_ATTACK
+			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Trace & Fry"
 				"Mindworm"
@@ -449,3 +456,5 @@ english
 	for i = ICE_TYPES.size-1 downto 0
 		if ICE_TYPES[i].min_rating == UNDEFINED
 			ICE_TYPES[i].min_rating = ICE_TYPES[i].name.size>20 ? 1 : 21 - ICE_TYPES[i].name.size
+		if ICE_TYPES[i].action == UNDEFINED
+			ICE_TYPES[i].action = iceAction

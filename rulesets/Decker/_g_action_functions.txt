@@ -122,9 +122,11 @@ english
 		if area != UNDEFINED
 			LOCAL.a = area.active_ice
 			for i = a.size-1 downto 0
-				debug(a[i].type.type, true)
+				debug("ice action : " + a[i].type.type + " " + getName(a[i]) + " " +a[i].current_action, true)
 				a[i].type.action(a[i])
-
+		// update the display
+		if displayed_screen == system_screen
+			system_screen.displayNode()
 
 
 
@@ -282,6 +284,8 @@ english
 		moveObject(player, target)
 		// only do something if the player has actually moved
 		if n != player.node
+			// the player hasn't deceived any ice in this node yet
+			player.highest_deceived_ice = -1000
 			// if the player had selected an ICE in the previous node, that selection is gone
 			player.current_target = UNDEFINED
 			// update the area map
