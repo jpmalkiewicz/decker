@@ -9,6 +9,7 @@ english
 				white = true
 			initial_action = SEARCHING
 			respawn_action = SEARCHING
+			initial_state = ACTIVE
 			name = ARRAY
 				"Probe"
 				"Gazer"
@@ -42,6 +43,7 @@ english
 			attributes = SET
 				white = true
 			initial_action = GUARDING
+			initial_state = PASSIVE
 			actionGUARDING = iceAction_GUARD_GUARDING
 			name = ARRAY
 				"Gateway"
@@ -71,6 +73,7 @@ english
 			attributes = SET
 				white = true
 			initial_action = GUARDING
+			initial_state = PASSIVE
 			actionGUARDING = iceAction_GUARD_GUARDING
 			name = ARRAY
 				"Guardian"
@@ -102,6 +105,7 @@ english
 			probability = FUNCTION (rating)
 				return_value = rating < 10 ? 100 : 150 - rating * 5
 			initial_action = GUARDING
+			initial_state = PASSIVE
 			actionGUARDING = iceAction_GUARD_GUARDING
 			name = ARRAY
 				"Tapeworm"
@@ -134,6 +138,7 @@ english
 			probability = FUNCTION (rating)
 				return_value = (rating-10) * 5
 			initial_action = GUARDING
+			initial_state = PASSIVE
 			actionGUARDING = iceAction_GUARD_GUARDING
 			name = ARRAY
 				"Data Bomb"
@@ -153,6 +158,8 @@ english
 			probability = FUNCTION (rating)
 				return_value = rating < 11 ? 100 : 150 - rating * 5
 			initial_action = INACTIVE
+			initial_state = WAITING
+			reactToAlarm = iceReactToAlarm
 			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Attack"
@@ -184,6 +191,8 @@ english
 			probability = FUNCTION (rating)
 				return_value =  ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 100 : 150-rating*5) / 100
 			initial_action = INACTIVE
+			initial_state = WAITING
+			reactToAlarm = iceReactToAlarm
 			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Attack-H"
@@ -210,6 +219,8 @@ english
 			probability = FUNCTION (rating)
 				return_value = ( ( ( rating - 5 ) * 36 + 8 ) / 15  ) * (rating<11 ? 100 : 150-rating*5) / 100
 			initial_action = INACTIVE
+			initial_state = WAITING
+			reactToAlarm = iceReactToAlarm
 			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Attack-P"
@@ -236,6 +247,8 @@ english
 			probability = FUNCTION (rating)
 				return_value = ( ( ( rating - 5 ) * 18 + 8 ) / 15 ) * (rating<11 ? 100 : 150-rating*5) / 100
 			initial_action = INACTIVE
+			initial_state = WAITING
+			reactToAlarm = iceReactToAlarm
 			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Attack-C"
@@ -262,6 +275,8 @@ english
 			probability = FUNCTION (rating)
 				return_value = ( rating - 10 ) * 5
 			initial_action = INACTIVE
+			initial_state = WAITING
+			reactToAlarm = iceReactToAlarm
 			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Attack-S"
@@ -284,6 +299,8 @@ english
 			probability = FUNCTION (rating)
 				return_value = ( ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5) + 99 ) / 100
 			initial_action = INACTIVE
+			initial_state = WAITING
+			reactToAlarm = iceReactToAlarm
 			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Attack-SH"
@@ -306,6 +323,8 @@ english
 			probability = FUNCTION (rating)
 				return_value = ( ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5) + 99 ) / 100
 			initial_action = INACTIVE
+			initial_state = WAITING
+			reactToAlarm = iceReactToAlarm
 			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Attack-SP"
@@ -328,6 +347,8 @@ english
 			probability = FUNCTION (rating)
 				return_value = ( ( ( ( rating - 5 ) * 18 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5 ) + 99 ) / 100
 			initial_action = INACTIVE
+			initial_state = WAITING
+			reactToAlarm = iceReactToAlarm
 			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Attack-SC"
@@ -347,6 +368,8 @@ english
 			probability = FUNCTION (rating)
 				return_value = 125 - rating * 5
 			initial_action = INACTIVE
+			initial_state = WAITING
+			reactToAlarm = iceReactToAlarm
 			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Trace"
@@ -378,6 +401,8 @@ english
 			probability = FUNCTION (rating)
 				return_value = rating <= 10 ? ( rating - 5 ) * 5 : rating * 3 - 5
 			initial_action = INACTIVE
+			initial_state = WAITING
+			reactToAlarm = iceReactToAlarm
 			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Trace & Dump"
@@ -405,6 +430,8 @@ english
 			probability = FUNCTION (rating)
 				return_value = ( rating - 10 ) * 2
 			initial_action = INACTIVE
+			initial_state = WAITING
+			reactToAlarm = iceReactToAlarm
 			actionGUARDING = iceAction_ATTACK_GUARDING
 			name = ARRAY
 				"Trace & Fry"

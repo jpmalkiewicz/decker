@@ -1,4 +1,7 @@
 85%
+2008-03-01
+	ice is now grouped into active, waiting and ungrouped passive ice, per area
+	ice should react correctly to alarms now
 2008-02-29
 	removed the defunct & operator
 	removed the "global value" language construct
