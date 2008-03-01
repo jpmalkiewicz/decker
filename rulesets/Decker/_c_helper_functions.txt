@@ -392,10 +392,11 @@ english
 				if deck.default_program[program.type.default_category] != UNDEFINED
 					deck.default_program[program.type.default_category].state = LOADED   // the old default program is no longer the default program
 				deck.default_program[program.type.default_category] = program
-			if state == INSTALLED &&( program.state == LOADED || program.state == DEFAULT )
-				deck.used_memory = deck.used_memory - program.size
+			else
 				if program.state == DEFAULT
 					deck.default_program[program.type.default_category] = UNDEFINED
+				if state == INSTALLED &&( program.state == LOADED || program.state == DEFAULT )
+					deck.used_memory = deck.used_memory - program.size
 			program.state = state
 			deck.current_load = deck.used_memory<=max_load/3 ? 0 : deck.used_memory<=max_load*2/3 ? 1 : 2
 

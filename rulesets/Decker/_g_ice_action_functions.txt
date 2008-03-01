@@ -80,7 +80,7 @@ english
 
 
 	// this is an ATTACK or TRACE ice that is guarding the node where the player has last been sighted and recognized as hostile. this ice is currently not hostile
-	RULESET.iceAction_ATTACK_GUARDING = FUNCTION (ice)
+	RULESET.iceAction_GUARDING_ATTACK = FUNCTION (ice)
 		if ice.node == player.node && iceNoticesPlayer(ice)
 			iceQueryPlayer(ice)
 
@@ -88,9 +88,18 @@ english
 
 
 	// this is a GUARD_ACCESS, GUARD_EXIT or GUARD_FILE ice in its normal state
-	RULESET.iceAction_GUARD_GUARDING = FUNCTION (ice)
+	RULESET.iceAction_GUARDING_GUARD = FUNCTION (ice)
 		if ice.hostile
 			iceSoundAlarm(ice,RED)
+
+
+
+
+	RULESET.iceAction_SEARCHING = FUNCTION (ice)
+		if ice.node == player.node
+			debug("iceAction_SEARCHING : "+ice.rating+" ("+player.highest_deceived_ice+") "+iceNoticesPlayer(ice))
+		if ice.node != player.node || ice.rating <= player.highest_deceived_ice || !iceNoticesPlayer(ice) || !iceQueryPlayer(ice)
+			iceWander(ice)
 
 
 
@@ -154,14 +163,14 @@ english
 			if !( player.querying_ice.rating >= ice.rating )
 				if player.deck.decoys.size > 0
 					iceSoundAlarm(ice,RED)
-			else
-				LOCAL.a = player.querying_ice
-				if a != UNDEFINED
-					a.state = substring(a.type.type, 0, 6) == "GUARD_" ? GUARDING : FOLLOWING
-				player.querying_ice = ice
-				ice.current_action = QUERYING1
-				player.current_target = ice
-				print getName(ice) + " is querying you"
+				else
+					LOCAL.a = player.querying_ice
+					if a != UNDEFINED
+						a.state = substring(a.type.type, 0, 6) == "GUARD_" ? GUARDING : FOLLOWING
+					player.querying_ice = ice
+					ice.current_action = QUERYING1
+					player.current_target = ice
+					print getName(ice) + " is querying you"
 
 
 
@@ -227,21 +236,21 @@ english
 
 	RULESET.iceWander = FUNCTION (ice)
 		with ice
-			current_action = ROAMING
-				LOCAL.count = 0
-				for i = 3 downto 0
-					if node.connection[i] != UNDEFINED
-						count++
-				// if there is at least one exit, move
-				if count > 0
-					// if there is only one exit, move there even if we just came from there
-					if count == 1
-						previous_node = UNDEFINED
+			LOCAL.count = 0
+			for i = 3 downto 0
+				if node.connection[i] != UNDEFINED
+					count++
+			// if there is at least one exit, move
+			if count > 0
+				// if there is only one exit, move there even if we just came from there
+				if count == 1
+					previous_node = UNDEFINED
+				i = random(0,3)
+				while node.connection[i] == UNDEFINED || node.connection[i] == previous_node
 					i = random(0,3)
-					while node.connection[i] == UNDEFINED || node.connection[i] == previous_node
-						i = random(0,3)
-					moveObject(ice, node.connection[i])
-					debug("moving wandering ice "+getName(ice)+"  ("+previous_node.x+","+previous_node.y+") -> ("+node.x+","+node.y+")")
+				moveObject(ice, node.connection[i])
+				debug("moving wandering ice "+getName(ice)+"  ("+previous_node.x+","+previous_node.y+") -> ("+node.x+","+node.y+")")
+
 
 
 
@@ -276,40 +285,8 @@ english
 		if !ice.hostile && !ice.bypassed && player.node == ice.node && ice.node.area.system.alert_level == RED &&( ice.type.type == ATTACK || ice.type.type == TRACE )
 
 
-	RULESET.iceNoticesPlayer = FUNCTION (ice)
-		return_value = true
-		LOCAL.p = player.deck.default_program[DEFAULT_HIDE]
-		if p != UNDEFINED
-			LOCAL.target_number = 10 + 2*player.system.rating + getAnalysisRating(ice) - getStealthRating(player) - p.rating
-// ************* player.decoy_level isn't defined yet
-			// If decoys are in use, it is far more difficult to hide from ice
-			if player.decoy_level > 0
-				target_number = target_number + 4
-			LOCAL.successes = rollDie(target_number)
-			if successess > 0
-// play the sound of the hide program p
-				print getName(ice) + " fails to notice you."
-			return_value = successess <= 0
-
-
 	RULESET.iceRoam = FUNCTION (ice)
 		with ice
-			current_action = ROAMING
+			current_action = SEARCHING
 			if node != player.node || !iceNoticesPlayer(ice) || !iceQuery(ice)
 				iceWander(ice)
-
-
-// ***************
-	RULESET.iceSoundAlarm = FUNCTION (ice)
-
-
-	// returns the current sensor rating for an ice. the value can be negative
-	RULESET.iceRatingSensor = FUNCTION (ice, include_analyzed=true)
-		if ice.structure_type == "ICE"
-			return_value = ice.rating - ice.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
-			if ice.weaken > 0
-				return_value = return_value - 4
-			if include_analyzed && ice.analyzed > 0
-				return_value = return_value - ice.analyzed                                // substract the maximum number of successes achieved in a single analyze attempt on this ice
-			if ice.white  &&  player.current_system.status != UNDEFINED  &&  player.current_system.status != GREEN
-				return_value = return_value + 2                                           // white ice gets a +2 sensor modifier during yellow and red alert
