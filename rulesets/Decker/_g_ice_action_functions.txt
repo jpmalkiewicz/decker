@@ -95,6 +95,39 @@ english
 
 
 
+	// this is the ice that is currently querying the player and in state QUERYING1, QUERYING2 or QUERYING3
+	RULESET.iceAction_QUERYING = FUNCTION (ice)
+		// check whether the player has deceived the ice
+		if ice.rating <= player.highest_deceived_ice
+			if ice.type.initial_action == GUARDING
+				ice.current_action = GUARDING
+			else if ice.response_ice || ice.type.initial_action == SEARCHING
+				ice.current_action = SEARCHING
+				iceWander(ice)
+			else
+				ice.current_action = GOING_HOME
+				iceAct(ice)
+		else if player.node != ice.node
+			iceSoundAlarm(ice, YELLOW)
+			ice.current_action = ice.type.initial_action == GUARDING ? GUARDING : FOLLOWING
+			iceAct(ice)
+		else if ice.current_action == QUERYING1
+			ice.current_action = QUERYING2
+		else if ice.current_action == QUERYING2
+			ice.current_action = QUERYING3
+		else  // ice.current_action == QUERYING3
+			iceSoundAlarm(ice, YELLOW)
+			if !(ice.node.silenced>0) && ice.node.area.system.alert_level == YELLOW
+				iceQueryPlayer(ice)
+				if ice.current_action != QUERYING1 && !ice.hostile
+					ice.current_action = ice.type.initial_action == GUARDING ? GUARDING : FOLLOWING
+			else
+				iceMakeHostile()
+				iceAct(ice)
+
+
+
+
 	RULESET.iceAction_SEARCHING = FUNCTION (ice)
 		if ice.node == player.node
 			debug("iceAction_SEARCHING : "+ice.rating+" ("+player.highest_deceived_ice+") "+iceNoticesPlayer(ice))
@@ -166,7 +199,7 @@ english
 				else
 					LOCAL.a = player.querying_ice
 					if a != UNDEFINED
-						a.state = substring(a.type.type, 0, 6) == "GUARD_" ? GUARDING : FOLLOWING
+						a.state = a.type.initial_action == GUARDING ? GUARDING : FOLLOWING
 					player.querying_ice = ice
 					ice.current_action = QUERYING1
 					player.current_target = ice
@@ -195,21 +228,21 @@ english
 	RULESET.iceSoundAlarm = FUNCTION (ice, alarm_level)
 		if ice.node.silenced > 0
 			iceMakeHostile()
-		else if ice.node.system.alert_level == RED
+		else if ice.node.area.system.alert_level == RED
 			ice.node.area.response_ice_target = ice.node
 			iceMakeHostile()
 		else
-			if alarm_level == YELLOW && ice.node.system.alert_level == GREEN
+			if alarm_level == YELLOW && ice.node.area.system.alert_level == GREEN
 // (play yellow alert sound)
 				print "<#orange>" + getName(ice) + (ice.node==player.node ? "" : " in node "+ice.node.name) + " signals a yellow alert."
-				ice.node.system.alert_level = YELLOW
+				ice.node.area.system.alert_level = YELLOW
 			else
 // (play red alert sound)
 				print "<#red>" + getName(ice) + (ice.node==player.node ? "" : " in node "+ice.node.name) + " signals a red alert!"
 //*********************************************************
 				debug ("iceSoundAlarm needs to make a note about the red alert in the current mission's status")
 //*********************************************************
-				ice.node.system.alert_level = RED
+				ice.node.area.system.alert_level = RED
 				ice.node.area.response_ice_target = ice.node
 				// activate all waiting ice. it moves towards the alarm in the ice's area, it switches from INACTIVE to GUARDING in all other areas
 				LOCAL.area = ice.node.area
@@ -250,43 +283,3 @@ english
 					i = random(0,3)
 				moveObject(ice, node.connection[i])
 				debug("moving wandering ice "+getName(ice)+"  ("+previous_node.x+","+previous_node.y+") -> ("+node.x+","+node.y+")")
-
-
-
-
-// ***************************************************************************************
-// ***************************************************************************************
-// ***************************************************************************************
-// ***************************************************************************************
-
-
-
-	// called when the ice is currently following the player and trying to query him/her
-	RULESET.iceFollow = FUNCTION (ice)
-		ice.current_action = FOLLOWING
-		// if this node is not smoked and the player is in a neighbouring node, move there
-		if ice.node != player.node && ice.node.smoke_level == 0
-			LOCAL.n = ice.node
-			for i = 3 downto 0
-				if n.connection[i] != UNDEFINED && n.connection[i] == player.node
-					moveObject(ice, i)
-					n = true // this will tell the next if command that the ice has already taken its action this turn
-					break
-		// if the player cannot be found or s/he has passed a query, roam
-		if !n &&( ice.node != player.node || !iceQuery(ice) )
-			iceRoam(ice)
-
-
-// ***************
-	RULESET.iceGoingHome = FUNCTION (ice)
-		if ice.hostile
-
-		// if the player is currently in this node and we're looking for intruders, query him/her
-		if !ice.hostile && !ice.bypassed && player.node == ice.node && ice.node.area.system.alert_level == RED &&( ice.type.type == ATTACK || ice.type.type == TRACE )
-
-
-	RULESET.iceRoam = FUNCTION (ice)
-		with ice
-			current_action = SEARCHING
-			if node != player.node || !iceNoticesPlayer(ice) || !iceQuery(ice)
-				iceWander(ice)
