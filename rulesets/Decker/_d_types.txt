@@ -59,10 +59,10 @@ english
 			alert_level = GREEN
 			area
 			entry_point      // usually a PORTAL_OUT node
-			effects
+			active_effects  // something that has an expiry_time and on_expire() function defined, or an on_tick() function
 			initializer = FUNCTION
 				area = ARRAY
-				effects = ARRAY
+				active_effects = ARRAY
 
 		AREA
 			id
@@ -72,12 +72,13 @@ english
 			destroyed_ice
 			ice_entry_node
 			player_map
-			active_ice
-			active_effects
+			active_ice // ice which is currently active
+			waiting_ice // this list contains all the ice that can be activated
+			response_ice_target // the node response_ice is moving towards
 			initializer = FUNCTION
 				destroyed_ice = ARRAY
 				active_ice = ARRAY
-				active_effects = ARRAY
+				waiting_ice = ARRAY
 
 		PLAYER_AREA_MAP
 			x
@@ -96,11 +97,9 @@ english
 			smoke_level = 0
 			info_level      // UNDEFINED = unknown, 1 = has seen it, 2 = has been there and knows what exits exist, 3 = knows its sub_type
 			objects         // ice and humans
-			active_effects  // something that has an expiry_time and on_expire() function defined, or an on_tick() function
 			initializer = FUNCTION
 				connection = createSizedArray(4)
 				objects = ARRAY
-				active_effects = ARRAY
 
 		FILE
 			name
@@ -119,10 +118,12 @@ english
 			min_rating     // many ice types only have ice from a certain rating upwards
 			probability = 100   // probability of this ice type being picked from a list. actual probability is (probability/sum of probabilities of listed ice types)
 			description
-			action         // the variables below hold functions for each action
+			action         // the variables below hold functions for each action. action(ice) is the function that gets called when the ice is supposed to take its turn
+			reactToAlarm
 			updateState
 			initial_action
 			respawn_action = GOING_HOME   // automatically replaced with SEARCHING for ice with ( ice.response_ice == true )
+			initial_state
 			initializer = FUNCTION
 				name = ARRAY
 				image = ARRAY

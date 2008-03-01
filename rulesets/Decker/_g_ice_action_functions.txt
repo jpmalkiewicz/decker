@@ -31,8 +31,7 @@ english
 							crashICE(ice)
 				if a == 1
 					// attack player
-					LOCAL.b = ice.type.type
-					if ice.node == player.node &&( b == ATTACK || b == TRACE || b == PROBE )
+					if ice.node == player.node && value_type(ice.type.actionATTACKING) == "FUNCTION"
 						ice.current_action = ATTACKING
 						ice.hostile = true
 						iceAct(ice)
@@ -53,6 +52,7 @@ english
 						if b == 0
 							a = random(3,4)
 						else
+							// pick a random ice and attack it
 							b = random(1,b)
 							for i = o.size-1 downto 0
 								if o[i].structure_type == "ICE" && o[i] != ice
@@ -125,6 +125,19 @@ english
 
 
 
+	RULESET.iceMakeHostile = FUNCTION ()
+		player.querying_ice = UNDEFINED
+		LOCAL.o = player.node.objects
+		for i = o.size-1 downto 0
+			if o[i].structure_type == "ICE"
+				o[i].hostile = true
+				if value_type(o[i].type.type.actionATTACKING) == "FUNCTION"
+					o[i].current_action = ATTACKING
+
+
+
+
+
 	RULESET.iceNoticesPlayer = FUNCTION (ice)
 		LOCAL.a = player.deck.default_program[DEFAULT_HIDE]
 		return_value = a == UNDEFINED || value_type(a.type.passive_effect) != "FUNCTION" || !a.type.passive_effect(player, a, ice)
@@ -153,12 +166,61 @@ english
 
 
 
+	// called for all ice that was on the waiting_ice list of the area, after all ice has been moved from waiting_ice to active_ice
+	RULESET.iceReactToAlarm = FUNCTION (ice, target_area)
+		if !ice.response_ice
+			if ice.current_action == INACTIVE
+				ice.current_action = GUARDING
+		else if ice.node.area != target_area
+			ice.current_action = SEARCHING
+			if player.querying_ice == ice
+				player.querying_ice = UNDEFINED
+		else if ice.current_action !=ATTACKING
+			ice.current_action = RESPONDING
+			if player.querying_ice == ice
+				player.querying_ice = UNDEFINED
+
+
+
+
 	RULESET.iceSoundAlarm = FUNCTION (ice, alarm_level)
 		if ice.node.silenced > 0
-// ***************
-// ***************
-// ***************
-// ***************
+			iceMakeHostile()
+		else if ice.node.system.alert_level == RED
+			ice.node.area.response_ice_target = ice.node
+			iceMakeHostile()
+		else
+			if alarm_level == YELLOW && ice.node.system.alert_level == GREEN
+// (play yellow alert sound)
+				print "<#orange>" + getName(ice) + (ice.node==player.node ? "" : " in node "+ice.node.name) + " signals a yellow alert."
+				ice.node.system.alert_level = YELLOW
+			else
+// (play red alert sound)
+				print "<#red>" + getName(ice) + (ice.node==player.node ? "" : " in node "+ice.node.name) + " signals a red alert!"
+//*********************************************************
+				debug ("iceSoundAlarm needs to make a note about the red alert in the current mission's status")
+//*********************************************************
+				ice.node.system.alert_level = RED
+				ice.node.area.response_ice_target = ice.node
+				// activate all waiting ice. it moves towards the alarm in the ice's area, it switches from INACTIVE to GUARDING in all other areas
+				LOCAL.area = ice.node.area
+				LOCAL.a = area.system.area
+				for j = a.size-1 downto 0
+					// let all the active response_ice react to the alarm
+					LOCAL.w = a[j].active_ice
+					for i = w.size-1 downto 0
+						if w[i].response_ice
+							w[i].type.reactToAlarm(w[i], area)
+					// move all the waiting ice to the active_ice list
+					LOCAL.w = a[j].waiting_ice
+					a[j].active_ice = a[j].active_ice + w
+					a[j].waiting_ice = ARRAY
+					// let all the formerly waiting ice react to the alarm
+					for i = w.size-1 downto 0
+						w[i].type.reactToAlarm(w[i], area)
+//*********************************************************
+// if player node, attach the alarm sounded pic to the ice
+//*********************************************************
 
 
 

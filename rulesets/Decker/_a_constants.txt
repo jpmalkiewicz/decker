@@ -208,9 +208,14 @@ english
 		TRACE
 		// ATTACK
 
+		ACTIVE            // ice initial_state groups : determines whether an ice goes into the active_ice group, the waiting_ice_group, or no group
+		WAITING
+		PASSIVE
+
 		ATTACKING         // ice state constants
 		FOLLOWING
 		GOING_HOME
 		GUARDING
 		INACTIVE
+		RESPONDING
 		SEARCHING

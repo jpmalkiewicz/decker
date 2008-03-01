@@ -66,7 +66,6 @@ english
 
 
 
-
 	RULESET.pickIceType = FUNCTION (_type, _rating)
 		LOCAL.t = ARRAY
 		// find all the types with the correct general type and which have a version for the supplied _rating
@@ -92,6 +91,8 @@ english
 				r = r - p[i]
 				i = i + 1
 			return_value = t[i]
+
+
 
 
 	RULESET.generateIce = FUNCTION (_type, _rating, _node, data)
@@ -124,8 +125,12 @@ english
 		return_value.home_node = _node
 		placeObject(return_value, _node)
 		// add the ice to the list of currently active ice, if it's always active
-		if _node.area != UNDEFINED &&( _type == PROBE || return_value.type.roaming )
-			_node.area.active_ice[] = return_value
+		if _node.area != UNDEFINED
+			if return_value.type.initial_state == ACTIVE
+				_node.area.active_ice[] = return_value
+			else if return_value.response_ice || return_value.type.initial_state == WAITING
+				_node.area.waiting_ice[] = return_value
+
 
 
 
