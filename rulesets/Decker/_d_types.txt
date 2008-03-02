@@ -59,7 +59,8 @@ english
 			alert_level = GREEN
 			area
 			entry_point      // usually a PORTAL_OUT node
-			active_effects  // something that has an expiry_time and on_expire() function defined, or an on_tick() function
+			active_effects   // something that has an expiry_time and on_expire() function defined, or an on_tick() function
+			last_search = 0  // id of the last area wide search. this goes up by 1 per search
 			initializer = FUNCTION
 				area = ARRAY
 				active_effects = ARRAY
@@ -92,11 +93,13 @@ english
 			area
 			x
 			y
-			connection      // if connection[direction] set to true, there is a connection in that direction
+			connection         // if connection[direction] set to a node, there is a connection to that node in that direction
 			type
 			smoke_level = 0
-			info_level      // UNDEFINED = unknown, 1 = has seen it, 2 = has been there and knows what exits exist, 3 = knows its sub_type
-			objects         // ice and humans
+			info_level         // UNDEFINED = unknown, 1 = has seen it, 2 = has been there and knows what exits exist, 3 = knows its sub_type
+			objects            // ice and humans
+			search_marker = 0  // used for path finding
+			search_data        // used for path finding
 			initializer = FUNCTION
 				connection = createSizedArray(4)
 				objects = ARRAY

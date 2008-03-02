@@ -91,7 +91,9 @@ english
 	RULESET.iceAction_GUARDING_GUARD = FUNCTION (ice)
 		if ice.hostile
 			iceSoundAlarm(ice,RED)
-
+		else
+			// remove the ice from the list of active ice. it becomes passive again
+			delete(ice.node.area.active_ice, indexof(ice, ice.node.area.active_ice))
 
 
 
@@ -124,6 +126,63 @@ english
 			else
 				iceMakeHostile()
 				iceAct(ice)
+
+
+
+
+	// ice state is either RESPONDING or GOING_HOME
+	RULESET.iceAction_MOVING = FUNCTION (ice)
+		if ice.hotile
+			iceSoundAlarm(ice,RED)
+		if ice.node == player.node &&( ice.type.type == PROBE ||(( ice.type.type == ATTACK || ice.type.type == TRACE )&&( ice.hostile || ice.node.area.system.alert_level == RED )))&& iceNoticesPlayer(ice) && iceQueryPlayer(ice)
+			// do nothing. we're querying the player
+		else
+			LOCAL.target_node = ice.current_action == RESPONDING && ice.node.area.response_ice_target != UNDEFINED ? ice.node.area.response_ice_target : ice.home_node
+			if ice.node != target_node
+				// move towards the target node
+				// step 1 : find the shortest route towards the node
+				LOCAL.current_search = ice.node.area.system.last_search + 1
+				ice.node.area.system.last_search = current_search
+				LOCAL.nodes = ARRAY
+					ice.node
+				ice.node.search_marker = current_search
+				LOCAL.c
+				for i = 0 to nodes.size
+					c = nodes[i].connection
+					for j = 0 to 3
+						if c[j] != UNDEFINED && c[j].search_marker < current_search
+							c[j].search_marker = current_search
+							c[j].search_data = nodes[i]
+							if c[j] == target_node
+								nodes = ARRAY // to stop the outer for loop
+								break
+							else
+								nodes[] = c[j]
+				// if there is no path to the target node, don't do anything. otherwise backtrace the route to the ice's node and then take a step along the route
+				if target_node.search_marker == current_search
+					i = target_node
+					while i.search_data != ice.node
+						i = i.search_data
+					moveObject(ice, i)
+			else
+				if ice.node.area.system.alert_level != RED
+					// there is no active alarm. return to the ice's initial action
+					ice.hostile = false
+					ice.current_action = ice.type.initial_action
+					if ice.type.initial_state == PASSIVE
+						// remove the ice from the list of active ice
+						delete(ice.node.area.active_ice, indexof(ice, ice.node.area.active_ice))
+					else if ice.type.initial_state == WAITING
+						// remove the ice from the list of active ice, and append it to the list of waiting ice
+						delete(ice.node.area.active_ice, indexof(ice, ice.node.area.active_ice))
+						ice.node.area.waiting_ice[] = ice
+				else if ice.response_ice
+					// response ice will swarm around the target node while there is a RED alert
+					iceWander(ice)
+				else
+					ice.current_action = GUARDING
+					if ice.node != player.node
+						ice.hostile = false
 
 
 
