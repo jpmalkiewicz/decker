@@ -1,4 +1,6 @@
 85%
+2008-03-02
+	ice should be able to move towards its target_node (the home node or the alarm node)
 2008-03-01
 	querying should qork completely
 	a probe initiated a query for the first time :)

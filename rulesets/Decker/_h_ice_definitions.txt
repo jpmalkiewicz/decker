@@ -456,9 +456,15 @@ english
 	for i = ICE_TYPES.size-1 downto 0
 		if ICE_TYPES[i].min_rating == UNDEFINED
 			ICE_TYPES[i].min_rating = ICE_TYPES[i].name.size>20 ? 1 : 21 - ICE_TYPES[i].name.size
+		if ICE_TYPES[i].respawn_action == UNDEFINED
+			ICE_TYPES[i].respawn_action = GOING_HOME
 		if ICE_TYPES[i].action == UNDEFINED
 			ICE_TYPES[i].action = iceAction
 		if ICE_TYPES[i].actionQUERYING1 == UNDEFINED
 			ICE_TYPES[i].actionQUERYING1 = iceAction_QUERYING
 			ICE_TYPES[i].actionQUERYING2 = iceAction_QUERYING
 			ICE_TYPES[i].actionQUERYING3 = iceAction_QUERYING
+		if ICE_TYPES[i].actionRESPONDING == UNDEFINED
+			ICE_TYPES[i].actionRESPONDING = iceAction_MOVING
+		if ICE_TYPES[i].actionGOING_HOME == UNDEFINED
+			ICE_TYPES[i].actionGOING_HOME = iceAction_MOVING
