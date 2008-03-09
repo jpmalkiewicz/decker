@@ -152,10 +152,8 @@ public final static int ABSOLUTE_MIN_VALUE = Integer.MIN_VALUE+6; // coordinate 
 		if (name == null)
 			return null;
 		Object o = IMAGES.get(name);
-if (name.equals("UNDEFINED")) {
-System.out.println("fetching image UNDEFINED");
-new Throwable().printStackTrace();
-}
+		if (name.equals("UNDEFINED"))
+			return null;
 		// there is no image of that name. if the name has no suffix, try to fetch one with a suffix
 		if (o == null) {
 			int suffix = name.lastIndexOf('.');

@@ -207,6 +207,7 @@ public abstract class ScriptNode
 
 	void throwException (final String s)  {
 		// display the current stack
+		System.out.println("Error in "+script_name+" line "+script_line+" column "+script_column+" :\n"+toString()+"\n"+s);
 		printStack(System.err, "");
 		throw new RuntimeException("Error in "+script_name+" line "+script_line+" column "+script_column+" :\n"+toString()+"\n"+s);
 	}

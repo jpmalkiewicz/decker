@@ -10,6 +10,25 @@ english
 		node_name = createTextBold("", 4, CENTER, TABLE_TEXT_COLOR)
 		ice_name  = createTextBold("", 4, CENTER, TABLE_TEXT_COLOR)
 		ice_health_bar = createRectangle(354, 342, ice_health_bar_max_width, 8)
+		alert_wrapper = COMPONENT
+		ice_image = COMPONENT
+			x = 307+12
+			y = 296+12
+			width = 0
+			height = 0
+			component = ARRAY
+				RECTANGLE
+					x = CENTER
+					y = CENTER
+					width = 24
+					height = 24
+					fill = true
+					color = "#00000000"
+				IMAGE
+					x = CENTER
+					y = CENTER
+					v_align = CENTER
+					h_align = CENTER
 
 		program_scrollpane = SCROLLPANE
 			x = 12
@@ -81,16 +100,16 @@ english
 				command = system_screen_function[command]
 				if command == "left" && player.node != UNDEFINED && player.node.connection[3] != UNDEFINED
 					movePlayer(3)
-					system_screen.displayNode()
+					system_screen.updateDisplay()
 				else if command == "right" && player.node != UNDEFINED && player.node.connection[1] != UNDEFINED
 					movePlayer(1)
-					system_screen.displayNode()
+					system_screen.updateDisplay()
 				else if command == "up" && player.node != UNDEFINED && player.node.connection[0] != UNDEFINED
 					movePlayer(0)
-					system_screen.displayNode()
+					system_screen.updateDisplay()
 				else if command == "down" && player.node != UNDEFINED && player.node.connection[2] != UNDEFINED
 					movePlayer(2)
-					system_screen.displayNode()
+					system_screen.updateDisplay()
 				else if command == "wait"
 					advanceSystemTime()
 				else
@@ -108,7 +127,7 @@ english
 				on_mouse_up = FUNCTION
 					// remove the player from the last node
 					movePlayer(direction)
-					system_screen.displayNode()
+					system_screen.updateDisplay()
 
 
 		button_wrapper = createTable(3, 27, 27)
@@ -131,8 +150,26 @@ english
 					for i = a.size-1 downto 0
 						if a[i].x == x && a[i].y == y
 							player.current_target = a[i]
-							system_screen.displayNode()
+							system_screen.updateDisplay()
 							break
+
+
+
+		displayAlertLevel = FUNCTION
+			with system_screen
+				LOCAL.k = player.node.area.system.alert_level
+				LOCAL.c = k == GREEN ? "#008000" : k == YELLOW ? "#ffff00" : "ff0000"
+				if alert_wrapper.component.structure_type == RECTANGLE
+					alert_wrapper.component.color = c
+				else
+					alert_wrapper.component = RECTANGLE
+						x = 206
+						y = 342
+						width = 84
+						height = 8
+						fill = true
+						color = c
+
 
 
 		displayTarget = FUNCTION
@@ -140,8 +177,13 @@ english
 				if player.current_target == UNDEFINED
 					ice_name.text = ""
 					ice_health_bar.width = 0
+					ice_image.component[0].color = "#00000000"
+					ice_image.component[1].image = UNDEFINED
 				else
 					ice_name.text = getName(player.current_target)
+					ice_image.component[0].color = "#00ff00"
+					ice_image.component[1].image = player.current_target.structure_type == "ICE" ? "ice/"+player.current_target.type.image+"_"+player.current_target.rating : player.current_target.image
+					debug(ice_image.component[1])
 					// the color of the damage bar shifts from green to yellow to red as the damage goes up
 					LOCAL.damage = player.current_target.structure_type == "ICE" ? player.current_target.damage : player.current_target.deck.damage
 					ice_health_bar.width = ( ice_health_bar_max_width * (LETHAL_DAMAGE - damage) + LETHAL_DAMAGE - 1 ) / LETHAL_DAMAGE
@@ -233,17 +275,24 @@ english
 
 
 
+		updateDisplay = FUNCTION
+			with system_screen
+				displayAlertLevel()
+				displayNode()
+				displayTime()
 
 
 		component = ARRAY
 			IMAGE
 				image = "system/screen_background"
+			alert_wrapper
 			node_display
 			program_scrollpane
 			message_scrollpane
 			map_scrollpane
 			button_wrapper
 			ice_health_bar
+			ice_image
 			CLIP
 				x = 192
 				y = 297 // should be 296 but Java is incapable of centering text vertically
@@ -288,8 +337,7 @@ english
 					title = "Decker - System - "+ player.current_system.name
 				else
 					title = "Decker - System"
-				displayTime()
-				displayNode()
+				updateDisplay()
 
 				// create the program table
 				LOCAL.t = createTable ( , 18, 20, 9, 86, 50)
@@ -328,7 +376,7 @@ english
 					with system_screen
 						loaded_programs[selected_row].type.effect(player, loaded_programs[selected_row], player.current_target)
 						if displayed_screen == system_screen
-							displayNode()
+							updateDisplay()
 
 				LOCAL.p = player.deck.program
 				LOCAL.default = UNDEFINED

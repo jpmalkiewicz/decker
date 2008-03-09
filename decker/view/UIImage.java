@@ -62,12 +62,12 @@ class UIImage extends DisplayedComponent
 			final boolean old_rtpw = relative_to_parent_width, old_rtph = relative_to_parent_height;
 			image = AbstractView.getImage(new_value.toString());
 			if ((v=component.get("width")) == null || v.equalsConstant("UNDEFINED")) {
-				w = image.getWidth(null);
-				relative_to_parent_width = (v=component.get("x")) != null && (k=getPercentageValue(v.toString())) != Integer.MIN_VALUE && k != 0;
+				w = (image != null) ? image.getWidth(null) : 0;
+				relative_to_parent_width = (v=component.get("x")) != null &&( v.equalsConstant("CENTER") || v.equalsConstant("RIGHT") ||( (k=getPercentageValue(v.toString())) != Integer.MIN_VALUE && k != 0 ));
 			}
 			if ((v=component.get("height")) == null || v.equalsConstant("UNDEFINED")) {
-				h = image.getHeight(null);
-				relative_to_parent_height = (v=component.get("y")) != null && (k=getPercentageValue(v.toString())) != Integer.MIN_VALUE && k != 0;
+				h = (image != null) ? image.getHeight(null) : 0;
+				relative_to_parent_height = (v=component.get("y")) != null &&( v.equalsConstant("CENTER") || v.equalsConstant("BOTTOM") ||( (k=getPercentageValue(v.toString())) != Integer.MIN_VALUE && k != 0 ));
 			}
 			if (w != old_width || h != old_height || old_rtpw != relative_to_parent_width || old_rtph != relative_to_parent_height) {
 				eventSizeChanged(getCurrentClipSource(), old_width, old_height, old_rtpw, old_rtph);

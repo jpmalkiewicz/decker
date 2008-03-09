@@ -797,12 +797,20 @@ System.out.println("mouse up END");
 					}
 				}
 			}
-			// notify the parent component if this component's size is relative
+			// notify the parent component if this component's size or position is relative
 			if (relative_to_parent_width) {
 				parent.children_relative_to_width++;
 			}
 			if (relative_to_parent_height) {
 				parent.children_relative_to_height++;
+			}
+			// update the component's position if it is relative to the component's size
+			if (parent != null) {
+				int dx = determineX(component, parent.x, parent.w, w) - x;
+				int dy = determineY(component, parent.y, parent.h, h) - y;
+				if (dx != 0 || dy != 0) {
+					eventPositionChanged(getCurrentClipSource(), dx, dy);
+				}
 			}
 		}
 	}

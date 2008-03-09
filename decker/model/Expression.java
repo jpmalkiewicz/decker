@@ -429,8 +429,12 @@ try {
 				break;
 			case NOT :
 			case NEGATIVE :
+					out.print((line_start?indentation:"")+operator_element);
+					ret = print(out, indentation, false, first_operand, depth);
+				break;
 			case FUNCTION_CALL:
-					out.print((line_start?indentation:"")+toString());
+					final String s = ((FunctionCall)this).toString();
+					out.print((line_start?indentation:"")+s.substring(s.indexOf('(')));
 				break;
 			default :
 					line_start = print(out, indentation, line_start, first_operand, depth);

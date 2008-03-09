@@ -87,6 +87,29 @@ english
 
 
 
+	// this is a mobile ice that is waiting to query the player or was querying the player when s/he left the node
+	RULESET.iceAction_FOLLOWING = FUNCTION (ice)
+		if ice.node == player.node
+			debug("FOLLOWING : we're at the player's node "+(player.querying_ice==ice))
+			if !iceQueryPlayer(ice)
+				ice.current_action = SEARCHING
+				iceWander(ice)
+		else
+			// if the node is not smoked and the player is in a neighbouring node, follow him/her
+			LOCAL.give_up = true
+			if !(ice.node.smoked > 0)
+				for i = ice.node.connection.size-1 downto 0
+					if ice.node.connection[i] == player.node
+						moveObject(ice, i)
+						give_up = false
+						break
+			if give_up
+				ice.current_action = SEARCHING
+				iceWander(ice)
+
+
+
+
 	// this is a GUARD_ACCESS, GUARD_EXIT or GUARD_FILE ice in its normal state
 	RULESET.iceAction_GUARDING_GUARD = FUNCTION (ice)
 		if ice.hostile
@@ -112,6 +135,7 @@ english
 		else if player.node != ice.node
 			iceSoundAlarm(ice, YELLOW)
 			ice.current_action = ice.type.initial_action == GUARDING ? GUARDING : FOLLOWING
+			debug("iceAction_QUERYING : the player fled "+ice.current_action)
 			iceAct(ice)
 		else if ice.current_action == QUERYING1
 			ice.current_action = QUERYING2
@@ -163,7 +187,7 @@ english
 					i = target_node
 					while i.search_data != ice.node
 						i = i.search_data
-					moveObject(ice, i)
+					moveObject(ice, indexof(i, ice.node.connection))
 			else
 				if ice.node.area.system.alert_level != RED
 					// there is no active alarm. return to the ice's initial action
@@ -227,13 +251,15 @@ english
 
 
 	RULESET.iceMakeHostile = FUNCTION ()
+		debug("iceMakeHostile "+player.node.objects.size,false)
 		player.querying_ice = UNDEFINED
 		LOCAL.o = player.node.objects
 		for i = o.size-1 downto 0
 			if o[i].structure_type == "ICE"
 				o[i].hostile = true
-				if value_type(o[i].type.type.actionATTACKING) == "FUNCTION"
+				if value_type(o[i].type.actionATTACKING) == "FUNCTION"
 					o[i].current_action = ATTACKING
+		debug("iceMakeHostile END",false)
 
 
 
@@ -340,5 +366,5 @@ english
 				i = random(0,3)
 				while node.connection[i] == UNDEFINED || node.connection[i] == previous_node
 					i = random(0,3)
-				moveObject(ice, node.connection[i])
+				moveObject(ice, i)
 				debug("moving wandering ice "+getName(ice)+"  ("+previous_node.x+","+previous_node.y+") -> ("+node.x+","+node.y+")")
