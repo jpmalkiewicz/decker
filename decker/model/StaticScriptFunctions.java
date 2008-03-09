@@ -98,15 +98,20 @@ final class StaticScriptFunctions extends ScriptNode
 
 
 	private final static Value execute_create_sized_array (final Value[] args, final int index)  {
-		// if the last arg has an invalid value, return an empty array for the last dimension
-		if (index == args.length-1 &&( args[index] == null || args[index].type() != Value.INTEGER || args[index].integer() < 1 ))
-			return new Value().set(new ArrayWrapper(new Value[0]));
+		// if the last arg has no value, return an empty array for the last dimension. if it is a non-integer value, initialize the array with that value
+		if (index == args.length-1) {
+			if (args[index] == null)
+				return new Value().set(new ArrayWrapper(new Value[0]));
+			else if (args[index].type()!=Value.INTEGER || args[index].integer()<0)
+				return new Value().set(args[index]);
+		}
 		final Value[] ret = new Value[args[index].integer()];
 		ArrayWrapper aw = new ArrayWrapper(ret);
 		if (index+1 < args.length) {
 			for (int i = ret.length; --i >= 0; ) {
 				ret[i] = execute_create_sized_array(args, index+1);
-				ret[i].arrayWrapper().addValueListener(aw);
+				if (ret[i].type() == Value.ARRAY)
+					ret[i].arrayWrapper().addValueListener(aw);
 			}
 		}
 		else {

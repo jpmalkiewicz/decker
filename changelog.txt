@@ -1,4 +1,8 @@
 85%
+2008-03-08
+	fixed a number of bugs, added FOLLOWING ai behaviour
+2008-03-05
+   changed createSizedArray to initialize the array it creates with the value from the last parameter, if that value is not omitted (then it creates an empty array) and is not an integer or is below zero
 2008-03-02
 	ice should be able to move towards its target_node (the home node or the alarm node)
 2008-03-01

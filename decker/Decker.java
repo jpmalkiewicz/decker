@@ -3,6 +3,7 @@ import decker.model.*;
 import decker.view.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import decker.view.SplashScreen;
 
 /**
@@ -11,12 +12,12 @@ import decker.view.SplashScreen;
 public class Decker
 {
 	public static void main(String[] args) {
-//
-//		try {
-//			System.setErr(new PrintStream(new FileOutputStream("ERROR.JAVA", false)));
-//		} catch (FileNotFoundException ex) {
-//			System.exit(1);
-//		}
+
+		try {
+			System.setErr(new PrintStream(new FileOutputStream("ERROR.JAVA", false)));
+		} catch (FileNotFoundException ex) {
+			System.exit(1);
+		}
 
 		/* loading the rulesets */
 		SplashScreen ss = new SplashScreen();

@@ -95,11 +95,12 @@ english
 			y
 			connection         // if connection[direction] set to a node, there is a connection to that node in that direction
 			type
-			smoke_level = 0
 			info_level         // UNDEFINED = unknown, 1 = has seen it, 2 = has been there and knows what exits exist, 3 = knows its sub_type
 			objects            // ice and humans
 			search_marker = 0  // used for path finding
 			search_data        // used for path finding
+			// smoked
+			// display_connections
 			initializer = FUNCTION
 				connection = createSizedArray(4)
 				objects = ARRAY

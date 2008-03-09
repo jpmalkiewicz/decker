@@ -94,8 +94,7 @@ public final class FunctionCall extends Expression
 					arguments[i] = new Value().set(arguments[i]);
 			}
 		// execute the function call and return the resulting Value
-if (getFirstOperand().toString().equals("scriptName"))
-System.err.println("scriptName "+getScriptName());
+//System.err.println(toString());
 		return executeFunctionCall(function, arguments, null);
 	}
 
@@ -108,7 +107,7 @@ System.err.println("scriptName "+getScriptName());
 
 
 	public String toString()  {
-		String ret = getFirstOperand().toString() + " (";
+		String ret = "[FUNCTION_CALL] (";
 		if (argument.length > 0) {
 			ret += (argument[0]!=null) ? argument[0].toString() : " ";
 			for (int i = 1; i < argument.length; i++)

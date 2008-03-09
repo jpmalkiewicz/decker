@@ -25,7 +25,9 @@ final class PrintCommand extends ScriptNode
 	public ScriptNode copy()  { return new PrintCommand(this); }
 
 
-	public Value execute ()  { Global.displayTickerMessage(displayed_expression.execute().toString()); return null; }
+	public Value execute ()  {
+System.out.println("PrintCommand : "+displayed_expression.execute().toString());
+Global.displayTickerMessage(displayed_expression.execute().toString()); return null; }
 
 
 	boolean print (final PrintStream out, final String indentation, final boolean line_start, final int depth)  {

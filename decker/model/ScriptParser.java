@@ -137,7 +137,7 @@ final class ScriptParser extends ScriptReader
 		ret.addExpression(parseExpression(current_line, command_column, expression_column, new Expression[Global.PARSER_EXPRESSION_STACK_SIZE], new int[]{ -1 }, true));
 		final String s2 = readElement();
 		if(s2 == null ||( opening_bracket.equals("(") && !s2.equals(")") )||( opening_bracket.equals("[") && !s2.equals("]") ))
-			throwException((opening_bracket.equals("(")?")":"]")+" expected but "+((opening_bracket==null)?"end of script":s2)+" found");
+			throwException((opening_bracket.equals("(")?")":"]")+" expected behind "+getPreviousElement()+" but "+((opening_bracket==null)?"end of script":s2)+" found", getPreviousElementLine(), getPreviousElementColumn()+getPreviousElement().length());
 		// check whether the ) or ] sits on the beginning of a new line
 		if (getColumn() == getLineStart()) {
 			if (block_column == -1 || getPreviousLineStart() != block_column)

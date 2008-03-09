@@ -81,7 +81,7 @@ english
 
 
 	// (x,y) is the node to be added
-	RULESET.adjustPlayerMapSize = FUNCTION (area, x, y, info_level)
+	RULESET.adjustPlayerMapSize = FUNCTION (area, x, y, info_level, display_connections)
 		LOCAL.p = area.player_map
 		// increase the size of the known area
 		if x < p.x
@@ -96,15 +96,13 @@ english
 			p.height = y - p.y + 1
 		// mark the new node
 		if !(area.map[x][y].info_level >= info_level)
-			LOCAL.c = area.map[x][y].info_level
-			// portals are analyzed when you enter them
+			// portals are analyzed when you enter the node
 			area.map[x][y].info_level = info_level!=2 || getNodeTypeCategory(area.map[x][y].type)!=PORTAL ? info_level : 3
-			// if the player is in this node and hasn't been here before, tell it to display connections
-			if player.node.x == x && player.node.y == y && info_level > 1 && !(c > 1)
+			// check whether we want to display connections
+			if !area.map[x][y].display_connections &&( display_connections == true ||( display_connections == UNDEFINED && info_level > 1 ))
 				area.map[x][y].display_connections = true
 				// make sure the surrounding nodes we have connections to would fit on the map too
-				// if the player has a proximity mapper and hasn't been to this node before, also map out the surrounding nodes
-				c = area.map[x][y].connection
+				LOCAL.c = area.map[x][y].connection
 				LOCAL.x2
 				LOCAL.y2
 				for i = 3 downto 0
@@ -112,7 +110,7 @@ english
 						x2 = x + DELTA_X[i]
 						y2 = y + DELTA_Y[i]
 						if area.map[x2][y2].info_level == UNDEFINED
-							adjustPlayerMapSize(area, x2, y2, player.deck.proximity_mapper?1:0)
+							adjustPlayerMapSize(area, x2, y2, player.node.x==x && player.node.y==y && player.deck.proximity_mapper?1:0, false)
 
 
 
@@ -122,11 +120,11 @@ english
 		if area != UNDEFINED
 			LOCAL.a = area.active_ice
 			for i = a.size-1 downto 0
-				debug("ice action : " + a[i].type.type + " " + getName(a[i]) + " " +a[i].current_action, true)
+				debug("ice action : " + a[i].type.type + " " + getName(a[i]) + " " +a[i].current_action + "  ("+a[i].node.x+","+a[i].node.y+")", true)
 				a[i].type.action(a[i])
 		// update the display
 		if displayed_screen == system_screen
-			system_screen.displayNode()
+			system_screen.updateDisplay()
 
 
 
@@ -163,7 +161,7 @@ english
 			LOCAL.a = object.deck.boost_program.type.category
 			return_value = humanConditionModifier(object) + min(object.deck.analysis,object.deck.cpu) + object.analysis + (a.size>0&&a[a.size-1]==ANALYSIS_BOOST?3:0)
 		// everybody has a lowered analysis rating in a smoked node
-		if object.node.smoke_level != UNDEFINED
+		if object.node.smoked > 0
 			return_value = return_value - 4
 
 
@@ -184,7 +182,7 @@ english
 			LOCAL.a = object.deck.boost_program.type.category
 			return_value = humanConditionModifier(object) + min(object.deck.attack,object.deck.cpu) + object.attack + (a.size>0&&a[a.size-1]==ATTACK_BOOST?3:0)
 		// everybody has a lowered attack in a smoked node
-		if object.node.smoke_level != UNDEFINED
+		if object.node.smoked > 0
 			return_value = return_value - 4
 
 
@@ -284,8 +282,9 @@ english
 		moveObject(player, target)
 		// only do something if the player has actually moved
 		if n != player.node
-			// the player hasn't deceived any ice in this node yet
+			// the player hasn't deceived any ice in this node yet and has left any querying ice behind
 			player.highest_deceived_ice = -1000
+			player.querying_ice = UNDEFINED
 			// if the player had selected an ICE in the previous node, that selection is gone
 			player.current_target = UNDEFINED
 			// update the area map

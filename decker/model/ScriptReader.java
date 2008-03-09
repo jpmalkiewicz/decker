@@ -19,9 +19,9 @@ abstract class ScriptReader
 
 	private int current_line, current_column;
 	private int next_line, next_column;
-	private int previous_element_line; // the line of the previous element
+	private int previous_element_line, previous_element_column; // the line and column of the previous element
 	private int previous_line_start, current_line_start, next_line_start; // column on which the line starts
-	private String stored_element;
+	private String current_element, previous_element, stored_element;
 
 	// the vars below are used by preview(), preview2() and readChar()
 	private int stored_char, stored_char2, last_char;
@@ -35,6 +35,8 @@ abstract class ScriptReader
 		next_line = 1;
 		next_column = 1;
 		current_line_start = 1;
+		current_element = "";
+		previous_element = "";
 		previous_line_start = 1;
 		previous_element_line = 0;
 		skipWhitespace();
@@ -55,6 +57,14 @@ abstract class ScriptReader
 
 
 	/** returns the line on which the last script element was */
+	protected final String getPreviousElement ()  { return previous_element; }
+
+
+	/** returns the line on which the last script element was */
+	protected final int getPreviousElementColumn ()  { return previous_element_column; }
+
+
+	/** returns the line on which the last script element was */
 	protected final int getPreviousElementLine ()  { return previous_element_line; }
 
 
@@ -64,10 +74,8 @@ abstract class ScriptReader
 
 	/** reads an element of the mission script without removing it from the stream */
 	final String previewElement ()  {
-		if(stored_element != null)
-			return stored_element;
-
-		stored_element = readElement();
+		if(stored_element == null)
+			stored_element = readElement();
 		return stored_element;
 	}
 
@@ -75,13 +83,15 @@ abstract class ScriptReader
 	final String readElement ()  {
 		// check whether there is an element left over from the parsing of the last command
 		if(stored_element != null) {
-			final String ret = stored_element;
+			current_element = stored_element;
 			stored_element = null;
-			return ret;
+			return current_element;
 		}
 
 		// move the cursor to the element we'll read now
+		previous_element = current_element;
 		previous_element_line = current_line;
+		previous_element_column = current_column;
 		current_line = next_line;
 		current_column = next_column;
 		current_line_start = next_line_start;
@@ -89,88 +99,99 @@ abstract class ScriptReader
 		final int c = read(), c2 = preview();
 
 		// return null if the end of the stream has been reached
-		if(c == -1)
-			return null;
+		if(c == -1) {
+			current_element = null;
+		}
 
 		// catch string constants
-		if(c == '"')
-			return readString();
+		else if(c == '"') {
+			current_element = readString();
+		}
 
 		// catch  - -- + ++
-		if(c == '-' || c == '+') {
+		else if(c == '-' || c == '+') {
 			if(c2 == c)  {
 				read();
 				skipWhitespace();
-				return (c=='-') ? "--" : "++";
+				current_element = (c=='-') ? "--" : "++";
 			}
-			skipWhitespace();
-			return (c=='-') ? "-" : "+";
+			else {
+				skipWhitespace();
+				current_element = (c=='-') ? "-" : "+";
+			}
 		}
 
 		// catch  . *  /  (  )  {  }  [  ] ,
-		if(SINGLE_CHARACTER_ELEMENTS.indexOf(c) > -1)  {
+		else if(SINGLE_CHARACTER_ELEMENTS.indexOf(c) > -1)  {
 			skipWhitespace();
-			return ((char)c)+"";
+			current_element = ((char)c)+"";
 		}
 
 		// catch  &   &&
-		if(c == '&') {
+		else if(c == '&') {
 			if(c2 == '&')  {
 				read();
 				skipWhitespace();
-				return "&&";
+				current_element = "&&";
 			}
-			skipWhitespace();
-			return "&";
+			else {
+				skipWhitespace();
+				current_element = "&";
+			}
 		}
 
 		// catch  =  <  >  ==  >=  <=  !=
-		if(c == '=' || c == '<' || c == '>' || c == '!')  {
+		else if(c == '=' || c == '<' || c == '>' || c == '!')  {
 			if(c2 == '=')  {
 				read();
 				skipWhitespace();
-				return ((char)c)+"=";
+				current_element = ((char)c)+"=";
 			}
-			if (c == '<' && c2 == '>') {
+			else if (c == '<' && c2 == '>') {
 				read();
 				skipWhitespace();
-				return "<>";
+				current_element = "<>";
 			}
-			skipWhitespace();
-			return ((char)c)+"";
+			else {
+				skipWhitespace();
+				current_element = ((char)c)+"";
+			}
 		}
 
 		// catch ||
-		if( c == '|' && c2 == '|')  {
+		else if( c == '|' && c2 == '|')  {
 			read();
 			skipWhitespace();
-			return "||";
+			current_element = "||";
 		}
 
 		// the current element is a variable name or an integer value or a real value
-		if(VARIABLE_NAME_CHARACTERS.indexOf(c) == -1)
-			throwException("illegal variable name character or number digit encountered : "+(char)c+" ("+c+")");
-		final StringBuffer ret = new StringBuffer();
-		ret.append((char)c);
-		int d = preview();
-		boolean is_real = (d>='0' && d<='9'), dot_found = false;
-		while (d != -1 && VARIABLE_NAME_CHARACTERS_AND_DOT.indexOf(d) > -1)  {
-			if (d == '.') {
-				if (!is_real || dot_found) // stop reading characters if we've encountered a . and it's a variable name or if the real number would otherwise contain two .
-					break;
+		else {
+			if(VARIABLE_NAME_CHARACTERS.indexOf(c) == -1)
+				throwException("illegal variable name character or number digit encountered : "+(char)c+" ("+c+")");
+			final StringBuffer ret = new StringBuffer();
+			ret.append((char)c);
+			int d = preview();
+			boolean is_real = (d>='0' && d<='9'), dot_found = false;
+			while (d != -1 && VARIABLE_NAME_CHARACTERS_AND_DOT.indexOf(d) > -1)  {
+				if (d == '.') {
+					if (!is_real || dot_found) // stop reading characters if we've encountered a . and it's a variable name or if the real number would otherwise contain two .
+						break;
+					else
+						dot_found = true;
+				}
 				else
-					dot_found = true;
+					is_real &= (d>='0' && d<='9');
+				ret.append((char)d);
+				read();
+				d = preview();
 			}
-			else
-				is_real &= (d>='0' && d<='9');
-			ret.append((char)d);
-			read();
-			d = preview();
+			if (is_real && dot_found && ret.charAt(ret.length()-1) == '.')
+				throwException("real number "+ret.toString()+" must end with a digit, not with a .");
+			skipWhitespace();
+			current_element = ret.toString();
 		}
-		if (is_real && dot_found && ret.charAt(ret.length()-1) == '.')
-			throwException("real number "+ret.toString()+" must end with a digit, not with a .");
-		skipWhitespace();
-		return ret.toString();
+		return current_element;
 	}
 
 
@@ -295,6 +316,14 @@ abstract class ScriptReader
 
 	protected void throwException(String cause)  {
 		java.lang.System.err.println("Error in script "+script_name+" line "+getLine()+", column "+getColumn()+" :\n"+cause);
-		throw new RuntimeException("Error in script "+script_name+" line "+getLine()+", column "+getColumn()+" :\n"+cause);
+System.exit(1);
+//		throw new RuntimeException("Error in script "+script_name+" line "+getLine()+", column "+getColumn()+" :\n"+cause);
+	}
+
+
+	protected void throwException(String cause, int line, int column)  {
+		java.lang.System.err.println("Error in script "+script_name+" line "+line+", column "+column+" :\n"+cause);
+System.exit(1);
+//		throw new RuntimeException("Error in script "+script_name+" line "+line+", column "+column+" :\n"+cause);
 	}
 }
