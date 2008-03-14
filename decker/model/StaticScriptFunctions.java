@@ -188,10 +188,21 @@ final class StaticScriptFunctions extends ScriptNode
 
 
 	private final static Value execute_delete (final Value[] args)  {
-		if (args.length >= 2 && args[0] != null && args[1] != null && args[0].type() == Value.ARRAY && args[1].type() == Value.INTEGER) {
-			final int index = args[1].integer();
+		if (args.length >= 2 && args[0] != null && args[1] != null && args[0].type() == Value.ARRAY && args[1] != null) {
 			final ArrayWrapper array = args[0].arrayWrapper();
 			final int old_length = array.array.length;
+			int index;
+			if (args[1].type() == Value.INTEGER)
+				index = args[1].integer();
+			else {
+				index = -1;
+				for (int i = old_length; --i >= 0; ) {
+					if (array.array[index].equals(args[1])) {
+						index = i;
+						break;
+					}
+				}
+			}
 			if (index >= 0 && index < old_length) {
 				final Value[] new_array = new Value[old_length-1];
 				System.arraycopy(array.array, 0, new_array, 0, index);

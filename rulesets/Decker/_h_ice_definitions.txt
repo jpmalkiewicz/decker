@@ -4,11 +4,11 @@ english
 			type = PROBE
 			image = "probe"
 			attributes = SET
+				follows = true
 				roaming = true
 				probing = true
 				white = true
 			initial_action = SEARCHING
-			respawn_action = SEARCHING
 			initial_state = ACTIVE
 			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
@@ -151,6 +151,8 @@ english
 		ICE_TYPE
 			type = ATTACK
 			image = "attack"
+			attributes = SET
+				follows = true
 			probability = FUNCTION (rating)
 				return_value = rating < 11 ? 100 : 150 - rating * 5
 			initial_action = INACTIVE
@@ -185,6 +187,7 @@ english
 			image = "attack_hardened"
 			attributes = SET
 				hardened = true
+				follows = true
 			probability = FUNCTION (rating)
 				return_value =  ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 100 : 150-rating*5) / 100
 			initial_action = INACTIVE
@@ -214,6 +217,7 @@ english
 			image = "attack_phasing"
 			attributes = SET
 				phasing = true
+				follows = true
 			probability = FUNCTION (rating)
 				return_value = ( ( ( rating - 5 ) * 36 + 8 ) / 15  ) * (rating<11 ? 100 : 150-rating*5) / 100
 			initial_action = INACTIVE
@@ -243,6 +247,7 @@ english
 			image = "attack_crash"
 			attributes = SET
 				crasher = true
+				follows = true
 			probability = FUNCTION (rating)
 				return_value = ( ( ( rating - 5 ) * 18 + 8 ) / 15 ) * (rating<11 ? 100 : 150-rating*5) / 100
 			initial_action = INACTIVE
@@ -272,6 +277,7 @@ english
 			image = "attack_stun"
 			attributes = SET
 				stun_damage = true
+				follows = true
 			probability = FUNCTION (rating)
 				return_value = ( rating - 10 ) * 5
 			initial_action = INACTIVE
@@ -297,6 +303,7 @@ english
 			attributes = SET
 				stun_damage = true
 				hardened = true
+				follows = true
 			probability = FUNCTION (rating)
 				return_value = ( ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5) + 99 ) / 100
 			initial_action = INACTIVE
@@ -322,6 +329,7 @@ english
 			attributes = SET
 				stun_damage = true
 				phasing = true
+				follows = true
 			probability = FUNCTION (rating)
 				return_value = ( ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5) + 99 ) / 100
 			initial_action = INACTIVE
@@ -347,6 +355,7 @@ english
 			attributes = SET
 				stun_damage = true
 				crasher = true
+				follows = true
 			probability = FUNCTION (rating)
 				return_value = ( ( ( ( rating - 5 ) * 18 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5 ) + 99 ) / 100
 			initial_action = INACTIVE
@@ -367,8 +376,11 @@ english
 				"Dragon"
 
 		ICE_TYPE
-			type = TRACE
+			type = ATTACK
 			image = "trace"
+			attributes = SET
+				traces = true
+				follows = true
 			probability = FUNCTION (rating)
 				return_value = 125 - rating * 5
 			initial_action = INACTIVE
@@ -399,10 +411,12 @@ english
 				"Hound of the Baskervilles"
 
 		ICE_TYPE
-			type = TRACE
+			type = ATTACK
 			image = "trace_dump"
 			attributes = SET
+				traces = true
 				dump_on_trace = true
+				follows = true
 			probability = FUNCTION (rating)
 				return_value = rating <= 10 ? ( rating - 5 ) * 5 : rating * 3 - 5
 			initial_action = INACTIVE
@@ -428,11 +442,13 @@ english
 				"Ranger IV"
 
 		ICE_TYPE
-			type = TRACE
+			type = ATTACK
 			image = "trace_dump_fry"
 			attributes = SET
+				traces = true
 				dump_on_trace = true
 				fry_chip_on_dump = true
+				follows = true
 			probability = FUNCTION (rating)
 				return_value = ( rating - 10 ) * 2
 			initial_action = INACTIVE
@@ -456,8 +472,6 @@ english
 	for i = ICE_TYPES.size-1 downto 0
 		if ICE_TYPES[i].min_rating == UNDEFINED
 			ICE_TYPES[i].min_rating = ICE_TYPES[i].name.size>20 ? 1 : 21 - ICE_TYPES[i].name.size
-		if ICE_TYPES[i].respawn_action == UNDEFINED
-			ICE_TYPES[i].respawn_action = GOING_HOME
 		if ICE_TYPES[i].action == UNDEFINED
 			ICE_TYPES[i].action = iceAction
 		if ICE_TYPES[i].actionFOLLOWING == UNDEFINED
