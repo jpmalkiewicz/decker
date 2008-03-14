@@ -4,82 +4,14 @@ english
 		LOCAL.a = getStructureMember(ice.type, "action"+ice.current_action)
 		if value_type(a) == "FUNCTION"
 			a(ice)
+		else
+			// something has seriously gone wrong, the ice has a "current_action" it has no function for. let it go home
+			iceChooseNewAction(ice)
 
 
 
 
-	// called for an ice when it's turn to act has arrived
-	RULESET.iceAction = FUNCTION (ice)
-		if ice.type.updateState(ice)
-			if !(ice.confused > 0)
-				iceAct(ice)
-			else
-				// trace ice ay stop tracing
-				if player.tracing_ice == ice && random(0,3) == 0
-					player.tracing_ice = UNDEFINED
-					print getName(ice) + " cancels its trace!"
-				// choose a random action
-				LOCAL.a = random(0,4)
-				if a == 0
-					// attack self
-					LOCAL.b = rollDie(10)    // = (random(1,20)-10+3)/4
-					if b > 0
-						b = b*b
-						ice.damage = ice.damage + b
-						print getName(ice) + " does " + b*HEALTH_INCREMENT +"% damage to itself"
-						if ice.damage >= LETHAL_DAMAGE
-							crashICE(ice)
-				if a == 1
-					// attack player
-					if ice.node == player.node && value_type(ice.type.actionATTACKING) == "FUNCTION"
-						ice.current_action = ATTACKING
-						ice.hostile = true
-						iceAct(ice)
-					else
-						iceSoundAlarm(ice,RED)
-						a = 2
-				if a == 2
-					// attack another ice, but only if we are an ATTACK ice
-					if ice.type.type != ATTACK
-						a = random(3,4)
-					else
-						// count the other ice in the node
-						LOCAL.b = 0
-						LOCAL.o = ice.node.objects
-						for i = o.size-1 downto 0
-							if o[i].structure_type == "ICE" && o[i] != ice
-								b++
-						if b == 0
-							a = random(3,4)
-						else
-							// pick a random ice and attack it
-							b = random(1,b)
-							for i = o.size-1 downto 0
-								if o[i].structure_type == "ICE" && o[i] != ice
-									b--
-									if b == 0
-										o = o[i]
-										// attack this ice
-										b = rollDie(10 - getAttackRating(ice, false) + getDefenseRating(o, false))
-										if b > 0
-											b = b*b
-											o.damage = o.damage + b
-											print getName(ice) + " attacks " + getName(o) + " for " + b*HEALTH_INCREMENT + " damage!"
-											if o.damage >= LETHAL_DAMAGE
-												crashIce(o)
-										break
-				if a == 3
-					LOCAL.b = ice.type.type
-					if b == ATTACK || b == TRACE || b == PROBE
-						if player.querying_ice == ice
-							player.querying_ice = UNDEFINED
-						iceWander(ice)
-				// a == 4 means the ice doesn't do anything
-
-
-
-
-	// this is an ATTACK or TRACE ice that is guarding the node where the player has last been sighted and recognized as hostile. this ice is currently not hostile
+	// this is an ATTACK ice that is actively guarding its home node during a red alert
 	RULESET.iceAction_GUARDING_ATTACK = FUNCTION (ice)
 		if ice.node == player.node && iceNoticesPlayer(ice)
 			iceQueryPlayer(ice)
@@ -87,267 +19,87 @@ english
 
 
 
-	// this is a mobile ice that is waiting to query the player or was querying the player when s/he left the node
-	RULESET.iceAction_FOLLOWING = FUNCTION (ice)
-		if ice.node == player.node
-			debug("FOLLOWING : we're at the player's node "+(player.querying_ice==ice))
-			if !iceQueryPlayer(ice)
-				ice.current_action = SEARCHING
-				iceWander(ice)
-		else
-			// if the node is not smoked and the player is in a neighbouring node, follow him/her
-			LOCAL.give_up = true
-			if !(ice.node.smoked > 0)
-				for i = ice.node.connection.size-1 downto 0
-					if ice.node.connection[i] == player.node
-						moveObject(ice, i)
-						give_up = false
-						break
-			if give_up
-				ice.current_action = SEARCHING
-				iceWander(ice)
-
-
-
-
-	// this is a GUARD_ACCESS, GUARD_EXIT or GUARD_FILE ice in its normal state
-	RULESET.iceAction_GUARDING_GUARD = FUNCTION (ice)
-		if ice.hostile
-			iceSoundAlarm(ice,RED)
-		else
-			// remove the ice from the list of active ice. it becomes passive again
-			delete(ice.node.area.active_ice, indexof(ice, ice.node.area.active_ice))
-
-
-
-	// this is the ice that is currently querying the player and in state QUERYING1, QUERYING2 or QUERYING3
-	RULESET.iceAction_QUERYING = FUNCTION (ice)
-		// check whether the player has deceived the ice
-		if ice.rating <= player.highest_deceived_ice
-			if ice.type.initial_action == GUARDING
-				ice.current_action = GUARDING
-			else if ice.response_ice || ice.type.initial_action == SEARCHING
-				ice.current_action = SEARCHING
-				iceWander(ice)
-			else
-				ice.current_action = GOING_HOME
-				iceAct(ice)
-		else if player.node != ice.node
-			iceSoundAlarm(ice, YELLOW)
-			ice.current_action = ice.type.initial_action == GUARDING ? GUARDING : FOLLOWING
-			debug("iceAction_QUERYING : the player fled "+ice.current_action)
-			iceAct(ice)
-		else if ice.current_action == QUERYING1
-			ice.current_action = QUERYING2
-		else if ice.current_action == QUERYING2
-			ice.current_action = QUERYING3
-		else  // ice.current_action == QUERYING3
-			iceSoundAlarm(ice, YELLOW)
-			if !(ice.node.silenced>0) && ice.node.area.system.alert_level == YELLOW
-				iceQueryPlayer(ice)
-				if ice.current_action != QUERYING1 && !ice.hostile
-					ice.current_action = ice.type.initial_action == GUARDING ? GUARDING : FOLLOWING
-			else
-				iceMakeHostile()
-				iceAct(ice)
-
-
-
-
-	// ice state is either RESPONDING or GOING_HOME
-	RULESET.iceAction_MOVING = FUNCTION (ice)
-		if ice.hotile
-			iceSoundAlarm(ice,RED)
-		if ice.node == player.node &&( ice.type.type == PROBE ||(( ice.type.type == ATTACK || ice.type.type == TRACE )&&( ice.hostile || ice.node.area.system.alert_level == RED )))&& iceNoticesPlayer(ice) && iceQueryPlayer(ice)
-			// do nothing. we're querying the player
-		else
-			LOCAL.target_node = ice.current_action == RESPONDING && ice.node.area.response_ice_target != UNDEFINED ? ice.node.area.response_ice_target : ice.home_node
-			if ice.node != target_node
-				// move towards the target node
-				// step 1 : find the shortest route towards the node
-				LOCAL.current_search = ice.node.area.system.last_search + 1
-				ice.node.area.system.last_search = current_search
-				LOCAL.nodes = ARRAY
-					ice.node
-				ice.node.search_marker = current_search
-				LOCAL.c
-				for i = 0 to nodes.size
-					c = nodes[i].connection
-					for j = 0 to 3
-						if c[j] != UNDEFINED && c[j].search_marker < current_search
-							c[j].search_marker = current_search
-							c[j].search_data = nodes[i]
-							if c[j] == target_node
-								nodes = ARRAY // to stop the outer for loop
-								break
-							else
-								nodes[] = c[j]
-				// if there is no path to the target node, don't do anything. otherwise backtrace the route to the ice's node and then take a step along the route
-				if target_node.search_marker == current_search
-					i = target_node
-					while i.search_data != ice.node
-						i = i.search_data
-					moveObject(ice, indexof(i, ice.node.connection))
-			else
-				if ice.node.area.system.alert_level != RED
-					// there is no active alarm. return to the ice's initial action
-					ice.hostile = false
-					ice.current_action = ice.type.initial_action
-					if ice.type.initial_state == PASSIVE
-						// remove the ice from the list of active ice
-						delete(ice.node.area.active_ice, indexof(ice, ice.node.area.active_ice))
-					else if ice.type.initial_state == WAITING
-						// remove the ice from the list of active ice, and append it to the list of waiting ice
-						delete(ice.node.area.active_ice, indexof(ice, ice.node.area.active_ice))
-						ice.node.area.waiting_ice[] = ice
-				else if ice.response_ice
-					// response ice will swarm around the target node while there is a RED alert
-					iceWander(ice)
-				else
-					ice.current_action = GUARDING
-					if ice.node != player.node
-						ice.hostile = false
-
-
-
-
 	RULESET.iceAction_SEARCHING = FUNCTION (ice)
-		if ice.node == player.node
-			debug("iceAction_SEARCHING : "+ice.rating+" ("+player.highest_deceived_ice+") "+iceNoticesPlayer(ice))
 		if ice.node != player.node || ice.rating <= player.highest_deceived_ice || !iceNoticesPlayer(ice) || !iceQueryPlayer(ice)
-			iceWander(ice)
-
-
-
-
-	// returns true if the ice can act, false otherwise
-	RULESET.iceActionUpdateState = FUNCTION (ice)
-		return_value = true
-		if ice.slowed > 0
-			ice.slowed--
-			if ice.slowed == 0
-				print getName(ice) + " is no longer slowed"
-			else if ice.slowed%2 == 1
-				return_value = false     // skip odd turns. ice always starts with an even value so it skips directly after getting slowed
-		if return_value && ice.virus > 0
-				ice.virus--
-				if ice.virus == 0
-					print getName(ice) + " is no longer slowed"
-				else
-					ice.damage++
-					if ice.damage >= LETHAL_DAMAGE
-						crashICE(ice)
-						return_value = false
-		if return_value && ice.confused > 0
-			ice.confused--
-			if ice.confused == 0
-				print getName(ice) + " is no longer confused"
-		if return_value && ice.weakened > 0
-			ice.weakened--
-			if ice.weakened == 0
-				print getName(ice) + " is no longer weakened"
-
-
-
-
-	RULESET.iceMakeHostile = FUNCTION ()
-		debug("iceMakeHostile "+player.node.objects.size,false)
-		player.querying_ice = UNDEFINED
-		LOCAL.o = player.node.objects
-		for i = o.size-1 downto 0
-			if o[i].structure_type == "ICE"
-				o[i].hostile = true
-				if value_type(o[i].type.actionATTACKING) == "FUNCTION"
-					o[i].current_action = ATTACKING
-		debug("iceMakeHostile END",false)
-
-
-
-
-
-	RULESET.iceNoticesPlayer = FUNCTION (ice)
-		LOCAL.a = player.deck.default_program[DEFAULT_HIDE]
-		return_value = a == UNDEFINED || value_type(a.type.passive_effect) != "FUNCTION" || !a.type.passive_effect(player, a, ice)
-
-
-
-
-	RULESET.iceQueryPlayer = FUNCTION (ice)
-		if ice.rating <= player.highest_deceived_ice
-			return_value = false
-		else
-			return_value = true
-			// if there is currently no querying ice or its rating is lower than ours, it's time for us to query
-			if !( player.querying_ice.rating >= ice.rating )
-				if player.deck.decoys.size > 0
-					iceSoundAlarm(ice,RED)
-				else
-					LOCAL.a = player.querying_ice
-					if a != UNDEFINED
-						a.state = a.type.initial_action == GUARDING ? GUARDING : FOLLOWING
-					player.querying_ice = ice
-					ice.current_action = QUERYING1
-					player.current_target = ice
-					print getName(ice) + " is querying you"
-
-
-
-
-	// called for all ice that was on the waiting_ice list of the area, after all ice has been moved from waiting_ice to active_ice
-	RULESET.iceReactToAlarm = FUNCTION (ice, target_area)
-		if !ice.response_ice
-			if ice.current_action == INACTIVE
-				ice.current_action = GUARDING
-		else if ice.node.area != target_area
-			ice.current_action = SEARCHING
-			if player.querying_ice == ice
-				player.querying_ice = UNDEFINED
-		else if ice.current_action !=ATTACKING
-			ice.current_action = RESPONDING
-			if player.querying_ice == ice
-				player.querying_ice = UNDEFINED
-
-
-
-
-	RULESET.iceSoundAlarm = FUNCTION (ice, alarm_level)
-		if ice.node.silenced > 0
-			iceMakeHostile()
-		else if ice.node.area.system.alert_level == RED
-			ice.node.area.response_ice_target = ice.node
-			iceMakeHostile()
-		else
-			if alarm_level == YELLOW && ice.node.area.system.alert_level == GREEN
-// (play yellow alert sound)
-				print "<#orange>" + getName(ice) + (ice.node==player.node ? "" : " in node "+ice.node.name) + " signals a yellow alert."
-				ice.node.area.system.alert_level = YELLOW
+			// response ice has a 50% chance of moving towards the node where an alarm has last been sounded
+			if ice.response_ice && ice.node.area.system.alert_level == RED && ice.node.response_direction != UNDEFINED && random(0,1) == 0
+// need to define response_direction
+				moveObject(ice, indexof(ice.node.response_direction, ice.node.connection))
 			else
-// (play red alert sound)
-				print "<#red>" + getName(ice) + (ice.node==player.node ? "" : " in node "+ice.node.name) + " signals a red alert!"
-//*********************************************************
-				debug ("iceSoundAlarm needs to make a note about the red alert in the current mission's status")
-//*********************************************************
-				ice.node.area.system.alert_level = RED
-				ice.node.area.response_ice_target = ice.node
-				// activate all waiting ice. it moves towards the alarm in the ice's area, it switches from INACTIVE to GUARDING in all other areas
-				LOCAL.area = ice.node.area
-				LOCAL.a = area.system.area
-				for j = a.size-1 downto 0
-					// let all the active response_ice react to the alarm
-					LOCAL.w = a[j].active_ice
-					for i = w.size-1 downto 0
-						if w[i].response_ice
-							w[i].type.reactToAlarm(w[i], area)
-					// move all the waiting ice to the active_ice list
-					LOCAL.w = a[j].waiting_ice
-					a[j].active_ice = a[j].active_ice + w
-					a[j].waiting_ice = ARRAY
-					// let all the formerly waiting ice react to the alarm
-					for i = w.size-1 downto 0
-						w[i].type.reactToAlarm(w[i], area)
-//*********************************************************
-// if player node, attach the alarm sounded pic to the ice
-//*********************************************************
+				iceWander(ice)
+
+
+
+
+	RULESET.iceChooseAction = FUNCTION (ice, act = true)
+		// is the ice fighting the player?
+		if ice.node == player.node && player.hostile
+			ice.current_action = ATTACKING
+		else if ice.current_action == ATTACKING || ice.current_action == QUERYING
+			// if we are still in the same node as the player, continue fighting or querying. otherwise stop that and try to find the player
+			if act && ice.node != player.node
+				// if the player fled from a querying ice, sound a yellow alert
+				if ice.current_action == QUERYING
+					iceSoundAlarm(ice, YELLOW)
+				// try to follow the player
+				if ice.type.attributes.follows && !(ice.node.smoked > 0)
+					LOCAL.a = indexof(player.node, ice.node.connection)
+					if a >= 0
+						act = false
+						moveObject(ice, a)
+						if ice.current_action == ATTACKING
+							iceSoundAlarm(ice)
+				// if the player has vanished or this ice cannot follow, choose something new to do
+// there's a special case where the ice was hostile and follows the player by chance. in that case it should stay hostile
+				if act
+					ice.current_action = UNDEFINED
+		//***********************************
+		// attacking and querying ice has been handled. now comes attack ice at its home node and response ice, during a red alert
+		//***********************************
+		if ice.current_action != ATTACKING && ice.current_action != QUERYING
+			// is there a red alert?
+			if ice.node.area.system.alert_level != RED
+				ice.current_action = UNDEFINED
+			else
+				if ice.response_ice
+					// if we are a reponse ice and an intruder has just been detected or we are not already in SEARCHING mode, go to the response target node
+					if ice.node != ice.node.area.response_ice_target &&( ice.current_action != SEARCHING || ice.node.area.alert_time >= player.current_time - 1 )
+						ice.current_action = RESPONDING
+					else
+						ice.current_action = SEARCHING
+				// non-response attack ice actively guards its home node during a red alert
+				else if ice.node == ice.home_node && ice.type.type == ATTACK
+					ice.current_action = GUARDING
+				else
+					ice.current_action = UNDEFINED
+			//***********************************
+			// special red alert behaviour has been handled. now do normal behavior
+			//***********************************
+			if ice.current_action == UNDEFINED
+				// respawned response ice and ice with SEARCHING as its initial action (e.g. PROBE ice) will search the system
+				if ( ice.response_ice && ice.respawned )||( ice.type.initial_action == SEARCHING && ice.type.initial_state == ACTIVE )
+					ice.current_action = SEARCHING
+				// all other ice will go home
+				else if ice.node != ice.home_node
+					ice.current_action = GOING_HOME
+				else
+					// the ice already is at home. it returns to its initial action
+					ice.current_action = ice.type.initial_action
+					// we may need to remove the ice from the list of active ice
+					if ice.type.initial_state != ACTIVE
+						delete(ice.node.area.active_ice, ice)
+						// if the ice is now passively waiting again, add it to that list
+						if ice.type.initial_state == PASSIVE
+							ice.node.area.waiting_ice[] = ice
+
+
+
+
+
+
+	RULESET.iceSoundAlarm = FUNCTION (ice, alert_level = RED)
+// **********************************************************************
+// DO NOT ignore alarm attempts which occur in the node where the player is if the payer already has the hostile tag and the response node is the player node
 
 
 

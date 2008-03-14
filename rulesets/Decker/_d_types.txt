@@ -74,7 +74,7 @@ english
 			ice_entry_node
 			player_map
 			active_ice // ice which is currently active
-			waiting_ice // this list contains all the ice that can be activated
+			waiting_ice // this list contains all the ice that will be activated during a red alert
 			response_ice_target // the node response_ice is moving towards
 			initializer = FUNCTION
 				destroyed_ice = ARRAY
@@ -126,7 +126,6 @@ english
 			reactToAlarm
 			updateState
 			initial_action
-			respawn_action = GOING_HOME   // automatically replaced with SEARCHING for ice with ( ice.response_ice == true )
 			initial_state
 			initializer = FUNCTION
 				name = ARRAY
@@ -144,8 +143,10 @@ english
 			home_node
 			current_action
 			damage = 0
+			// response_ice = true   // flag that marks response ice, always set to true, not defined for other ice
 			// trace_time
 			// trace_target
+
 // ******************************************************************
 // OUTDATED *********************************************************
 // **** below are flags which can be set for ice types
