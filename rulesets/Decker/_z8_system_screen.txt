@@ -82,7 +82,7 @@ english
 
 		displayTime = FUNCTION
 			with system_screen
-				LOCAL.t = player.current_time
+				LOCAL.t = player.current_turn
 				// hours
 				time_display[0].image = "system/time_"+(t/60/60/10%10)
 				time_display[1].image = "system/time_"+(t/60/60%10)
