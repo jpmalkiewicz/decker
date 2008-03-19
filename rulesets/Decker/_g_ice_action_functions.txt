@@ -50,8 +50,9 @@ english
 						if ice.current_action == ATTACKING
 							iceSoundAlarm(ice)
 				// if the player has vanished or this ice cannot follow, choose something new to do
-// there's a special case where the ice was hostile and follows the player by chance. in that case it should stay hostile
 				if act
+					if ice.current_action == ATTACKING
+						ice.last_hostile_turn = player.current_turn
 					ice.current_action = UNDEFINED
 		//***********************************
 		// attacking and querying ice has been handled. now comes attack ice at its home node and response ice, during a red alert
@@ -63,7 +64,7 @@ english
 			else
 				if ice.response_ice
 					// if we are a reponse ice and an intruder has just been detected or we are not already in SEARCHING mode, go to the response target node
-					if ice.node != ice.node.area.response_ice_target &&( ice.current_action != SEARCHING || ice.node.area.alert_time >= player.current_time - 1 )
+					if ice.node != ice.node.area.response_ice_target &&( ice.current_action != SEARCHING || ice.node.area.alert_time >= player.current_turn - 1 )
 						ice.current_action = RESPONDING
 					else
 						ice.current_action = SEARCHING
@@ -73,11 +74,11 @@ english
 				else
 					ice.current_action = UNDEFINED
 			//***********************************
-			// special red alert behaviour has been handled. now do normal behavior
+			// special red alert behaviour has been handled. now do all normal behavior
 			//***********************************
 			if ice.current_action == UNDEFINED
-				// respawned response ice and ice with SEARCHING as its initial action (e.g. PROBE ice) will search the system
-				if ( ice.response_ice && ice.respawned )||( ice.type.initial_action == SEARCHING && ice.type.initial_state == ACTIVE )
+				// respawned response ice and ice with SEARCHING as its initial action (e.g. probe ice) will search the system
+				if ( ice.response_ice && ice.respawned )|| ice.type.initial_action == SEARCHING
 					ice.current_action = SEARCHING
 				// all other ice will go home
 				else if ice.node != ice.home_node
@@ -95,11 +96,56 @@ english
 
 
 
-
-
 	RULESET.iceSoundAlarm = FUNCTION (ice, alert_level = RED)
-// **********************************************************************
-// DO NOT ignore alarm attempts which occur in the node where the player is if the payer already has the hostile tag and the response node is the player node
+		// is there only a yellow alert?
+		if alert_level == YELLOW && ice.node.area.system.alert_level == GREEN && !(ice.node.silenced>0)
+			ice.node.area.system.alert_level = YELLOW
+			print "<#orange>" + getName(ice) + (ice.node==player.node ? "" : " in node "+ice.node.name) + " signals a yellow alert."
+		else
+			// if the
+			if !ice.node.hostile
+				ice.node.hostile = true
+
+		if al
+// wrong. ignores whether player is in the node
+		if ice.node.silenced > 0
+			iceMakeHostile()
+		else if ice.node.area.system.alert_level == RED
+			ice.node.area.response_ice_target = ice.node
+// mark the path for response ice
+			iceMakeHostile()
+		else
+			if alert_level == YELLOW && ice.node.area.system.alert_level == GREEN
+// (play yellow alert sound)
+				print "<#orange>" + getName(ice) + (ice.node==player.node ? "" : " in node "+ice.node.name) + " signals a yellow alert."
+				ice.node.area.system.alert_level = YELLOW
+			else
+// (play red alert sound)
+				print "<#red>" + getName(ice) + (ice.node==player.node ? "" : " in node "+ice.node.name) + " signals a red alert!"
+//*********************************************************
+				debug ("iceSoundAlarm needs to make a note about the red alert in the current mission's status")
+//*********************************************************
+				ice.node.area.system.alert_level = RED
+				ice.node.area.response_ice_target = ice.node
+				// activate all waiting ice. it moves towards the alarm in the ice's area, it switches from INACTIVE to GUARDING in all other areas
+				LOCAL.area = ice.node.area
+				LOCAL.a = area.system.area
+				for j = a.size-1 downto 0
+					// let all the active response_ice react to the alarm
+					LOCAL.w = a[j].active_ice
+					for i = w.size-1 downto 0
+						if w[i].response_ice
+							w[i].type.reactToAlarm(w[i], area)
+					// move all the waiting ice to the active_ice list
+					LOCAL.w = a[j].waiting_ice
+					a[j].active_ice = a[j].active_ice + w
+					a[j].waiting_ice = ARRAY
+					// let all the formerly waiting ice react to the alarm
+					for i = w.size-1 downto 0
+						w[i].type.reactToAlarm(w[i], area)
+//*********************************************************
+// if player node, attach the alarm sounded pic to the ice
+//*********************************************************
 
 
 

@@ -1,4 +1,6 @@
 85%
+2008-03-19
+	finished up iceChooseAction
 2008-03-14
 	rewrote the whole ice state change logic from scratch
 2008-03-08
