@@ -4,15 +4,15 @@ english
 		LOCAL.a = getStructureMember(ice.type, "action"+ice.current_action)
 		if value_type(a) == "FUNCTION"
 			a(ice)
+		else if ice.current_action == ATTACKING
+			iceSoundAlarm(ice)
 		else
-			// something has seriously gone wrong, the ice has a "current_action" it has no function for. let it go home
-			iceChooseNewAction(ice)
-
+			debug("ice "+getName(ice)+" has no function for its current action "+ice.current_action)
 
 
 
 	// this is an ATTACK ice that is actively guarding its home node during a red alert
-	RULESET.iceAction_GUARDING_ATTACK = FUNCTION (ice)
+	RULESET.iceAction_GUARDING_ATTACKING = FUNCTION (ice)
 		if ice.node == player.node && iceNoticesPlayer(ice)
 			iceQueryPlayer(ice)
 
@@ -41,23 +41,30 @@ english
 				// if the player fled from a querying ice, sound a yellow alert
 				if ice.current_action == QUERYING
 					iceSoundAlarm(ice, YELLOW)
-				// try to follow the player
-				if ice.type.attributes.follows && !(ice.node.smoked > 0)
-					LOCAL.a = indexof(player.node, ice.node.connection)
-					if a >= 0
-						act = false
-						moveObject(ice, a)
-						if ice.current_action == ATTACKING
-							iceSoundAlarm(ice)
-				// if the player has vanished or this ice cannot follow, choose something new to do
-				if act
-					if ice.current_action == ATTACKING
-						ice.last_hostile_turn = player.current_turn
+				// try to follow the player. attacking ice will always check out a neighbouring node in hopes of finding the player. querying ice only follows if the node is not smoked
+				if ice.type.attributes.follows &&( ice.current_action == ATTACKING || !(ice.node.smoked > 0) )
+					LOCAL.a = -1
+					if !(ice.node.smoked > 0)
+						a = indexof(player.node, ice.node.connection)
+						if a == UNDEFINED
+							a = -1
+					// if the node is smoked or the player is not nearby, just pick a random direction
+					while ice.node.connection[a] == UNDEFINED
+						a = random(0, ice.node.connection.size)
+					act = false
+					moveObject(ice, a)
+					// did we lose the player?
+					if ice.node != player.node
+						ice.current_action = UNDEFINED
+					else if ice.current_action == ATTACKING
+						iceSoundAlarm(ice)
+				else
+					// this ice cannot follow, choose something new to do
 					ice.current_action = UNDEFINED
 		//***********************************
-		// attacking and querying ice has been handled. now comes attack ice at its home node and response ice, during a red alert
+		// attacking and querying ice has been handled. now comes attack ice at its home node and response ice, both during a red alert
 		//***********************************
-		if ice.current_action != ATTACKING && ice.current_action != QUERYING
+		if act && ice.current_action != ATTACKING && ice.current_action != QUERYING
 			// is there a red alert?
 			if ice.node.area.system.alert_level != RED
 				ice.current_action = UNDEFINED
@@ -78,7 +85,7 @@ english
 			//***********************************
 			if ice.current_action == UNDEFINED
 				// respawned response ice and ice with SEARCHING as its initial action (e.g. probe ice) will search the system
-				if ( ice.response_ice && ice.respawned )|| ice.type.initial_action == SEARCHING
+				if ( ice.response_ice && ice.respawned )|| ice.type.attributes.roaming || ice.type.initial_action == SEARCHING
 					ice.current_action = SEARCHING
 				// all other ice will go home
 				else if ice.node != ice.home_node
@@ -87,10 +94,10 @@ english
 					// the ice already is at home. it returns to its initial action
 					ice.current_action = ice.type.initial_action
 					// we may need to remove the ice from the list of active ice
-					if ice.type.initial_state != ACTIVE
+					if ice.type.initial_action == INACTIVE || ice.type.initial_action == WAITING
 						delete(ice.node.area.active_ice, ice)
 						// if the ice is now passively waiting again, add it to that list
-						if ice.type.initial_state == PASSIVE
+						if ice.type.initial_action == WAITING
 							ice.node.area.waiting_ice[] = ice
 
 
@@ -102,9 +109,56 @@ english
 			ice.node.area.system.alert_level = YELLOW
 			print "<#orange>" + getName(ice) + (ice.node==player.node ? "" : " in node "+ice.node.name) + " signals a yellow alert."
 		else
-			// if the
-			if !ice.node.hostile
-				ice.node.hostile = true
+			// make the ice hostile
+			if player.node == ice.node
+				// no more need to query the player, the ice is already attacking
+				player.querying_ice = UNDEFINED
+				// set all the ice to attacking
+				LOCAL.o = ice.node.objects
+				LOCAL.a = ice.node.area
+				for i = o.size-1 downto 0
+					if o[i].structure_type == "ICE" && o[i].current_action != ATTACKING
+						if o[i].current_action == WAITING
+							delete(a.waiting_ice, ice)
+							a.active_ice[] = ice
+						else if o[i].current_action == INACTIVE
+							a.active_ice[] = ice
+						o[i].current_action = ATTACKING
+
+			// sound the alarm
+			if !(ice.node.silenced > 0)
+				print "<#red>" + getName(ice) + (ice.node==player.node ? "" : " in node "+ice.node.name) + " signals a red alert!"
+//*********************************************************
+				debug ("iceSoundAlarm needs to make a note about the red alert in the current mission's status")
+//*********************************************************
+
+				// make this the response target node
+				if ice.node.area.response_ice_target != ice.node
+					ice.node.area.response_ice_target = ice.node
+					LOCAL.n = ice.node.area.map
+					for i = n.size-1 downto 0
+						for j = n[0].size-1 downto 0
+							if n[i][j] != UNDEFINED
+								n[i][j].response_direction = UNDEFINED
+					n = createSizedArray(n.size*n[0].size)
+					n[0] = ice.node
+					LOCAL.count = 1
+					for i = 0 to count-1
+						debug("response path "+n[i].x+","+n[i].y)
+						LOCAL.c = n[i].connection
+						for j = c.size-1 downto 0
+							if c[j].response_direction == UNDEFINED
+								c[j].response_direction = (j+2)%4
+								n[count] = c[j]
+								count++
+
+				// sound a red alert and activate the response ice
+				if ice.node.area.system.alert_level != RED
+					ice.node.area.system.alert_level = RED
+// ************
+
+
+
 
 		if al
 // wrong. ignores whether player is in the node
