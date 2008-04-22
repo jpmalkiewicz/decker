@@ -99,6 +99,7 @@ english
 			objects            // ice and humans
 			search_marker = 0  // used for path finding
 			search_data        // used for path finding
+			response_direction // used when ice moves towards the response target
 			// smoked
 			// display_connections
 			initializer = FUNCTION
@@ -123,10 +124,8 @@ english
 			probability = 100   // probability of this ice type being picked from a list. actual probability is (probability/sum of probabilities of listed ice types)
 			description
 			action         // the variables below hold functions for each action. action(ice) is the function that gets called when the ice is supposed to take its turn
-			reactToAlarm
 			updateState
 			initial_action
-			initial_state
 			initializer = FUNCTION
 				name = ARRAY
 				image = ARRAY

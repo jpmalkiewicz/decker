@@ -207,7 +207,7 @@ public final class Value
 		if (type != ARRAY)
 			throw new RuntimeException("Cannot use an array index ("+TYPE_NAME[type]+") with a "+TYPE_NAME[type]);
 		else {
-			final Value[] a = ((ArrayWrapper)object).array;;
+			final Value[] a = ((ArrayWrapper)object).array;
 			return ( index < 0 || index >= a.length ) ? new Value() : a[index]; // returns UNDEFINED if the index doesn't exist
 		}
 	}

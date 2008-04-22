@@ -208,18 +208,12 @@ english
 		TRACE
 		// ATTACK
 
-		ACTIVE            // ice initial_state groups : determines whether an ice goes into the active_ice group, the waiting_ice_group, or no group
-		WAITING
-		PASSIVE
 
 		ATTACKING         // ice state constants
-		FOLLOWING
 		GOING_HOME
-		GUARDING
-		INACTIVE
-		QUERYING0
-		QUERYING1
-		QUERYING2
-		QUERYING3
+		GUARDING          // only ATTACK ice has this state. GUARD ice is completely inactive, and just waits for someone to access whatever it guards
+		INACTIVE          // this ice doesn't do anything, unless someone accesses it
+		QUERYING
 		RESPONDING
 		SEARCHING
+		WAITING           // this ice is waiting, but will become active during a red alert or when a known intruder is in its node

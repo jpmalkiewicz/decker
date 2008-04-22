@@ -1,7 +1,7 @@
 english
 	RULESET.ICE_TYPES = ARRAY
 		ICE_TYPE
-			type = PROBE
+			type = ATTACK
 			image = "probe"
 			attributes = SET
 				follows = true
@@ -9,7 +9,6 @@ english
 				probing = true
 				white = true
 			initial_action = SEARCHING
-			initial_state = ACTIVE
 			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Probe"
@@ -34,13 +33,12 @@ english
 				"Beholder"
 
 		ICE_TYPE
-			type = GUARD_EXIT
+			type = GUARD
 			image = "guard_exit"
 			attributes = SET
 				white = true
-			initial_action = GUARDING
-			initial_state = PASSIVE
-			actionGUARDING = iceAction_GUARDING_GUARD
+				guards_exit = true
+			initial_action = INACTIVE
 			name = ARRAY
 				"Gateway"
 				"Fence"
@@ -64,13 +62,12 @@ english
 				"Big Bouncer"
 
 		ICE_TYPE
-			type = GUARD_ACCESS
+			type = GUARD
 			image = "guard_access"
 			attributes = SET
 				white = true
-			initial_action = GUARDING
-			initial_state = PASSIVE
-			actionGUARDING = iceAction_GUARDING_GUARD
+				guards_access = true
+			initial_action = INACTIVE
 			name = ARRAY
 				"Guardian"
 				"Protector"
@@ -98,11 +95,10 @@ english
 			image = "guard_file"
 			attributes = SET
 				white = true
+				guards_file = true
 			probability = FUNCTION (rating)
 				return_value = rating < 10 ? 100 : 150 - rating * 5
-			initial_action = GUARDING
-			initial_state = PASSIVE
-			actionGUARDING = iceAction_GUARDING_GUARD
+			initial_action = INACTIVE
 			name = ARRAY
 				"Tapeworm"
 				"Boa"
@@ -131,11 +127,10 @@ english
 			attributes = SET
 				attack_on_death = true
 				white = true
+				guards_file = true
 			probability = FUNCTION (rating)
 				return_value = (rating-10) * 5
-			initial_action = GUARDING
-			initial_state = PASSIVE
-			actionGUARDING = iceAction_GUARDING_GUARD
+			initial_action = INACTIVE
 			name = ARRAY
 				"Data Bomb"
 				"Dynamyte 1.0"
@@ -155,10 +150,8 @@ english
 				follows = true
 			probability = FUNCTION (rating)
 				return_value = rating < 11 ? 100 : 150 - rating * 5
-			initial_action = INACTIVE
-			initial_state = WAITING
-			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_GUARDING_ATTACK
+			initial_action = WAITING
+			actionGUARDING = iceAction_GUARDING
 			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack"
@@ -190,10 +183,8 @@ english
 				follows = true
 			probability = FUNCTION (rating)
 				return_value =  ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 100 : 150-rating*5) / 100
-			initial_action = INACTIVE
-			initial_state = WAITING
-			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_GUARDING_ATTACK
+			initial_action = WAITING
+			actionGUARDING = iceAction_GUARDING
 			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-H"
@@ -220,10 +211,8 @@ english
 				follows = true
 			probability = FUNCTION (rating)
 				return_value = ( ( ( rating - 5 ) * 36 + 8 ) / 15  ) * (rating<11 ? 100 : 150-rating*5) / 100
-			initial_action = INACTIVE
-			initial_state = WAITING
-			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_GUARDING_ATTACK
+			initial_action = WAITING
+			actionGUARDING = iceAction_GUARDING
 			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-P"
@@ -250,10 +239,8 @@ english
 				follows = true
 			probability = FUNCTION (rating)
 				return_value = ( ( ( rating - 5 ) * 18 + 8 ) / 15 ) * (rating<11 ? 100 : 150-rating*5) / 100
-			initial_action = INACTIVE
-			initial_state = WAITING
-			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_GUARDING_ATTACK
+			initial_action = WAITING
+			actionGUARDING = iceAction_GUARDING
 			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-C"
@@ -280,10 +267,8 @@ english
 				follows = true
 			probability = FUNCTION (rating)
 				return_value = ( rating - 10 ) * 5
-			initial_action = INACTIVE
-			initial_state = WAITING
-			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_GUARDING_ATTACK
+			initial_action = WAITING
+			actionGUARDING = iceAction_GUARDING
 			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-S"
@@ -306,10 +291,8 @@ english
 				follows = true
 			probability = FUNCTION (rating)
 				return_value = ( ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5) + 99 ) / 100
-			initial_action = INACTIVE
-			initial_state = WAITING
-			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_GUARDING_ATTACK
+			initial_action = WAITING
+			actionGUARDING = iceAction_GUARDING
 			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-SH"
@@ -332,10 +315,8 @@ english
 				follows = true
 			probability = FUNCTION (rating)
 				return_value = ( ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5) + 99 ) / 100
-			initial_action = INACTIVE
-			initial_state = WAITING
-			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_GUARDING_ATTACK
+			initial_action = WAITING
+			actionGUARDING = iceAction_GUARDING
 			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-SP"
@@ -358,10 +339,8 @@ english
 				follows = true
 			probability = FUNCTION (rating)
 				return_value = ( ( ( ( rating - 5 ) * 18 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5 ) + 99 ) / 100
-			initial_action = INACTIVE
-			initial_state = WAITING
-			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_GUARDING_ATTACK
+			initial_action = WAITING
+			actionGUARDING = iceAction_GUARDING
 			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-SC"
@@ -383,10 +362,8 @@ english
 				follows = true
 			probability = FUNCTION (rating)
 				return_value = 125 - rating * 5
-			initial_action = INACTIVE
-			initial_state = WAITING
-			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_GUARDING_ATTACK
+			initial_action = WAITING
+			actionGUARDING = iceAction_GUARDING
 			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Trace"
@@ -419,10 +396,8 @@ english
 				follows = true
 			probability = FUNCTION (rating)
 				return_value = rating <= 10 ? ( rating - 5 ) * 5 : rating * 3 - 5
-			initial_action = INACTIVE
-			initial_state = WAITING
-			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_GUARDING_ATTACK
+			initial_action = WAITING
+			actionGUARDING = iceAction_GUARDING
 			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Trace & Dump"
@@ -451,10 +426,8 @@ english
 				follows = true
 			probability = FUNCTION (rating)
 				return_value = ( rating - 10 ) * 2
-			initial_action = INACTIVE
-			initial_state = WAITING
-			reactToAlarm = iceReactToAlarm
-			actionGUARDING = iceAction_GUARDING_ATTACK
+			initial_action = WAITING
+			actionGUARDING = iceAction_GUARDING
 			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Trace & Fry"
@@ -474,12 +447,8 @@ english
 			ICE_TYPES[i].min_rating = ICE_TYPES[i].name.size>20 ? 1 : 21 - ICE_TYPES[i].name.size
 		if ICE_TYPES[i].action == UNDEFINED
 			ICE_TYPES[i].action = iceAction
-		if ICE_TYPES[i].actionFOLLOWING == UNDEFINED
-			ICE_TYPES[i].actionFOLLOWING = iceAction_FOLLOWING
-		if ICE_TYPES[i].actionQUERYING1 == UNDEFINED
-			ICE_TYPES[i].actionQUERYING1 = iceAction_QUERYING
-			ICE_TYPES[i].actionQUERYING2 = iceAction_QUERYING
-			ICE_TYPES[i].actionQUERYING3 = iceAction_QUERYING
+		if ICE_TYPES[i].actionQUERYING == UNDEFINED
+			ICE_TYPES[i].actionQUERYING = iceAction_QUERYING
 		if ICE_TYPES[i].actionRESPONDING == UNDEFINED
 			ICE_TYPES[i].actionRESPONDING = iceAction_MOVING
 		if ICE_TYPES[i].actionGOING_HOME == UNDEFINED
