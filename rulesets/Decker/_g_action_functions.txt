@@ -120,8 +120,8 @@ english
 		if area != UNDEFINED
 			LOCAL.a = area.active_ice
 			for i = a.size-1 downto 0
-				debug("ice action : " + a[i].type.type + " " + getName(a[i]) + " " +a[i].current_action + "  ("+a[i].node.x+","+a[i].node.y+")", true)
-				a[i].type.action(a[i])
+				debug("ice action : " + a[i].type.type + " " + getName(a[i]) + " " +a[i].current_action + "  ("+a[i].node.x+","+a[i].node.y+")    ("+player.node.x+","+player.node.y+")", true)
+				iceAct(a[i])
 		// update the display
 		if displayed_screen == system_screen
 			system_screen.updateDisplay()

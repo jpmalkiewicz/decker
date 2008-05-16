@@ -8,6 +8,8 @@ english
 			iceSoundAlarm(ice)
 		else
 			debug("ice "+getName(ice)+" has no function for its current action "+ice.current_action)
+			iceChooseAction(ice)
+
 
 
 
@@ -19,14 +21,37 @@ english
 
 
 
+// this function falls through to iceChooseAction by default
+//	RULESET.iceAction_INACTIVE = FUNCTION (ice)
+
+
+
+
+	RULESET.iceAction_QUERYING = FUNCTION (ice)
+// *********************
+
+
+
 	RULESET.iceAction_SEARCHING = FUNCTION (ice)
 		if ice.node != player.node || ice.rating <= player.highest_deceived_ice || !iceNoticesPlayer(ice) || !iceQueryPlayer(ice)
 			// response ice has a 50% chance of moving towards the node where an alarm has last been sounded
 			if ice.response_ice && ice.node.area.system.alert_level == RED && ice.node.response_direction != UNDEFINED && random(0,1) == 0
 // need to define response_direction
-				moveObject(ice, indexof(ice.node.response_direction, ice.node.connection))
+				moveObject(ice, ice.node.response_direction)
 			else
 				iceWander(ice)
+
+
+
+
+// falls through to iceChooseAction by default
+//	RULESET.iceAction_UNDEFINED = FUNCTION (ice)
+
+
+
+
+// this function falls through to iceChooseAction by default
+//	RULESET.iceAction_WAITING = FUNCTION (ice)
 
 
 
@@ -103,6 +128,54 @@ english
 
 
 
+	RULESET.iceNoticesPlayer = FUNCTION (ice)
+//******************** return true or false
+
+
+
+
+	RULESET.iceQueryPlayer = FUNCTION (ice)
+//******************** return true or false
+
+
+
+
+	// this function will work even if there are one way connections, some nodes have no connection to the target node or if there are connections that connect nodes which are not adjacent in the node grid
+	RULESET.iceSetResponseTargetNode = FUNCTION (node)
+		node.area.response_ice_target = node
+		// make a list of all the nodes in the area and reset the response direction for each
+		LOCAL.n = node.area.map
+		LOCAL.node_list = createSizedArray(n.size*n[0].size)
+		LOCAL.node_count = 0
+		for i = n.size-1 downto 0
+			for j = n[0].size-1 downto 0
+				if n[i][j] != UNDEFINED
+					if n[i][j] != node
+						n[i][j].response_direction = UNDEFINED
+						node_list[node_count] = n[i][j]
+						node_count++
+		// dummy value to make the algorithm work
+		node.response_direction = 0
+		while node.response_direction == UNDEFINED
+			node.response_direction = node.connection[random(0,node.connection.size-1)]
+		// now find the shortest path for each node
+		LOCAL.node_count_old = 0
+//		while node_count > 0 && node_count_old != node_count
+		while node_count_old != node_count
+			node_count_old = node_count
+			for i = node_count-1 downto 0
+				n = node_list[i]
+				for j = n.connection.size-1 downto 0
+					if n.connection[j].response_direction != UNDEFINED
+						n.response_direction = j
+						node_count--
+						node_list[i] = node_list[node_count]
+						break
+		// the target node doesn't have a direction towards itself. remove the dummy value that was needed for the loop above to work
+		node.response_direction = UNDEFINED
+
+
+
 	RULESET.iceSoundAlarm = FUNCTION (ice, alert_level = RED)
 		// is there only a yellow alert?
 		if alert_level == YELLOW && ice.node.area.system.alert_level == GREEN && !(ice.node.silenced>0)
@@ -113,7 +186,7 @@ english
 			if player.node == ice.node
 				// no more need to query the player, the ice is already attacking
 				player.querying_ice = UNDEFINED
-				// set all the ice to attacking
+				// set all the ice in the node to attacking
 				LOCAL.o = ice.node.objects
 				LOCAL.a = ice.node.area
 				for i = o.size-1 downto 0
@@ -131,26 +204,9 @@ english
 //*********************************************************
 				debug ("iceSoundAlarm needs to make a note about the red alert in the current mission's status")
 //*********************************************************
-
-				// make this the response target node
+				// send all response ice towards the ice's node
 				if ice.node.area.response_ice_target != ice.node
-					ice.node.area.response_ice_target = ice.node
-					LOCAL.n = ice.node.area.map
-					for i = n.size-1 downto 0
-						for j = n[0].size-1 downto 0
-							if n[i][j] != UNDEFINED
-								n[i][j].response_direction = UNDEFINED
-					n = createSizedArray(n.size*n[0].size)
-					n[0] = ice.node
-					LOCAL.count = 1
-					for i = 0 to count-1
-						debug("response path "+n[i].x+","+n[i].y)
-						LOCAL.c = n[i].connection
-						for j = c.size-1 downto 0
-							if c[j].response_direction == UNDEFINED
-								c[j].response_direction = (j+2)%4
-								n[count] = c[j]
-								count++
+					iceSetResponseTargetNode(ice.node)
 
 				// sound a red alert and activate the response ice
 				if ice.node.area.system.alert_level != RED
