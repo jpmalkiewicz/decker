@@ -1,4 +1,8 @@
 85%
+2008-05-26
+	the ice generator now works with the rearranged ice data
+2008-05-17
+	iceSoundAlarm finished
 2008-05-16
 	added iceSetResponseTargetNode
 2008-04-23

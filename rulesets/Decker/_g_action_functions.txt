@@ -122,6 +122,8 @@ english
 			for i = a.size-1 downto 0
 				debug("ice action : " + a[i].type.type + " " + getName(a[i]) + " " +a[i].current_action + "  ("+a[i].node.x+","+a[i].node.y+")    ("+player.node.x+","+player.node.y+")", true)
 				iceAct(a[i])
+// ******************
+// respawn ice and set    ice.respawned = true
 		// update the display
 		if displayed_screen == system_screen
 			system_screen.updateDisplay()
@@ -308,11 +310,11 @@ english
 		LOCAL.x
 		LOCAL.y
 		LOCAL.node_map = getStructureMember(BLOCKED_NODE_REGIONS, toLowerCase(getNodeTypeCategory(node.type)))
-		if object.structure_type == "ICE" && node == object.home_node
-			if object.type.type == GUARD_EXIT
-				x = 4 + DELTA_X[object.guarded_direction] * 4
-				y = 4 + DELTA_Y[object.guarded_direction] * 4
-			else if object.type.type == GUARD_ACCESS
+		if object.structure_type == "ICE" && node == object.home_node && object.type.type == GUARD
+			if value_type(object.guarded_object) == "INTEGER"
+				x = 4 + DELTA_X[object.guarded_object] * 4
+				y = 4 + DELTA_Y[object.guarded_object] * 4
+			else if object.guarded_object == object.node
 				x = 4
 				y = 4
 		if x == UNDEFINED

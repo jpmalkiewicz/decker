@@ -201,9 +201,7 @@ english
 		IO_EXTERNAL_ALERT
 		IO_HIGH_SPEED_ACCESS
 
-		GUARD_ACCESS      // ice related constants
-		GUARD_EXIT
-		GUARD_FILE
+		GUARD             // ice related constants
 		PROBE
 		TRACE
 		// ATTACK
