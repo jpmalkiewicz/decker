@@ -5,11 +5,10 @@ english
 			image = "probe"
 			attributes = SET
 				follows = true
-				roaming = true
-				probing = true
+				roams = true
+				probes = true
 				white = true
 			initial_action = SEARCHING
-			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Probe"
 				"Gazer"
@@ -91,7 +90,7 @@ english
 				"AndroSphinx"
 
 		ICE_TYPE
-			type = GUARD_FILE
+			type = GUARD
 			image = "guard_file"
 			attributes = SET
 				white = true
@@ -122,7 +121,7 @@ english
 				"StrangleVine II"
 
 		ICE_TYPE
-			type = GUARD_FILE
+			type = GUARD
 			image = "guard_file_explode"
 			attributes = SET
 				attack_on_death = true
@@ -151,8 +150,6 @@ english
 			probability = FUNCTION (rating)
 				return_value = rating < 11 ? 100 : 150 - rating * 5
 			initial_action = WAITING
-			actionGUARDING = iceAction_GUARDING
-			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack"
 				"Brute"
@@ -184,8 +181,6 @@ english
 			probability = FUNCTION (rating)
 				return_value =  ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 100 : 150-rating*5) / 100
 			initial_action = WAITING
-			actionGUARDING = iceAction_GUARDING
-			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-H"
 				"Knight"
@@ -212,8 +207,6 @@ english
 			probability = FUNCTION (rating)
 				return_value = ( ( ( rating - 5 ) * 36 + 8 ) / 15  ) * (rating<11 ? 100 : 150-rating*5) / 100
 			initial_action = WAITING
-			actionGUARDING = iceAction_GUARDING
-			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-P"
 				"Bugs"
@@ -240,8 +233,6 @@ english
 			probability = FUNCTION (rating)
 				return_value = ( ( ( rating - 5 ) * 18 + 8 ) / 15 ) * (rating<11 ? 100 : 150-rating*5) / 100
 			initial_action = WAITING
-			actionGUARDING = iceAction_GUARDING
-			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-C"
 				"Spider"
@@ -268,8 +259,6 @@ english
 			probability = FUNCTION (rating)
 				return_value = ( rating - 10 ) * 5
 			initial_action = WAITING
-			actionGUARDING = iceAction_GUARDING
-			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-S"
 				"Cowboy"
@@ -292,8 +281,6 @@ english
 			probability = FUNCTION (rating)
 				return_value = ( ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5) + 99 ) / 100
 			initial_action = WAITING
-			actionGUARDING = iceAction_GUARDING
-			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-SH"
 				"Killbot"
@@ -316,8 +303,6 @@ english
 			probability = FUNCTION (rating)
 				return_value = ( ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5) + 99 ) / 100
 			initial_action = WAITING
-			actionGUARDING = iceAction_GUARDING
-			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-SP"
 				"Wraith"
@@ -340,8 +325,6 @@ english
 			probability = FUNCTION (rating)
 				return_value = ( ( ( ( rating - 5 ) * 18 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5 ) + 99 ) / 100
 			initial_action = WAITING
-			actionGUARDING = iceAction_GUARDING
-			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Attack-SC"
 				"Two-Step"
@@ -363,8 +346,6 @@ english
 			probability = FUNCTION (rating)
 				return_value = 125 - rating * 5
 			initial_action = WAITING
-			actionGUARDING = iceAction_GUARDING
-			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Trace"
 				"Hound"
@@ -397,8 +378,6 @@ english
 			probability = FUNCTION (rating)
 				return_value = rating <= 10 ? ( rating - 5 ) * 5 : rating * 3 - 5
 			initial_action = WAITING
-			actionGUARDING = iceAction_GUARDING
-			actionSEARCHING = iceAction_SEARCHING
 			name = ARRAY
 				"Trace & Dump"
 				"Detective"
@@ -450,6 +429,8 @@ english
 		if ICE_TYPES[i].actionQUERYING == UNDEFINED
 			ICE_TYPES[i].actionQUERYING = iceAction_QUERYING
 		if ICE_TYPES[i].actionRESPONDING == UNDEFINED
-			ICE_TYPES[i].actionRESPONDING = iceAction_MOVING
-		if ICE_TYPES[i].actionGOING_HOME == UNDEFINED
-			ICE_TYPES[i].actionGOING_HOME = iceAction_MOVING
+			ICE_TYPES[i].actionRESPONDING = iceAction_RESPONDING
+		if ICE_TYPES[i].actionGUARDING == UNDEFINED
+			ICE_TYPES[i].actionGUARDING = ICE_TYPES[i].type != ATTACK ? iceAction_GUARDING : iceAction_GUARDING_ATTACK
+		if ICE_TYPES[i].actionSEARCHING == UNDEFINED
+			ICE_TYPES[i].actionSEARCHING = iceAction_SEARCHING

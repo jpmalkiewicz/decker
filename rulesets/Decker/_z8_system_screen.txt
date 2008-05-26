@@ -111,8 +111,8 @@ english
 					movePlayer(2)
 					system_screen.updateDisplay()
 				else if command == "wait"
-//					advanceSystemTime()
-					iceSetResponseTargetNode(player.node)
+					advanceSystemTime()
+//					iceSetResponseTargetNode(player.node)
 				else
 					debug(command)
 			else
