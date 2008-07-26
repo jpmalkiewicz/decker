@@ -67,7 +67,21 @@ public class Decker
 			}
 		});
 		AbstractView.reloadArtwork(true);
-		Global.getDisplayedScreen().set(Global.getCurrentRuleset().data.get("initial_screen"));
+		// set the initial screen
+		Value initial_screen = Global.getCurrentRuleset().data.get("initial_screen");
+		if (initial_screen == null || initial_screen.type() != Value.STRUCTURE) {
+			throw new RuntimeException("The ruleset \""+Global.getCurrentRuleset().getName()+"\" does not have a STRUCTURE in its RULESET.initial_screen variable, instead it has "+((initial_screen==null)?" no initial_screen variable":(initial_screen+" ("+initial_screen.typeName()+")")));
+		}
+		Value displayScreenFunction = ScriptNode.getVariable("displayScreen");
+		if (displayScreenFunction == null || displayScreenFunction.type() != Value.FUNCTION) {
+			throw new RuntimeException("displayScreen must be a FUNCTION but instead has the value "+displayScreenFunction+" ("+((displayScreenFunction==null)?"null":displayScreenFunction.typeName()));
+		}
+		FunctionCall.executeFunctionCall(displayScreenFunction.function(), new Value[]{ initial_screen }, null);
+System.out.println(displayScreenFunction);
+//		Global.getDisplayedScreen().set(initial_screen);
+		// run the setup function for the initial_screen if it has one
+//		if (initial_screen.get("")
+		// start drawing it
 		Global.getViewWrapper().repaint();
 		Global.getViewWrapper().requestFocus();
 	}
