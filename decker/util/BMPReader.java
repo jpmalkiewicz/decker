@@ -32,8 +32,9 @@ public class BMPReader
 			byte bi[] = new byte[40];
 			read(stream, bi, 0, bi.length);
 
-			// Interperet data.
+			// Interperet data
 			final int nsize = parseValue(bf, 2, 4);
+			final int image_data_offset = parseValue(bf, 10, 4);
 			final int nbisize = parseValue(bi, 0, 4);
 			final int nwidth = parseValue(bi, 4, 4);
 			final int nheight = parseValue(bi, 8, 4);
@@ -46,15 +47,43 @@ public class BMPReader
 			int nclrused = parseValue(bi, 32, 4);
 			final int nclrimp = parseValue(bi, 36, 4);
 
-			// if the bmp uses less than 24 bits per pixel and the number of colors used is zero,
-			// the number of colors used is the maximum possible for the number of bits per pixel
-			if(nclrused == 0)
-				nclrused = (1<<nbitcount);
+/*
+System.err.println();
+System.err.println("size        ="+nsize);
+System.err.println("data_offset ="+image_data_offset);
+System.err.println("bisize      ="+nbisize); // the size of the bitmap information block. 40 bytes for pretty much all .bmp's
+System.err.println("width       ="+nwidth);
+System.err.println("height      ="+nheight);
+System.err.println("planes      ="+nplanes);
+System.err.println("bitcount    ="+nbitcount);
+System.err.println("compression ="+ncompression);
+System.err.println("size_image_original ="+nsizeimage_original);
+System.err.println("xpm         ="+nxpm);
+System.err.println("ypm         ="+nypm);
+System.err.println("clrused     ="+nclrused);
+System.err.println("clrimp      ="+nclrimp);
+*/
+
+
+			// if the file header has an unusual size, skip the mysterious extra bytes
+			if (nbisize > bi.length) {
+				stream.skip(nbisize - bi.length);
+			}
 
 			// Some bitmaps do not have the sizeimage field calculated
 			final int nsizeimage = ((((nwidth*nbitcount)+31) & ~31 ) >> 3) * nheight;
 
+			// if the bmp uses less than 24 bits per pixel and the number of colors used is zero,
+			// the number of colors used is the maximum possible for the number of bits per pixel
+			if(nclrused == 0 && nbitcount < 24) {
+				nclrused = (1<<nbitcount);
+// System.err.println("clrused *   ="+nclrused);
+			}
+
+// here we should skip any remaining mysterious crap from the header ?
+
 			// read the palette if the image uses less then 24 bits per pixel
+	// actually only reads the palette if the image uses 8 bits per pixel or less
 			int[] npalette = null;
 
 			if (nbitcount <= 8)
@@ -71,13 +100,14 @@ public class BMPReader
 				}
 			}
 
+// ... or maybe here ?
 
 			// read the image data
 			if (nbitcount==32)
 			{
 				// No Palette data for 32-bit format.
 				// no padding out neccessary
-				// the data will be interpreted as aarrggbb
+				// the data will be interpreted as aarrggbb, unless aa is always 0, then it will be interpreted as rrggbb
 				int ndata[] = new int [nheight * nwidth];
 				byte brgb[] = new byte [nwidth * 4 * nheight];
 				read(stream, brgb, 0, brgb.length);
@@ -90,8 +120,23 @@ public class BMPReader
 						nindex += 4;
 					}
 				}
-				image = new BufferedImage(nwidth, nheight, BufferedImage.TYPE_INT_ARGB);
-				((BufferedImage)image).setRGB(0, 0, nwidth, nheight, ndata, 0, nwidth);
+				// check whether the alpha channel is used. set it to FF otherwise
+				boolean has_alpha = false;
+				for (int i = ndata.length; --i >= 0; ) {
+					if ((ndata[i]&0xff000000) != 0) {
+						has_alpha = true;
+						break;
+					}
+				}
+				if (!has_alpha) {
+					for (int i = ndata.length; --i >= 0; ) {
+						ndata[i] = (ndata[i] | 0xff000000);
+					}
+				}
+				// create and return the image
+//				image = new BufferedImage(nwidth, nheight, BufferedImage.TYPE_INT_ARGB);
+//				((BufferedImage)image).setRGB(0, 0, nwidth, nheight, ndata, 0, nwidth);
+				image = component.createImage(new MemoryImageSource(nwidth, nheight, ndata, 0, nwidth));
 				return image;
 			}
 			else if (nbitcount==24)
