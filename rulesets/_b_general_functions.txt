@@ -1,4 +1,4 @@
-english
+localization english
 	ENGINE.createArray = FUNCTION
 		return_value = ARRAY
 		for i = 0 to argument.size-1

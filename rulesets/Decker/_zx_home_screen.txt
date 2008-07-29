@@ -1,29 +1,28 @@
-english
-	RULESET.home_screen = COMPONENT
-		title = "Decker - At Home"
-		width = 215
-		height = 233
-		component = ARRAY
-			SCREEN_BACKGROUND
-	LOCAL.addEntry = FUNCTION (button_image, button_text, the_target_screen, index)
-		home_screen.component[] = BORDER_BUTTON
-			idle = IMAGE
-				image = button_image
-			x = 10
-			y = 10 + index * 27
-			target_screen = the_target_screen
-			if target_screen != UNDEFINED
-				on_mouse_up = FUNCTION
-					displayScreen(target_screen, true)
-		home_screen.component[] = createText(button_text, 41, 14 + index * 27)
-	addEntry("home/char",     "View Character",        character_screen, 0)
-	addEntry("home/deck",     "View Cyberdeck",        deck_screen,      1)
-	addEntry("home/contract", "View Contracts",        contract_screen,  2)
-	addEntry("home/shop",     "Buy Hardware/Software", shop_screen,      3)
-	addEntry("home/project",  "Projects",              ,                 4)
-	addEntry("home/rest",     "Rest and Recuperate",   rest_screen,      5)
-	addEntry("home/matrix",   "Enter the Matrix",      ,                 6)
-	addEntry("home/options",  "Options",               ,                 7)
+RULESET.home_screen = COMPONENT
+	title = "Decker - At Home"
+	width = 215 + 10
+	height = 268 + 10
+	component = ARRAY
+		SCREEN_BACKGROUND
+LOCAL.addEntry = FUNCTION (button_image, button_text, the_target_screen, index)
+	home_screen.component[] = BORDER_BUTTON
+		idle = IMAGE
+			image = button_image
+		x = 15
+		y = 15 + index * 32
+		target_screen = the_target_screen
+		if target_screen != UNDEFINED
+			on_mouse_up = FUNCTION
+				displayScreen(target_screen, true)
+	home_screen.component[] = createText(button_text, 44, 20 + index * 32)
+addEntry("home/char",     "View Character",        character_screen, 0)
+addEntry("home/deck",     "View Cyberdeck",        deck_screen,      1)
+addEntry("home/contract", "View Contracts",        contract_screen,  2)
+addEntry("home/shop",     "Buy Hardware/Software", shop_screen,      3)
+addEntry("home/project",  "Projects",              ,                 4)
+addEntry("home/rest",     "Rest and Recuperate",   rest_screen,      5)
+addEntry("home/matrix",   "Enter the Matrix",      ,                 6)
+addEntry("home/options",  "Options",               option_screen,    7)
 
 
-	RULESET.initial_screen = new_character_screen
+RULESET.initial_screen = new_character_screen

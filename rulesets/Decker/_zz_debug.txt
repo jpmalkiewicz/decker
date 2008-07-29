@@ -1,88 +1,87 @@
-english
-	RULESET.printSystemAreaMap = FUNCTION (map)
-		if value_type(map) != "ARRAY"
-			debug("***** AREA NOT DEFINED *****")
-		else
-			debug("map:")
-			LOCAL.text
-			for y = 0 to map[0].size-1
+RULESET.printSystemAreaMap = FUNCTION (map)
+	if value_type(map) != "ARRAY"
+		debug("***** AREA NOT DEFINED *****")
+	else
+		debug("map:")
+		LOCAL.text
+		for y = 0 to map[0].size-1
 
-				// print the node row
-				text = ""
-				if map[0][y] != UNDEFINED && map[0][y].connection[3] != UNDEFINED
-					text = text + "~"
-				else
+			// print the node row
+			text = ""
+			if map[0][y] != UNDEFINED && map[0][y].connection[3] != UNDEFINED
+				text = text + "~"
+			else
+				text = text + " "
+			for x = 0 to map.size-1
+				if map[x][y].type == UNDEFINED
 					text = text + " "
-				for x = 0 to map.size-1
-					if map[x][y].type == UNDEFINED
+					if x + 1 < map.size && map[x+1][y] != UNDEFINED && map[x+1][y].connection[3] != UNDEFINED
+						text = text + "<"
+					else
 						text = text + " "
-						if x + 1 < map.size && map[x+1][y] != UNDEFINED && map[x+1][y].connection[3] != UNDEFINED
-							text = text + "<"
-						else
-							text = text + " "
+				else
+					LOCAL.t = map[x][y].type
+					if t == COP_SECURITY
+						text = text + "x"
+					else if t == CPU
+						text = text + "*"
+					else if t == IO_EXTERNAL_ALERT
+						text = text + "A"
+					else if t == IO_HIGH_SPEED_ACCESS
+						text = text + "H"
+					else if t == IO_ICE
+						text = text + "X"
 					else
-						LOCAL.t = map[x][y].type
-						if t == COP_SECURITY
-							text = text + "x"
-						else if t == CPU
-							text = text + "*"
-						else if t == IO_EXTERNAL_ALERT
-							text = text + "A"
-						else if t == IO_HIGH_SPEED_ACCESS
-							text = text + "H"
-						else if t == IO_ICE
-							text = text + "X"
+						text = text + substring(t+"", 0, 1)
+					if map[x][y].connection[1] != UNDEFINED
+						if x+1 >= map.size || map[x+1][y] == UNDEFINED || map[x+1][y].connection[3] == UNDEFINED
+							text = text + ">"
 						else
-							text = text + substring(t+"", 0, 1)
-						if map[x][y].connection[1] != UNDEFINED
-							if x+1 >= map.size || map[x+1][y] == UNDEFINED || map[x+1][y].connection[3] == UNDEFINED
-								text = text + ">"
+							if map[x][y].connection[1] != map[x+1][y] || map[x+1][y].connection[3] != map[x][y]
+								text = text + "@"
 							else
-								if map[x][y].connection[1] != map[x+1][y] || map[x+1][y].connection[3] != map[x][y]
-									text = text + "@"
-								else
-									text = text + "-"
-						else if x+1 < map.size && map[x+1][y] != UNDEFINED && map[x+1][y].connection[3] != UNDEFINED
-							text = text + "<"
-						else
-							text = text + " "
-				debug(text)
-
-				// print the vertical connections
-				text = " "
-				for x = 0 to map.size-1
-					LOCAL.a = map[x][y] != UNDEFINED && map[x][y].connection[2] != UNDEFINED
-					LOCAL.b = y < map[x].size && map[x][y+1] != UNDEFINED && map[x][y+1].connection[0] != UNDEFINED
-					if a
-						if b
-							if map[x][y].connection[2] != map[x][y+1] || map[x][y+1].connection[0] != map[x][y]
-								text = text + "@ "
-							else
-								text = text + "| "
-						else
-							text = text + "v "
+								text = text + "-"
+					else if x+1 < map.size && map[x+1][y] != UNDEFINED && map[x+1][y].connection[3] != UNDEFINED
+						text = text + "<"
 					else
-						if b
-							text = text + "^ "
+						text = text + " "
+			debug(text)
+
+			// print the vertical connections
+			text = " "
+			for x = 0 to map.size-1
+				LOCAL.a = map[x][y] != UNDEFINED && map[x][y].connection[2] != UNDEFINED
+				LOCAL.b = y < map[x].size && map[x][y+1] != UNDEFINED && map[x][y+1].connection[0] != UNDEFINED
+				if a
+					if b
+						if map[x][y].connection[2] != map[x][y+1] || map[x][y+1].connection[0] != map[x][y]
+							text = text + "@ "
 						else
-							text = text + "  "
-				debug(text)
-
-
-	RULESET.printSystemAreaClusters = FUNCTION (cluster_map)
-		if value_type(cluster_map) != "ARRAY"
-			debug("***** CLUSTERS NOT DEFINED *****")
-		else
-			debug("clusters:")
-			LOCAL.text
-			for y = 0 to cluster_map[0].size-1
-				text = " "
-				for x = 0 to cluster_map.size-1
-					if cluster_map[x][y] == UNDEFINED
+							text = text + "| "
+					else
+						text = text + "v "
+				else
+					if b
+						text = text + "^ "
+					else
 						text = text + "  "
+			debug(text)
+
+
+RULESET.printSystemAreaClusters = FUNCTION (cluster_map)
+	if value_type(cluster_map) != "ARRAY"
+		debug("***** CLUSTERS NOT DEFINED *****")
+	else
+		debug("clusters:")
+		LOCAL.text
+		for y = 0 to cluster_map[0].size-1
+			text = " "
+			for x = 0 to cluster_map.size-1
+				if cluster_map[x][y] == UNDEFINED
+					text = text + "  "
+				else
+					if (cluster_map[x][y] > 9)
+						text = text + "* "
 					else
-						if (cluster_map[x][y] > 9)
-							text = text + "* "
-						else
-							text = text + cluster_map[x][y] + " "
-				debug(text)
+						text = text + cluster_map[x][y] + " "
+			debug(text)

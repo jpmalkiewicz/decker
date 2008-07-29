@@ -7,20 +7,21 @@ import java.util.Locale;
 final class ScriptParser extends ScriptReader
 {
 	private String script_name;
+	private Ruleset ruleset;
 
 	private int last_expression_line = -1; // the last line of the expression that has last been parsed
 	private int block_column; // the column in which the lines of the last parsed block started. -1 if the block was empty
 	private boolean inside_loop = false;
 
 
-	static Script parse (final String file_name, final Reader in)  {
-		return new ScriptParser(file_name, in).parseScript();
+	static Script parse (final String file_name, final Reader in, final Ruleset ruleset)  {
+		return new ScriptParser(file_name, in, ruleset).parseScript();
 	}
 
 
-	static Script parse (final File file)  {
+	static Script parse (final File file, final Ruleset ruleset)  {
 		try{
-			return parse(file.getName(), new FileReader(file));
+			return parse(file.getName(), new FileReader(file), ruleset);
 		} catch(IOException ex) {
 			System.err.println("File "+file.getName()+" not found");
 			throw new RuntimeException("File "+file.getName()+" not found");
@@ -30,14 +31,15 @@ final class ScriptParser extends ScriptReader
 
 	static Expression parseExpression (final String expression)  {
 		// the } is needed to let the parser realize the expression has ended without throwing an end of stream exception
-		final ScriptParser msr = new ScriptParser(expression, new StringReader(expression+"}"));
-		return msr.parseExpression(msr.getLine(),msr.getColumn(),true);
+		final ScriptParser msr = new ScriptParser(expression, new StringReader(expression+"}"), null);
+		return msr.parseExpression(msr.getLine(),msr.getColumn(), true);
 	}
 
 
-	private ScriptParser (final String _script_name, final Reader in)  {
+	private ScriptParser (final String _script_name, final Reader in, final Ruleset _ruleset)  {
 		super(_script_name, in);
 		script_name = _script_name;
+		ruleset = _ruleset;
 	}
 
 
@@ -112,7 +114,13 @@ final class ScriptParser extends ScriptReader
 		// check whether the block contains any commands
 		if (s != null && column > enclosing_column && getLine() != enclosing_line) {
 			while(s != null && getColumn() == column)  {
-				block.addScriptNode(parseSingleCommand(column));
+				// check whether its the start of the next localization
+				if (column == 1 && s.equals("localization"))
+					return block;
+				if (s.equals("default_localization"))
+					parseDefaultLocalizationCommand();
+				else
+					block.addScriptNode(parseSingleCommand(column));
 				s = previewElement();
 			}
 			// make sure the next command isn't on an illegal column
@@ -243,6 +251,19 @@ final class ScriptParser extends ScriptReader
 		final String[] constant_list = new String[count];
 		System.arraycopy(constant, 0, constant_list, 0, count);
 		return new ConstantDefinitionCommand(constant_list, script_name, command_line, command_column);
+	}
+
+
+	private void parseDefaultLocalizationCommand ()  {
+		final int line = getLine(), column = getColumn();
+		readElement(); // discard the default_localization command tag
+		String s = readElement();
+		if (line != getLine())
+			throwException("the default_localization command must be immediately followed by the name of a language, written in that language");
+		ruleset.data.get("DEFAULT_LOCALIZATION").set(s);
+		s = previewElement();
+		if (s != null && line == getLine())
+			throwException("the default_localization command must be immediately followed by the name of a language, written in that language, and nothing else. on the line behind it is a +\""+s+"\"");
 	}
 
 
@@ -631,30 +652,45 @@ final class ScriptParser extends ScriptReader
 
 	private void parseLocalizedScript (final Script script)  {
 		final int line = getLine(), column = getColumn();
-		// check whether it's a valid language
-		String language = readElement();
-		if(language.length() <= 2)
-			throwException("Unknown language : "+language);
-		Locale locale = new Locale(language.substring(0,2));
-		if(locale.getDisplayLanguage(locale).length() <= 2 || !locale.getDisplayLanguage(locale).equalsIgnoreCase(language))
-			throwException("Unknown language : "+language);
-		if(script.getLocalization(locale.getDisplayLanguage(locale)) != null)
-			throwException("Duplicate language localization : "+language);
-		// create the localzed script
-		// check whether this localization of the script is defined explicitly or by replacing string constants from another version
+		// check whether there is a language setting
 		String s = previewElement();
-		if(s != null) {
-			if(s.equals("extends"))
-				parseReplacementScript(locale, script, line, column);
-			else  {
-				final Block localized_script = new Block(script_name, line, column);
-				parseBlock(localized_script, line, column);
-				script.addLocalization(locale.getDisplayLanguage(locale), localized_script);
-			}
-			// make sure there is only one loalization on each line - prefent lines like       english deutsch francais
+		if (s.equals("localization")) {
+			if (getColumn() > 1)
+				throwException("the localization tag needs to sit in the first column");
+			readElement(); // eat the "localization" tag
+			// check whether it's a valid language
+			String language = readElement();
+			if (language.length() <= 2)
+				throwException("Unknown language : "+language);
+			Locale locale = new Locale(language.substring(0,2));
+			if (locale.getDisplayLanguage(locale).length() <= 2 || !locale.getDisplayLanguage(locale).equalsIgnoreCase(language))
+				throwException("Unknown language : "+language);
+			if (script.getLocalization(locale.getDisplayLanguage(locale)) != null)
+				throwException("Duplicate language localization : "+language);
+			// create the localized script
+			// check whether this localization of the script is defined explicitly or by replacing string constants from another version
 			s = previewElement();
-			if (s != null && getLine() == line)
-				throwException("there must not be more than one localization per script line. Put "+s+" on a different line");
+			if (s != null) {
+				if (s.equals("extends"))
+					parseReplacementScript(locale, script, line, column);
+				else  {
+					final Block localized_script = new Block(script_name, line, column);
+					parseBlock(localized_script, line, column);
+					script.addLocalization(locale.getDisplayLanguage(locale), localized_script);
+				}
+				// make sure there is only one loalization on each line - prefent lines like       english deutsch francais
+				s = previewElement();
+				if (s != null && getLine() == line)
+					throwException("there must not be more than one localization per script line. Put "+s+" on a different line");
+			}
+		}
+		else {
+			if (script.getLocalization("default") != null)
+				throwException("Duplicate language localization : default");
+			// create the localized script
+			final Block localized_script = new Block(script_name, line-1, 0); // gotta use a trick here because the content of the block will sit on column 1
+			parseBlock(localized_script, line-1, 0);
+			script.addLocalization("default", localized_script);
 		}
 	}
 
@@ -742,12 +778,12 @@ final class ScriptParser extends ScriptReader
 
 	private Script parseScript ()  {
 		final Script ret = new Script(script_name);
-		// parse the script script
+		// parse the script name
 System.out.println(script_name);
 		while(previewElement() != null)
 			parseLocalizedScript(ret);
 		if(ret.localizationCount() == 0)
-			throwException("Every script script must contain at least one localized script");
+			throwException("Every script must contain at least one localized script. "+script_name+" doesn't contain any");
 		return ret;
 	}
 
@@ -773,6 +809,8 @@ System.out.println(script_name);
 			return new IncrementDecrementCommand(readElement(), true, parseExpression(line, _block_column, false), script_name, line, _block_column);
 		else if (s.equals("break"))
 			return parseBreakCommand(line, _block_column);
+		else if (s.equals("localization"))
+			throwException("the localization command should sit in column 1, not column "+_block_column);
 		else if (Expression.operatorID(s) == Expression.VARIABLE)
 			return parseAssignmentCommandOrExpression(_block_column);
 		else

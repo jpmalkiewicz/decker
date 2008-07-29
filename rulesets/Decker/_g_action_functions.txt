@@ -1,397 +1,396 @@
-english
-	RULESET.actionDefaultAreaAttackProgram = FUNCTION (human, program)
-		// attack everything in the node
-		LOCAL.o = human.node.objects
-		for i = o.size-1 downto 0
-			if o[i] != human
-				actionDefaultAttackProgram(human, program, o[i])
+RULESET.actionDefaultAreaAttackProgram = FUNCTION (human, program)
+	// attack everything in the node
+	LOCAL.o = human.node.objects
+	for i = o.size-1 downto 0
+		if o[i] != human
+			actionDefaultAttackProgram(human, program, o[i])
 
 
 
 
-	RULESET.actionDefaultAttackProgram = FUNCTION (human, program, target)
-		if target != UNDEFINED
-			// determine the target number
-			LOCAL.target_number = 10  +  2 * human.current_system.rating  + getDefenseRating(target) - getAttackRating(human) - program.rating
+RULESET.actionDefaultAttackProgram = FUNCTION (human, program, target)
+	if target != UNDEFINED
+		// determine the target number
+		LOCAL.target_number = 10  +  2 * human.current_system.rating  + getDefenseRating(target) - getAttackRating(human) - program.rating
 
-			LOCAL.reduced_damage = false
-			LOCAL.a = program.type.category
-			a = a[a.size-1]
-			if target.structure_type == "ICE"
-				// normal attack programs don't work well against phasing or hardened ice
-				if a == ATTACK &&( target.type.attributes.hardened || target.type.attributes.phasing )
-					target_number = target_number + 3
-				else if a == AREA_ATTACK
-					// area attack programs suck vs hardened ice and only work well against phasing ice
-					if target.type.attributes.hardened
-						target_number = target_number + 6
-						reduced_damage = true
-					else if !target.type.attributes.phasing
-						target_number = target_number + 2
-				else if a == PIERCING_ATTACK
-					// piercing attack programs suck vs phasing ice and only work well against hardened ice. against everything else they have increased hit chance, but only do half damage
-					if target.type.attributes.phasing
-						target_number = target_number + 6
-						reduced_damage = true
-					else if !target.type.attributes.hardened
-						target_number = target_number - 3
-						reduced_damage = true
+		LOCAL.reduced_damage = false
+		LOCAL.a = program.type.category
+		a = a[a.size-1]
+		if target.structure_type == "ICE"
+			// normal attack programs don't work well against phasing or hardened ice
+			if a == ATTACK &&( target.type.attributes.hardened || target.type.attributes.phasing )
+				target_number = target_number + 3
 			else if a == AREA_ATTACK
-				target_number = target_number + 2
+				// area attack programs suck vs hardened ice and only work well against phasing ice
+				if target.type.attributes.hardened
+					target_number = target_number + 6
+					reduced_damage = true
+				else if !target.type.attributes.phasing
+					target_number = target_number + 2
 			else if a == PIERCING_ATTACK
-				target_number = target_number - 3
-				reduced_damage = true
+				// piercing attack programs suck vs phasing ice and only work well against hardened ice. against everything else they have increased hit chance, but only do half damage
+				if target.type.attributes.phasing
+					target_number = target_number + 6
+					reduced_damage = true
+				else if !target.type.attributes.hardened
+					target_number = target_number - 3
+					reduced_damage = true
+		else if a == AREA_ATTACK
+			target_number = target_number + 2
+		else if a == PIERCING_ATTACK
+			target_number = target_number - 3
+			reduced_damage = true
 
 // *******
-			debug("attack target number : "+target_number+" "+reduced_damage+" "+getName(target))
+		debug("attack target number : "+target_number+" "+reduced_damage+" "+getName(target))
 // *******END
 
-			// roll the die and determine the outcome
-			LOCAL.successes = rollDie(target_number)
-			if successes < 0
-				if human == player
-					print program.name + " program missed"
-			else
-				LOCAL.damage = successes*successes
-				if reduced_damage
-					damage = (damage+1)/2
-				if human == player
-					print program.name + " program does " + damage*HEALTH_INCREMENT + "% damage to " + getName(target)
-				if target.structure_type == "ICE"
-					target.damage = target.damage + damage
-					if target.damage >= LETHAL_DAMAGE
-						crashICE(target)
-				if human == player
-					advanceSystemTime()
-
-
-
-
-	// this is a passive_effect function which gets called when an ice tries to notice the player
-	// returns true iff hide attempt succeeds
-	RULESET.actionDefaultHideProgram = FUNCTION (human, program, target)
-		LOCAL.target_number = 10  +  2 * human.current_system.rating  + getAnalysisRating(target) - getStealthRating(human) - program.rating
-		if player.deck.decoys.size > 0
-			target_number = target_number + 4
 		// roll the die and determine the outcome
-		return_value = rollDie(target_number) > 0
+		LOCAL.successes = rollDie(target_number)
+		if successes < 0
+			if human == player
+				print program.name + " program missed"
+		else
+			LOCAL.damage = successes*successes
+			if reduced_damage
+				damage = (damage+1)/2
+			if human == player
+				print program.name + " program does " + damage*HEALTH_INCREMENT + "% damage to " + getName(target)
+			if target.structure_type == "ICE"
+				target.damage = target.damage + damage
+				if target.damage >= LETHAL_DAMAGE
+					crashICE(target)
+			if human == player
+				advanceSystemTime()
+
+
+
+
+// this is a passive_effect function which gets called when an ice tries to notice the player
+// returns true iff hide attempt succeeds
+RULESET.actionDefaultHideProgram = FUNCTION (human, program, target)
+	LOCAL.target_number = 10  +  2 * human.current_system.rating  + getAnalysisRating(target) - getStealthRating(human) - program.rating
+	if player.deck.decoys.size > 0
+		target_number = target_number + 4
+	// roll the die and determine the outcome
+	return_value = rollDie(target_number) > 0
 // play a sound effect if ( return_value == true )
 
 
 
 
-	// (x,y) is the node to be added
-	RULESET.adjustPlayerMapSize = FUNCTION (area, x, y, info_level, display_connections)
-		LOCAL.p = area.player_map
-		// increase the size of the known area
-		if x < p.x
-			p.width = p.width + p.x - x
-			p.x = x
-		if x >= p.x + p.width
-			p.width = x - p.x + 1
-		if y < p.y
-			p.height = p.height + p.y - y
-			p.y = y
-		if y >= p.y + p.height
-			p.height = y - p.y + 1
-		// mark the new node
-		if !(area.map[x][y].info_level >= info_level)
-			// portals are analyzed when you enter the node
-			area.map[x][y].info_level = info_level!=2 || getNodeTypeCategory(area.map[x][y].type)!=PORTAL ? info_level : 3
-			// check whether we want to display connections
-			if !area.map[x][y].display_connections &&( display_connections == true ||( display_connections == UNDEFINED && info_level > 1 ))
-				area.map[x][y].display_connections = true
-				// make sure the surrounding nodes we have connections to would fit on the map too
-				LOCAL.c = area.map[x][y].connection
-				LOCAL.x2
-				LOCAL.y2
-				for i = 3 downto 0
-					if c[i] != UNDEFINED
-						x2 = x + DELTA_X[i]
-						y2 = y + DELTA_Y[i]
-						if area.map[x2][y2].info_level == UNDEFINED
-							adjustPlayerMapSize(area, x2, y2, player.node.x==x && player.node.y==y && player.deck.proximity_mapper?1:0, false)
-
-
-
-
-	RULESET.advanceSystemTime = FUNCTION
-		LOCAL.area = player.node.area
-		if area != UNDEFINED
-			LOCAL.a = area.active_ice
-			for i = a.size-1 downto 0
-				debug("ice action : " + a[i].type.type + " " + getName(a[i]) + " " +a[i].current_action + "  ("+a[i].node.x+","+a[i].node.y+")    ("+player.node.x+","+player.node.y+")", true)
-				iceAct(a[i])
-// ******************
-// respawn ice and set    ice.respawned = true
-		// update the display
-		if displayed_screen == system_screen
-			system_screen.updateDisplay()
-
-
-
-	RULESET.crashICE = FUNCTION (ice)
-		if ice.node == player.node
-			print "<#success>" + getName(ice) + " has crashed"
-			if player.tracing_ice == ice
-				player.tracing_ice = UNDEFINED
-				if ice.node == player.node
-					print "you are no longer being traced"
-			if player.querying_ice == ice
-				player.querying_ice = UNDEFINED
-			delete(ice.node.objects, indexof(ice, ice.node.objects))
-			// if the ice guards a file it never comes back. otherwise it goes to the ice respawn list
-			if ice.type.type != GUARD_FILE
-				ice.node.area.destroyed_ice[] = ice
-				ice.node = UNDEFINED
-
-
-
-
-	// returns the current analysis rating for an ice or human. the value can be negative
-	RULESET.getAnalysisRating = FUNCTION (object, include_analyzed=true)
-		if object.structure_type == "ICE"
-			return_value = object.rating - object.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
-			if object.weaken > 0
-				return_value = return_value - 4
-			if include_analyzed && object.analyzed > 0
-				return_value = return_value - object.analyzed                                // substract the maximum number of successes achieved in a single analyze attempt on this object
-			if object.white && object.node.area.system.alert_level != GREEN
-				return_value = return_value + 2                                           // white object gets a +2 analysis modifier during YELLOW and RED alert
-		else if object.structure_type == "HUMAN"
-			// an analysis boost program will give +3
-			LOCAL.a = object.deck.boost_program.type.category
-			return_value = humanConditionModifier(object) + min(object.deck.analysis,object.deck.cpu) + object.analysis + (a.size>0&&a[a.size-1]==ANALYSIS_BOOST?3:0)
-		// everybody has a lowered analysis rating in a smoked node
-		if object.node.smoked > 0
-			return_value = return_value - 4
-
-
-
-
-	// returns the current attack rating for an ice or human. the value can be negative
-	RULESET.getAttackRating = FUNCTION (object, include_analyzed=true)
-		if object.structure_type == "ICE"
-			return_value = object.rating - object.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
-			if object.weaken > 0
-				return_value = return_value - 4
-			if include_analyzed && object.analyzed > 0
-				return_value = return_value - object.analyzed                                // substract the maximum number of successes achieved in a single analyze attempt on this object
-			if object.white
-				return_value = return_value - 2                                           // white object gets a -2 combat modifier
-		else if object.structure_type == "HUMAN"
-			// an attack boost program will give +3
-			LOCAL.a = object.deck.boost_program.type.category
-			return_value = humanConditionModifier(object) + min(object.deck.attack,object.deck.cpu) + object.attack + (a.size>0&&a[a.size-1]==ATTACK_BOOST?3:0)
-		// everybody has a lowered attack in a smoked node
-		if object.node.smoked > 0
-			return_value = return_value - 4
-
-
-
-
-	// returns the current defense rating for an ice or object. the value can be negative
-	RULESET.getDefenseRating = FUNCTION (object, include_analyzed=true)
-		if object.structure_type == "ICE"
-			return_value = object.rating - object.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
-			if object.weaken > 0
-				return_value = return_value - 4
-			if include_analyzed && object.analyzed > 0
-				return_value = return_value - object.analyzed                                // substract the maximum number of successes achieved in a single analyze attempt on this object
-			if object.white
-				return_value = return_value - 2                                           // white object gets a -2 combat modifier
-		else
-			// a defense boost program will give +3
-			LOCAL.a = object.deck.boost_program.type.category
-			return_value = humanConditionModifier(object) + min(object.deck.defense,object.deck.cpu) + object.defense + (a.size>0&&a[a.size-1]==DEFENSE_BOOST?3:0)
-
-
-
-
-	// returns the current stealth rating for a object. the value can be negative
-	RULESET.getStealthRating = FUNCTION (object, include_analyzed=true)
-		if object.structure_type == "HUMAN"
-			// a stealth boost program will give +3
-			LOCAL.a = object.deck.boost_program.type.category
-			return_value = humanConditionModifier(object) + min(object.deck.stealth,object.deck.cpu) + object.stealth + (a.size>0&&a[a.size-1]==STEALTH_BOOST?3:0)
-			// if the player has been traced, s/he gets a -4 to the stealth rating
-			if deck.traced
-				return_value = return_value - 4
-
-
-
-
-   RULESET.healProgram = FUNCTION (human, program)
-      deck = human.deck
-      debug("Local Deck Damage " + deck.damage)
-      if deck.damage == 0
-         print "Healing failed because you are not damaged"
-      else
-         LOCAL.target_number = 8 + (3*human.current_system.rating) - (getDefenseRating(human) + program.rating)
-
-         // Roll the die
-			LOCAL.success = rollDie(target_number)
-			debug("Rolled: " + success)
-			if success < 0
-				//TODO Program crashed, so far it is set to 0, actually it has to be removed
-				program.rating = 0
-				print "Healing failed and program crashed"
-			else if success == 0
-				print "Healing failed"
-			if success > 0
-				LOCAL.healed = 4*success
-				deck.damage = deck.damage - healed
-				//Damage can not go lower than 0
-				if deck.damage < 0
-					deck.damage = 0
-				//Specify how successful it was
-				print "Healed " + healed*RULESET.HEALTH_INCREMENT + "%"
-				program.rating--
-		debug("Damage " + human.deck.damage)
-		debug("Rating: " +program.rating)
-
-
-
-
-	RULESET.humanConditionModifier = FUNCTION (human)
-		return_value = DECK_LOAD_MODIFIER[human.deck.current_load] - human.deck.damage/8 - max(human.physical_damage,human.mental_damage)/4
-		// if the human is currently running a CLIENT_PROGRAM, all actions are modified by -3
-		LOCAL.a = human.deck.slow_program.category
-		if a != UNDEFINED && indexof(CLIENT_PROGRAM, a) != UNDEFINED
-			return_value = return_value - 3
-
-
-
-
-	RULESET.moveObject = FUNCTION (object, target)
-		debug("** "+object.x+","+object.y+"  "+target)
-		if object.node != UNDEFINED
-			delete(object.node.objects, indexof(object, object.node.objects))
-		if object.structure_type == "ICE"
-			object.previous_node = object.node
-		if target >= 0 && target <= 3
-			object.node = object.node.connection[target]
-			placeObject(object, object.node, (target+2)%4)
-		else
-			object.node = target
-			placeObject(object, object.node, CENTER)
-
-
-
-
-	RULESET.movePlayer = FUNCTION (target)
-		LOCAL.n = player.node
-		moveObject(player, target)
-		// only do something if the player has actually moved
-		if n != player.node
-			// the player hasn't deceived any ice in this node yet and has left any querying ice behind
-			player.highest_deceived_ice = -1000
-			player.querying_ice = UNDEFINED
-			// if the player had selected an ICE in the previous node, that selection is gone
-			player.current_target = UNDEFINED
-			// update the area map
-			n = player.node
-			if n.area != UNDEFINED
-				LOCAL.m = n.area.player_map
-				if m == UNDEFINED
-					m = PLAYER_AREA_MAP
-						x = n.x
-						y = n.y
-						width = 1
-						height = 1
-					n.area.player_map = m
-				if !(n.info_level >= 2)
-					adjustPlayerMapSize(n.area, n.x, n.y, 2)
-
-
-
-
-	RULESET.placeObject = FUNCTION (object, node, from_direction)
-		LOCAL.x
-		LOCAL.y
-		LOCAL.node_map = getStructureMember(BLOCKED_NODE_REGIONS, toLowerCase(getNodeTypeCategory(node.type)))
-		if object.structure_type == "ICE" && node == object.home_node && object.type.type == GUARD
-			if value_type(object.guarded_object) == "INTEGER"
-				x = 4 + DELTA_X[object.guarded_object] * 4
-				y = 4 + DELTA_Y[object.guarded_object] * 4
-			else if object.guarded_object == object.node
-				x = 4
-				y = 4
-		if x == UNDEFINED
-			if from_direction != UNDEFINED
-				if from_direction < 4
-					x = 4 + DELTA_X[from_direction] * 4
-					y = 4 + DELTA_Y[from_direction] * 4
-				else
-					x = 4
-					y = 4
-			else
-				x = random(0,8)
-				y = random(0,8)
-				while !node_map[y][x]
-					x = random(0,8)
-					y = random(0,8)
-		// now that we have a point to start from, find the nearest free spot
-		if !node_map[y][x] && notOccupied(node, x, y)
-			object.x = x
-			object.y = y
-		else
-			LOCAL.radius = 0
+// (x,y) is the node to be added
+RULESET.adjustPlayerMapSize = FUNCTION (area, x, y, info_level, display_connections)
+	LOCAL.p = area.player_map
+	// increase the size of the known area
+	if x < p.x
+		p.width = p.width + p.x - x
+		p.x = x
+	if x >= p.x + p.width
+		p.width = x - p.x + 1
+	if y < p.y
+		p.height = p.height + p.y - y
+		p.y = y
+	if y >= p.y + p.height
+		p.height = y - p.y + 1
+	// mark the new node
+	if !(area.map[x][y].info_level >= info_level)
+		// portals are analyzed when you enter the node
+		area.map[x][y].info_level = info_level!=2 || getNodeTypeCategory(area.map[x][y].type)!=PORTAL ? info_level : 3
+		// check whether we want to display connections
+		if !area.map[x][y].display_connections &&( display_connections == true ||( display_connections == UNDEFINED && info_level > 1 ))
+			area.map[x][y].display_connections = true
+			// make sure the surrounding nodes we have connections to would fit on the map too
+			LOCAL.c = area.map[x][y].connection
 			LOCAL.x2
 			LOCAL.y2
-			LOCAL.blocked = true
-			while blocked && radius <= 8
-				// search the next outer ring of cells
-				radius++
-				for i = -radius+1 to radius
-					x2 = x + i
-					y2 = y - radius
-					if x2 >= 0 && x2 <= 8 && y2 >= 0 && y2 <= 8 && !node_map[y2][x2] && notOccupied(node, x2, y2)
-						object.x = x2
-						object.y = y2
-						blocked = false
-						break
-					x2 = x - i
-					y2 = y + radius
-					if x2 >= 0 && x2 <= 8 && y2 >= 0 && y2 <= 8 && !node_map[y2][x2] && notOccupied(node, x2, y2)
-						object.x = x2
-						object.y = y2
-						blocked = false
-						break
-					x2 = x + radius
-					y2 = y + i
-					if x2 >= 0 && x2 <= 8 && y2 >= 0 && y2 <= 8 && !node_map[y2][x2] && notOccupied(node, x2, y2)
-						object.x = x2
-						object.y = y2
-						blocked = false
-						break
-					x2 = x - radius
-					y2 = y - i
-					if x2 >= 0 && x2 <= 8 && y2 >= 0 && y2 <= 8 && !node_map[y2][x2] && notOccupied(node, x2, y2)
-						object.x = x2
-						object.y = y2
-						blocked = false
-						break
-			// if there is no free location in the node, just put the object at a random exit (this should never happen)
-			if radius > 8
-				LOCAL.direction = random(0,3)
-				object.x = 4 + DELTA_X[direction] * 4
-				object.y = 4 + DELTA_Y[direction] * 4
-		node.objects[] = object
+			for i = 3 downto 0
+				if c[i] != UNDEFINED
+					x2 = x + DELTA_X[i]
+					y2 = y + DELTA_Y[i]
+					if area.map[x2][y2].info_level == UNDEFINED
+						adjustPlayerMapSize(area, x2, y2, player.node.x==x && player.node.y==y && player.deck.proximity_mapper?1:0, false)
 
 
 
 
-   RULESET.silenceProgram = FUNCTION (human, program)
-		LOCAL.target_number = 10  +  3 * human.current_system.rating  - (getStealthRating(human) + program.rating)
+RULESET.advanceSystemTime = FUNCTION
+	LOCAL.area = player.node.area
+	if area != UNDEFINED
+		LOCAL.a = area.active_ice
+		for i = a.size-1 downto 0
+			debug("ice action : " + a[i].type.type + " " + getName(a[i]) + " " +a[i].current_action + "  ("+a[i].node.x+","+a[i].node.y+")    ("+player.node.x+","+player.node.y+")", true)
+			iceAct(a[i])
+// ******************
+// respawn ice and set    ice.respawned = true
+	// update the display
+	if displayed_screen == system_screen
+		system_screen.updateDisplay()
 
-		// roll the die and determine the outcome
-		LOCAL.successes = rollDie(target_number)
-		if success <= 0
-			if human == player
-				print "Failed to silence node"
+
+
+RULESET.crashICE = FUNCTION (ice)
+	if ice.node == player.node
+		print "<#success>" + getName(ice) + " has crashed"
+		if player.tracing_ice == ice
+			player.tracing_ice = UNDEFINED
+			if ice.node == player.node
+				print "you are no longer being traced"
+		if player.querying_ice == ice
+			player.querying_ice = UNDEFINED
+		delete(ice.node.objects, indexof(ice, ice.node.objects))
+		// if the ice guards a file it never comes back. otherwise it goes to the ice respawn list
+		if ice.type.type != GUARD_FILE
+			ice.node.area.destroyed_ice[] = ice
+			ice.node = UNDEFINED
+
+
+
+
+// returns the current analysis rating for an ice or human. the value can be negative
+RULESET.getAnalysisRating = FUNCTION (object, include_analyzed=true)
+	if object.structure_type == "ICE"
+		return_value = object.rating - object.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
+		if object.weaken > 0
+			return_value = return_value - 4
+		if include_analyzed && object.analyzed > 0
+			return_value = return_value - object.analyzed                                // substract the maximum number of successes achieved in a single analyze attempt on this object
+		if object.white && object.node.area.system.alert_level != GREEN
+			return_value = return_value + 2                                           // white object gets a +2 analysis modifier during YELLOW and RED alert
+	else if object.structure_type == "HUMAN"
+		// an analysis boost program will give +3
+		LOCAL.a = object.deck.boost_program.type.category
+		return_value = humanConditionModifier(object) + min(object.deck.analysis,object.deck.cpu) + object.analysis + (a.size>0&&a[a.size-1]==ANALYSIS_BOOST?3:0)
+	// everybody has a lowered analysis rating in a smoked node
+	if object.node.smoked > 0
+		return_value = return_value - 4
+
+
+
+
+// returns the current attack rating for an ice or human. the value can be negative
+RULESET.getAttackRating = FUNCTION (object, include_analyzed=true)
+	if object.structure_type == "ICE"
+		return_value = object.rating - object.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
+		if object.weaken > 0
+			return_value = return_value - 4
+		if include_analyzed && object.analyzed > 0
+			return_value = return_value - object.analyzed                                // substract the maximum number of successes achieved in a single analyze attempt on this object
+		if object.white
+			return_value = return_value - 2                                           // white object gets a -2 combat modifier
+	else if object.structure_type == "HUMAN"
+		// an attack boost program will give +3
+		LOCAL.a = object.deck.boost_program.type.category
+		return_value = humanConditionModifier(object) + min(object.deck.attack,object.deck.cpu) + object.attack + (a.size>0&&a[a.size-1]==ATTACK_BOOST?3:0)
+	// everybody has a lowered attack in a smoked node
+	if object.node.smoked > 0
+		return_value = return_value - 4
+
+
+
+
+// returns the current defense rating for an ice or object. the value can be negative
+RULESET.getDefenseRating = FUNCTION (object, include_analyzed=true)
+	if object.structure_type == "ICE"
+		return_value = object.rating - object.damage/4                     // the rating goes down by one for every 4 damage the ice has taken
+		if object.weaken > 0
+			return_value = return_value - 4
+		if include_analyzed && object.analyzed > 0
+			return_value = return_value - object.analyzed                                // substract the maximum number of successes achieved in a single analyze attempt on this object
+		if object.white
+			return_value = return_value - 2                                           // white object gets a -2 combat modifier
+	else
+		// a defense boost program will give +3
+		LOCAL.a = object.deck.boost_program.type.category
+		return_value = humanConditionModifier(object) + min(object.deck.defense,object.deck.cpu) + object.defense + (a.size>0&&a[a.size-1]==DEFENSE_BOOST?3:0)
+
+
+
+
+// returns the current stealth rating for a object. the value can be negative
+RULESET.getStealthRating = FUNCTION (object, include_analyzed=true)
+	if object.structure_type == "HUMAN"
+		// a stealth boost program will give +3
+		LOCAL.a = object.deck.boost_program.type.category
+		return_value = humanConditionModifier(object) + min(object.deck.stealth,object.deck.cpu) + object.stealth + (a.size>0&&a[a.size-1]==STEALTH_BOOST?3:0)
+		// if the player has been traced, s/he gets a -4 to the stealth rating
+		if deck.traced
+			return_value = return_value - 4
+
+
+
+
+RULESET.healProgram = FUNCTION (human, program)
+	deck = human.deck
+	debug("Local Deck Damage " + deck.damage)
+	if deck.damage == 0
+		print "Healing failed because you are not damaged"
+	else
+		LOCAL.target_number = 8 + (3*human.current_system.rating) - (getDefenseRating(human) + program.rating)
+
+		// Roll the die
+		LOCAL.success = rollDie(target_number)
+		debug("Rolled: " + success)
+		if success < 0
+			//TODO Program crashed, so far it is set to 0, actually it has to be removed
+			program.rating = 0
+			print "Healing failed and program crashed"
+		else if success == 0
+			print "Healing failed"
+		if success > 0
+			LOCAL.healed = 4*success
+			deck.damage = deck.damage - healed
+			//Damage can not go lower than 0
+			if deck.damage < 0
+				deck.damage = 0
+			//Specify how successful it was
+			print "Healed " + healed*RULESET.HEALTH_INCREMENT + "%"
+			program.rating--
+	debug("Damage " + human.deck.damage)
+	debug("Rating: " +program.rating)
+
+
+
+
+RULESET.humanConditionModifier = FUNCTION (human)
+	return_value = DECK_LOAD_MODIFIER[human.deck.current_load] - human.deck.damage/8 - max(human.physical_damage,human.mental_damage)/4
+	// if the human is currently running a CLIENT_PROGRAM, all actions are modified by -3
+	LOCAL.a = human.deck.slow_program.category
+	if a != UNDEFINED && indexof(CLIENT_PROGRAM, a) != UNDEFINED
+		return_value = return_value - 3
+
+
+
+
+RULESET.moveObject = FUNCTION (object, target)
+	debug("** "+object.x+","+object.y+"  "+target)
+	if object.node != UNDEFINED
+		delete(object.node.objects, indexof(object, object.node.objects))
+	if object.structure_type == "ICE"
+		object.previous_node = object.node
+	if target >= 0 && target <= 3
+		object.node = object.node.connection[target]
+		placeObject(object, object.node, (target+2)%4)
+	else
+		object.node = target
+		placeObject(object, object.node, CENTER)
+
+
+
+
+RULESET.movePlayer = FUNCTION (target)
+	LOCAL.n = player.node
+	moveObject(player, target)
+	// only do something if the player has actually moved
+	if n != player.node
+		// the player hasn't deceived any ice in this node yet and has left any querying ice behind
+		player.highest_deceived_ice = -1000
+		player.querying_ice = UNDEFINED
+		// if the player had selected an ICE in the previous node, that selection is gone
+		player.current_target = UNDEFINED
+		// update the area map
+		n = player.node
+		if n.area != UNDEFINED
+			LOCAL.m = n.area.player_map
+			if m == UNDEFINED
+				m = PLAYER_AREA_MAP
+					x = n.x
+					y = n.y
+					width = 1
+					height = 1
+				n.area.player_map = m
+			if !(n.info_level >= 2)
+				adjustPlayerMapSize(n.area, n.x, n.y, 2)
+
+
+
+
+RULESET.placeObject = FUNCTION (object, node, from_direction)
+	LOCAL.x
+	LOCAL.y
+	LOCAL.node_map = getStructureMember(BLOCKED_NODE_REGIONS, toLowerCase(getNodeTypeCategory(node.type)))
+	if object.structure_type == "ICE" && node == object.home_node && object.type.type == GUARD
+		if value_type(object.guarded_object) == "INTEGER"
+			x = 4 + DELTA_X[object.guarded_object] * 4
+			y = 4 + DELTA_Y[object.guarded_object] * 4
+		else if object.guarded_object == object.node
+			x = 4
+			y = 4
+	if x == UNDEFINED
+		if from_direction != UNDEFINED
+			if from_direction < 4
+				x = 4 + DELTA_X[from_direction] * 4
+				y = 4 + DELTA_Y[from_direction] * 4
+			else
+				x = 4
+				y = 4
 		else
-			//g_pChar->m_pCurrentNode->m_nActiveSilenceLevel = 2 + (2*iSuccess);
-			advanceSystemTime()
-			// Update icons on panel with silence
+			x = random(0,8)
+			y = random(0,8)
+			while !node_map[y][x]
+				x = random(0,8)
+				y = random(0,8)
+	// now that we have a point to start from, find the nearest free spot
+	if !node_map[y][x] && notOccupied(node, x, y)
+		object.x = x
+		object.y = y
+	else
+		LOCAL.radius = 0
+		LOCAL.x2
+		LOCAL.y2
+		LOCAL.blocked = true
+		while blocked && radius <= 8
+			// search the next outer ring of cells
+			radius++
+			for i = -radius+1 to radius
+				x2 = x + i
+				y2 = y - radius
+				if x2 >= 0 && x2 <= 8 && y2 >= 0 && y2 <= 8 && !node_map[y2][x2] && notOccupied(node, x2, y2)
+					object.x = x2
+					object.y = y2
+					blocked = false
+					break
+				x2 = x - i
+				y2 = y + radius
+				if x2 >= 0 && x2 <= 8 && y2 >= 0 && y2 <= 8 && !node_map[y2][x2] && notOccupied(node, x2, y2)
+					object.x = x2
+					object.y = y2
+					blocked = false
+					break
+				x2 = x + radius
+				y2 = y + i
+				if x2 >= 0 && x2 <= 8 && y2 >= 0 && y2 <= 8 && !node_map[y2][x2] && notOccupied(node, x2, y2)
+					object.x = x2
+					object.y = y2
+					blocked = false
+					break
+				x2 = x - radius
+				y2 = y - i
+				if x2 >= 0 && x2 <= 8 && y2 >= 0 && y2 <= 8 && !node_map[y2][x2] && notOccupied(node, x2, y2)
+					object.x = x2
+					object.y = y2
+					blocked = false
+					break
+		// if there is no free location in the node, just put the object at a random exit (this should never happen)
+		if radius > 8
+			LOCAL.direction = random(0,3)
+			object.x = 4 + DELTA_X[direction] * 4
+			object.y = 4 + DELTA_Y[direction] * 4
+	node.objects[] = object
+
+
+
+
+RULESET.silenceProgram = FUNCTION (human, program)
+	LOCAL.target_number = 10  +  3 * human.current_system.rating  - (getStealthRating(human) + program.rating)
+
+	// roll the die and determine the outcome
+	LOCAL.successes = rollDie(target_number)
+	if success <= 0
+		if human == player
+			print "Failed to silence node"
+	else
+		//g_pChar->m_pCurrentNode->m_nActiveSilenceLevel = 2 + (2*iSuccess);
+		advanceSystemTime()
+		// Update icons on panel with silence
 

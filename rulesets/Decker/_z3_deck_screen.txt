@@ -1,230 +1,229 @@
-english
-	RULESET.deck_screen = COMPONENT
-		title = "Decker - Deck"
+RULESET.deck_screen = COMPONENT
+	title = "Decker - Deck"
 
-		LOCAL.screen_width = 540
-		LOCAL.screen_height = 445
-		width = screen_width
-		height = screen_height
+	LOCAL.screen_width = 540
+	LOCAL.screen_height = 445
+	width = screen_width
+	height = screen_height
 
 
-		back_button = BORDER_BUTTON
-			x = screen_width - 18 - 24
-			y = screen_height - 18 - 24
-			idle = IMAGE
-				image = "home/home"
-			on_mouse_up = FUNCTION
-				displayPreviousScreen()
+	back_button = BORDER_BUTTON
+		x = screen_width - 18 - 24
+		y = screen_height - 18 - 24
+		idle = IMAGE
+			image = "home/home"
+		on_mouse_up = FUNCTION
+			displayPreviousScreen()
 
-		scrollpane = SCROLLPANE
-			x = 20
-			y = 180
-			width = screen_width - 2 * 20
-			height = screen_height - y - 80    // make the height relative to the screenheight
-			vertical_scrollbar = createSimpleScrollbar(true, "blue")
+	scrollpane = SCROLLPANE
+		x = 20
+		y = 180
+		width = screen_width - 2 * 20
+		height = screen_height - y - 80    // make the height relative to the screenheight
+		vertical_scrollbar = createSimpleScrollbar(true, "blue")
 
-		LOCAL.createTableButton = FUNCTION (_column, _text, _width, _x, _sorting_order_function)
-			return_value = BORDER_BUTTON
-				x = _x[0]
-				y = _x[1] - 20
-				idle = createText(_text)
+	LOCAL.createTableButton = FUNCTION (_column, _text, _width, _x, _sorting_order_function)
+		return_value = BORDER_BUTTON
+			x = _x[0]
+			y = _x[1] - 20
+			idle = createText(_text)
 // ugly fix, the only reason idle.height needs to be set here is to keep Java from centering the text wrong
-				idle.height = 14
-				width = _width
-				height = 20
-				_x[0] = _x[0] + _width
-				sorting_order_function = _sorting_order_function
-				column = _column
-				on_mouse_up = FUNCTION
-					sortTable(deck_screen.scrollpane.displayed_element, sorting_order_function, column, player.deck.program)
+			idle.height = 14
+			width = _width
+			height = 20
+			_x[0] = _x[0] + _width
+			sorting_order_function = _sorting_order_function
+			column = _column
+			on_mouse_up = FUNCTION
+				sortTable(deck_screen.scrollpane.displayed_element, sorting_order_function, column, player.deck.program)
 
-		LOCAL.table_button_x = ARRAY
-			scrollpane.x
-			scrollpane.y
+	LOCAL.table_button_x = ARRAY
+		scrollpane.x
+		scrollpane.y
 
-		current_load_text = createText("", scrollpane.x+100, screen_height-68)
-		load_0_text = createText("", scrollpane.x+370, current_load_text.y, , , LEFT)
-		load_1_text = createText("", scrollpane.x+370, current_load_text.y+18, , , LEFT)
-		load_2_text = createText("", scrollpane.x+370, current_load_text.y+18*2, , , LEFT)
-		optional_hardware = COLLECTION
-		trashcan_wrapper = COMPONENT
+	current_load_text = createText("", scrollpane.x+100, screen_height-68)
+	load_0_text = createText("", scrollpane.x+370, current_load_text.y, , , LEFT)
+	load_1_text = createText("", scrollpane.x+370, current_load_text.y+18, , , LEFT)
+	load_2_text = createText("", scrollpane.x+370, current_load_text.y+18*2, , , LEFT)
+	optional_hardware = COLLECTION
+	trashcan_wrapper = COMPONENT
 
-		component = ARRAY
-			SCREEN_BACKGROUND
-			back_button
-			trashcan_wrapper
-			BORDER_BUTTON
-				x = back_button.x - 10 - 24
-				y = back_button.y
-				idle = IMAGE
-					image = "home/char"
-				on_mouse_up = FUNCTION
-					displayScreen(character_screen, false)
+	component = ARRAY
+		SCREEN_BACKGROUND
+		back_button
+		trashcan_wrapper
+		BORDER_BUTTON
+			x = back_button.x - 10 - 24
+			y = back_button.y
+			idle = IMAGE
+				image = "home/char"
+			on_mouse_up = FUNCTION
+				displayScreen(character_screen, false)
 
-			// the hardware section
-			createText("Chips",       20, 15)
-			createText("CPU",         28, 17+16*1)
-			createText("Coprocessor", 28, 17+16*2)
-			createText("Attack",      28, 17+16*3)
-			createText("Defense",     28, 17+16*4)
-			createText("Stealth",     28, 17+16*5)
-			createText("Analysis",    28, 17+16*6)
+		// the hardware section
+		createText("Chips",       20, 15)
+		createText("CPU",         28, 17+16*1)
+		createText("Coprocessor", 28, 17+16*2)
+		createText("Attack",      28, 17+16*3)
+		createText("Defense",     28, 17+16*4)
+		createText("Stealth",     28, 17+16*5)
+		createText("Analysis",    28, 17+16*6)
 
-			// the software section
-			createBorder(scrollpane.x-2, scrollpane.y-22, scrollpane.width+4, scrollpane.height+24, TABLE_BACKGROUND_COLOR, true)
-			scrollpane
-			createTableButton(0, "",        19, table_button_x, compareProgramsPreset)
-			createTableButton(1, "Name",   136, table_button_x, compareText)
-			createTableButton(2, "Type",   109, table_button_x, compareText)
-			createTableButton(3, "Rating",  59, table_button_x, compareNumbers)
-			createTableButton(4, "Size",    59, table_button_x, compareNumbers)
-			createTableButton(5, "Loaded",  59, table_button_x, compareProgramsLoaded)
-			createTableButton(6, "Default", 59, table_button_x, compareProgramsDefault)
-			optional_hardware   // the optional hardware texts will be stored in optional_hardware.component
+		// the software section
+		createBorder(scrollpane.x-2, scrollpane.y-22, scrollpane.width+4, scrollpane.height+24, TABLE_BACKGROUND_COLOR, true)
+		scrollpane
+		createTableButton(0, "",        19, table_button_x, compareProgramsPreset)
+		createTableButton(1, "Name",   136, table_button_x, compareText)
+		createTableButton(2, "Type",   109, table_button_x, compareText)
+		createTableButton(3, "Rating",  59, table_button_x, compareNumbers)
+		createTableButton(4, "Size",    59, table_button_x, compareNumbers)
+		createTableButton(5, "Loaded",  59, table_button_x, compareProgramsLoaded)
+		createTableButton(6, "Default", 59, table_button_x, compareProgramsDefault)
+		optional_hardware   // the optional hardware texts will be stored in optional_hardware.component
 
-			// the current load section
-			createText("Current Load", scrollpane.x, current_load_text.y)
-			current_load_text
-			createText(LOAD_TEXT[0]+" Load", load_0_text.x-155, load_0_text.y)
-			load_0_text
-			createText(LOAD_TEXT[1]+" Load", load_1_text.x-155, load_1_text.y)
-			load_1_text
-			createText(LOAD_TEXT[2]+" Load", load_2_text.x-155, load_2_text.y)
-			load_2_text
+		// the current load section
+		createText("Current Load", scrollpane.x, current_load_text.y)
+		current_load_text
+		createText(LOAD_TEXT[0]+" Load", load_0_text.x-155, load_0_text.y)
+		load_0_text
+		createText(LOAD_TEXT[1]+" Load", load_1_text.x-155, load_1_text.y)
+		load_1_text
+		createText(LOAD_TEXT[2]+" Load", load_2_text.x-155, load_2_text.y)
+		load_2_text
 
-		chip_text = ARRAY
-		for i = 0 to 5
-			chip_text[i] = createText("1", 130, 32+i*16, UNDEFINED, UNDEFINED, RIGHT)
-			chip_text[i].h_align = LEFT
-			component[] = chip_text[i]
+	chip_text = ARRAY
+	for i = 0 to 5
+		chip_text[i] = createText("1", 130, 32+i*16, UNDEFINED, UNDEFINED, RIGHT)
+		chip_text[i].h_align = LEFT
+		component[] = chip_text[i]
 
 
-		setup = FUNCTION
-			with deck_screen
-				updateBackButton(back_button)
-				chip_text[0].text = player.deck.cpu
-				chip_text[1].text = player.deck.coprocessor
-				chip_text[2].text = player.deck.attack
-				chip_text[3].text = player.deck.defense
-				chip_text[4].text = player.deck.stealth
-				chip_text[5].text = player.deck.analysis
-				current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
-				LOCAL.i = getMaxLoad(player.deck)
-				load_0_text.text = i/3
-				load_1_text.text = i*2/3
-				load_2_text.text = i
-				optional_hardware.component = ARRAY
-				LOCAL.h = player.deck.optional_hardware
-				if h.size > 0
-					LOCAL.xoff = h.size <= 6 ? 210 : 200
-					LOCAL.second_column = h.size <= 6 ? h.size : (h.size+1)/2
-					optional_hardware.component[] = createText("Optional Hardware", xoff-8, 15)
-					if h.size > 6
-						optional_hardware.component[0].x = xoff+140
-						optional_hardware.component[0].h_align = CENTER
-					for (i = 0; i < second_column; i++)
-						optional_hardware.component[] = createText(player.deck.optional_hardware[i].name, xoff, 17+(i+1)*16)
-					for ( ; i < player.deck.optional_hardware.size; i++)
-						optional_hardware.component[] = createText(player.deck.optional_hardware[i].name, xoff+160, 17+(i+1-second_column)*16)
+	setup = FUNCTION
+		with deck_screen
+			updateBackButton(back_button)
+			chip_text[0].text = player.deck.cpu
+			chip_text[1].text = player.deck.coprocessor
+			chip_text[2].text = player.deck.attack
+			chip_text[3].text = player.deck.defense
+			chip_text[4].text = player.deck.stealth
+			chip_text[5].text = player.deck.analysis
+			current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
+			LOCAL.i = getMaxLoad(player.deck)
+			load_0_text.text = i/3
+			load_1_text.text = i*2/3
+			load_2_text.text = i
+			optional_hardware.component = ARRAY
+			LOCAL.h = player.deck.optional_hardware
+			if h.size > 0
+				LOCAL.xoff = h.size <= 6 ? 210 : 200
+				LOCAL.second_column = h.size <= 6 ? h.size : (h.size+1)/2
+				optional_hardware.component[] = createText("Optional Hardware", xoff-8, 15)
+				if h.size > 6
+					optional_hardware.component[0].x = xoff+140
+					optional_hardware.component[0].h_align = CENTER
+				for (i = 0; i < second_column; i++)
+					optional_hardware.component[] = createText(player.deck.optional_hardware[i].name, xoff, 17+(i+1)*16)
+				for ( ; i < player.deck.optional_hardware.size; i++)
+					optional_hardware.component[] = createText(player.deck.optional_hardware[i].name, xoff+160, 17+(i+1-second_column)*16)
 
-				// create the new software table ***********************************************************************************************************
-				LOCAL.t = createTable ( , 18, 19, 136, 109, 59, 59, 59, 59)
-				t.cell_x = createArray (CENTER, 8, CENTER, CENTER, CENTER, CENTER, CENTER)
-				t.cell_y = CENTER
-				t.selected_row_background = TABLE_SELECTED_ROW_BACKGROUND
-				t.can_drag_rows = true
-				t.selected_row = scrollpane.displayed_element.selected_row
-				t.on_row_dragged = FUNCTION (table, old_row_index, new_row_index)
-					// rearrange the programs in the player deck accordingly
-					LOCAL.p = player.deck.program
-					LOCAL.backup = p[old_row_index]
-					if old_row_index > new_row_index
-						for i = old_row_index downto new_row_index+1
-							p[i] = p[i-1]
-					else
-						for i = old_row_index to new_row_index-1
-							p[i] = p[i+1]
-					p[new_row_index] = backup
-				t.on_selection_change = FUNCTION (table, old_selected_row, new_selected_row)
-					with deck_screen
-						if new_selected_row >= 0 && new_selected_row < table.rows
-							if trashcan_wrapper.component == UNDEFINED
-								debug("adding trashcan")
-								trashcan_wrapper.component = BORDER_BUTTON
-									x = scrollpane.x-2
-									y = back_button.y
-									idle = IMAGE
-										image = "trashcan0"
-									on_mouse_up = FUNCTION
-										LOCAL.button_ok = createBorderButton("ok0")
-										button_ok.on_mouse_up = FUNCTION
-											LOCAL.index = scrollpane.displayed_element.selected_row
-											setProgramState(player.deck, player.deck.program[index], INSTALLED)
-											delete(player.deck.program, index)
-											deleteTableRow(scrollpane.displayed_element, index)
-											deleteScreenOverlay(popup)
-											trashcan_wrapper.component = UNDEFINED
-											current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
-											return_value = true
-											centerRightAlignedTableColumn(scrollpane, 3)
-											centerRightAlignedTableColumn(scrollpane, 4)
-										LOCAL.button_cancel = createBorderButton("cancel0")
-										button_cancel.on_mouse_up = FUNCTION
-											deleteScreenOverlay(popup)
-											return_value = true
-										LOCAL.popup = createPopup("Really delete "+player.deck.program[scrollpane.displayed_element.selected_row].name+"?", button_cancel, button_ok)
-										button_ok.popup = popup
-										button_cancel.popup = popup
-										addScreenOverlay(popup)
-						else
-							trashcan_wrapper.component = UNDEFINED
-
+			// create the new software table ***********************************************************************************************************
+			LOCAL.t = createTable ( , 18, 19, 136, 109, 59, 59, 59, 59)
+			t.cell_x = createArray (CENTER, 8, CENTER, CENTER, CENTER, CENTER, CENTER)
+			t.cell_y = CENTER
+			t.selected_row_background = TABLE_SELECTED_ROW_BACKGROUND
+			t.can_drag_rows = true
+			t.selected_row = scrollpane.displayed_element.selected_row
+			t.on_row_dragged = FUNCTION (table, old_row_index, new_row_index)
+				// rearrange the programs in the player deck accordingly
 				LOCAL.p = player.deck.program
-				LOCAL.state = UNDEFINED
-				LOCAL.loaded = UNDEFINED
-
-				LOCAL.default_function = FUNCTION
-					if prog.state == DEFAULT
-						setProgramState(player.deck, prog, LOADED)
-						idle.image = "status_off"
+				LOCAL.backup = p[old_row_index]
+				if old_row_index > new_row_index
+					for i = old_row_index downto new_row_index+1
+						p[i] = p[i-1]
+				else
+					for i = old_row_index to new_row_index-1
+						p[i] = p[i+1]
+				p[new_row_index] = backup
+			t.on_selection_change = FUNCTION (table, old_selected_row, new_selected_row)
+				with deck_screen
+					if new_selected_row >= 0 && new_selected_row < table.rows
+						if trashcan_wrapper.component == UNDEFINED
+							debug("adding trashcan")
+							trashcan_wrapper.component = BORDER_BUTTON
+								x = scrollpane.x-2
+								y = back_button.y
+								idle = IMAGE
+									image = "trashcan0"
+								on_mouse_up = FUNCTION
+									LOCAL.button_ok = createBorderButton("ok0")
+									button_ok.on_mouse_up = FUNCTION
+										LOCAL.index = scrollpane.displayed_element.selected_row
+										setProgramState(player.deck, player.deck.program[index], INSTALLED)
+										delete(player.deck.program, index)
+										deleteTableRow(scrollpane.displayed_element, index)
+										deleteScreenOverlay(popup)
+										trashcan_wrapper.component = UNDEFINED
+										current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
+										return_value = true
+										centerRightAlignedTableColumn(scrollpane, 3)
+										centerRightAlignedTableColumn(scrollpane, 4)
+									LOCAL.button_cancel = createBorderButton("cancel0")
+									button_cancel.on_mouse_up = FUNCTION
+										deleteScreenOverlay(popup)
+										return_value = true
+									LOCAL.popup = createPopup("Really delete "+player.deck.program[scrollpane.displayed_element.selected_row].name+"?", button_cancel, button_ok)
+									button_ok.popup = popup
+									button_cancel.popup = popup
+									addScreenOverlay(popup)
 					else
-						// switch off the default marker for the old default program in the table
-						LOCAL.p2 = player.deck.default_program[prog.type.default_category]
-						if p2 != UNDEFINED
-							LOCAL.index = indexof(p2, player.deck.program)
-							getTableCell(deck_screen.scrollpane.displayed_element, index, 6).idle.image = "status_off"
-						// if the program wasn't loaded, change the load marker
-						if prog.state == INSTALLED
-							LOCAL.index = indexof(prog, player.deck.program)
-							getTableCell(deck_screen.scrollpane.displayed_element, index, 5).idle.image = "status_on"
-						setProgramState(player.deck, prog, DEFAULT)
-						idle.image = "status_on"
-						deck_screen.current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
+						trashcan_wrapper.component = UNDEFINED
 
-				LOCAL.load_function = FUNCTION
-					if prog.state == DEFAULT
-						LOCAL.index = indexof(prog, player.deck.program)
+			LOCAL.p = player.deck.program
+			LOCAL.state = UNDEFINED
+			LOCAL.loaded = UNDEFINED
+
+			LOCAL.default_function = FUNCTION
+				if prog.state == DEFAULT
+					setProgramState(player.deck, prog, LOADED)
+					idle.image = "status_off"
+				else
+					// switch off the default marker for the old default program in the table
+					LOCAL.p2 = player.deck.default_program[prog.type.default_category]
+					if p2 != UNDEFINED
+						LOCAL.index = indexof(p2, player.deck.program)
 						getTableCell(deck_screen.scrollpane.displayed_element, index, 6).idle.image = "status_off"
-					setProgramState(player.deck, prog, prog.state != INSTALLED ? INSTALLED : LOADED)
-					idle.image = prog.state == INSTALLED ? "status_off" : "status_on"
+					// if the program wasn't loaded, change the load marker
+					if prog.state == INSTALLED
+						LOCAL.index = indexof(prog, player.deck.program)
+						getTableCell(deck_screen.scrollpane.displayed_element, index, 5).idle.image = "status_on"
+					setProgramState(player.deck, prog, DEFAULT)
+					idle.image = "status_on"
 					deck_screen.current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
 
-				for i = 0 to p.size-1
-					loaded = BUTTON
-						idle = IMAGE
-							image = p[i].state != INSTALLED ?  "status_on"  :  "status_off"
-						prog = p[i]
-						on_mouse_down = load_function
-					if p[i].type.default_category != UNDEFINED
-						state = BUTTON
-							idle = IMAGE
-								image = p[i].state == DEFAULT  ?  "status_on"  :  "status_off"
-							prog = p[i]
-							on_mouse_down = default_function
-					else
-						state = UNDEFINED
+			LOCAL.load_function = FUNCTION
+				if prog.state == DEFAULT
+					LOCAL.index = indexof(prog, player.deck.program)
+					getTableCell(deck_screen.scrollpane.displayed_element, index, 6).idle.image = "status_off"
+				setProgramState(player.deck, prog, prog.state != INSTALLED ? INSTALLED : LOADED)
+				idle.image = prog.state == INSTALLED ? "status_off" : "status_on"
+				deck_screen.current_load_text.text = LOAD_TEXT[player.deck.current_load] + " / " + player.deck.used_memory
 
-					addTableRow(t, createImage(p[i].type.image), createText(p[i].name,,,TABLE_TEXT_COLOR), createText(p[i].type.name,,,TABLE_TEXT_COLOR), createText(p[i].rating,,,TABLE_TEXT_COLOR), createText(p[i].size,,,TABLE_TEXT_COLOR), loaded, state)
-				centerRightAlignedTableColumn(t, 3)
-				centerRightAlignedTableColumn(t, 4)
-				scrollpane.displayed_element = t
+			for i = 0 to p.size-1
+				loaded = BUTTON
+					idle = IMAGE
+						image = p[i].state != INSTALLED ?  "status_on"  :  "status_off"
+					prog = p[i]
+					on_mouse_down = load_function
+				if p[i].type.default_category != UNDEFINED
+					state = BUTTON
+						idle = IMAGE
+							image = p[i].state == DEFAULT  ?  "status_on"  :  "status_off"
+						prog = p[i]
+						on_mouse_down = default_function
+				else
+					state = UNDEFINED
+
+				addTableRow(t, createImage(p[i].type.image), createText(p[i].name,,,TABLE_TEXT_COLOR), createText(p[i].type.name,,,TABLE_TEXT_COLOR), createText(p[i].rating,,,TABLE_TEXT_COLOR), createText(p[i].size,,,TABLE_TEXT_COLOR), loaded, state)
+			centerRightAlignedTableColumn(t, 3)
+			centerRightAlignedTableColumn(t, 4)
+			scrollpane.displayed_element = t

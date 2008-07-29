@@ -1,352 +1,351 @@
-english
-	RULESET.system_screen = COMPONENT
-		title = "Decker - System"
-		width = 640
-		height = 480
-		map_size = 16
-		loaded_programs = ARRAY
-		ice_health_bar_max_width = 80
+RULESET.system_screen = COMPONENT
+	title = "Decker - System"
+	width = 640
+	height = 480
+	map_size = 16
+	loaded_programs = ARRAY
+	ice_health_bar_max_width = 80
 
-		node_name = createTextBold("", 4, CENTER, TABLE_TEXT_COLOR)
-		ice_name  = createTextBold("", 4, CENTER, TABLE_TEXT_COLOR)
-		ice_health_bar = createRectangle(354, 342, ice_health_bar_max_width, 8)
-		alert_wrapper = COMPONENT
-		ice_image = COMPONENT
-			x = 307+12
-			y = 296+12
-			width = 0
-			height = 0
-			component = ARRAY
-				RECTANGLE
-					x = CENTER
-					y = CENTER
-					width = 24
-					height = 24
-					fill = true
-					color = "#00000000"
-				IMAGE
-					x = CENTER
-					y = CENTER
-					v_align = CENTER
-					h_align = CENTER
-
-		program_scrollpane = SCROLLPANE
-			x = 12
-			y = 42 + 20
-			width = 165
-			height = 378
-			vertical_scrollbar = createSimpleScrollbar(true, "blue")
-
-		message_scrollpane = SCROLLPANE
-			x = 194
-			y = 367
-			width = 433
-			height = 100
-			vertical_scrollbar = createSimpleScrollbar(true, "blue")
-			optional_scrollbars = false
-
-		map_scrollpane = SCROLLPANE
-			x = 451
-			y = 12
-			width = 176
-			height = 166
-			vertical_scrollbar = createSimpleScrollbar(true, "blue")
-			horizontal_scrollbar = createSimpleScrollbar(false, "blue")
-
-		LOCAL.createTableButton = FUNCTION (_column, _text, _width, _x, _sorting_order_function)
-			return_value = BORDER_BUTTON
-				x = _x[0]
-				y = _x[1] - 20
-				idle = createText(_text)
-				idle.height = 14
-				width = _width
-				height = 20
-				_x[0] = _x[0] + _width
-				sorting_order_function = _sorting_order_function
-				column = _column
-				on_mouse_up = FUNCTION
-					sortTable(contract_screen.program_scrollpane.displayed_element, sorting_order_function, column, player.mission_list)
-		LOCAL.table_button_x = ARRAY
-			program_scrollpane.x
-			program_scrollpane.y
-
-
-		time_display = ARRAY
-			createImage("system/time_0", 132, 13)
-			createImage("system/time_0", 139, 13)
-			createImage("system/time_0", 147, 13)
-			createImage("system/time_0", 154, 13)
-			createImage("system/time_0", 162, 13)
-			createImage("system/time_0", 169, 13)
-
-
-		displayTime = FUNCTION
-			with system_screen
-				LOCAL.t = player.current_turn
-				// hours
-				time_display[0].image = "system/time_"+(t/60/60/10%10)
-				time_display[1].image = "system/time_"+(t/60/60%10)
-				// minutes
-				time_display[2].image = "system/time_"+(t/60/10%6)
-				time_display[3].image = "system/time_"+(t/60%10)
-				// seconds
-				time_display[4].image = "system/time_"+(t/10%6)
-				time_display[5].image = "system/time_"+(t%10)
-
-
-		on_key_down = FUNCTION (key)
-			LOCAL.command = indexof(key, system_screen_key)
-			if command >= 0
-				command = system_screen_function[command]
-				if command == "left" && player.node != UNDEFINED && player.node.connection[3] != UNDEFINED
-					movePlayer(3)
-					system_screen.updateDisplay()
-				else if command == "right" && player.node != UNDEFINED && player.node.connection[1] != UNDEFINED
-					movePlayer(1)
-					system_screen.updateDisplay()
-				else if command == "up" && player.node != UNDEFINED && player.node.connection[0] != UNDEFINED
-					movePlayer(0)
-					system_screen.updateDisplay()
-				else if command == "down" && player.node != UNDEFINED && player.node.connection[2] != UNDEFINED
-					movePlayer(2)
-					system_screen.updateDisplay()
-				else if command == "wait"
-					advanceSystemTime()
-//					iceSetResponseTargetNode(player.node)
-				else
-					debug(command)
-			else
-				debug("key="+key)
-
-
-		movement_button = createSizedArray(4)
-		for i = 3 downto 0
-			movement_button[i] = BORDER_BUTTON
-				direction = i
-				idle = IMAGE
-					image = "system/arrow_"+DIRECTION_NAME[i]+"0"
-				on_mouse_up = FUNCTION
-					// remove the player from the last node
-					movePlayer(direction)
-					system_screen.updateDisplay()
-
-
-		button_wrapper = createTable(3, 27, 27)
-		button_wrapper.x = 439
-		button_wrapper.y = 193
-		button_wrapper.cell = createSizedArray(6,3)
-
-
-		node_display = COMPONENT
-			x = 194
-			y = 49
-			width = 240
-			height = 240
-			component
-			on_mouse_down = FUNCTION (x, y, inside)
-				if player.node != UNDEFINED && (x-12) >= 0 && (y-12) >= 0 && (x-12)/24 <= 8 && (y-12)/24 <= 8
-					x = (x-12)/24
-					y = (y-12)/24
-					LOCAL.a = player.node.objects
-					for i = a.size-1 downto 0
-						if a[i].x == x && a[i].y == y
-							player.current_target = a[i]
-							system_screen.updateDisplay()
-							break
-
-
-
-		displayAlertLevel = FUNCTION
-			with system_screen
-				LOCAL.k = player.node.area.system.alert_level
-				LOCAL.c = k == GREEN ? "#008000" : k == YELLOW ? "#ffff00" : "ff0000"
-				if alert_wrapper.component.structure_type == RECTANGLE
-					alert_wrapper.component.color = c
-				else
-					alert_wrapper.component = RECTANGLE
-						x = 206
-						y = 342
-						width = 84
-						height = 8
-						fill = true
-						color = c
-
-
-
-		displayTarget = FUNCTION
-			with system_screen
-				if player.current_target == UNDEFINED
-					ice_name.text = ""
-					ice_health_bar.width = 0
-					ice_image.component[0].color = "#00000000"
-					ice_image.component[1].image = UNDEFINED
-				else
-					ice_name.text = getName(player.current_target)
-					ice_image.component[0].color = "#00ff00"
-					ice_image.component[1].image = player.current_target.structure_type == "ICE" ? "ice/"+player.current_target.type.image+"_"+player.current_target.rating : player.current_target.image
-					debug(ice_image.component[1])
-					// the color of the damage bar shifts from green to yellow to red as the damage goes up
-					LOCAL.damage = player.current_target.structure_type == "ICE" ? player.current_target.damage : player.current_target.deck.damage
-					ice_health_bar.width = ( ice_health_bar_max_width * (LETHAL_DAMAGE - damage) + LETHAL_DAMAGE - 1 ) / LETHAL_DAMAGE
-					LOCAL.a = 7 * LETHAL_DAMAGE / 20
-					if damage <= a
-						ice_health_bar.color = createColor(255 * damage / a, 255, 0)
-					else
-						ice_health_bar.color = createColor(255, 255 - 255 * (damage-a) / (LETHAL_DAMAGE-a), 0)
-
-
-		displayMap = FUNCTION
-			with system_screen
-				LOCAL.m = player.node.area.player_map
-				if m == UNDEFINED
-					map_scrollpane.component = UNDEFINED
-				else
-					LOCAL.c = COMPONENT
-						x = CENTER
-						y = CENTER
-						width = m.width * map_size
-						height = m.height * map_size
-						component = ARRAY
-					LOCAL.map = player.node.area.map
-					LOCAL.n
-					for x = m.width-1 downto 0
-						for y = m.height-1 downto 0
-							n = map[x+m.x][y+m.y]
-							if n != UNDEFINED
-								// first add the connections
-								if n.connection[0] != UNDEFINED &&( n.display_connections || n.connection[0].display_connections )
-									if n.display_connections || n.info_level > 0
-										if n.connection[0].display_connections || n.connection[0].info_level > 0
-											c.component[] = createImage("system/connection_ns_"+map_size, map_size*x, map_size*y-map_size/2)
-										else
-											c.component[] = createImage("system/connection_north_"+map_size, map_size*x, map_size*y-map_size/2)
-									else
-										c.component[] = createImage("system/connection_south_"+map_size, map_size*x, map_size*y-map_size/2)
-								if n.connection[3] != UNDEFINED &&( n.display_connections || n.connection[3].display_connections )
-									if n.display_connections || n.info_level > 0
-										if n.connection[3].display_connections || n.connection[3].info_level > 0
-											c.component[] = createImage("system/connection_ew_"+map_size, map_size*x-map_size/2, map_size*y)
-										else
-											c.component[] = createImage("system/connection_west_"+map_size, map_size*x-map_size/2, map_size*y)
-									else
-										c.component[] = createImage("system/connection_east_"+map_size, map_size*x-map_size/2, map_size*y)
-								// then add the node
-								if n.info_level > 0
-									c.component[] = createImage("system/node_"+toLowerCase(n.info_level<=2?getNodeTypeCategory(n.type):n.type)+"_"+n.info_level+"_"+map_size, map_size*x, map_size*y)
-					// finally mark the player position
-					c.component[] = createImage("system/player_position_"+map_size, map_size*(player.node.x-m.x), map_size*(player.node.y-m.y))
-					map_scrollpane.displayed_element = c
-
-
-
-		displayNode = FUNCTION
-			with system_screen
-				LOCAL.n = player.node
-				if n == UNDEFINED
-					node_name.text = UNDEFINED
-					ice_name.text = UNDEFINED
-					node_display.component = UNDEFINED
-					for i = 3 downto 0
-						button_wrapper.cell[1+DELTA_Y[i]][1+DELTA_X[i]] = UNDEFINED
-				else
-					displayTarget()
-					node_name.text = n.name
-					// add the background image
-					node_display.component = ARRAY
-						createImage("system/node_"+toLowerCase(getNodeTypeCategory(n.type)))
-					// add the exit images
-					for i = 3 downto 0
-						if n.connection[i] != UNDEFINED
-							node_display.component[] = createImage("system/connection_"+DIRECTION_NAME[i], DIRECTION_EXIT_X[i], DIRECTION_EXIT_Y[i])
-							button_wrapper.cell[1+DELTA_Y[i]][1+DELTA_X[i]] = movement_button[i]
-						else
-							button_wrapper.cell[1+DELTA_Y[i]][1+DELTA_X[i]] = UNDEFINED
-					// add the ice images
-					LOCAL.a
-					for i = n.objects.size-1 downto 0
-						a = n.objects[i]
-						if a.structure_type == "ICE"
-							node_display.component[] = createImage("ice/"+a.type.image+"_"+a.rating, 12+a.x*24, 12+a.y*24)
-						else if a.image != UNDEFINED
-							node_display.component[] = createImage(a.image, 12+a.x*24, 12+a.y*24)
-					// add the target marker
-					if player.current_target != UNDEFINED
-						node_display.component[] = createImage("system/target_marker", 24+player.current_target.x*24, 24+player.current_target.y*24, CENTER, CENTER)
-				displayMap()
-
-
-
-		updateDisplay = FUNCTION
-			with system_screen
-				displayAlertLevel()
-				displayNode()
-				displayTime()
-
-
+	node_name = createTextBold("", 4, CENTER, TABLE_TEXT_COLOR)
+	ice_name  = createTextBold("", 4, CENTER, TABLE_TEXT_COLOR)
+	ice_health_bar = createRectangle(354, 342, ice_health_bar_max_width, 8)
+	alert_wrapper = COMPONENT
+	ice_image = COMPONENT
+		x = 307+12
+		y = 296+12
+		width = 0
+		height = 0
 		component = ARRAY
+			RECTANGLE
+				x = CENTER
+				y = CENTER
+				width = 24
+				height = 24
+				fill = true
+				color = "#00000000"
 			IMAGE
-				image = "system/screen_background"
-			alert_wrapper
-			node_display
-			program_scrollpane
-			message_scrollpane
-			map_scrollpane
-			button_wrapper
-			ice_health_bar
-			ice_image
-			CLIP
-				x = 192
-				y = 297 // should be 296 but Java is incapable of centering text vertically
-				width = 96
-				height = 16
-				component = node_name
-			CLIP
-				x = 338
-				y = 297 // should be 296 but Java is incapable of centering text vertically
-				width = 96
-				height = 16
-				component = ice_name
-			// the program table buttons
-			createTableButton(0, "",        19, table_button_x, compareProgramsPreset)
-			createTableButton(2, "Name",    96, table_button_x, compareText)
-			createTableButton(3, "Rating",  50, table_button_x, compareNumbers)
+				x = CENTER
+				y = CENTER
+				v_align = CENTER
+				h_align = CENTER
 
-		// add the standard buttons to the button_wrapper
-		button_wrapper.cell[3][0] = BORDER_BUTTON
-			idle = IMAGE
-				image = "home/char"
-			on_mouse_up = FUNCTION
-				displayScreen(character_screen, true)
-		button_wrapper.cell[3][1] = BORDER_BUTTON
-			idle = IMAGE
-				image = "home/deck"
-			on_mouse_up = FUNCTION
-				displayScreen(deck_screen, true)
-		button_wrapper.cell[5][1] = BORDER_BUTTON
-			idle = IMAGE
-				image = "system/disconnect"
-			on_mouse_up = FUNCTION
-				displayScreen(home_screen, false)
+	program_scrollpane = SCROLLPANE
+		x = 12
+		y = 42 + 20
+		width = 165
+		height = 378
+		vertical_scrollbar = createSimpleScrollbar(true, "blue")
 
-		// add the time display digits to the interface
-		for i = time_display.size-1 downto 0
-			component[] = time_display[i]
+	message_scrollpane = SCROLLPANE
+		x = 194
+		y = 367
+		width = 433
+		height = 100
+		vertical_scrollbar = createSimpleScrollbar(true, "blue")
+		optional_scrollbars = false
 
-		setup = FUNCTION
-			with system_screen
-				if player.current_system.name != UNDEFINED
-					title = "Decker - System - "+ player.current_system.name
+	map_scrollpane = SCROLLPANE
+		x = 451
+		y = 12
+		width = 176
+		height = 166
+		vertical_scrollbar = createSimpleScrollbar(true, "blue")
+		horizontal_scrollbar = createSimpleScrollbar(false, "blue")
+
+	LOCAL.createTableButton = FUNCTION (_column, _text, _width, _x, _sorting_order_function)
+		return_value = BORDER_BUTTON
+			x = _x[0]
+			y = _x[1] - 20
+			idle = createText(_text)
+			idle.height = 14
+			width = _width
+			height = 20
+			_x[0] = _x[0] + _width
+			sorting_order_function = _sorting_order_function
+			column = _column
+			on_mouse_up = FUNCTION
+				sortTable(contract_screen.program_scrollpane.displayed_element, sorting_order_function, column, player.mission_list)
+	LOCAL.table_button_x = ARRAY
+		program_scrollpane.x
+		program_scrollpane.y
+
+
+	time_display = ARRAY
+		createImage("system/time_0", 132, 13)
+		createImage("system/time_0", 139, 13)
+		createImage("system/time_0", 147, 13)
+		createImage("system/time_0", 154, 13)
+		createImage("system/time_0", 162, 13)
+		createImage("system/time_0", 169, 13)
+
+
+	displayTime = FUNCTION
+		with system_screen
+			LOCAL.t = player.current_turn
+			// hours
+			time_display[0].image = "system/time_"+(t/60/60/10%10)
+			time_display[1].image = "system/time_"+(t/60/60%10)
+			// minutes
+			time_display[2].image = "system/time_"+(t/60/10%6)
+			time_display[3].image = "system/time_"+(t/60%10)
+			// seconds
+			time_display[4].image = "system/time_"+(t/10%6)
+			time_display[5].image = "system/time_"+(t%10)
+
+
+	on_key_down = FUNCTION (key)
+		LOCAL.command = indexof(key, system_screen_key)
+		if command >= 0
+			command = system_screen_function[command]
+			if command == "left" && player.node != UNDEFINED && player.node.connection[3] != UNDEFINED
+				movePlayer(3)
+				system_screen.updateDisplay()
+			else if command == "right" && player.node != UNDEFINED && player.node.connection[1] != UNDEFINED
+				movePlayer(1)
+				system_screen.updateDisplay()
+			else if command == "up" && player.node != UNDEFINED && player.node.connection[0] != UNDEFINED
+				movePlayer(0)
+				system_screen.updateDisplay()
+			else if command == "down" && player.node != UNDEFINED && player.node.connection[2] != UNDEFINED
+				movePlayer(2)
+				system_screen.updateDisplay()
+			else if command == "wait"
+				advanceSystemTime()
+//					iceSetResponseTargetNode(player.node)
+			else
+				debug(command)
+		else
+			debug("key="+key)
+
+
+	movement_button = createSizedArray(4)
+	for i = 3 downto 0
+		movement_button[i] = BORDER_BUTTON
+			direction = i
+			idle = IMAGE
+				image = "system/arrow_"+DIRECTION_NAME[i]+"0"
+			on_mouse_up = FUNCTION
+				// remove the player from the last node
+				movePlayer(direction)
+				system_screen.updateDisplay()
+
+
+	button_wrapper = createTable(3, 27, 27)
+	button_wrapper.x = 439
+	button_wrapper.y = 193
+	button_wrapper.cell = createSizedArray(6,3)
+
+
+	node_display = COMPONENT
+		x = 194
+		y = 49
+		width = 240
+		height = 240
+		component
+		on_mouse_down = FUNCTION (x, y, inside)
+			if player.node != UNDEFINED && (x-12) >= 0 && (y-12) >= 0 && (x-12)/24 <= 8 && (y-12)/24 <= 8
+				x = (x-12)/24
+				y = (y-12)/24
+				LOCAL.a = player.node.objects
+				for i = a.size-1 downto 0
+					if a[i].x == x && a[i].y == y
+						player.current_target = a[i]
+						system_screen.updateDisplay()
+						break
+
+
+
+	displayAlertLevel = FUNCTION
+		with system_screen
+			LOCAL.k = player.node.area.system.alert_level
+			LOCAL.c = k == GREEN ? "#008000" : k == YELLOW ? "#ffff00" : "ff0000"
+			if alert_wrapper.component.structure_type == RECTANGLE
+				alert_wrapper.component.color = c
+			else
+				alert_wrapper.component = RECTANGLE
+					x = 206
+					y = 342
+					width = 84
+					height = 8
+					fill = true
+					color = c
+
+
+
+	displayTarget = FUNCTION
+		with system_screen
+			if player.current_target == UNDEFINED
+				ice_name.text = ""
+				ice_health_bar.width = 0
+				ice_image.component[0].color = "#00000000"
+				ice_image.component[1].image = UNDEFINED
+			else
+				ice_name.text = getName(player.current_target)
+				ice_image.component[0].color = "#00ff00"
+				ice_image.component[1].image = player.current_target.structure_type == "ICE" ? "ice/"+player.current_target.type.image+"_"+player.current_target.rating : player.current_target.image
+				debug(ice_image.component[1])
+				// the color of the damage bar shifts from green to yellow to red as the damage goes up
+				LOCAL.damage = player.current_target.structure_type == "ICE" ? player.current_target.damage : player.current_target.deck.damage
+				ice_health_bar.width = ( ice_health_bar_max_width * (LETHAL_DAMAGE - damage) + LETHAL_DAMAGE - 1 ) / LETHAL_DAMAGE
+				LOCAL.a = 7 * LETHAL_DAMAGE / 20
+				if damage <= a
+					ice_health_bar.color = createColor(255 * damage / a, 255, 0)
 				else
-					title = "Decker - System"
-				updateDisplay()
+					ice_health_bar.color = createColor(255, 255 - 255 * (damage-a) / (LETHAL_DAMAGE-a), 0)
 
-				// create the program table
-				LOCAL.t = createTable ( , 18, 20, 9, 86, 50)
-				t.cell_x = createArray (CENTER, -2, 8, CENTER)
-				t.cell_y = CENTER
-				t.selected_row_background = TABLE_SELECTED_ROW_BACKGROUND
+
+	displayMap = FUNCTION
+		with system_screen
+			LOCAL.m = player.node.area.player_map
+			if m == UNDEFINED
+				map_scrollpane.component = UNDEFINED
+			else
+				LOCAL.c = COMPONENT
+					x = CENTER
+					y = CENTER
+					width = m.width * map_size
+					height = m.height * map_size
+					component = ARRAY
+				LOCAL.map = player.node.area.map
+				LOCAL.n
+				for x = m.width-1 downto 0
+					for y = m.height-1 downto 0
+						n = map[x+m.x][y+m.y]
+						if n != UNDEFINED
+							// first add the connections
+							if n.connection[0] != UNDEFINED &&( n.display_connections || n.connection[0].display_connections )
+								if n.display_connections || n.info_level > 0
+									if n.connection[0].display_connections || n.connection[0].info_level > 0
+										c.component[] = createImage("system/connection_ns_"+map_size, map_size*x, map_size*y-map_size/2)
+									else
+										c.component[] = createImage("system/connection_north_"+map_size, map_size*x, map_size*y-map_size/2)
+								else
+									c.component[] = createImage("system/connection_south_"+map_size, map_size*x, map_size*y-map_size/2)
+							if n.connection[3] != UNDEFINED &&( n.display_connections || n.connection[3].display_connections )
+								if n.display_connections || n.info_level > 0
+									if n.connection[3].display_connections || n.connection[3].info_level > 0
+										c.component[] = createImage("system/connection_ew_"+map_size, map_size*x-map_size/2, map_size*y)
+									else
+										c.component[] = createImage("system/connection_west_"+map_size, map_size*x-map_size/2, map_size*y)
+								else
+									c.component[] = createImage("system/connection_east_"+map_size, map_size*x-map_size/2, map_size*y)
+							// then add the node
+							if n.info_level > 0
+								c.component[] = createImage("system/node_"+toLowerCase(n.info_level<=2?getNodeTypeCategory(n.type):n.type)+"_"+n.info_level+"_"+map_size, map_size*x, map_size*y)
+				// finally mark the player position
+				c.component[] = createImage("system/player_position_"+map_size, map_size*(player.node.x-m.x), map_size*(player.node.y-m.y))
+				map_scrollpane.displayed_element = c
+
+
+
+	displayNode = FUNCTION
+		with system_screen
+			LOCAL.n = player.node
+			if n == UNDEFINED
+				node_name.text = UNDEFINED
+				ice_name.text = UNDEFINED
+				node_display.component = UNDEFINED
+				for i = 3 downto 0
+					button_wrapper.cell[1+DELTA_Y[i]][1+DELTA_X[i]] = UNDEFINED
+			else
+				displayTarget()
+				node_name.text = n.name
+				// add the background image
+				node_display.component = ARRAY
+					createImage("system/node_"+toLowerCase(getNodeTypeCategory(n.type)))
+				// add the exit images
+				for i = 3 downto 0
+					if n.connection[i] != UNDEFINED
+						node_display.component[] = createImage("system/connection_"+DIRECTION_NAME[i], DIRECTION_EXIT_X[i], DIRECTION_EXIT_Y[i])
+						button_wrapper.cell[1+DELTA_Y[i]][1+DELTA_X[i]] = movement_button[i]
+					else
+						button_wrapper.cell[1+DELTA_Y[i]][1+DELTA_X[i]] = UNDEFINED
+				// add the ice images
+				LOCAL.a
+				for i = n.objects.size-1 downto 0
+					a = n.objects[i]
+					if a.structure_type == "ICE"
+						node_display.component[] = createImage("ice/"+a.type.image+"_"+a.rating, 12+a.x*24, 12+a.y*24)
+					else if a.image != UNDEFINED
+						node_display.component[] = createImage(a.image, 12+a.x*24, 12+a.y*24)
+				// add the target marker
+				if player.current_target != UNDEFINED
+					node_display.component[] = createImage("system/target_marker", 24+player.current_target.x*24, 24+player.current_target.y*24, CENTER, CENTER)
+			displayMap()
+
+
+
+	updateDisplay = FUNCTION
+		with system_screen
+			displayAlertLevel()
+			displayNode()
+			displayTime()
+
+
+	component = ARRAY
+		IMAGE
+			image = "system/screen_background"
+		alert_wrapper
+		node_display
+		program_scrollpane
+		message_scrollpane
+		map_scrollpane
+		button_wrapper
+		ice_health_bar
+		ice_image
+		CLIP
+			x = 192
+			y = 297 // should be 296 but Java is incapable of centering text vertically
+			width = 96
+			height = 16
+			component = node_name
+		CLIP
+			x = 338
+			y = 297 // should be 296 but Java is incapable of centering text vertically
+			width = 96
+			height = 16
+			component = ice_name
+		// the program table buttons
+		createTableButton(0, "",        19, table_button_x, compareProgramsPreset)
+		createTableButton(2, "Name",    96, table_button_x, compareText)
+		createTableButton(3, "Rating",  50, table_button_x, compareNumbers)
+
+	// add the standard buttons to the button_wrapper
+	button_wrapper.cell[3][0] = BORDER_BUTTON
+		idle = IMAGE
+			image = "home/char"
+		on_mouse_up = FUNCTION
+			displayScreen(character_screen, true)
+	button_wrapper.cell[3][1] = BORDER_BUTTON
+		idle = IMAGE
+			image = "home/deck"
+		on_mouse_up = FUNCTION
+			displayScreen(deck_screen, true)
+	button_wrapper.cell[5][1] = BORDER_BUTTON
+		idle = IMAGE
+			image = "system/disconnect"
+		on_mouse_up = FUNCTION
+			displayScreen(home_screen, false)
+
+	// add the time display digits to the interface
+	for i = time_display.size-1 downto 0
+		component[] = time_display[i]
+
+	setup = FUNCTION
+		with system_screen
+			if player.current_system.name != UNDEFINED
+				title = "Decker - System - "+ player.current_system.name
+			else
+				title = "Decker - System"
+			updateDisplay()
+
+			// create the program table
+			LOCAL.t = createTable ( , 18, 20, 9, 86, 50)
+			t.cell_x = createArray (CENTER, -2, 8, CENTER)
+			t.cell_y = CENTER
+			t.selected_row_background = TABLE_SELECTED_ROW_BACKGROUND
 //				t.can_drag_rows = true
-				t.selected_row = program_scrollpane.displayed_element.selected_row
+			t.selected_row = program_scrollpane.displayed_element.selected_row
 //				t.on_row_dragged = FUNCTION (table, old_row_index, new_row_index)
 //					// rearrange the programs in the player deck accordingly
 //					LOCAL.p = player.deck.program
@@ -358,59 +357,59 @@ english
 //						for i = old_row_index to new_row_index-1
 //							p[i] = p[i+1]
 //					p[new_row_index] = backup
-				t.on_selection_change = FUNCTION (table, old_selected_row, new_selected_row)
-					player.current_program = UNDEFINED
-					if new_selected_row >= 0
-						// find the selected program on the player's program list and make it the player's current program
-						LOCAL.p = player.deck.program
-						LOCAL.j = -1
-						for i = 0 to p.size-1
-							if p[i].state == LOADED || p[i].state == DEFAULT
-								j++
-								if j == new_selected_row
-									player.current_program = p[i]
-									break
+			t.on_selection_change = FUNCTION (table, old_selected_row, new_selected_row)
+				player.current_program = UNDEFINED
+				if new_selected_row >= 0
+					// find the selected program on the player's program list and make it the player's current program
+					LOCAL.p = player.deck.program
+					LOCAL.j = -1
+					for i = 0 to p.size-1
+						if p[i].state == LOADED || p[i].state == DEFAULT
+							j++
+							if j == new_selected_row
+								player.current_program = p[i]
+								break
 // .......
 
-				t.on_double_click = FUNCTION (x, y)
-					// test
-					with system_screen
-						loaded_programs[selected_row].type.effect(player, loaded_programs[selected_row], player.current_target)
-						if displayed_screen == system_screen
-							updateDisplay()
+			t.on_double_click = FUNCTION (x, y)
+				// test
+				with system_screen
+					loaded_programs[selected_row].type.effect(player, loaded_programs[selected_row], player.current_target)
+					if displayed_screen == system_screen
+						updateDisplay()
 
-				LOCAL.p = player.deck.program
-				LOCAL.default = UNDEFINED
+			LOCAL.p = player.deck.program
+			LOCAL.default = UNDEFINED
 
-				LOCAL.default_function = FUNCTION
-					with system_screen
-						if prog.state == DEFAULT
-							setProgramState(player.deck, prog, LOADED)
-							idle.image = "status_off"
-						else
-							// switch off the default marker for the old default program in the table
-							LOCAL.p2 = player.deck.default_program[prog.type.default_category]
-							if p2 != UNDEFINED
-								LOCAL.c = program_scrollpane.displayed_element.cell
-								LOCAL.index = program_scrollpane.displayed_element.rows-1
-								while c[index][1].prog != p2
-									index--
-								program_scrollpane.displayed_element.cell[index][1].idle.image = "status_off"
-							setProgramState(player.deck, prog, DEFAULT)
-							idle.image = "status_on"
+			LOCAL.default_function = FUNCTION
+				with system_screen
+					if prog.state == DEFAULT
+						setProgramState(player.deck, prog, LOADED)
+						idle.image = "status_off"
+					else
+						// switch off the default marker for the old default program in the table
+						LOCAL.p2 = player.deck.default_program[prog.type.default_category]
+						if p2 != UNDEFINED
+							LOCAL.c = program_scrollpane.displayed_element.cell
+							LOCAL.index = program_scrollpane.displayed_element.rows-1
+							while c[index][1].prog != p2
+								index--
+							program_scrollpane.displayed_element.cell[index][1].idle.image = "status_off"
+						setProgramState(player.deck, prog, DEFAULT)
+						idle.image = "status_on"
 
-				loaded_programs = ARRAY
-				for i = 0 to p.size-1
-					if p[i].state == LOADED || p[i].state == DEFAULT
-						loaded_programs[] = p[i]
-						if p[i].type.default_category != UNDEFINED
-							default = BUTTON
-								idle = IMAGE
-									image = p[i].state == DEFAULT  ?  "status_on"  :  "status_off"
-								prog = p[i]
-								on_mouse_down = default_function
-						else
-							default = UNDEFINED
-						addTableRow(t, createImage(p[i].type.image), default, createTableText(p[i].name), createTableText(p[i].rating))
-				centerRightAlignedTableColumn(t, 3)
-				program_scrollpane.displayed_element = t
+			loaded_programs = ARRAY
+			for i = 0 to p.size-1
+				if p[i].state == LOADED || p[i].state == DEFAULT
+					loaded_programs[] = p[i]
+					if p[i].type.default_category != UNDEFINED
+						default = BUTTON
+							idle = IMAGE
+								image = p[i].state == DEFAULT  ?  "status_on"  :  "status_off"
+							prog = p[i]
+							on_mouse_down = default_function
+					else
+						default = UNDEFINED
+					addTableRow(t, createImage(p[i].type.image), default, createTableText(p[i].name), createTableText(p[i].rating))
+			centerRightAlignedTableColumn(t, 3)
+			program_scrollpane.displayed_element = t

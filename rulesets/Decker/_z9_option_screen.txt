@@ -1,0 +1,75 @@
+RULESET.option_screen = COMPONENT
+	title = "Decker - Options"
+	width = 215
+	height = 233
+	//********************************* data for the toggle buttons **********************************
+	adjust_on_off_text = FUNCTION (string,is_on)
+		if is_on
+			string.text = "on"
+			string.color = NCS_ON_COLOR
+		else
+			string.text = "off"
+			string.color = NCS_OFF_COLOR
+	tooltip_button = BUTTON
+		x = CENTER
+		y = 119
+		width = 105
+		height = 15
+		idle = createText("Tooltips", 0, 0, NCS_OPTION_TEXT_COLOR)
+		pressed = createText("Tooltips", 0, 0, NCS_PRESSED_OPTION_TEXT_COLOR)
+		hover = pressed
+		on_off_text = createTextBold(UNDEFINED, RIGHT, 0)
+		component = ARRAY
+			on_off_text
+		on_mouse_up = FUNCTION
+			with option_screen
+				tooltips = !tooltips
+				adjust_on_off_text(on_off_text,tooltips)
+		adjust_on_off_text(on_off_text,tooltips)      // sets the initial text and color for the on/off text
+	sound_button = BUTTON
+		x = CENTER
+		y = 139
+		width = 105
+		height = 15
+		idle = createText("Sound", 0, 0, NCS_OPTION_TEXT_COLOR)
+		pressed = createText("Sound", 0, 0, NCS_PRESSED_OPTION_TEXT_COLOR)
+		hover = pressed
+		on_off_text = createTextBold(UNDEFINED, RIGHT, 0)
+		component = ARRAY
+			on_off_text
+		on_mouse_up = FUNCTION
+			with option_screen
+				sound = !sound
+				adjust_on_off_text(on_off_text,sound)
+		adjust_on_off_text(on_off_text,sound)        // sets the initial text and color for the on/off text
+
+	component = ARRAY
+		SCREEN_BACKGROUND
+		BORDER_BUTTON
+			x = 17
+			y = 17
+			width = COMPONENT.width - 34
+			padding = 3
+			idle = createText("Save game")
+			on_mouse_up = FUNCTION
+		BORDER_BUTTON
+			x = 17
+			y = 17 + 34
+			width = COMPONENT.width - 34
+			padding = 3
+			idle = createText("Load game")
+			on_mouse_up = FUNCTION
+		BORDER_BUTTON
+			x = 17
+			y = 17 + 34 * 2
+			width = COMPONENT.width - 34
+			padding = 3
+			idle = createText("New game")
+			on_mouse_up = FUNCTION
+		tooltip_button
+		sound_button
+
+	setup = FUNCTION
+		with option_screen
+			adjust_on_off_text(sound_button.on_off_text, sound)
+			adjust_on_off_text(tooltip_button.on_off_text, tooltips)

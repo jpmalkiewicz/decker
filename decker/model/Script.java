@@ -13,9 +13,12 @@ final class Script
 	Script (final String _filename)  { filename = _filename; }
 
 
-	void execute (final Locale[] accepted_localizations)  {
+	void execute (final Locale[] accepted_localizations, final String default_localization)  {
 		for(int i = 0; i < accepted_localizations.length; i++)  {
-			final Object ls = getLocalization(accepted_localizations[i].getDisplayLanguage(accepted_localizations[i]));
+			final String s = accepted_localizations[i].getDisplayLanguage(accepted_localizations[i]);
+			Object ls = getLocalization(s);
+			if (ls == null && s.equalsIgnoreCase(default_localization))
+				ls = getLocalization("default");
 			if (ls != null) {
 				// we need a LOCAL object on the stack for the script execution
 System.out.println("   running script from file : "+filename);
@@ -26,7 +29,7 @@ System.out.println("   running script from file : "+filename);
 				return;
 			}
 		}
-System.err.println("The mission "+filename+" doesn't support any of the localizations you have chosen");
+System.err.println("The script "+filename+" doesn't support any of the localizations you have chosen");
 	}
 
 

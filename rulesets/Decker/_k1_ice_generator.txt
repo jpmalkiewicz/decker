@@ -1,150 +1,149 @@
-english
-	RULESET.generateNodeIce = FUNCTION (node, node_rating, cluster)
-		with node
-			LOCAL.a
-			LOCAL.r
-			// add guard_exit ice
-			for i = 3 downto 0
-				if connection[i] != UNDEFINED && cluster[x][y] != cluster[x+DELTA_X[i]][y+DELTA_Y[i]]
-					generateIce(GUARD, node_rating, node, i)
-			// add the normal ice. junctions don't have any ice beyond the GUARD ice generated above
-			if type != JUNCTION
-				// determine how much extra ice there should be
-				r = random(0,3) + (type==CPU||type==COP||type==COP_SECURITY?2:0) + (type==SPU||type==PORTAL_IN||type==PORTAL_OUT?1:0)
-				if r == 3
-					r = 2
-				else if r > 3
-					r = 3
-				else if r == 0 &&( type==IO_ICE || IO_EXTERNAL_ALERT )&& random(0,40) < node_rating
-					r = 1
-				// no more than one ice in the system entry node, to make things easier
-				if r > 1 && type == PORTAL_OUT &&( target.structure_type != "NODE" || target.area.system != area.system )
-					r = 1
-				// make the ice
-				for i = r-1 downto 0
-					if i == 0
-						// the first ice is a probe, GUARD, or response ATTACK ice
-						if type == COP
-							generateIce(ATTACK, node_rating, node, "probes")
-						else if type == PORTAL_OUT &&( target.structure_type != "NODE" || target.area.system != area.system )
-							// a GUARD ice is usually pointless in a node that leads out of the system, so we use an ATTACK ice instead
-							generateIce(ATTACK, node_rating, node, true)
-						else
-							// all other node types get a guards_access ice
-							generateIce(GUARD, node_rating, node, node)
-					else if i == 1
-						// the second ice in a node is attack or trace
-						// if this node is a COP, the ice will also respond to system alerts
-						if node_rating > 2 && random(1,4) == 1
-							generateIce(TRACE, node_rating, node, node.type==COP)
-						else
-							generateIce(ATTACK, node_rating, node, node.type==COP)
+RULESET.generateNodeIce = FUNCTION (node, node_rating, cluster)
+	with node
+		LOCAL.a
+		LOCAL.r
+		// add guard_exit ice
+		for i = 3 downto 0
+			if connection[i] != UNDEFINED && cluster[x][y] != cluster[x+DELTA_X[i]][y+DELTA_Y[i]]
+				generateIce(GUARD, node_rating, node, i)
+		// add the normal ice. junctions don't have any ice beyond the GUARD ice generated above
+		if type != JUNCTION
+			// determine how much extra ice there should be
+			r = random(0,3) + (type==CPU||type==COP||type==COP_SECURITY?2:0) + (type==SPU||type==PORTAL_IN||type==PORTAL_OUT?1:0)
+			if r == 3
+				r = 2
+			else if r > 3
+				r = 3
+			else if r == 0 &&( type==IO_ICE || IO_EXTERNAL_ALERT )&& random(0,40) < node_rating
+				r = 1
+			// no more than one ice in the system entry node, to make things easier
+			if r > 1 && type == PORTAL_OUT &&( target.structure_type != "NODE" || target.area.system != area.system )
+				r = 1
+			// make the ice
+			for i = r-1 downto 0
+				if i == 0
+					// the first ice is a probe, GUARD, or response ATTACK ice
+					if type == COP
+						generateIce(ATTACK, node_rating, node, "probes")
+					else if type == PORTAL_OUT &&( target.structure_type != "NODE" || target.area.system != area.system )
+						// a GUARD ice is usually pointless in a node that leads out of the system, so we use an ATTACK ice instead
+						generateIce(ATTACK, node_rating, node, true)
 					else
-						// all remaining ice will be attack
-						// if this node is a COP, the ice will also respond to system alerts
+						// all other node types get a guards_access ice
+						generateIce(GUARD, node_rating, node, node)
+				else if i == 1
+					// the second ice in a node is attack or trace
+					// if this node is a COP, the ice will also respond to system alerts
+					if node_rating > 2 && random(1,4) == 1
+						generateIce(TRACE, node_rating, node, node.type==COP)
+					else
 						generateIce(ATTACK, node_rating, node, node.type==COP)
-				if type == DATASTORE
-					// add GUARD ice to the datastore files
-					for i = file.size-1 downto 0
-						a = file[i].type
-						r = random(1,20)
-						if a == USELESS
-							if r == 1
-								generateIce(GUARD, node_rating, node, file[i])
-						else if a == VALUABLE
-							if r <= 4
-								generateIce(GUARD, node_rating, node, file[i])
-						else if a == QUEST
-							if r <= 6
-								generateIce(GUARD, node_rating, node, file[i])
-						else if a == CLUE
-							if r <= 15
-								generateIce(GUARD, node_rating, node, file[i])
-						else if a == PASSWORD
+				else
+					// all remaining ice will be attack
+					// if this node is a COP, the ice will also respond to system alerts
+					generateIce(ATTACK, node_rating, node, node.type==COP)
+			if type == DATASTORE
+				// add GUARD ice to the datastore files
+				for i = file.size-1 downto 0
+					a = file[i].type
+					r = random(1,20)
+					if a == USELESS
+						if r == 1
 							generateIce(GUARD, node_rating, node, file[i])
+					else if a == VALUABLE
+						if r <= 4
+							generateIce(GUARD, node_rating, node, file[i])
+					else if a == QUEST
+						if r <= 6
+							generateIce(GUARD, node_rating, node, file[i])
+					else if a == CLUE
+						if r <= 15
+							generateIce(GUARD, node_rating, node, file[i])
+					else if a == PASSWORD
+						generateIce(GUARD, node_rating, node, file[i])
 
 
 
 
-	RULESET.pickIceType = FUNCTION (_type, _rating, subtype)
-		LOCAL.t = ARRAY
-		// find all the types with the correct general type and which have a version for the supplied _rating
-		// for ATTACK ice without a subtype only ATTACK ice without the "probes" attribute gets picked
-		for i = ICE_TYPES.size-1 downto 0
-			if ICE_TYPES[i].type == _type && ICE_TYPES[i].min_rating <= _rating &&( subtype == UNDEFINED || getStructureMember(ICE_TYPES[i].attributes, subtype) == true )&&( _type != ATTACK || subtype != UNDEFINED || !ICE_TYPES[i].attributes.probes )
-				t[] = ICE_TYPES[i]
-		// if there is only one type, we're done
-		if t.size == 1
-			return_value = t[0]
-		else
-			// otherwise determine the probability of each type
-			LOCAL.p = createSizedArray(t.size)
-			LOCAL.r = 0
-			for i = t.size-1 downto 0
-				p[i] = value_type(t[i].probability) != "FUNCTION" ? t[i].probability : t[i].probability(_rating)
-				if p[i] < 0
-					p[i] = 0
-				r = r + p[i]
-			// pick one of the available types
-			r = random(0,r-1)
-			LOCAL.i = 0
-			while r >= p[i]
-				r = r - p[i]
-				i = i + 1
-			return_value = t[i]
+RULESET.pickIceType = FUNCTION (_type, _rating, subtype)
+	LOCAL.t = ARRAY
+	// find all the types with the correct general type and which have a version for the supplied _rating
+	// for ATTACK ice without a subtype only ATTACK ice without the "probes" attribute gets picked
+	for i = ICE_TYPES.size-1 downto 0
+		if ICE_TYPES[i].type == _type && ICE_TYPES[i].min_rating <= _rating &&( subtype == UNDEFINED || getStructureMember(ICE_TYPES[i].attributes, subtype) == true )&&( _type != ATTACK || subtype != UNDEFINED || !ICE_TYPES[i].attributes.probes )
+			t[] = ICE_TYPES[i]
+	// if there is only one type, we're done
+	if t.size == 1
+		return_value = t[0]
+	else
+		// otherwise determine the probability of each type
+		LOCAL.p = createSizedArray(t.size)
+		LOCAL.r = 0
+		for i = t.size-1 downto 0
+			p[i] = value_type(t[i].probability) != "FUNCTION" ? t[i].probability : t[i].probability(_rating)
+			if p[i] < 0
+				p[i] = 0
+			r = r + p[i]
+		// pick one of the available types
+		r = random(0,r-1)
+		LOCAL.i = 0
+		while r >= p[i]
+			r = r - p[i]
+			i = i + 1
+		return_value = t[i]
 
 
 
 
-	RULESET.generateIce = FUNCTION (_type, _rating, _node, data)
-		// there is a 10% [5%] chance that ice from with rating 2 [4] and above gets a +1 [+2] rating bonus
-		LOCAL.r = random(1,20)
-		if r <= 2 && _rating > 1
+RULESET.generateIce = FUNCTION (_type, _rating, _node, data)
+	// there is a 10% [5%] chance that ice from with rating 2 [4] and above gets a +1 [+2] rating bonus
+	LOCAL.r = random(1,20)
+	if r <= 2 && _rating > 1
+		_rating++
+	else if r <= 3 && _rating > 3
+		_rating = _rating + 2
+	// ice in a CPU, SPU, and (if it's not a GUARD ice) COP_SECURITY gets a +1 to its rating
+	if _node.type == CPU || node.type == SPU ||( node.type == COP_SECURITY && _type != GUARD )
+		_rating++
+	// guard_exit ice gets a rating boost if it leads to a CPU or SPU
+	if _type == GUARD && _node.type != CPU && node.type != SPU && data >= 0 && data <= 3 && _node.area.map != UNDEFINED
+		r = _node.area.map[_node.x+DELTA_X[data]][_node.y+DELTA_Y[data]]
+		if r.type == CPU || r.type == SPU
 			_rating++
-		else if r <= 3 && _rating > 3
-			_rating = _rating + 2
-		// ice in a CPU, SPU, and (if it's not a GUARD ice) COP_SECURITY gets a +1 to its rating
-		if _node.type == CPU || node.type == SPU ||( node.type == COP_SECURITY && _type != GUARD )
-			_rating++
-		// guard_exit ice gets a rating boost if it leads to a CPU or SPU
-		if _type == GUARD && _node.type != CPU && node.type != SPU && data >= 0 && data <= 3 && _node.area.map != UNDEFINED
-			r = _node.area.map[_node.x+DELTA_X[data]][_node.y+DELTA_Y[data]]
-			if r.type == CPU || r.type == SPU
-				_rating++
-		// create the ice
-		if _type == GUARD
-			// determine the subtype if this is a GUARD ice
-			LOCAL.subtype = data == _node ? "guards_access" : data.structure_type == "FILE" ? "guards_file" : "guards_exit"
-			return_value = ICE
-				type = pickIceType(_type, _rating, subtype)
-				rating = _rating
-				node = _node
-				current_action = type.initial_action
-				guarded_object = data
-		else
-			return_value = ICE
-				type = pickIceType(_type, _rating, data == "probes" ? "probes" : UNDEFINED)
-				rating = _rating
-				node = _node
-				current_action = type.initial_action
-			if data == true
-				return_value.response_ice = true
-		return_value.home_node = _node
-		placeObject(return_value, _node)
-		// add the ice to the list of currently active ice, if it's always active
-		if _node.area != UNDEFINED
-			if return_value.type.initial_state == ACTIVE
-				_node.area.active_ice[] = return_value
-			else if return_value.response_ice || return_value.type.initial_state == WAITING
-				_node.area.waiting_ice[] = return_value
+	// create the ice
+	if _type == GUARD
+		// determine the subtype if this is a GUARD ice
+		LOCAL.subtype = data == _node ? "guards_access" : data.structure_type == "FILE" ? "guards_file" : "guards_exit"
+		return_value = ICE
+			type = pickIceType(_type, _rating, subtype)
+			rating = _rating
+			node = _node
+			current_action = type.initial_action
+			guarded_object = data
+	else
+		return_value = ICE
+			type = pickIceType(_type, _rating, data == "probes" ? "probes" : UNDEFINED)
+			rating = _rating
+			node = _node
+			current_action = type.initial_action
+		if data == true
+			return_value.response_ice = true
+	return_value.home_node = _node
+	placeObject(return_value, _node)
+	// add the ice to the list of currently active ice, if it's always active
+	if _node.area != UNDEFINED
+		if return_value.type.initial_state == ACTIVE
+			_node.area.active_ice[] = return_value
+		else if return_value.response_ice || return_value.type.initial_state == WAITING
+			_node.area.waiting_ice[] = return_value
 
 
 
 
-	RULESET.notOccupied = FUNCTION (node, x, y)
-		return_value = true
-		LOCAL.o = node.objects
-		for i = o.size-1 downto 0
-			if o[i].x == x && o[i].y == y
-				return_value = false
-				break
+RULESET.notOccupied = FUNCTION (node, x, y)
+	return_value = true
+	LOCAL.o = node.objects
+	for i = o.size-1 downto 0
+		if o[i].x == x && o[i].y == y
+			return_value = false
+			break

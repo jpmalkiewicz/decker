@@ -1,25 +1,24 @@
-english
-	// for the time being there can be only one key per function
-	RULESET.assignKey = FUNCTION (key, function, key_array, function_array)
-		if function == UNDEFINED
-			LOCAL.i = indexof(key, key_array)
-			if i >= 0
-					key_array[i] = UNDEFINED
+// for the time being there can be only one key per function
+RULESET.assignKey = FUNCTION (key, function, key_array, function_array)
+	if function == UNDEFINED
+		LOCAL.i = indexof(key, key_array)
+		if i >= 0
+				key_array[i] = UNDEFINED
+	else
+		LOCAL.i = indexof(function, function_array)
+		if i >= 0
+			key_array[i] = key
 		else
-			LOCAL.i = indexof(function, function_array)
-			if i >= 0
-				key_array[i] = key
-			else
-				function_array[] = function
-				key_array[] = key
+			function_array[] = function
+			key_array[] = key
 
 
-	RULESET.system_screen_key = ARRAY
-	RULESET.system_screen_function = ARRAY
-	LOCAL.a = system_screen_key
-	LOCAL.b = system_screen_function
-	assignKey(" ",     "wait",  a, b)
-	assignKey("LEFT",  "left",  a, b)
-	assignKey("RIGHT", "right", a, b)
-	assignKey("UP",    "up",    a, b)
-	assignKey("DOWN",  "down",  a, b)
+RULESET.system_screen_key = ARRAY
+RULESET.system_screen_function = ARRAY
+LOCAL.a = system_screen_key
+LOCAL.b = system_screen_function
+assignKey(" ",     "wait",  a, b)
+assignKey("LEFT",  "left",  a, b)
+assignKey("RIGHT", "right", a, b)
+assignKey("UP",    "up",    a, b)
+assignKey("DOWN",  "down",  a, b)

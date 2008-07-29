@@ -1,20 +1,19 @@
-english
-	MISSION_LIST[] = MISSION
-		title = "Unwanted Publicity"
-		description = "Someone is seeking to put a dent in the reputation of one of the heads of the city. You will hack into the city illumination controls, and turn a huge hologram on the market square into a disgusting scene involving said politician and a hog."
-		deadline = 3
+MISSION_LIST[] = MISSION
+	title = "Unwanted Publicity"
+	description = "Someone is seeking to put a dent in the reputation of one of the heads of the city. You will hack into the city illumination controls, and turn a huge hologram on the market square into a disgusting scene involving said politician and a hog."
+	deadline = 3
 
 
-		// this defines a system and makes it the target system
-		target_system = SYSTEM
-			rating = 1
-			name = "City Illumination Controls"
-			type = GENERIC
+	// this defines a system and makes it the target system
+	target_system = SYSTEM
+		rating = 1
+		name = "City Illumination Controls"
+		type = GENERIC
 
 
-		goal = ARRAY
-			NO_RED_ALARM
-			EDIT_FILE
-				target = FILE
-					name = "A holovid"
-					size = 30
+	goal = ARRAY
+		NO_RED_ALARM
+		EDIT_FILE
+			target = FILE
+				name = "A holovid"
+				size = 30

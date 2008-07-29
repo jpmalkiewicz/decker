@@ -1,436 +1,435 @@
-english
-	RULESET.ICE_TYPES = ARRAY
-		ICE_TYPE
-			type = ATTACK
-			image = "probe"
-			attributes = SET
-				follows = true
-				roams = true
-				probes = true
-				white = true
-			initial_action = SEARCHING
-			name = ARRAY
-				"Probe"
-				"Gazer"
-				"Bobby"
-				"Snooper"
-				"Inquisitor"
-				"Gazer II"
-				"Cop"
-				"Probe Mk2"
-				"Mystic Eye"
-				"Scout"
-				"Bobby 2.0"
-				"Scout II"
-				"Police"
-				"Magic Eye"
-				"Gazer III"
-				"Probe Mk3"
-				"Scout III"
-				"SuperFuzz"
-				"Wizard Eye"
-				"Beholder"
+RULESET.ICE_TYPES = ARRAY
+	ICE_TYPE
+		type = ATTACK
+		image = "probe"
+		attributes = SET
+			follows = true
+			roams = true
+			probes = true
+			white = true
+		initial_action = SEARCHING
+		name = ARRAY
+			"Probe"
+			"Gazer"
+			"Bobby"
+			"Snooper"
+			"Inquisitor"
+			"Gazer II"
+			"Cop"
+			"Probe Mk2"
+			"Mystic Eye"
+			"Scout"
+			"Bobby 2.0"
+			"Scout II"
+			"Police"
+			"Magic Eye"
+			"Gazer III"
+			"Probe Mk3"
+			"Scout III"
+			"SuperFuzz"
+			"Wizard Eye"
+			"Beholder"
 
-		ICE_TYPE
-			type = GUARD
-			image = "guard_exit"
-			attributes = SET
-				white = true
-				guards_exit = true
-			initial_action = INACTIVE
-			name = ARRAY
-				"Gateway"
-				"Fence"
-				"Barrier"
-				"Doorway"
-				"Blockade"
-				"Checkpoint"
-				"Bouncer"
-				"Doorman"
-				"Gateway Mk2"
-				"Reinforced Fence"
-				"Roadblock"
-				"Gate"
-				"Barrier II"
-				"Checkpoint"
-				"BouncerEx"
-				"Doorman 2.0"
-				"Gateway Mk 3"
-				"Reinforced Door"
-				"Electric Fence"
-				"Big Bouncer"
+	ICE_TYPE
+		type = GUARD
+		image = "guard_exit"
+		attributes = SET
+			white = true
+			guards_exit = true
+		initial_action = INACTIVE
+		name = ARRAY
+			"Gateway"
+			"Fence"
+			"Barrier"
+			"Doorway"
+			"Blockade"
+			"Checkpoint"
+			"Bouncer"
+			"Doorman"
+			"Gateway Mk2"
+			"Reinforced Fence"
+			"Roadblock"
+			"Gate"
+			"Barrier II"
+			"Checkpoint"
+			"BouncerEx"
+			"Doorman 2.0"
+			"Gateway Mk 3"
+			"Reinforced Door"
+			"Electric Fence"
+			"Big Bouncer"
 
-		ICE_TYPE
-			type = GUARD
-			image = "guard_access"
-			attributes = SET
-				white = true
-				guards_access = true
-			initial_action = INACTIVE
-			name = ARRAY
-				"Guardian"
-				"Protector"
-				"Sentry"
-				"Gargoyle"
-				"Guardian Mk2"
-				"Sphinx"
-				"Golem"
-				"Eunoch"
-				"Protector 2"
-				"Guardian Mk3"
-				"GynoSphinx"
-				"Gargoyle 2.0"
-				"Golem II"
-				"Protector 3"
-				"Guardian Mk4"
-				"Protector 3"
-				"EunochEx"
-				"Guardian Mk5"
-				"Golem III"
-				"AndroSphinx"
+	ICE_TYPE
+		type = GUARD
+		image = "guard_access"
+		attributes = SET
+			white = true
+			guards_access = true
+		initial_action = INACTIVE
+		name = ARRAY
+			"Guardian"
+			"Protector"
+			"Sentry"
+			"Gargoyle"
+			"Guardian Mk2"
+			"Sphinx"
+			"Golem"
+			"Eunoch"
+			"Protector 2"
+			"Guardian Mk3"
+			"GynoSphinx"
+			"Gargoyle 2.0"
+			"Golem II"
+			"Protector 3"
+			"Guardian Mk4"
+			"Protector 3"
+			"EunochEx"
+			"Guardian Mk5"
+			"Golem III"
+			"AndroSphinx"
 
-		ICE_TYPE
-			type = GUARD
-			image = "guard_file"
-			attributes = SET
-				white = true
-				guards_file = true
-			probability = FUNCTION (rating)
-				return_value = rating < 10 ? 100 : 150 - rating * 5
-			initial_action = INACTIVE
-			name = ARRAY
-				"Tapeworm"
-				"Boa"
-				"Kudzu"
-				"Anaconda"
-				"Boa 2.0"
-				"Tapeworm Mk2"
-				"Kudzu II"
-				"Anaconda 2.1"
-				"Boa 3.0"
-				"Tapeworm Mk3"
-				"Boa 3.1a"
-				"Kudzu III"
-				"Anaconda 3.0"
-				"Boa 3.1"
-				"Tapeworm Mk4"
-				"StrangleVine"
-				"Anaconda 4.2"
-				"Boa 4.0"
-				"Tapeworm Mk5"
-				"StrangleVine II"
+	ICE_TYPE
+		type = GUARD
+		image = "guard_file"
+		attributes = SET
+			white = true
+			guards_file = true
+		probability = FUNCTION (rating)
+			return_value = rating < 10 ? 100 : 150 - rating * 5
+		initial_action = INACTIVE
+		name = ARRAY
+			"Tapeworm"
+			"Boa"
+			"Kudzu"
+			"Anaconda"
+			"Boa 2.0"
+			"Tapeworm Mk2"
+			"Kudzu II"
+			"Anaconda 2.1"
+			"Boa 3.0"
+			"Tapeworm Mk3"
+			"Boa 3.1a"
+			"Kudzu III"
+			"Anaconda 3.0"
+			"Boa 3.1"
+			"Tapeworm Mk4"
+			"StrangleVine"
+			"Anaconda 4.2"
+			"Boa 4.0"
+			"Tapeworm Mk5"
+			"StrangleVine II"
 
-		ICE_TYPE
-			type = GUARD
-			image = "guard_file_explode"
-			attributes = SET
-				attack_on_death = true
-				white = true
-				guards_file = true
-			probability = FUNCTION (rating)
-				return_value = (rating-10) * 5
-			initial_action = INACTIVE
-			name = ARRAY
-				"Data Bomb"
-				"Dynamyte 1.0"
-				"Trap"
-				"Data Bomb Mk2"
-				"Dynamyte 2.0"
-				"Trap II"
-				"Dynamyte 2.1"
-				"Data Bomb Mk3"
-				"Trap III"
-				"Da Bomb"
+	ICE_TYPE
+		type = GUARD
+		image = "guard_file_explode"
+		attributes = SET
+			attack_on_death = true
+			white = true
+			guards_file = true
+		probability = FUNCTION (rating)
+			return_value = (rating-10) * 5
+		initial_action = INACTIVE
+		name = ARRAY
+			"Data Bomb"
+			"Dynamyte 1.0"
+			"Trap"
+			"Data Bomb Mk2"
+			"Dynamyte 2.0"
+			"Trap II"
+			"Dynamyte 2.1"
+			"Data Bomb Mk3"
+			"Trap III"
+			"Da Bomb"
 
-		ICE_TYPE
-			type = ATTACK
-			image = "attack"
-			attributes = SET
-				follows = true
-			probability = FUNCTION (rating)
-				return_value = rating < 11 ? 100 : 150 - rating * 5
-			initial_action = WAITING
-			name = ARRAY
-				"Attack"
-				"Brute"
-				"Grunt"
-				"Centurion"
-				"Attack Mk2"
-				"Enforcer"
-				"Wolf"
-				"Soldier"
-				"Attack Mk3"
-				"Centurion II"
-				"Dire Wolf"
-				"Attack Mk4"
-				"Marine"
-				"Worg"
-				"Centurion III"
-				"Barbarian"
-				"Werewolf"
-				"Attack Mk5"
-				"Centurion IV"
-				"Green Beret"
+	ICE_TYPE
+		type = ATTACK
+		image = "attack"
+		attributes = SET
+			follows = true
+		probability = FUNCTION (rating)
+			return_value = rating < 11 ? 100 : 150 - rating * 5
+		initial_action = WAITING
+		name = ARRAY
+			"Attack"
+			"Brute"
+			"Grunt"
+			"Centurion"
+			"Attack Mk2"
+			"Enforcer"
+			"Wolf"
+			"Soldier"
+			"Attack Mk3"
+			"Centurion II"
+			"Dire Wolf"
+			"Attack Mk4"
+			"Marine"
+			"Worg"
+			"Centurion III"
+			"Barbarian"
+			"Werewolf"
+			"Attack Mk5"
+			"Centurion IV"
+			"Green Beret"
 
-		ICE_TYPE
-			type = ATTACK
-			image = "attack_hardened"
-			attributes = SET
-				hardened = true
-				follows = true
-			probability = FUNCTION (rating)
-				return_value =  ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 100 : 150-rating*5) / 100
-			initial_action = WAITING
-			name = ARRAY
-				"Attack-H"
-				"Knight"
-				"Tank"
-				"Turtle"
-				"Attack-H Mk2"
-				"Knight II"
-				"Terrapin"
-				"Sherman"
-				"Attack-H Mk3"
-				"Knight III"
-				"Tortoise"
-				"Attack-H Mk4"
-				"Dragon Turtle"
-				"Knight IV"
-				"Bradley"
+	ICE_TYPE
+		type = ATTACK
+		image = "attack_hardened"
+		attributes = SET
+			hardened = true
+			follows = true
+		probability = FUNCTION (rating)
+			return_value =  ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 100 : 150-rating*5) / 100
+		initial_action = WAITING
+		name = ARRAY
+			"Attack-H"
+			"Knight"
+			"Tank"
+			"Turtle"
+			"Attack-H Mk2"
+			"Knight II"
+			"Terrapin"
+			"Sherman"
+			"Attack-H Mk3"
+			"Knight III"
+			"Tortoise"
+			"Attack-H Mk4"
+			"Dragon Turtle"
+			"Knight IV"
+			"Bradley"
 
-		ICE_TYPE
-			type = ATTACK
-			image = "attack_phasing"
-			attributes = SET
-				phasing = true
-				follows = true
-			probability = FUNCTION (rating)
-				return_value = ( ( ( rating - 5 ) * 36 + 8 ) / 15  ) * (rating<11 ? 100 : 150-rating*5) / 100
-			initial_action = WAITING
-			name = ARRAY
-				"Attack-P"
-				"Bugs"
-				"Spook"
-				"Neophyte"
-				"Attack-P Mk2"
-				"Bees"
-				"Ghost"
-				"Disciple"
-				"Shade"
-				"Wasps"
-				"Attack-P Mk3"
-				"Monk"
-				"Phantom"
-				"Hornets"
-				"Quai Chang Kain"
+	ICE_TYPE
+		type = ATTACK
+		image = "attack_phasing"
+		attributes = SET
+			phasing = true
+			follows = true
+		probability = FUNCTION (rating)
+			return_value = ( ( ( rating - 5 ) * 36 + 8 ) / 15  ) * (rating<11 ? 100 : 150-rating*5) / 100
+		initial_action = WAITING
+		name = ARRAY
+			"Attack-P"
+			"Bugs"
+			"Spook"
+			"Neophyte"
+			"Attack-P Mk2"
+			"Bees"
+			"Ghost"
+			"Disciple"
+			"Shade"
+			"Wasps"
+			"Attack-P Mk3"
+			"Monk"
+			"Phantom"
+			"Hornets"
+			"Quai Chang Kain"
 
-		ICE_TYPE
-			type = ATTACK
-			image = "attack_crash"
-			attributes = SET
-				crasher = true
-				follows = true
-			probability = FUNCTION (rating)
-				return_value = ( ( ( rating - 5 ) * 18 + 8 ) / 15 ) * (rating<11 ? 100 : 150-rating*5) / 100
-			initial_action = WAITING
-			name = ARRAY
-				"Attack-C"
-				"Spider"
-				"Scorpion"
-				"Rattler"
-				"Attack-C Mk2"
-				"Copperhead"
-				"Scorpion 2.0"
-				"Attack-C Mk3"
-				"Spider II"
-				"Scorpion 2.3"
-				"Cottonmouth"
-				"Spider III"
-				"Attack-C Mk4"
-				"Scorpion 3.0"
-				"Black Widow"
+	ICE_TYPE
+		type = ATTACK
+		image = "attack_crash"
+		attributes = SET
+			crasher = true
+			follows = true
+		probability = FUNCTION (rating)
+			return_value = ( ( ( rating - 5 ) * 18 + 8 ) / 15 ) * (rating<11 ? 100 : 150-rating*5) / 100
+		initial_action = WAITING
+		name = ARRAY
+			"Attack-C"
+			"Spider"
+			"Scorpion"
+			"Rattler"
+			"Attack-C Mk2"
+			"Copperhead"
+			"Scorpion 2.0"
+			"Attack-C Mk3"
+			"Spider II"
+			"Scorpion 2.3"
+			"Cottonmouth"
+			"Spider III"
+			"Attack-C Mk4"
+			"Scorpion 3.0"
+			"Black Widow"
 
-		ICE_TYPE
-			type = ATTACK
-			image = "attack_stun"
-			attributes = SET
-				stun_damage = true
-				follows = true
-			probability = FUNCTION (rating)
-				return_value = ( rating - 10 ) * 5
-			initial_action = WAITING
-			name = ARRAY
-				"Attack-S"
-				"Cowboy"
-				"Attack-S Mk2"
-				"Wrangler"
-				"Executioner"
-				"Sheriff"
-				"Attack-S Mk3"
-				"Executioner II"
-				"Marshal"
-				"Highlander"
+	ICE_TYPE
+		type = ATTACK
+		image = "attack_stun"
+		attributes = SET
+			stun_damage = true
+			follows = true
+		probability = FUNCTION (rating)
+			return_value = ( rating - 10 ) * 5
+		initial_action = WAITING
+		name = ARRAY
+			"Attack-S"
+			"Cowboy"
+			"Attack-S Mk2"
+			"Wrangler"
+			"Executioner"
+			"Sheriff"
+			"Attack-S Mk3"
+			"Executioner II"
+			"Marshal"
+			"Highlander"
 
-		ICE_TYPE
-			type = ATTACK
-			image = "attack_stun_hardened"
-			attributes = SET
-				stun_damage = true
-				hardened = true
-				follows = true
-			probability = FUNCTION (rating)
-				return_value = ( ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5) + 99 ) / 100
-			initial_action = WAITING
-			name = ARRAY
-				"Attack-SH"
-				"Killbot"
-				"Mantis"
-				"Attack-SH Mk2"
-				"Mantis II"
-				"Crusader"
-				"Attack-SH Mk3"
-				"Mantis II"
-				"Paladin"
-				"Vader"
+	ICE_TYPE
+		type = ATTACK
+		image = "attack_stun_hardened"
+		attributes = SET
+			stun_damage = true
+			hardened = true
+			follows = true
+		probability = FUNCTION (rating)
+			return_value = ( ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5) + 99 ) / 100
+		initial_action = WAITING
+		name = ARRAY
+			"Attack-SH"
+			"Killbot"
+			"Mantis"
+			"Attack-SH Mk2"
+			"Mantis II"
+			"Crusader"
+			"Attack-SH Mk3"
+			"Mantis II"
+			"Paladin"
+			"Vader"
 
-		ICE_TYPE
-			type = ATTACK
-			image = "attack_stun_phasing"
-			attributes = SET
-				stun_damage = true
-				phasing = true
-				follows = true
-			probability = FUNCTION (rating)
-				return_value = ( ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5) + 99 ) / 100
-			initial_action = WAITING
-			name = ARRAY
-				"Attack-SP"
-				"Wraith"
-				"Phase Spider"
-				"Twister"
-				"Attack-SP Mk2"
-				"Killer Bees"
-				"Spectre"
-				"Attack-SP Mk3"
-				"Cyclone"
-				"Ninja"
+	ICE_TYPE
+		type = ATTACK
+		image = "attack_stun_phasing"
+		attributes = SET
+			stun_damage = true
+			phasing = true
+			follows = true
+		probability = FUNCTION (rating)
+			return_value = ( ( ( ( rating - 5 ) * 36 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5) + 99 ) / 100
+		initial_action = WAITING
+		name = ARRAY
+			"Attack-SP"
+			"Wraith"
+			"Phase Spider"
+			"Twister"
+			"Attack-SP Mk2"
+			"Killer Bees"
+			"Spectre"
+			"Attack-SP Mk3"
+			"Cyclone"
+			"Ninja"
 
-		ICE_TYPE
-			type = ATTACK
-			image = "attack_stun_crash"
-			attributes = SET
-				stun_damage = true
-				crasher = true
-				follows = true
-			probability = FUNCTION (rating)
-				return_value = ( ( ( ( rating - 5 ) * 18 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5 ) + 99 ) / 100
-			initial_action = WAITING
-			name = ARRAY
-				"Attack-SC"
-				"Two-Step"
-				"Wyvern"
-				"Genie"
-				"Attack-SC Mk2"
-				"Black Widow"
-				"Efreet"
-				"Mamba"
-				"Attack-SC Mk3"
-				"Dragon"
+	ICE_TYPE
+		type = ATTACK
+		image = "attack_stun_crash"
+		attributes = SET
+			stun_damage = true
+			crasher = true
+			follows = true
+		probability = FUNCTION (rating)
+			return_value = ( ( ( ( rating - 5 ) * 18 + 8 ) / 15 ) * (rating<11 ? 0 : (rating-10)*5 ) + 99 ) / 100
+		initial_action = WAITING
+		name = ARRAY
+			"Attack-SC"
+			"Two-Step"
+			"Wyvern"
+			"Genie"
+			"Attack-SC Mk2"
+			"Black Widow"
+			"Efreet"
+			"Mamba"
+			"Attack-SC Mk3"
+			"Dragon"
 
-		ICE_TYPE
-			type = ATTACK
-			image = "trace"
-			attributes = SET
-				traces = true
-				follows = true
-			probability = FUNCTION (rating)
-				return_value = 125 - rating * 5
-			initial_action = WAITING
-			name = ARRAY
-				"Trace"
-				"Hound"
-				"Tracker"
-				"Private Eye"
-				"Trace Mk2"
-				"Tracker II"
-				"Blue Tick Hound"
-				"Private Eye 2.0"
-				"Sherlock"
-				"Trace Mk3"
-				"Tracker III"
-				"Bloodhound"
-				"Sherlock II"
-				"Private Eye 3.0"
-				"Trace Mk4"
-				"Mastiff"
-				"Tracker IV"
-				"Sherlock III"
-				"Trace Mk5"
-				"Hound of the Baskervilles"
+	ICE_TYPE
+		type = ATTACK
+		image = "trace"
+		attributes = SET
+			traces = true
+			follows = true
+		probability = FUNCTION (rating)
+			return_value = 125 - rating * 5
+		initial_action = WAITING
+		name = ARRAY
+			"Trace"
+			"Hound"
+			"Tracker"
+			"Private Eye"
+			"Trace Mk2"
+			"Tracker II"
+			"Blue Tick Hound"
+			"Private Eye 2.0"
+			"Sherlock"
+			"Trace Mk3"
+			"Tracker III"
+			"Bloodhound"
+			"Sherlock II"
+			"Private Eye 3.0"
+			"Trace Mk4"
+			"Mastiff"
+			"Tracker IV"
+			"Sherlock III"
+			"Trace Mk5"
+			"Hound of the Baskervilles"
 
-		ICE_TYPE
-			type = ATTACK
-			image = "trace_dump"
-			attributes = SET
-				traces = true
-				dump_on_trace = true
-				follows = true
-			probability = FUNCTION (rating)
-				return_value = rating <= 10 ? ( rating - 5 ) * 5 : rating * 3 - 5
-			initial_action = WAITING
-			name = ARRAY
-				"Trace & Dump"
-				"Detective"
-				"Ranger"
-				"Investigator"
-				"Trace & Dump Mk2"
-				"Detective 2.2"
-				"Ranger II"
-				"Investigator"
-				"Trace & Dump Mk3"
-				"Detective 3.1"
-				"Ranger III"
-				"Investigator"
-				"Trace & Dump Mk4"
-				"Detective 4.0"
-				"Ranger IV"
+	ICE_TYPE
+		type = ATTACK
+		image = "trace_dump"
+		attributes = SET
+			traces = true
+			dump_on_trace = true
+			follows = true
+		probability = FUNCTION (rating)
+			return_value = rating <= 10 ? ( rating - 5 ) * 5 : rating * 3 - 5
+		initial_action = WAITING
+		name = ARRAY
+			"Trace & Dump"
+			"Detective"
+			"Ranger"
+			"Investigator"
+			"Trace & Dump Mk2"
+			"Detective 2.2"
+			"Ranger II"
+			"Investigator"
+			"Trace & Dump Mk3"
+			"Detective 3.1"
+			"Ranger III"
+			"Investigator"
+			"Trace & Dump Mk4"
+			"Detective 4.0"
+			"Ranger IV"
 
-		ICE_TYPE
-			type = ATTACK
-			image = "trace_dump_fry"
-			attributes = SET
-				traces = true
-				dump_on_trace = true
-				fry_chip_on_dump = true
-				follows = true
-			probability = FUNCTION (rating)
-				return_value = ( rating - 10 ) * 2
-			initial_action = WAITING
-			actionGUARDING = iceAction_GUARDING
-			actionSEARCHING = iceAction_SEARCHING
-			name = ARRAY
-				"Trace & Fry"
-				"Mindworm"
-				"Zapp"
-				"Trace & Fry Mk2"
-				"Mindworm 2.0"
-				"SuperZapp"
-				"Mindworm 3.1"
-				"Trace & Fry Mk3"
-				"Mindworm 4.0"
-				"MegaZapp"
+	ICE_TYPE
+		type = ATTACK
+		image = "trace_dump_fry"
+		attributes = SET
+			traces = true
+			dump_on_trace = true
+			fry_chip_on_dump = true
+			follows = true
+		probability = FUNCTION (rating)
+			return_value = ( rating - 10 ) * 2
+		initial_action = WAITING
+		actionGUARDING = iceAction_GUARDING
+		actionSEARCHING = iceAction_SEARCHING
+		name = ARRAY
+			"Trace & Fry"
+			"Mindworm"
+			"Zapp"
+			"Trace & Fry Mk2"
+			"Mindworm 2.0"
+			"SuperZapp"
+			"Mindworm 3.1"
+			"Trace & Fry Mk3"
+			"Mindworm 4.0"
+			"MegaZapp"
 
 
-	for i = ICE_TYPES.size-1 downto 0
-		if ICE_TYPES[i].min_rating == UNDEFINED
-			ICE_TYPES[i].min_rating = ICE_TYPES[i].name.size>20 ? 1 : 21 - ICE_TYPES[i].name.size
-		if ICE_TYPES[i].action == UNDEFINED
-			ICE_TYPES[i].action = iceAction
-		if ICE_TYPES[i].actionQUERYING == UNDEFINED
-			ICE_TYPES[i].actionQUERYING = iceAction_QUERYING
-		if ICE_TYPES[i].actionRESPONDING == UNDEFINED
-			ICE_TYPES[i].actionRESPONDING = iceAction_RESPONDING
-		if ICE_TYPES[i].actionGUARDING == UNDEFINED
-			ICE_TYPES[i].actionGUARDING = ICE_TYPES[i].type != ATTACK ? iceAction_GUARDING : iceAction_GUARDING_ATTACK
-		if ICE_TYPES[i].actionSEARCHING == UNDEFINED
-			ICE_TYPES[i].actionSEARCHING = iceAction_SEARCHING
+for i = ICE_TYPES.size-1 downto 0
+	if ICE_TYPES[i].min_rating == UNDEFINED
+		ICE_TYPES[i].min_rating = ICE_TYPES[i].name.size>20 ? 1 : 21 - ICE_TYPES[i].name.size
+	if ICE_TYPES[i].action == UNDEFINED
+		ICE_TYPES[i].action = iceAction
+	if ICE_TYPES[i].actionQUERYING == UNDEFINED
+		ICE_TYPES[i].actionQUERYING = iceAction_QUERYING
+	if ICE_TYPES[i].actionRESPONDING == UNDEFINED
+		ICE_TYPES[i].actionRESPONDING = iceAction_RESPONDING
+	if ICE_TYPES[i].actionGUARDING == UNDEFINED
+		ICE_TYPES[i].actionGUARDING = ICE_TYPES[i].type != ATTACK ? iceAction_GUARDING : iceAction_GUARDING_ATTACK
+	if ICE_TYPES[i].actionSEARCHING == UNDEFINED
+		ICE_TYPES[i].actionSEARCHING = iceAction_SEARCHING

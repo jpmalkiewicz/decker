@@ -1,4 +1,4 @@
-english
+localization english
 
 	constant
 		IDLE             // button states
