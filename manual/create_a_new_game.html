@@ -1,0 +1,95 @@
+<html>
+<head>
+<style type=text/css><!--
+     h1 { color:#bbbbff; margin-bottom:0pt; }
+     h2 { color:#bbbbff; margin-bottom:5pt; font-size:200%; }
+     h3 { color:#bbbbff; margin-bottom:5pt; font-size:150%; }
+     table table { text-align:center; }
+     table table table { border-width:1; border-style:solid; border-color:#777777; border-collapse:collapse; width:80%; background-color:#333333; color:#ddddbb; text-align:left; border-spacing:40px; border-collapse:collapse; }
+     table table table tr td { padding:10px; border-width:1; }
+     pre { margin-bottom:0px; }
+  //--></style>
+<title>How to create a new Game</title>
+</head>
+<body bgcolor=black text=#aaaaff link=#ffdd99 alink=#00ff00 vlink=#ffdd99>
+<table width=100% cellspacing=0 cellpadding=0 bgcolor=#000055>
+	<tr height=50><td align=middle bgcolor=#000055><h1>How to create a new game</h1>
+	</td></tr>
+	<tr><td>
+		<table width=100% cellspacing=0 cellpadding=8>
+			<tr><td bgcolor=black>
+				JDecker isn't just the game Decker, it's a game engine. This guide will take you through the steps of making a game, using the game Battleships as an example. At the end of each section you'll find a link to a .zip file that contains the state the example game will have reached, to help you when you are stuck. Just extract it to the jdecker folder to move the game to the described state
+				<p><font color=red>The sections below with olive background are script code. To make them dispaly well in the browser, they use three spaces for block indentation. This is strongly discouraged for use in actual scripts and usually even switched off. Use the tabulator key for block indentation instead</font>
+				<p><font color=yellow>Every game has its own folder in the rulesets folder.</font> Go there and create a folder called <font color=#00ff00>battleships</font>. In that folder, create a second folder called <font color=#00ff00>artwork</font>. All the scripts that make this game will be in the battleships folder and all the artwork (images, sounds) will be in the artwork folder.
+				<p>You can launch JDecker with some game immediately running with the command line options. In the jdecker folder, make a batch file with the following line
+				<p><font color=#00ff00>java -classpath . decker.Decker initial_ruleset=battleships</font>
+				<p>If you're using Windows, do this by making a text file called <font color=#00ff00>battleships.bat</font> and putting that line in the file.
+				<p>Most games need some images. Fetch the <a href="create_a_new_game_data/battleships_artwork.zip">battleships_artwork.zip</a> and unzip it to the rulesets/battleships/artwork folder. Now we're all set to create the scripts for the game
+				<p><a href="create_a_new_game_data/battleships_1_initial_setup.zip">battleships_1_initial_setup.zip</a>
+			</td></tr><tr><td height=50>
+				<h1>The rules</h1>
+			</td></tr><tr><td bgcolor=black>
+				Our battelships version will be simple. It will play on two 10x10 tiles maps, one for each player. The ships cannot be placed diagonally. Ships may not touch, not even diagonally. Each player gets 1 ship with length 5 <img src="create_a_new_game_data/ship5small.gif">, 2 with length 4 <img src="create_a_new_game_data/ship4small.gif">, 3 with length 3 <img src="create_a_new_game_data/ship3small.gif">, and 1 with length 2 <img src="create_a_new_game_data/ship2small.gif">. All added up, the ships of each player have 24 segments. Each player gets 1 shot for every 5 segments still floating, rounded up. All the segments of a ship count as floating until all of them have been hit and the whole ship sinks. The attacking player gets an extra shot for each hit, for that round
+				<p>Each tile will be 20x20 pixels. We'll need markers for hit, miss, one each ship type while placing the ships, and one for each ship type when it has sunk
+			</td></tr><tr><td height=50>
+				<h1>The first screen</h1>
+			</td></tr>
+			</td></tr><tr><td bgcolor=black>
+				Games written with the JDecker engine usually play on multiple screens. The game Decker for example has screens for the character, the deck, the menu while at home, contracts, the shop, and so on
+				<p>We will start making our game with the screen where the ships are placed. Let's call it place_ships_screen and define it in a file called <font color=#00ff00>place_ships_screen.txt</font>, so we'll find it again later. Scripts are simple text files and use the .txt extension, to help the engine recognize them. The whole game could be defined in a single script, but defining it in several script files with specific topics really helps find things again. When there are multiple scripts, they get executed in alphabetical order, with _ coming before A coming before 3 coming before a. This is important because <font color=yellow>you can only use things after they have been defined</font>. An example for this will come up soon : you can only set the initial screen for a ruleset after that screen has been defined
+				<p>So let's define our place_ships_screen. To keep things simple, we'll use a background image that already has the grids for the two maps. It also has some frills to make the game more appealing. The background image has a size of 500x370 pixels, same as the screen we're defining.
+				<p><table><tr><td><pre>
+RULESET.place_ships_screen = COMPONENT
+   title = "Battleships"
+   width = 500
+   height = 370
+   component = ARRAY
+      IMAGE
+         x = 0
+         y = 0
+         image = "game_background.gif"
+
+RULESET.initial_screen = place_ships_screen</pre></td></tr></table>
+<p>That's enough to create a screen with a background image and make it display immediately when the game is started. Let's look at the code again, this time with comments. Don't worry if some things stay unclear. The comments are meant to explain enough to give you an idea of what's happening, not explain everything in detail
+				<p><table><tr><td><pre>
+<font color=#00aa00>// this line is a comment. the JDecker engine ignores the double slashes // and everything behind them
+
+// The RULESET defines the game and doesn't change while someone plays the game
+// the next line tells JDecker that we are adding a new variable called place_ships_screen to our RULESET
+//   or that we are assigning it a new value. variables store values and functions
+// COMPONENT is a structure type. when you use it, the engine immediately creates a structure
+//   of type COMPONENT and gives its variables some initial values</font>
+RULESET.place_ships_screen = COMPONENT
+   <font color=#00aa00>// every COMPONENT has the variables x, y, width and height. we can add more variables to it
+   // below we are giving new values to its width and height, and add a new variable called title
+   // the engine will interpret this as the title to be used for the window title bar</font>
+   title = "Battleships"
+   width = 500
+   height = 370
+   <font color=#00aa00>// pretty much every structure that can be displayed also has a variable called component
+   // it contains a list with all the things we display on our screen
+   // right now there is only the background image</font>
+   component = ARRAY
+      IMAGE
+         x = 0
+         y = 0
+         image = "game_background.gif"
+
+RULESET.initial_screen = place_ships_screen</pre></td></tr></table>
+				<p><a href="create_a_new_game_data/battleships_2_first_screen.zip">battleships_2_first_screen.zip</a>
+			</td></tr><tr><td height=50>
+				&nbsp;
+			</td></tr>
+		</table>
+	</td><td align=middle valign=top bgcolor=#000055 style="padding:10px;">
+<a href=http://sourceforge.net/projects/decker/>Decker Project Page</a>
+<br>
+<br><a href=http://www.caro.net/dsi/decker/>Official Decker Site</a>
+<br>
+<br><a href=http://www.the-underdogs.info/game.php?name=Decker>A Decker Review</a>
+<br>
+		</td>
+	</tr>
+</table>
+</body>
+</html>

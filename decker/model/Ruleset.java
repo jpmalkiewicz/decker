@@ -16,6 +16,7 @@ public final class Ruleset
 			data.get("structure_type").set("ENGINE");
 		}
 		data.add("RULESET_NAME").set(ruleset_name);
+		data.add("DEFAULT_LOCALIZATION").set("english");
 		final Structure constants = new Structure("SET", null);
 		if (ruleset_name.equals("")) { // if this is the engine ruleset, add the only standard constant, UNDEFINED
 			constants.add("UNDEFINED");
@@ -46,8 +47,9 @@ public final class Ruleset
 
 
 	void initialize (final Locale[] accepted_localizations)  {
+		final String s = data.get("DEFAULT_LOCALIZATION").toString();
 		for (int i = 0; i < script.length; i++)
-			script[i].execute(accepted_localizations);
+			script[i].execute(accepted_localizations, s);
 	}
 
 

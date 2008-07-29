@@ -1,150 +1,149 @@
-english
 // ****************************************************************************************************************************************************
 // structure types ************************************************************************************************************************************
 // ****************************************************************************************************************************************************
 
 // mission goal types *********************************************************************************************************************************
 
-	structure
-		CRASH_SYSTEM
-			status = INCOMPLETE
-			incomplete
-			completed
+structure
+	CRASH_SYSTEM
+		status = INCOMPLETE
+		incomplete
+		completed
 
-		CREATE_BACKDOOR            extends CRASH_SYSTEM
+	CREATE_BACKDOOR            extends CRASH_SYSTEM
 
-		DOWNLOAD_FILE              extends CRASH_SYSTEM
-			target
+	DOWNLOAD_FILE              extends CRASH_SYSTEM
+		target
 
-		DOWNLOAD_AND_ERASE_FILE    extends DOWNLOAD_FILE
+	DOWNLOAD_AND_ERASE_FILE    extends DOWNLOAD_FILE
 
-		EDIT_FILE                  extends DOWNLOAD_FILE
+	EDIT_FILE                  extends DOWNLOAD_FILE
 
-		ERASE_FILE                 extends DOWNLOAD_FILE
+	ERASE_FILE                 extends DOWNLOAD_FILE
 
-		MANIPULATE_IO              extends DOWNLOAD_FILE
+	MANIPULATE_IO              extends DOWNLOAD_FILE
 
-		RUN_PROGRAM                extends DOWNLOAD_FILE
-			program
-			execution_time
-			remaining_execution_time
+	RUN_PROGRAM                extends DOWNLOAD_FILE
+		program
+		execution_time
+		remaining_execution_time
 
-		NO_RED_ALARM
-			status = COMPLETED
-			completed
-			failed
+	NO_RED_ALARM
+		status = COMPLETED
+		completed
+		failed
 
-		TIME_RESTRICTION
-			start_time
-			end_time
-			status = COMPLETED
-			completed
-			incomplete
-			failed
+	TIME_RESTRICTION
+		start_time
+		end_time
+		status = COMPLETED
+		completed
+		incomplete
+		failed
 
 // system related types *******************************************************************************************************************************
 
-		SYSTEM_TYPE
-			name
-			file
-			deactivate_io_target
-			activate_io_target
-			sabotage_io_target
-			useless_file
+	SYSTEM_TYPE
+		name
+		file
+		deactivate_io_target
+		activate_io_target
+		sabotage_io_target
+		useless_file
 
-		SYSTEM
-			name
-			rating
-			type
-			alert_level = GREEN
-			area
-			entry_point      // usually a PORTAL_OUT node
-			active_effects   // something that has an expiry_time and on_expire() function defined, or an on_tick() function
-			last_search = 0  // id of the last area wide search. this goes up by 1 per search
-			initializer = FUNCTION
-				area = ARRAY
-				active_effects = ARRAY
+	SYSTEM
+		name
+		rating
+		type
+		alert_level = GREEN
+		area
+		entry_point      // usually a PORTAL_OUT node
+		active_effects   // something that has an expiry_time and on_expire() function defined, or an on_tick() function
+		last_search = 0  // id of the last area wide search. this goes up by 1 per search
+		initializer = FUNCTION
+			area = ARRAY
+			active_effects = ARRAY
 
-		AREA
-			id
-			system
-			rating
-			map   // contains a two dimentional array with the node grid
-			destroyed_ice
-			ice_entry_node
-			player_map
-			active_ice // ice which is currently active
-			waiting_ice // this list contains all the ice that will be activated during a red alert
-			response_ice_target // the node response_ice is moving towards
-			initializer = FUNCTION
-				destroyed_ice = ARRAY
-				active_ice = ARRAY
-				waiting_ice = ARRAY
+	AREA
+		id
+		system
+		rating
+		map   // contains a two dimentional array with the node grid
+		destroyed_ice
+		ice_entry_node
+		player_map
+		active_ice // ice which is currently active
+		waiting_ice // this list contains all the ice that will be activated during a red alert
+		response_ice_target // the node response_ice is moving towards
+		initializer = FUNCTION
+			destroyed_ice = ARRAY
+			active_ice = ARRAY
+			waiting_ice = ARRAY
 
-		PLAYER_AREA_MAP
-			x
-			y
-			width
-			height
+	PLAYER_AREA_MAP
+		x
+		y
+		width
+		height
 
-		NODE
-			expandable = true
-			name
-			area
-			x
-			y
-			connection         // if connection[direction] set to a node, there is a connection to that node in that direction
-			type
-			info_level         // UNDEFINED = unknown, 1 = has seen it, 2 = has been there and knows what exits exist, 3 = knows its sub_type
-			objects            // ice and humans
-			search_marker = 0  // used for path finding
-			search_data        // used for path finding
-			response_direction // used when ice moves towards the response target
-			// smoked
-			// display_connections
-			initializer = FUNCTION
-				connection = createSizedArray(4)
-				objects = ARRAY
+	NODE
+		expandable = true
+		name
+		area
+		x
+		y
+		connection         // if connection[direction] set to a node, there is a connection to that node in that direction
+		type
+		info_level         // UNDEFINED = unknown, 1 = has seen it, 2 = has been there and knows what exits exist, 3 = knows its sub_type
+		objects            // ice and humans
+		search_marker = 0  // used for path finding
+		search_data        // used for path finding
+		response_direction // used when ice moves towards the response target
+		// smoked
+		// display_connections
+		initializer = FUNCTION
+			connection = createSizedArray(4)
+			objects = ARRAY
 
-		FILE
-			name
-			type
-			size
-			value
-			data
-			info_level = 0
+	FILE
+		name
+		type
+		size
+		value
+		data
+		info_level = 0
 
-		ICE_TYPE
-			expandable = true
-			type
-			attributes
-			name
-			image
-			min_rating     // many ice types only have ice from a certain rating upwards
-			probability = 100   // probability of this ice type being picked from a list. actual probability is (probability/sum of probabilities of listed ice types)
-			description
-			action         // the variables below hold functions for each action. action(ice) is the function that gets called when the ice is supposed to take its turn
-			updateState
-			initial_action
-			initializer = FUNCTION
-				name = ARRAY
-				image = ARRAY
-				action = iceAction
-				updateState = iceActionUpdateState
+	ICE_TYPE
+		expandable = true
+		type
+		attributes
+		name
+		image
+		min_rating     // many ice types only have ice from a certain rating upwards
+		probability = 100   // probability of this ice type being picked from a list. actual probability is (probability/sum of probabilities of listed ice types)
+		description
+		action         // the variables below hold functions for each action. action(ice) is the function that gets called when the ice is supposed to take its turn
+		updateState
+		initial_action
+		initializer = FUNCTION
+			name = ARRAY
+			image = ARRAY
+			action = iceAction
+			updateState = iceActionUpdateState
 
-		ICE
-			expandable = true
-			type   // an ICE_TYPE
-			rating
-			node
-			x
-			y
-			home_node
-			current_action
-			damage = 0
-			// response_ice = true   // flag that marks response ice, always set to true, not defined for other ice
-			// trace_time
-			// trace_target
+	ICE
+		expandable = true
+		type   // an ICE_TYPE
+		rating
+		node
+		x
+		y
+		home_node
+		current_action
+		damage = 0
+		// response_ice = true   // flag that marks response ice, always set to true, not defined for other ice
+		// trace_time
+		// trace_target
 
 // ******************************************************************
 // OUTDATED *********************************************************
@@ -169,102 +168,102 @@ english
 // miscellaneous types ********************************************************************************************************************************
 
 
-		THING_TYPE
-			expandable = true
-			name
-			category               // an array listing all the categories this thing type belongs to
-			// complexity          // determines the value, size and coding time for programs and chips
-			// base_value          // the value of hardware is base_value * 2 ^ (rating-1)
-			// value_function      // an optional function to calculate the value of things of this type
-			// size_function       // an optional function to calculate the size of things of this type
-			// default_name        // an array : default_name[x] is the default name of a thing of this type and item_rating x. for items with rating < 1 default_name[1] is used, for items with a higher rating than the array size, the last array entry is used, with the appendix "MK x" where x is (rating-max rating with name + 1) as a roman number
-			// effect              // a function that gets executed when things of this type are used by the player
-			// passive_effect      // a function that gets executed when programs of this type are passively executed
-			// max_rating          // some types of hardware have a max rating
-			// image               // for programs
+	THING_TYPE
+		expandable = true
+		name
+		category               // an array listing all the categories this thing type belongs to
+		// complexity          // determines the value, size and coding time for programs and chips
+		// base_value          // the value of hardware is base_value * 2 ^ (rating-1)
+		// value_function      // an optional function to calculate the value of things of this type
+		// size_function       // an optional function to calculate the size of things of this type
+		// default_name        // an array : default_name[x] is the default name of a thing of this type and item_rating x. for items with rating < 1 default_name[1] is used, for items with a higher rating than the array size, the last array entry is used, with the appendix "MK x" where x is (rating-max rating with name + 1) as a roman number
+		// effect              // a function that gets executed when things of this type are used by the player
+		// passive_effect      // a function that gets executed when programs of this type are passively executed
+		// max_rating          // some types of hardware have a max rating
+		// image               // for programs
 
-		THING
-			expandable = true
-			name
-			type           // a THING_TYPE object
-			rating
-			size
-			// state       // for programs on the deck, this can have the values INSTALLED, LOADED, DEFAULT
-			// source_code // true if this thing is a source code
-			// value       // the sale / purchase price
+	THING
+		expandable = true
+		name
+		type           // a THING_TYPE object
+		rating
+		size
+		// state       // for programs on the deck, this can have the values INSTALLED, LOADED, DEFAULT
+		// source_code // true if this thing is a source code
+		// value       // the sale / purchase price
 
-		DECK
-			expandable = true
-			model = "(custom built)"
-			damage = 0
-			current_load = 0      // 0 = light, 1 = medium, 2 = high
-			used_memory = 0       // sum of the sizes of the loaded programs
-			cpu = 1
-			coprocessor = 1
-			attack = 1
-			defense = 1
-			stealth = 1
-			analysis = 1
-			program
-			default_program
-			optional_hardware
-			// boost_program
-			// slow_program    // a SLOW_SCANNER or CLIENT_PROGRAM that is currently running
-			// decoys
-			active_effects
-			initializer = FUNCTION
-				program = ARRAY
-				optional_hardware = ARRAY
-				active_effects = ARRAY
-				default_program = createSizedArray(DEFAULT_PROGRAM_GROUP_COUNT)
+	DECK
+		expandable = true
+		model = "(custom built)"
+		damage = 0
+		current_load = 0      // 0 = light, 1 = medium, 2 = high
+		used_memory = 0       // sum of the sizes of the loaded programs
+		cpu = 1
+		coprocessor = 1
+		attack = 1
+		defense = 1
+		stealth = 1
+		analysis = 1
+		program
+		default_program
+		optional_hardware
+		// boost_program
+		// slow_program    // a SLOW_SCANNER or CLIENT_PROGRAM that is currently running
+		// decoys
+		active_effects
+		initializer = FUNCTION
+			program = ARRAY
+			optional_hardware = ARRAY
+			active_effects = ARRAY
+			default_program = createSizedArray(DEFAULT_PROGRAM_GROUP_COUNT)
 
-		MISSION
-			expandable = true
-			available = defaultMissionAvailable   // this function will get called whenever we need to know whether this mission might become available
-			status = INCOMPLETE
-			accepted = false
-			title
-			description
-			payment = defaultMissionPayment
-			target_system
-			goal
-			rating = defaultMissionRating   // this function will get called when the actual mission is created from the template mission, and its return value will be used as the rating of the actual mission
-			deadline = 5
-			add_details_to_description = true  // if this is set to true, there will be a detailed description of the mission goals added to the end of the description
-			age = 0
-			reload_when_over = false     // if you set this to true, the mission will go back into the mission pool after it is removed from the list of available missions
-			// setup       // put a function here to have it called when the mission is added to the list of available missions. the first parameter in the function call will be the mission
-			scriptname     // leave this UNDEFINED. it will automatically be set to the name of the script that created the mission object
-			// on_accepted // put trigger functions here
-			// on_success
-			// on_failure  // called every time the player fails an attempt to complete the mission
-			// on_mission_over
-			initializer = FUNCTION
-				goal = ARRAY
+	MISSION
+		expandable = true
+		available = defaultMissionAvailable   // this function will get called whenever we need to know whether this mission might become available
+		status = INCOMPLETE
+		accepted = false
+		title
+		description
+		payment = defaultMissionPayment
+		target_system
+		goal
+		rating = defaultMissionRating   // this function will get called when the actual mission is created from the template mission, and its return value will be used as the rating of the actual mission
+		deadline = 5
+		add_details_to_description = true  // if this is set to true, there will be a detailed description of the mission goals added to the end of the description
+		age = 0
+		reload_when_over = false     // if you set this to true, the mission will go back into the mission pool after it is removed from the list of available missions
+		// setup       // put a function here to have it called when the mission is added to the list of available missions. the first parameter in the function call will be the mission
+		scriptname     // leave this UNDEFINED. it will automatically be set to the name of the script that created the mission object
+		// on_accepted // put trigger functions here
+		// on_success
+		// on_failure  // called every time the player fails an attempt to complete the mission
+		// on_mission_over
+		initializer = FUNCTION
+			goal = ARRAY
 
-		HUMAN
-			expandable = true
-			name
-			image
-			physical_damage = 0
-			mental_damage = 0
-			reputation_level = 0
-			reputation_points = 0
-			mission_base_rating = 1
-			money = 0
-			lifestyle = 0
-			age = 1           // age of this character in days
-			skill_points = 0
-			attack = 1
-			defense = 1
-			stealth = 1
-			analysis = 1
-			programming = 1
-			chip_design = 1
-			deck
-			current_mission
-			current_system
-			node
-			current_target    // some ice or file
-			current_program   // the program this human is currently trying to use
-			current_turn      // time for the current matrix run
+	HUMAN
+		expandable = true
+		name
+		image
+		physical_damage = 0
+		mental_damage = 0
+		reputation_level = 0
+		reputation_points = 0
+		mission_base_rating = 1
+		money = 0
+		lifestyle = 0
+		age = 1           // age of this character in days
+		skill_points = 0
+		attack = 1
+		defense = 1
+		stealth = 1
+		analysis = 1
+		programming = 1
+		chip_design = 1
+		deck
+		current_mission
+		current_system
+		node
+		current_target    // some ice or file
+		current_program   // the program this human is currently trying to use
+		current_turn      // time for the current matrix run

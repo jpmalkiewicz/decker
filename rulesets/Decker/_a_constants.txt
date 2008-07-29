@@ -1,217 +1,215 @@
-english
+RULESET.LETHAL_DAMAGE = 20
+RULESET.HEALTH_INCREMENT = 5
+RULESET.MAX_LIFESTYLE = 4
+RULESET.HOSPITAL_COSTS = 100   // per day
 
-	RULESET.LETHAL_DAMAGE = 20
-	RULESET.HEALTH_INCREMENT = 5
-	RULESET.MAX_LIFESTYLE = 4
-	RULESET.HOSPITAL_COSTS = 100   // per day
+RULESET.MISSION_LIST = ARRAY
 
-	RULESET.MISSION_LIST = ARRAY
+RULESET.DECK_LOAD_MODIFIER = ARRAY
+	1
+	0
+	-2
 
-	RULESET.DECK_LOAD_MODIFIER = ARRAY
-      1
-		0
-		-2
+RULESET.LOAD_TEXT = ARRAY
+	"Light"
+	"Normal"
+	"Heavy"
 
-   RULESET.LOAD_TEXT = ARRAY
-      "Light"
-      "Normal"
-      "Heavy"
-
-	RULESET.LIFESTYLE_COST = ARRAY
-		500
-		1000
-		2000
-		4000
-		10000
+RULESET.LIFESTYLE_COST = ARRAY
+	500
+	1000
+	2000
+	4000
+	10000
 
 
-	RULESET.LIFESTYLE_UPGRADE_COST = ARRAY
-		3*RULESET.LIFESTYLE_COST[1]
-		3*RULESET.LIFESTYLE_COST[2]
-		3*RULESET.LIFESTYLE_COST[3]
-		3*RULESET.LIFESTYLE_COST[4]
+RULESET.LIFESTYLE_UPGRADE_COST = ARRAY
+	3*RULESET.LIFESTYLE_COST[1]
+	3*RULESET.LIFESTYLE_COST[2]
+	3*RULESET.LIFESTYLE_COST[3]
+	3*RULESET.LIFESTYLE_COST[4]
 
-	RULESET.REPUTATION_NAME = ARRAY
-		"Nobody"
-		"Wannabe"
-		"Cyber Surfer"
-		"Matrix Runner"
-		"Newbie Hacker"
-		"Journeyman Hacker"
-		"Competent Hacker"
-		"Experienced Hacker"
-		"Hacker Extraordinaire"
-		"Cyber Thief"
-		"Cyber Sleuth"
-		"Cyber Warrior"
-		"Cyber Wizard"
-		"Ice Crusher"
-		"Node Master"
-		"System Master"
-		"Ghost in the Machine"
-		"Digital Dream"
-		"Digital Nightmare"
-		"Master of the Matrix"
-		"Matrix God"
+RULESET.REPUTATION_NAME = ARRAY
+	"Nobody"
+	"Wannabe"
+	"Cyber Surfer"
+	"Matrix Runner"
+	"Newbie Hacker"
+	"Journeyman Hacker"
+	"Competent Hacker"
+	"Experienced Hacker"
+	"Hacker Extraordinaire"
+	"Cyber Thief"
+	"Cyber Sleuth"
+	"Cyber Warrior"
+	"Cyber Wizard"
+	"Ice Crusher"
+	"Node Master"
+	"System Master"
+	"Ghost in the Machine"
+	"Digital Dream"
+	"Digital Nightmare"
+	"Master of the Matrix"
+	"Matrix God"
 
-	RULESET.ROMAN_NUMBER_LETTER = ARRAY
-		"M"
-		"D"
-		"C"
-		"L"
-		"X"
-		"V"
-		"I"
+RULESET.ROMAN_NUMBER_LETTER = ARRAY
+	"M"
+	"D"
+	"C"
+	"L"
+	"X"
+	"V"
+	"I"
 
-	RULESET.ROMAN_NUMBER_VALUE = ARRAY
-		1000
-		500
-		100
-		50
-		10
-		5
-		1
-
-
-	// used to translate direction values into (dx,dy)
-	RULESET.DELTA_X = ARRAY
-		0
-		1
-		0
-		-1
-
-	RULESET.DELTA_Y = ARRAY
-		-1
-		0
-		1
-		0
-	RULESET.DIRECTION_NAME = ARRAY
-		"north"
-		"east"
-		"south"
-		"west"
-
-	RULESET.DIRECTION_EXIT_X = ARRAY
-		CENTER
-		RIGHT
-		CENTER
-		LEFT
-
-	RULESET.DIRECTION_EXIT_Y = ARRAY
-		TOP
-		CENTER
-		BOTTOM
-		CENTER
-
-	// IDs for categories in which programs can be used as the default program
-	RULESET.DEFAULT_ATTACK = 0
-	RULESET.DEFAULT_ARMOR  = 1
-	RULESET.DEFAULT_HIDE   = 2
-	RULESET.DEFAULT_PROGRAM_GROUP_COUNT = 3
+RULESET.ROMAN_NUMBER_VALUE = ARRAY
+	1000
+	500
+	100
+	50
+	10
+	5
+	1
 
 
-	constant
-		ACCEPTED          // mission and mission goal states
-		AVAILABLE
-		DESTROYED
-		COMPLETED
-		FAILED
-		INCOMPLETE
+// used to translate direction values into (dx,dy)
+RULESET.DELTA_X = ARRAY
+	0
+	1
+	0
+	-1
 
-		GREEN             // system states
-		YELLOW
-		RED
-		SHUTDOWN
+RULESET.DELTA_Y = ARRAY
+	-1
+	0
+	1
+	0
+RULESET.DIRECTION_NAME = ARRAY
+	"north"
+	"east"
+	"south"
+	"west"
 
-		USELESS           // file types
-		VALUABLE
-		CLUE
-		PASSWORD
-		MISSION_TARGET
+RULESET.DIRECTION_EXIT_X = ARRAY
+	CENTER
+	RIGHT
+	CENTER
+	LEFT
 
-		PROGRAM           // thing types
-		HARDWARE
-		CHIP
-		SOURCE_CODE
+RULESET.DIRECTION_EXIT_Y = ARRAY
+	TOP
+	CENTER
+	BOTTOM
+	CENTER
 
-		INSTALLED         // program states
-		LOADED
-		DEFAULT
-		RUNNING
-
-		ANALYSIS_BOOST    // program types
-		ANALYZE
-		ARMOR
-		ATTACK
-		AREA_ATTACK
-		ATTACK_BOOST
-		BOOST             // usually programs which add to rolls of a certain type. only one of them can be run simultaneously
-		CLIENT_PROGRAM
-		CONFUSE
-		DECEIVE
-		DECOY
-		DECRYPT
-		DEFENSE_BOOST
-		EVALUATE
-		HIDE
-		MEDIC
-		PIERCING_ATTACK
-		REFLECT
-		RELOCATE
-		SCAN
-		SCANNER           // this is a program category that includes programs which scan and analyze stuff
-		SLOW_SCANNER      // run on a node for multiple turns, like SCAN and EVALUATE. programs from this category cannot be run simultaneously
-		SHIELD
-		SILENCE
-		SLOW
-		SMOKE
-		SPECIAL           // special purpose programs which only serve a run-specific purpose should have this tag
-		STEALTH_BOOST
-		VIRUS
-		WEAKEN
-
-		COPROCESSOR       // chip types
-		// CPU            // this is also a node type
-		// ATTACK         // this is also a program type
-		DEFENSE
-		STEALTH
-		ANALYSIS
-
-		CHIP_BURNER       // hardware types
-		SURGE_SUPPRESSOR
-		NEURAL_DAMPER
-		TRACE_MONITOR
-		BIO_MONITOR
-		HIGH_BANDWIDTH_BUS
-		PROXIMITY_MAPPER
-		DESIGN_ASSISTANT
-		ANTI_TRACE_PROXY
-
-		CPU               // node types
-		SPU
-		COP
-		DATASTORE
-		IO
-		JUNCTION
-		PORTAL
-		PORTAL_IN
-		PORTAL_OUT
-		COP_SECURITY
-		IO_ICE
-		IO_EXTERNAL_ALERT
-		IO_HIGH_SPEED_ACCESS
-
-		GUARD             // ice related constants
-		PROBE
-		TRACE
-		// ATTACK
+// IDs for categories in which programs can be used as the default program
+RULESET.DEFAULT_ATTACK = 0
+RULESET.DEFAULT_ARMOR  = 1
+RULESET.DEFAULT_HIDE   = 2
+RULESET.DEFAULT_PROGRAM_GROUP_COUNT = 3
 
 
-		ATTACKING         // ice state constants
-		GOING_HOME
-		GUARDING          // only ATTACK ice has this state. GUARD ice is completely inactive, and just waits for someone to access whatever it guards
-		INACTIVE          // this ice doesn't do anything, unless someone accesses it
-		QUERYING
-		RESPONDING
-		SEARCHING
-		WAITING           // this ice is waiting, but will become active during a red alert or when a known intruder is in its node
+constant
+	ACCEPTED          // mission and mission goal states
+	AVAILABLE
+	DESTROYED
+	COMPLETED
+	FAILED
+	INCOMPLETE
+
+	GREEN             // system states
+	YELLOW
+	RED
+	SHUTDOWN
+
+	USELESS           // file types
+	VALUABLE
+	CLUE
+	PASSWORD
+	MISSION_TARGET
+
+	PROGRAM           // thing types
+	HARDWARE
+	CHIP
+	SOURCE_CODE
+
+	INSTALLED         // program states
+	LOADED
+	DEFAULT
+	RUNNING
+
+	ANALYSIS_BOOST    // program types
+	ANALYZE
+	ARMOR
+	ATTACK
+	AREA_ATTACK
+	ATTACK_BOOST
+	BOOST             // usually programs which add to rolls of a certain type. only one of them can be run simultaneously
+	CLIENT_PROGRAM
+	CONFUSE
+	DECEIVE
+	DECOY
+	DECRYPT
+	DEFENSE_BOOST
+	EVALUATE
+	HIDE
+	MEDIC
+	PIERCING_ATTACK
+	REFLECT
+	RELOCATE
+	SCAN
+	SCANNER           // this is a program category that includes programs which scan and analyze stuff
+	SLOW_SCANNER      // run on a node for multiple turns, like SCAN and EVALUATE. programs from this category cannot be run simultaneously
+	SHIELD
+	SILENCE
+	SLOW
+	SMOKE
+	SPECIAL           // special purpose programs which only serve a run-specific purpose should have this tag
+	STEALTH_BOOST
+	VIRUS
+	WEAKEN
+
+	COPROCESSOR       // chip types
+	// CPU            // this is also a node type
+	// ATTACK         // this is also a program type
+	DEFENSE
+	STEALTH
+	ANALYSIS
+
+	CHIP_BURNER       // hardware types
+	SURGE_SUPPRESSOR
+	NEURAL_DAMPER
+	TRACE_MONITOR
+	BIO_MONITOR
+	HIGH_BANDWIDTH_BUS
+	PROXIMITY_MAPPER
+	DESIGN_ASSISTANT
+	ANTI_TRACE_PROXY
+
+	CPU               // node types
+	SPU
+	COP
+	DATASTORE
+	IO
+	JUNCTION
+	PORTAL
+	PORTAL_IN
+	PORTAL_OUT
+	COP_SECURITY
+	IO_ICE
+	IO_EXTERNAL_ALERT
+	IO_HIGH_SPEED_ACCESS
+
+	GUARD             // ice related constants
+	PROBE
+	TRACE
+	// ATTACK
+
+
+	ATTACKING         // ice state constants
+	GOING_HOME
+	GUARDING          // only ATTACK ice has this state. GUARD ice is completely inactive, and just waits for someone to access whatever it guards
+	INACTIVE          // this ice doesn't do anything, unless someone accesses it
+	QUERYING
+	RESPONDING
+	SEARCHING
+	WAITING           // this ice is waiting, but will become active during a red alert or when a known intruder is in its node

@@ -1,32 +1,31 @@
-english
-	RULESET.MISSION_LIST[] = MISSION
-		title = "Bootleg Run"
-		description = "Zony Music will release three bootleg albums in the near future. Steal those albums for us and we'll pay you 900 cash."
-		payment = 900
-		deadline = 5
+RULESET.MISSION_LIST[] = MISSION
+	title = "Bootleg Run"
+	description = "Zony Music will release three bootleg albums in the near future. Steal those albums for us and we'll pay you 900 cash."
+	payment = 900
+	deadline = 5
 
 
-		// this defines a system and makes it the target system
-		target_system = SYSTEM
-			rating = 9
-			name = "Zony Music"
-			type = CONSUMER
+	// this defines a system and makes it the target system
+	target_system = SYSTEM
+		rating = 9
+		name = "Zony Music"
+		type = CONSUMER
 
 
-		// three goals are added to the mission
-		goal = ARRAY
-			DOWNLOAD_FILE
-				target = FILE
-					name = "product information"
-			DOWNLOAD_FILE
-				target = FILE
-					name = "product information"
-			DOWNLOAD_FILE
-				target = FILE
-					name = "product information"
+	// three goals are added to the mission
+	goal = ARRAY
+		DOWNLOAD_FILE
+			target = FILE
+				name = "product information"
+		DOWNLOAD_FILE
+			target = FILE
+				name = "product information"
+		DOWNLOAD_FILE
+			target = FILE
+				name = "product information"
 
 
-//deutsch extends english
+//localization deutsch extends english
 //	replace
 //		"Bootleg Run"
 //		"Raubkopien-Raub"

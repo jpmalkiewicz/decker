@@ -1,231 +1,230 @@
-english
-	RULESET.advanceDate = FUNCTION (day_count)
-		for i = 1 to day_count
-			player.age++
-			// pay the rent
-			if date_day_of_month(2132,0,player.age) == 1
-				// a new month has started. deduce the living costs
-				player.money = player.money - LIFESTYLE_COST[player.lifestyle]
-				// stop advancing the date if the player has run into debts. the game is over then
-				if player.money < 0
-					break
-			// update the shop contents every 7 days
-			if player.age-(player.age/7)*7 == 1
-				updateShopInventory()
-			// update the missions
+RULESET.advanceDate = FUNCTION (day_count)
+	for i = 1 to day_count
+		player.age++
+		// pay the rent
+		if date_day_of_month(2132,0,player.age) == 1
+			// a new month has started. deduce the living costs
+			player.money = player.money - LIFESTYLE_COST[player.lifestyle]
+			// stop advancing the date if the player has run into debts. the game is over then
+			if player.money < 0
+				break
+		// update the shop contents every 7 days
+		if player.age-(player.age/7)*7 == 1
+			updateShopInventory()
+		// update the missions
 // *****
-			makeMissionsAvailable()
-		if value_type(displayed_screen.setup) == "FUNCTION"
-			displayed_screen.setup()
+		makeMissionsAvailable()
+	if value_type(displayed_screen.setup) == "FUNCTION"
+		displayed_screen.setup()
 
 
-	RULESET.createNewPlayer = FUNCTION
-		with new_character_screen
-			GLOBAL.tooltips = tooltips
-			GLOBAL.ironman = ironman
-			GLOBAL.player = HUMAN
-				name = char_name.text
-				image = char_image.image
-				LOCAL.slvl = bonus_name[selected_bonus] == "software" ? 2 : 1
-				LOCAL.hlvl = bonus_name[selected_bonus] == "hardware" ? 2 : 1
-				deck = createDeck(hlvl, slvl)
-				if bonus_name[selected_bonus] == "skills"
-					attack = 2
-					defense = 2
-					stealth = 2
-					analysis = 2
-					programming = 2
-					chip_design = 2
-				money = bonus_name[selected_bonus] == "money" ? 2000 : 100
-				mission_list = ARRAY
-				completed_missions = ARRAY
+RULESET.createNewPlayer = FUNCTION
+	with new_character_screen
+		GLOBAL.tooltips = tooltips
+		GLOBAL.ironman = ironman
+		GLOBAL.player = HUMAN
+			name = char_name.text
+			image = char_image.image
+			LOCAL.slvl = bonus_name[selected_bonus] == "software" ? 2 : 1
+			LOCAL.hlvl = bonus_name[selected_bonus] == "hardware" ? 2 : 1
+			deck = createDeck(hlvl, slvl)
+			if bonus_name[selected_bonus] == "skills"
+				attack = 2
+				defense = 2
+				stealth = 2
+				analysis = 2
+				programming = 2
+				chip_design = 2
+			money = bonus_name[selected_bonus] == "money" ? 2000 : 100
+			mission_list = ARRAY
+			completed_missions = ARRAY
 // *********************
-				backdoors =	ARRAY
+			backdoors =	ARRAY
 // ********************* END
 // debug stuff START
 //				deck.optional_hardware[] = createHardware(PROXIMITY_MAPPER, 1)
-				deck.optional_hardware[] = createHardware(BIO_MONITOR, 1)
+			deck.optional_hardware[] = createHardware(BIO_MONITOR, 1)
 //				deck.proximity_mapper = true
 // debug stuff END
 
-		updateShopInventory()
+	updateShopInventory()
 
-		// create the initial mission list
+	// create the initial mission list
+	makeMissionsAvailable()
+	makeMissionsAvailable()
+	makeMissionsAvailable()
+	while (player.mission_list.size < 2) // make sure there are at least two missions when the game starts
 		makeMissionsAvailable()
-		makeMissionsAvailable()
-		makeMissionsAvailable()
-		while (player.mission_list.size < 2) // make sure there are at least two missions when the game starts
-			makeMissionsAvailable()
 
 
-	// checks whether an item already exists in the shop
-	RULESET.duplicateShopItem = FUNCTION (item, shop_list)
-		return_value = false
-		for i = shop_list.size-1 downto 0
-			if shop_list[i].type == item.type && shop_list[i].rating == item.rating
-				return_value = true
-				break
+// checks whether an item already exists in the shop
+RULESET.duplicateShopItem = FUNCTION (item, shop_list)
+	return_value = false
+	for i = shop_list.size-1 downto 0
+		if shop_list[i].type == item.type && shop_list[i].rating == item.rating
+			return_value = true
+			break
 
 
-	// returns a text that explains the technical details of a mission
-	RULESET.generateMissionDetailsDescription = FUNCTION (mission)
-		// the target system
-		if mission.target_system.name != UNDEFINED
-			return_value = "Your target is the "+mission.target_system.name+" system, which has a security rating of "+mission.target_system.rating+"."
-		else
-			return_value = "The target system has a security rating of "+mission.target_system.rating+"."
-		// the backdoor to the system
-		if indexof(mission.target_system,player.backdoors) >= 0
-			return_value = return_value + " You have a backdoor to the system."
-		// collect info about the goals
-		LOCAL.target_count = 1
-		LOCAL.no_red_alarm = false
-		LOCAL.time_restriction = false
-		// there's either one goal or an array of goals
-		LOCAL.goal = mission.goal
-		if value_type(goal) != "ARRAY"
-			if goal.structure_type == "NO_RED_ALARM"
-				no_red_alarm = true
-			else if goal.structure_type == "TIME_RESTRICTION"
-				time_restriction = goal
-		else
-			target_count = goal.size
-			for j = goal.size-1 downto 0
-				if goal[j].structure_type == "NO_RED_ALARM" || goal[j].structure_type == "CREATE_BACKDOOR" || goal[j].structure_type == "CRASH_SYSTEM" || goal[j].structure_type == "TIME_RESTRICTION"
-					if goal[j].structure_type == "NO_RED_ALARM"
-						no_red_alarm = true
-					else if goal[j].structure_type == "TIME_RESTRICTION"
-						time_restriction = goal[j]
-					target_count = target_count - 1
-		// describe the goals
-		if no_red_alarm
-			return_value = return_value + " The target system must not become aware of any tampering, so do not trigger a red alert."
-		if target_count > 1
-			return_value = return_value + " There are "+target_count+" targets within the system."
-		if time_restriction != false
-			return_value = return_value + " You must complete the mission and leave the system within "+time_restriction.end_time/60 + " minutes " + (time_restriction.end_time % 60 == 0 ? "" : "and "+time_restriction.end_time%60+" seconds ") + "of system entry."
+// returns a text that explains the technical details of a mission
+RULESET.generateMissionDetailsDescription = FUNCTION (mission)
+	// the target system
+	if mission.target_system.name != UNDEFINED
+		return_value = "Your target is the "+mission.target_system.name+" system, which has a security rating of "+mission.target_system.rating+"."
+	else
+		return_value = "The target system has a security rating of "+mission.target_system.rating+"."
+	// the backdoor to the system
+	if indexof(mission.target_system,player.backdoors) >= 0
+		return_value = return_value + " You have a backdoor to the system."
+	// collect info about the goals
+	LOCAL.target_count = 1
+	LOCAL.no_red_alarm = false
+	LOCAL.time_restriction = false
+	// there's either one goal or an array of goals
+	LOCAL.goal = mission.goal
+	if value_type(goal) != "ARRAY"
+		if goal.structure_type == "NO_RED_ALARM"
+			no_red_alarm = true
+		else if goal.structure_type == "TIME_RESTRICTION"
+			time_restriction = goal
+	else
+		target_count = goal.size
+		for j = goal.size-1 downto 0
+			if goal[j].structure_type == "NO_RED_ALARM" || goal[j].structure_type == "CREATE_BACKDOOR" || goal[j].structure_type == "CRASH_SYSTEM" || goal[j].structure_type == "TIME_RESTRICTION"
+				if goal[j].structure_type == "NO_RED_ALARM"
+					no_red_alarm = true
+				else if goal[j].structure_type == "TIME_RESTRICTION"
+					time_restriction = goal[j]
+				target_count = target_count - 1
+	// describe the goals
+	if no_red_alarm
+		return_value = return_value + " The target system must not become aware of any tampering, so do not trigger a red alert."
+	if target_count > 1
+		return_value = return_value + " There are "+target_count+" targets within the system."
+	if time_restriction != false
+		return_value = return_value + " You must complete the mission and leave the system within "+time_restriction.end_time/60 + " minutes " + (time_restriction.end_time % 60 == 0 ? "" : "and "+time_restriction.end_time%60+" seconds ") + "of system entry."
 
 
 
-	RULESET.healingTime1 = FUNCTION (human, use_hospital = false)
-		return_value = human.physical_damage
-		if use_hospital
-			return_value = ( return_value + 1 ) / 2
+RULESET.healingTime1 = FUNCTION (human, use_hospital = false)
+	return_value = human.physical_damage
+	if use_hospital
+		return_value = ( return_value + 1 ) / 2
 
 
-	RULESET.healingTimeAll = FUNCTION (human, use_hospital = false)
-		return_value = human.physical_damage * (human.physical_damage+2) / 3
-		if use_hospital
-			return_value = ( return_value + 1 ) / 2
+RULESET.healingTimeAll = FUNCTION (human, use_hospital = false)
+	return_value = human.physical_damage * (human.physical_damage+2) / 3
+	if use_hospital
+		return_value = ( return_value + 1 ) / 2
 
 
-	// tries to make 0 to 2 missions available to the player
-	RULESET.makeMissionsAvailable = FUNCTION
-		LOCAL.new_missions = random(0,1)+random(0,1)
-		if new_missions > 0
-			// make a list of the missions which could become available
-			LOCAL.possible_missions = ARRAY
-			LOCAL.m
-			LOCAL.available
-			for i = MISSION_LIST.size-1 downto 0
-				// check whether the mission is available
-				available = MISSION_LIST[i].available
-				if value_type(available) == "FUNCTION"
-					available = available(MISSION_LIST[i])
-				// if it is available make sure that it isn't on the player's list of completed missions
+// tries to make 0 to 2 missions available to the player
+RULESET.makeMissionsAvailable = FUNCTION
+	LOCAL.new_missions = random(0,1)+random(0,1)
+	if new_missions > 0
+		// make a list of the missions which could become available
+		LOCAL.possible_missions = ARRAY
+		LOCAL.m
+		LOCAL.available
+		for i = MISSION_LIST.size-1 downto 0
+			// check whether the mission is available
+			available = MISSION_LIST[i].available
+			if value_type(available) == "FUNCTION"
+				available = available(MISSION_LIST[i])
+			// if it is available make sure that it isn't on the player's list of completed missions
+			if available
+				available = indexof(MISSION_LIST[i].scriptname, player.completed_missions) == UNDEFINED
+				// if it is still available, make sure that it isn't on the player's current mission list
 				if available
-					available = indexof(MISSION_LIST[i].scriptname, player.completed_missions) == UNDEFINED
-					// if it is still available, make sure that it isn't on the player's current mission list
-					if available
-						m = player.mission_list
-						for j = m.size-1 downto 0
-							if m[j].scriptname == MISSION_LIST[i].scriptname
-								available = false
-								break
-					// now that the mission has passed all tests, put it on the list of potential new missions
-					if available
-						possible_missions[] = MISSION_LIST[i]
-			// pick and add the missions
-			if new_missions > possible_missions.size
-				new_missions = possible_missions.size
-			for i = new_missions downto 1
-				LOCAL.k = random(0,possible_missions.size-1)
-				m = copy(possible_missions[k])
-				player.mission_list[] = m
-				delete(possible_missions, k)
-				m.available = true
-				if value_type(m.rating) == "FUNCTION"
-					m.rating = m.rating(m)
-				if value_type(m.payment) == "FUNCTION"
-					m.payment = m.payment(m)
-				// copy all the mission goals to leave their template version intact while playing the mission
-				if value_type(m.goal) == "STRUCTURE"
-					m.goal = copy(m.goal)
-				else if value_type(m.goal) == "ARRAY"
-					k = m.goal
-					m.goal = ARRAY
-					for j = 0 to k.size-1
-						m.goal[j] = copy(k[j])
-				// finally run the mission's setup function if there is one
-				if value_type(m.setup) == "FUNCTION"
-					m.setup(m)
+					m = player.mission_list
+					for j = m.size-1 downto 0
+						if m[j].scriptname == MISSION_LIST[i].scriptname
+							available = false
+							break
+				// now that the mission has passed all tests, put it on the list of potential new missions
+				if available
+					possible_missions[] = MISSION_LIST[i]
+		// pick and add the missions
+		if new_missions > possible_missions.size
+			new_missions = possible_missions.size
+		for i = new_missions downto 1
+			LOCAL.k = random(0,possible_missions.size-1)
+			m = copy(possible_missions[k])
+			player.mission_list[] = m
+			delete(possible_missions, k)
+			m.available = true
+			if value_type(m.rating) == "FUNCTION"
+				m.rating = m.rating(m)
+			if value_type(m.payment) == "FUNCTION"
+				m.payment = m.payment(m)
+			// copy all the mission goals to leave their template version intact while playing the mission
+			if value_type(m.goal) == "STRUCTURE"
+				m.goal = copy(m.goal)
+			else if value_type(m.goal) == "ARRAY"
+				k = m.goal
+				m.goal = ARRAY
+				for j = 0 to k.size-1
+					m.goal[j] = copy(k[j])
+			// finally run the mission's setup function if there is one
+			if value_type(m.setup) == "FUNCTION"
+				m.setup(m)
 
 
-	RULESET.startMission = FUNCTION (mission)
-		player.current_mission = mission
-		player.current_system = generateSystem(mission.target_system, mission)
-		player.node = UNDEFINED
-		movePlayer(player.current_system.entry_point)
-		player.current_turn = 0
-		debug("_b_ startMission() it would be better to reset the player's deck everytime s/he goes offline")
-		player.deck.damage = 0
-		player.deck.traced = false
-		player.deck.slow_program = UNDEFINED
-		player.deck.boost_program = UNDEFINED
-		player.deck.effects = ARRAY
-		debug("****************** "+player.deck.current_load)
-		displayScreen(system_screen, false)
+RULESET.startMission = FUNCTION (mission)
+	player.current_mission = mission
+	player.current_system = generateSystem(mission.target_system, mission)
+	player.node = UNDEFINED
+	movePlayer(player.current_system.entry_point)
+	player.current_turn = 0
+	debug("_b_ startMission() it would be better to reset the player's deck everytime s/he goes offline")
+	player.deck.damage = 0
+	player.deck.traced = false
+	player.deck.slow_program = UNDEFINED
+	player.deck.boost_program = UNDEFINED
+	player.deck.effects = ARRAY
+	debug("****************** "+player.deck.current_load)
+	displayScreen(system_screen, false)
 
 
 
-	RULESET.updateShopInventory = FUNCTION
-		LOCAL.c = ARRAY
-		player.shop_inventory = c
-		LOCAL.x
-		// make programs
-		for i = random(1,4) + random(1,4) + random(1,4) downto 1
-			while x == UNDEFINED || duplicateShopItem(x, c)
-				x = createProgram(PROGRAM_TYPES[random(0,PROGRAM_TYPES.size-1)], random(1,6)+2*player.lifestyle)
-			x.average_value = getThingValue(x)
-			x.value = ( x.average_value * (8500+random(0,3000)) + 5000 ) / 10000      // default value +/- up to 15%
-			c[] = x
-			x = UNDEFINED
+RULESET.updateShopInventory = FUNCTION
+	LOCAL.c = ARRAY
+	player.shop_inventory = c
+	LOCAL.x
+	// make programs
+	for i = random(1,4) + random(1,4) + random(1,4) downto 1
+		while x == UNDEFINED || duplicateShopItem(x, c)
+			x = createProgram(PROGRAM_TYPES[random(0,PROGRAM_TYPES.size-1)], random(1,6)+2*player.lifestyle)
+		x.average_value = getThingValue(x)
+		x.value = ( x.average_value * (8500+random(0,3000)) + 5000 ) / 10000      // default value +/- up to 15%
+		c[] = x
+		x = UNDEFINED
 
-		// make chips
-		for i = random(1,4) + random(1,4) downto 1
-			while x == UNDEFINED || duplicateShopItem(x, c)
-				x = createChip(CHIP_TYPES[random(0,CHIP_TYPES.size-1)], 1+random(1,6)+2*player.lifestyle)
-			x.average_value = getThingValue(x)
-			x.value = ( x.average_value * (8500+random(0,3000)) + 5000 ) / 10000      // default value +/- up to 15%
-			c[] = x
-			x = UNDEFINED
+	// make chips
+	for i = random(1,4) + random(1,4) downto 1
+		while x == UNDEFINED || duplicateShopItem(x, c)
+			x = createChip(CHIP_TYPES[random(0,CHIP_TYPES.size-1)], 1+random(1,6)+2*player.lifestyle)
+		x.average_value = getThingValue(x)
+		x.value = ( x.average_value * (8500+random(0,3000)) + 5000 ) / 10000      // default value +/- up to 15%
+		c[] = x
+		x = UNDEFINED
 
-		// make hardware
-		LOCAL.type
-		for i = random(1,4) downto 1
-			while x == UNDEFINED || duplicateShopItem(x, c)
-				type = HARDWARE_TYPES[random(0,HARDWARE_TYPES.size-1)]
-				x = createChip(type, min(random(1,1+player.lifestyle),type.max_rating))
-			x.average_value = getThingValue(x)
-			x.value = ( x.average_value * (8500+random(0,3000)) + 5000 ) / 10000      // default value +/- up to 15%
-			c[] = x
-			x = UNDEFINED
+	// make hardware
+	LOCAL.type
+	for i = random(1,4) downto 1
+		while x == UNDEFINED || duplicateShopItem(x, c)
+			type = HARDWARE_TYPES[random(0,HARDWARE_TYPES.size-1)]
+			x = createChip(type, min(random(1,1+player.lifestyle),type.max_rating))
+		x.average_value = getThingValue(x)
+		x.value = ( x.average_value * (8500+random(0,3000)) + 5000 ) / 10000      // default value +/- up to 15%
+		c[] = x
+		x = UNDEFINED
 
-		// sort the shop inventory by item type order
-		LOCAL.swap
-		for a = c.size-2 downto 0
-			for b = 0 to a
-				if c[b].type.id > c[b+1].type.id ||( c[b].type.id == c[b+1].type.id &&( c[b].rating < c[b+1].rating ||( c[b].rating == c[b+1].rating && c[b].value > c[b+1].value )))
-					swap = c[b]
-					c[b] = c[b+1]
-					c[b+1] = swap
+	// sort the shop inventory by item type order
+	LOCAL.swap
+	for a = c.size-2 downto 0
+		for b = 0 to a
+			if c[b].type.id > c[b+1].type.id ||( c[b].type.id == c[b+1].type.id &&( c[b].rating < c[b+1].rating ||( c[b].rating == c[b+1].rating && c[b].value > c[b+1].value )))
+				swap = c[b]
+				c[b] = c[b+1]
+				c[b+1] = swap

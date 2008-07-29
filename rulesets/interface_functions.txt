@@ -1,4 +1,4 @@
-english
+localization english
 	ENGINE.addScreenOverlay = FUNCTION (overlay)
 		if ENGINE.screen_overlays == UNDEFINED
 			ENGINE.screen_overlays = ARRAY

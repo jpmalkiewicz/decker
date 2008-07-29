@@ -3,29 +3,28 @@
 // ****************************************************************************************************************************************************
 
 
-english
-	RULESET.BORDER_COLOR1 = "#6666ff"
-	RULESET.BORDER_COLOR2 = "#000080"
-	RULESET.BACKGROUND_COLOR = "#0000ff"    // default color for the screen background
-	RULESET.BACKGROUND_COLOR2 = "#333399"   // set this to UNDEFINED to give screens only 1 border
-	RULESET.TABLE_BACKGROUND_COLOR = "#ffffff"
-	RULESET.TABLE_SELECTED_ROW_BACKGROUND = "#bbccff"
-	RULESET.TABLE_TEXT_COLOR = "#000033"
-	RULESET.TEXT_STYLE = TEXT
-		font = "Arial;13pt"
-		color = "#ffffff"
-	RULESET.TEXT_STYLE_BOLD = TEXT
-		font = "Arial;13pt;bold"
-		color = "#ffffff"
+RULESET.BORDER_COLOR1 = "#6666ff"
+RULESET.BORDER_COLOR2 = "#000080"
+RULESET.BACKGROUND_COLOR = "#0000ff"    // default color for the screen background
+RULESET.BACKGROUND_COLOR2 = "#333399"   // set this to UNDEFINED to give screens only 1 border
+RULESET.TABLE_BACKGROUND_COLOR = "#ffffff"
+RULESET.TABLE_SELECTED_ROW_BACKGROUND = "#bbccff"
+RULESET.TABLE_TEXT_COLOR = "#000033"
+RULESET.TEXT_STYLE = TEXT
+	font = "Arial;13pt"
+	color = "#ffffff"
+RULESET.TEXT_STYLE_BOLD = TEXT
+	font = "Arial;13pt;bold"
+	color = "#ffffff"
 
 // new character screen specific settings *************************************************************************************************************
-	RULESET.NCS_SELECTED_SKILL_COLOR = "#80ff80"
-	RULESET.NCS_UNSELECTED_SKILL_COLOR = "#bbbbbb"
-	RULESET.NCS_PRESSED_SKILL_COLOR = "#ffffff"
-	RULESET.NCS_USER_INPUT_COLOR = "#000000"
-	RULESET.NCS_USER_INPUT_BACKGROUND_COLOR = "#d7d7d7"
-	RULESET.NCS_IMAGE_BACKGROUND_COLOR = "#ffffff"      // the color of the area the character image is displayed in
-	RULESET.NCS_OPTION_TEXT_COLOR = "#bbbbbb"           // for the tooltips and ironman button texts
-	RULESET.NCS_PRESSED_OPTION_TEXT_COLOR = "#ffffff"   // for the tooltips and ironman button texts
-	RULESET.NCS_ON_COLOR = "#88ff88"                    // for the tooltips and ironman button texts
-	RULESET.NCS_OFF_COLOR = "#ff0000"                   // for the tooltips and ironman button texts
+RULESET.NCS_SELECTED_SKILL_COLOR = "#80ff80"
+RULESET.NCS_UNSELECTED_SKILL_COLOR = "#bbbbbb"
+RULESET.NCS_PRESSED_SKILL_COLOR = "#ffffff"
+RULESET.NCS_USER_INPUT_COLOR = "#000000"
+RULESET.NCS_USER_INPUT_BACKGROUND_COLOR = "#d7d7d7"
+RULESET.NCS_IMAGE_BACKGROUND_COLOR = "#ffffff"      // the color of the area the character image is displayed in
+RULESET.NCS_OPTION_TEXT_COLOR = "#bbbbbb"           // for the tooltips and ironman button texts
+RULESET.NCS_PRESSED_OPTION_TEXT_COLOR = "#ffffff"   // for the tooltips and ironman button texts
+RULESET.NCS_ON_COLOR = "#88ff88"                    // for the tooltips and ironman button texts
+RULESET.NCS_OFF_COLOR = "#ff0000"                   // for the tooltips and ironman button texts

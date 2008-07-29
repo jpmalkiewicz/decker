@@ -1,4 +1,7 @@
 85%
+2008-07-29
+	started on the battleships tutorial
+	changed the way localizations are marked, added the default_localization command
 2008-07-26
 	32 bit .bmps with no alpha channel (uppermost 8 bit always zero) are now interpreted as rrggbb images instead of completely transparent aarrggbb images
 	instead of setting the initial_screen directly, Decker now calls the script function displayScreen() for it.

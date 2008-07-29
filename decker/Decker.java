@@ -77,10 +77,6 @@ public class Decker
 			throw new RuntimeException("displayScreen must be a FUNCTION but instead has the value "+displayScreenFunction+" ("+((displayScreenFunction==null)?"null":displayScreenFunction.typeName()));
 		}
 		FunctionCall.executeFunctionCall(displayScreenFunction.function(), new Value[]{ initial_screen }, null);
-System.out.println(displayScreenFunction);
-//		Global.getDisplayedScreen().set(initial_screen);
-		// run the setup function for the initial_screen if it has one
-//		if (initial_screen.get("")
 		// start drawing it
 		Global.getViewWrapper().repaint();
 		Global.getViewWrapper().requestFocus();

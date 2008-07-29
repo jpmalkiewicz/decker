@@ -1,8 +1,7 @@
-english
-	RULESET.special_order_screen = COMPONENT
-		title = "Decker - Thrifty Electronics"
-		width = 300
-		height = 200
+RULESET.special_order_screen = COMPONENT
+	title = "Decker - Thrifty Electronics"
+	width = 300
+	height = 200
 
-		// type list
-		type_scroll_pane = SCROLLPANE
+	// type list
+	type_scroll_pane = SCROLLPANE

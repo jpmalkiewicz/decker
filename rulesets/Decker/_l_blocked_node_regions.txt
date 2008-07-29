@@ -1,93 +1,92 @@
-english
-	RULESET.nodeRegionBlocked = FUNCTION (node, x, y)
-		if node.structure_type == "NODE"
-			return_value = getStructureMember(BLOCKED_NODE_REGIONS, toLowerCase(getNodeTypeCategory(node.type)))
-			if return_value != UNDEFINED
-				return_value = return_value[y][x] == true
-				if !return_value
-					for i = node.objects.size-1 downto 0
-						if node.objects[i].x == x && node.objects[i].y == y
-							return_value = true
-							break
+RULESET.nodeRegionBlocked = FUNCTION (node, x, y)
+	if node.structure_type == "NODE"
+		return_value = getStructureMember(BLOCKED_NODE_REGIONS, toLowerCase(getNodeTypeCategory(node.type)))
+		if return_value != UNDEFINED
+			return_value = return_value[y][x] == true
+			if !return_value
+				for i = node.objects.size-1 downto 0
+					if node.objects[i].x == x && node.objects[i].y == y
+						return_value = true
+						break
 
 
-	LOCAL.X = true
+LOCAL.X = true
 
 
-	RULESET.BLOCKED_NODE_REGIONS = SET
-		cpu = ARRAY
-			createArray(X,X,X, , , ,X,X,X)
-			createArray(X,X, , , , , ,X,X)
-			createArray(X, , , , , , , ,X)
-			createArray( , , ,X,X,X, , , )
-			createArray( , , ,X,X,X, , , )
-			createArray( , , ,X,X,X, , , )
-			createArray(X, , , , , , , ,X)
-			createArray(X,X, , , , , ,X,X)
-			createArray(X,X,X, , , ,X,X,X)
+RULESET.BLOCKED_NODE_REGIONS = SET
+	cpu = ARRAY
+		createArray(X,X,X, , , ,X,X,X)
+		createArray(X,X, , , , , ,X,X)
+		createArray(X, , , , , , , ,X)
+		createArray( , , ,X,X,X, , , )
+		createArray( , , ,X,X,X, , , )
+		createArray( , , ,X,X,X, , , )
+		createArray(X, , , , , , , ,X)
+		createArray(X,X, , , , , ,X,X)
+		createArray(X,X,X, , , ,X,X,X)
 
-		spu = ARRAY
-			createArray(X,X,X, , , ,X,X,X)
-			createArray(X,X, , , , , ,X,X)
-			createArray(X, , , , , , , ,X)
-			createArray( , , ,X, ,X, , , )
-			createArray( , , , , , , , , )
-			createArray( , , ,X, ,X, , , )
-			createArray(X, , , , , , , ,X)
-			createArray(X,X, , , , , ,X,X)
-			createArray(X,X,X, , , ,X,X,X)
+	spu = ARRAY
+		createArray(X,X,X, , , ,X,X,X)
+		createArray(X,X, , , , , ,X,X)
+		createArray(X, , , , , , , ,X)
+		createArray( , , ,X, ,X, , , )
+		createArray( , , , , , , , , )
+		createArray( , , ,X, ,X, , , )
+		createArray(X, , , , , , , ,X)
+		createArray(X,X, , , , , ,X,X)
+		createArray(X,X,X, , , ,X,X,X)
 
-		cop = ARRAY
-			createArray(X,X,X, , , ,X,X,X)
-			createArray(X,X,X, , , ,X,X,X)
-			createArray(X,X, , , , , ,X,X)
-			createArray(X, , , , , , , ,X)
-			createArray( , , , ,X, , , , )
-			createArray(X, , , , , , , ,X)
-			createArray(X,X, , , , , ,X,X)
-			createArray(X,X,X, , , ,X,X,X)
-			createArray(X,X,X, , , ,X,X,X)
+	cop = ARRAY
+		createArray(X,X,X, , , ,X,X,X)
+		createArray(X,X,X, , , ,X,X,X)
+		createArray(X,X, , , , , ,X,X)
+		createArray(X, , , , , , , ,X)
+		createArray( , , , ,X, , , , )
+		createArray(X, , , , , , , ,X)
+		createArray(X,X, , , , , ,X,X)
+		createArray(X,X,X, , , ,X,X,X)
+		createArray(X,X,X, , , ,X,X,X)
 
-		portal = ARRAY
-			createArray( , , , , , , , , )
-			createArray( , , , , , , , , )
-			createArray( , , , , , , , , )
-			createArray( , , , ,X, , , , )
-			createArray( , , , ,X, , , , )
-			createArray( , , , ,X, , , , )
-			createArray( , , , , , , , , )
-			createArray( , , , , , , , , )
-			createArray( , , , , , , , , )
+	portal = ARRAY
+		createArray( , , , , , , , , )
+		createArray( , , , , , , , , )
+		createArray( , , , , , , , , )
+		createArray( , , , ,X, , , , )
+		createArray( , , , ,X, , , , )
+		createArray( , , , ,X, , , , )
+		createArray( , , , , , , , , )
+		createArray( , , , , , , , , )
+		createArray( , , , , , , , , )
 
-		datastore = ARRAY
-			createArray(X,X, , , , , , ,X)
-			createArray( , , , , , , , , )
-			createArray( ,X, ,X, , ,X, , )
-			createArray( , , ,X,X, , , , )
-			createArray( , , , ,X, ,X, , )
-			createArray( , , ,X, , , , , )
-			createArray(X, , , , ,X, , , )
-			createArray( , , , , , , ,X,X)
-			createArray( ,X, , , , , ,X,X)
+	datastore = ARRAY
+		createArray(X,X, , , , , , ,X)
+		createArray( , , , , , , , , )
+		createArray( ,X, ,X, , ,X, , )
+		createArray( , , ,X,X, , , , )
+		createArray( , , , ,X, ,X, , )
+		createArray( , , ,X, , , , , )
+		createArray(X, , , , ,X, , , )
+		createArray( , , , , , , ,X,X)
+		createArray( ,X, , , , , ,X,X)
 
-		io = ARRAY
-			createArray(X,X,X, , , ,X,X,X)
-			createArray(X, , , , , , , ,X)
-			createArray(X, , , , , , , ,X)
-			createArray( , , , , , , , , )
-			createArray( , , , , , , , , )
-			createArray( , , , , , , , , )
-			createArray(X, , , , , , , ,X)
-			createArray(X, , , , , , , ,X)
-			createArray(X,X,X, , , ,X,X,X)
+	io = ARRAY
+		createArray(X,X,X, , , ,X,X,X)
+		createArray(X, , , , , , , ,X)
+		createArray(X, , , , , , , ,X)
+		createArray( , , , , , , , , )
+		createArray( , , , , , , , , )
+		createArray( , , , , , , , , )
+		createArray(X, , , , , , , ,X)
+		createArray(X, , , , , , , ,X)
+		createArray(X,X,X, , , ,X,X,X)
 
-		junction = ARRAY
-			createArray(X,X,X,X, ,X,X,X,X)
-			createArray(X,X,X, , , ,X,X,X)
-			createArray(X,X, , , , , ,X,X)
-			createArray(X, , , , , , , ,X)
-			createArray( , , , , , , , , )
-			createArray(X, , , , , , , ,X)
-			createArray(X,X, , , , , ,X,X)
-			createArray(X,X,X, , , ,X,X,X)
-			createArray(X,X,X,X, ,X,X,X,X)
+	junction = ARRAY
+		createArray(X,X,X,X, ,X,X,X,X)
+		createArray(X,X,X, , , ,X,X,X)
+		createArray(X,X, , , , , ,X,X)
+		createArray(X, , , , , , , ,X)
+		createArray( , , , , , , , , )
+		createArray(X, , , , , , , ,X)
+		createArray(X,X, , , , , ,X,X)
+		createArray(X,X,X, , , ,X,X,X)
+		createArray(X,X,X,X, ,X,X,X,X)

@@ -1,129 +1,128 @@
-english
-	RULESET.CHIP_TYPES = ARRAY
-		THING_TYPE
-			name = "CPU"
-			image = "shop_item/chip"
-			category = ARRAY
-				CHIP
-				CPU
-			complexity = 5
-		THING_TYPE
-			name = "Coprocessor"
-			image = "shop_item/chip"
-			category = ARRAY
-				CHIP
-				COPROCESSOR
-			complexity = 5
-		THING_TYPE
-			name = "Attack Firmware"
-			image = "shop_item/chip"
-			category = ARRAY
-				CHIP
-				ATTACK
-			complexity = 4
-		THING_TYPE
-			name = "Defense Firmware"
-			image = "shop_item/chip"
-			category = ARRAY
-				CHIP
-				DEFENSE
-			complexity = 4
-		THING_TYPE
-			name = "Stealth Firmware"
-			image = "shop_item/chip"
-			category = ARRAY
-				CHIP
-				STEALTH
-			complexity = 4
-		THING_TYPE
-			name = "Analysis Firmware"
-			image = "shop_item/chip"
-			category = ARRAY
-				CHIP
-				ANALYSIS
-			complexity = 4
+RULESET.CHIP_TYPES = ARRAY
+	THING_TYPE
+		name = "CPU"
+		image = "shop_item/chip"
+		category = ARRAY
+			CHIP
+			CPU
+		complexity = 5
+	THING_TYPE
+		name = "Coprocessor"
+		image = "shop_item/chip"
+		category = ARRAY
+			CHIP
+			COPROCESSOR
+		complexity = 5
+	THING_TYPE
+		name = "Attack Firmware"
+		image = "shop_item/chip"
+		category = ARRAY
+			CHIP
+			ATTACK
+		complexity = 4
+	THING_TYPE
+		name = "Defense Firmware"
+		image = "shop_item/chip"
+		category = ARRAY
+			CHIP
+			DEFENSE
+		complexity = 4
+	THING_TYPE
+		name = "Stealth Firmware"
+		image = "shop_item/chip"
+		category = ARRAY
+			CHIP
+			STEALTH
+		complexity = 4
+	THING_TYPE
+		name = "Analysis Firmware"
+		image = "shop_item/chip"
+		category = ARRAY
+			CHIP
+			ANALYSIS
+		complexity = 4
 
-	// add the default sorting order IDs
-	LOCAL.offset = PROGRAM_TYPES.size
-	for i = CHIP_TYPES.size-1 downto 0
-		CHIP_TYPES[i].id = i + offset
+// add the default sorting order IDs
+LOCAL.offset = PROGRAM_TYPES.size
+for i = CHIP_TYPES.size-1 downto 0
+	CHIP_TYPES[i].id = i + offset
 
 
-	RULESET.HARDWARE_TYPES = ARRAY
-		THING_TYPE
-			name = "Chip Burner"
-			image = "shop_item/hardware"
-			category = ARRAY
-				HARDWARE
-				CHIP_BURNER
-			base_value = 1000
-			max_rating = 4
-		THING_TYPE
-			name = "Surge Suppressor"
-			image = "shop_item/hardware"
-			category = ARRAY
-				HARDWARE
-				SURGE_SUPPRESSOR
-			base_value = 500
-			max_rating = 5
-		THING_TYPE
-			name = "Neural Damper"
-			image = "shop_item/hardware"
-			category = ARRAY
-				HARDWARE
-				NEURAL_DAMPER
-			base_value = 1000
-			max_rating = 5
-		THING_TYPE
-			name = "Trace Monitor"
-			image = "shop_item/hardware"
-			category = ARRAY
-				HARDWARE
-				TRACE_MONITOR
-			base_value = 250
-			max_rating = 3
-		THING_TYPE
-			name = "Bio Monitor"
-			image = "shop_item/hardware"
-			category = ARRAY
-				HARDWARE
-				BIO_MONITOR
-			base_value = 500
-			max_rating = 2
-		THING_TYPE
-			name = "High Bandwidth Bus"
-			image = "shop_item/hardware"
-			category = ARRAY
-				HARDWARE
-				HIGH_BANDWIDTH_BUS
-			base_value = 500
-			max_rating = 5
-		THING_TYPE
-			name = "Proximity Mapper"
-			image = "shop_item/hardware"
-			category = ARRAY
-				HARDWARE
-				PROXIMITY_MAPPER
-			base_value = 2000
-			max_rating = 1
-		THING_TYPE
-			name = "Design Assistant"
-			image = "shop_item/hardware"
-			category = ARRAY
-				HARDWARE
-				DESIGN_ASSISTANT
-			base_value = 2000
-			max_rating = 3
-		THING_TYPE
-			name = "Anti Trace Proxy"
-			image = "shop_item/hardware"
-			category = ARRAY
-				HARDWARE
-				ANTI_TRACE_PROXY
-			base_value = 1500
-			max_rating = 1
+RULESET.HARDWARE_TYPES = ARRAY
+	THING_TYPE
+		name = "Chip Burner"
+		image = "shop_item/hardware"
+		category = ARRAY
+			HARDWARE
+			CHIP_BURNER
+		base_value = 1000
+		max_rating = 4
+	THING_TYPE
+		name = "Surge Suppressor"
+		image = "shop_item/hardware"
+		category = ARRAY
+			HARDWARE
+			SURGE_SUPPRESSOR
+		base_value = 500
+		max_rating = 5
+	THING_TYPE
+		name = "Neural Damper"
+		image = "shop_item/hardware"
+		category = ARRAY
+			HARDWARE
+			NEURAL_DAMPER
+		base_value = 1000
+		max_rating = 5
+	THING_TYPE
+		name = "Trace Monitor"
+		image = "shop_item/hardware"
+		category = ARRAY
+			HARDWARE
+			TRACE_MONITOR
+		base_value = 250
+		max_rating = 3
+	THING_TYPE
+		name = "Bio Monitor"
+		image = "shop_item/hardware"
+		category = ARRAY
+			HARDWARE
+			BIO_MONITOR
+		base_value = 500
+		max_rating = 2
+	THING_TYPE
+		name = "High Bandwidth Bus"
+		image = "shop_item/hardware"
+		category = ARRAY
+			HARDWARE
+			HIGH_BANDWIDTH_BUS
+		base_value = 500
+		max_rating = 5
+	THING_TYPE
+		name = "Proximity Mapper"
+		image = "shop_item/hardware"
+		category = ARRAY
+			HARDWARE
+			PROXIMITY_MAPPER
+		base_value = 2000
+		max_rating = 1
+	THING_TYPE
+		name = "Design Assistant"
+		image = "shop_item/hardware"
+		category = ARRAY
+			HARDWARE
+			DESIGN_ASSISTANT
+		base_value = 2000
+		max_rating = 3
+	THING_TYPE
+		name = "Anti Trace Proxy"
+		image = "shop_item/hardware"
+		category = ARRAY
+			HARDWARE
+			ANTI_TRACE_PROXY
+		base_value = 1500
+		max_rating = 1
 
-	// add the default sorting order IDs
-	LOCAL.offset = PROGRAM_TYPES.size + CHIP_TYPES.size
-	for i = HARDWARE_TYPES.size-1 downto 0
-		HARDWARE_TYPES[i].id = i + offset
+// add the default sorting order IDs
+LOCAL.offset = PROGRAM_TYPES.size + CHIP_TYPES.size
+for i = HARDWARE_TYPES.size-1 downto 0
+	HARDWARE_TYPES[i].id = i + offset

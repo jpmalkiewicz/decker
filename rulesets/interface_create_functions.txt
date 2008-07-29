@@ -1,4 +1,4 @@
-english
+localization english
 	// creates a border with the given values
 	ENGINE.createBorder = FUNCTION (bx, by, bwidth, bheight, bbackground_color, binverted, bcolor1 = BORDER_COLOR1, bcolor2 = BORDER_COLOR2)
 		return_value = BORDER

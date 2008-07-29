@@ -1,4 +1,4 @@
-english
+localization english
 	ENGINE.DEFAULT_BORDER_THICKNESS = 2
 
 	ENGINE.displayed_screen                     // the currently displayed screen

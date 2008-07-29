@@ -16,7 +16,7 @@ import java.util.TreeSet;
 public final class Global
 {
 	final static Random random = new Random();
-	final static String COMMANDS = " if for while with print copy structure break constant "; // the string must start and end with spaces
+	final static String COMMANDS = " if for while with print copy structure break constant localization default_localization "; // the string must start and end with spaces
 	final static String BLOCK_INDENT = "   ";
 	final static int PARSER_EXPRESSION_STACK_SIZE = 100;
 	final static int DEFAULT_PRINT_DEPTH = 10;
@@ -134,7 +134,7 @@ System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").t
 					boolean has_scripts = false;
 					for (int i = 0; i < script_list.length; i++)
 						if (script_list[i].getName().toLowerCase().endsWith(".txt")) {
-							r.addScript(ScriptParser.parse(script_list[i]));
+							r.addScript(ScriptParser.parse(script_list[i], r));
 							has_scripts = true;
 						}
 					// if the ruleset has at least one script, add it to the list of available rulesets
@@ -147,7 +147,7 @@ System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").t
 			System.out.println("loading engine scripts");
 			for (int i = 0; i < dir_list.length; i++)
 				if (dir_list[i].getName().toLowerCase().endsWith(".txt"))
-					engine.addScript(ScriptParser.parse(dir_list[i]));
+					engine.addScript(ScriptParser.parse(dir_list[i], engine));
 	}
 
 	public static void setCurrentRuleset (final Ruleset r)  {
