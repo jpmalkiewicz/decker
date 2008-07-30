@@ -1,4 +1,7 @@
 85%
+2008-07-30
+	added the ability to turn images in 90 degree steps
+	continued work on battleships tutorial
 2008-07-29
 	started on the battleships tutorial
 	changed the way localizations are marked, added the default_localization command
