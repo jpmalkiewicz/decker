@@ -205,6 +205,72 @@ public final static int ABSOLUTE_MIN_VALUE = Integer.MIN_VALUE+6; // coordinate 
 	}
 
 
+	public final static Image getTurnedImage (final String name, final int angle) {
+		// if the image isn't turned, return the normal image
+		if (angle == 0 ||( angle != 90 && angle != 180 && angle != 270 )) {
+			return getImage(name, false, 0);
+		}
+		// try to fetch the turned image
+		Image image = (Image) IMAGES.get(name+"°"+angle);
+		if (image != null) {
+			return image;
+		}
+		else {
+			// fetch the un-turned image
+			image = getImage(name, false, 0);
+			if (image == null) {
+				return null;
+			}
+			// fetch the pixels into an array
+			PixelGrabber pg = new PixelGrabber(image, 0, 0, -1, -1, true);
+			try {
+				pg.grabPixels();
+			} catch (InterruptedException e) {
+				// this should never happen
+				System.err.println("interrupted while turning the image "+name+" by "+angle+" degrees");
+				System.exit(1);
+			}
+			int[] pixels_old = (int[]) pg.getPixels();
+			int[] pixels = new int[pixels_old.length];
+			final int w = pg.getWidth(), h = pg.getHeight();
+			// turn it
+			if (angle == 90) {
+				for(int y = h; --y >= 0; ) {
+					final int offset = y*w;
+					for(int x = w; --x >= 0; ) {
+						// the new position of the pixel at (x,y) is (h-1-y,x)
+						pixels[(h-1-y)+x*h] = pixels_old[x+offset];
+					}
+				}
+				image = Global.getDisplayedComponent().createImage(new MemoryImageSource(h, w, pixels, 0, h));
+			}
+			else if (angle == 180) {
+				for(int y = h; --y >= 0; ) {
+					final int offset = y*w;
+					for(int x = w; --x >= 0; ) {
+						// the new position of the pixel at (x,y) is (w-1-x,h-1-y)
+						pixels[(w-1-x)+(h-1-y)*w] = pixels_old[x+offset];
+					}
+				}
+				image = Global.getDisplayedComponent().createImage(new MemoryImageSource(w, h, pixels, 0, w));
+			}
+			else { // angle == 270
+				for(int y = h; --y >= 0; ) {
+					final int offset = y*w;
+					for(int x = w; --x >= 0; ) {
+						// the new position of the pixel at (x,y) is (y,w-1-x)
+						pixels[y+(w-1-x)*h] = pixels_old[x+offset];
+					}
+				}
+				image = Global.getDisplayedComponent().createImage(new MemoryImageSource(h, w, pixels, 0, h));
+			}
+			// add it to the image list
+			IMAGES.put(name+"°"+angle, image);
+			return image;
+		}
+	}
+
+
 	/** reloads the list of all available images and sounds */
 	public static void reloadArtwork (final boolean prefetchImages)  {
 		IMAGES.clear();

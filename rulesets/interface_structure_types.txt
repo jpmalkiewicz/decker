@@ -71,6 +71,7 @@ localization english
 		IMAGE
 			expandable = true
 			image
+			// angle  // measured clockwise in degrees. without opengl/directx only multiples of 90 are supported
 
 
 		LINE

@@ -18,13 +18,13 @@
 	<tr><td>
 		<table width=100% cellspacing=0 cellpadding=8>
 			<tr><td bgcolor=black>
-				JDecker isn't just the game Decker, it's a game engine. This guide will take you through the steps of making a game, using the game Battleships as an example. At the end of each section you'll find a link to a .zip file that contains the state the example game will have reached, to help you when you are stuck. Just extract it to the jdecker folder to move the game to the described state
+				JDecker isn't just the game Decker, it's a game engine. This guide will take you through the steps of making a game, using the game Battleships as an example. At the end of most sections you'll find a link to a .zip file that contains the new state the example game, to help you when you are stuck. Just extract it to the jdecker folder to move the game to the described state
 				<p><font color=red>The sections below with olive background are script code. To make them dispaly well in the browser, they use three spaces for block indentation. This is strongly discouraged for use in actual scripts and usually even switched off. Use the tabulator key for block indentation instead</font>
 				<p><font color=yellow>Every game has its own folder in the rulesets folder.</font> Go there and create a folder called <font color=#00ff00>battleships</font>. In that folder, create a second folder called <font color=#00ff00>artwork</font>. All the scripts that make this game will be in the battleships folder and all the artwork (images, sounds) will be in the artwork folder.
 				<p>You can launch JDecker with some game immediately running with the command line options. In the jdecker folder, make a batch file with the following line
 				<p><font color=#00ff00>java -classpath . decker.Decker initial_ruleset=battleships</font>
 				<p>If you're using Windows, do this by making a text file called <font color=#00ff00>battleships.bat</font> and putting that line in the file.
-				<p>Most games need some images. Fetch the <a href="create_a_new_game_data/battleships_artwork.zip">battleships_artwork.zip</a> and unzip it to the rulesets/battleships/artwork folder. Now we're all set to create the scripts for the game
+				<p>Most games need some images. Fetch the <a href="create_a_new_game_data/battleships_0_artwork.zip">battleships_0_artwork.zip</a> and unzip it to the rulesets/battleships/artwork folder. Now we're all set to create the scripts for the game
 				<p><a href="create_a_new_game_data/battleships_1_initial_setup.zip">battleships_1_initial_setup.zip</a>
 			</td></tr><tr><td height=50>
 				<h1>The rules</h1>
@@ -45,22 +45,20 @@ RULESET.place_ships_screen = COMPONENT
    height = 370
    component = ARRAY
       IMAGE
-         x = 0
-         y = 0
          image = "game_background.gif"
 
 RULESET.initial_screen = place_ships_screen</pre></td></tr></table>
-<p>That's enough to create a screen with a background image and make it display immediately when the game is started. Let's look at the code again, this time with comments. Don't worry if some things stay unclear. The comments are meant to explain enough to give you an idea of what's happening, not explain everything in detail
+				<p>That's enough to create a screen with a background image and make it display immediately when the game is started. Let's look at the code again, this time with comments. Don't worry if some things stay unclear. The comments are meant to explain enough to give you an idea of what's happening, not explain everything in detail
 				<p><table><tr><td><pre>
 <font color=#00aa00>// this line is a comment. the JDecker engine ignores the double slashes // and everything behind them
 
 // The RULESET defines the game and doesn't change while someone plays the game
-// the next line tells JDecker that we are adding a new variable called place_ships_screen to our RULESET
-//   or that we are assigning it a new value. variables store values and functions
+// the next line tells JDecker that we are adding a new variable called place_ships_screen to
+//   our RULESET or that we are assigning it a new value. variables store values and functions
 // COMPONENT is a structure type. when you use it, the engine immediately creates a structure
 //   of type COMPONENT and gives its variables some initial values</font>
 RULESET.place_ships_screen = COMPONENT
-   <font color=#00aa00>// every COMPONENT has the variables x, y, width and height. we can add more variables to it
+   <font color=#00aa00>// every COMPONENT has the variables x, y, width and height. more variables can be added to it
    // below we are giving new values to its width and height, and add a new variable called title
    // the engine will interpret this as the title to be used for the window title bar</font>
    title = "Battleships"
@@ -71,9 +69,48 @@ RULESET.place_ships_screen = COMPONENT
    // right now there is only the background image</font>
    component = ARRAY
       IMAGE
-         x = 0
-         y = 0
          image = "game_background.gif"
+
+RULESET.initial_screen = place_ships_screen</pre></td></tr></table>
+				<p>Now let's tell the player to "Place your ships on the map" and display the available ships above the player's map grid
+				<p><table><tr><td><pre>
+RULESET.place_ships_screen = COMPONENT
+   title = "Battleships"
+   width = 500
+   height = 370
+   component = ARRAY
+      IMAGE
+         image = "game_background.gif"
+      TEXT
+         text = "Place your ships on the map"
+      IMAGE
+         image = "ship5.gif"
+         x = 40
+         y = 40
+      IMAGE
+         image = "ship4.gif"
+         x = 40
+         y = 60
+      IMAGE
+         image = "ship4.gif"
+         x = 40
+         y = 80
+      IMAGE
+         image = "ship3.gif"
+         x = 40
+         y = 100
+      IMAGE
+         image = "ship3.gif"
+         x = 40
+         y = 120
+      IMAGE
+         image = "ship3.gif"
+         x = 40
+         y = 140
+      IMAGE
+         image = "ship2.gif"
+         x = 40
+         y = 160
 
 RULESET.initial_screen = place_ships_screen</pre></td></tr></table>
 				<p><a href="create_a_new_game_data/battleships_2_first_screen.zip">battleships_2_first_screen.zip</a>
