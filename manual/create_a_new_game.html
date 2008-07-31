@@ -13,43 +13,42 @@
 </head>
 <body bgcolor=black text=#aaaaff link=#ffdd99 alink=#00ff00 vlink=#ffdd99>
 <table width=100% cellspacing=0 cellpadding=0 bgcolor=#000055>
-	<tr height=50><td align=middle bgcolor=#000055><h1>How to create a new game</h1>
-	</td></tr>
-	<tr><td>
-		<table width=100% cellspacing=0 cellpadding=8>
-			<tr><td bgcolor=black>
-				JDecker isn't just the game Decker, it's a game engine. This guide will take you through the steps of making a game, using the game Battleships as an example. At the end of most sections you'll find a link to a .zip file that contains the new state the example game, to help you when you are stuck. Just extract it to the jdecker folder to move the game to the described state
-				<p><font color=red>The sections below with olive background are script code. To make them dispaly well in the browser, they use three spaces for block indentation. This is strongly discouraged for use in actual scripts and usually even switched off. Use the tabulator key for block indentation instead</font>
-				<p><font color=yellow>Every game has its own folder in the rulesets folder.</font> Go there and create a folder called <font color=#00ff00>battleships</font>. In that folder, create a second folder called <font color=#00ff00>artwork</font>. All the scripts that make this game will be in the battleships folder and all the artwork (images, sounds) will be in the artwork folder.
-				<p>You can launch JDecker with some game immediately running with the command line options. In the jdecker folder, make a batch file with the following line
-				<p><font color=#00ff00>java -classpath . decker.Decker initial_ruleset=battleships</font>
-				<p>If you're using Windows, do this by making a text file called <font color=#00ff00>battleships.bat</font> and putting that line in the file.
-				<p>Most games need some images. Fetch the <a href="create_a_new_game_data/battleships_0_artwork.zip">battleships_0_artwork.zip</a> and unzip it to the rulesets/battleships/artwork folder. Now we're all set to create the scripts for the game
-				<p><a href="create_a_new_game_data/battleships_1_initial_setup.zip">battleships_1_initial_setup.zip</a>
-			</td></tr><tr><td height=50>
-				<h1>The rules</h1>
-			</td></tr><tr><td bgcolor=black>
-				Our battelships version will be simple. It will play on two 10x10 tiles maps, one for each player. The ships cannot be placed diagonally. Ships may not touch, not even diagonally. Each player gets 1 ship with length 5 <img src="create_a_new_game_data/ship5small.gif">, 2 with length 4 <img src="create_a_new_game_data/ship4small.gif">, 3 with length 3 <img src="create_a_new_game_data/ship3small.gif">, and 1 with length 2 <img src="create_a_new_game_data/ship2small.gif">. All added up, the ships of each player have 24 segments. Each player gets 1 shot for every 5 segments still floating, rounded up. All the segments of a ship count as floating until all of them have been hit and the whole ship sinks. The attacking player gets an extra shot for each hit, for that round
-				<p>Each tile will be 20x20 pixels. We'll need markers for hit, miss, one each ship type while placing the ships, and one for each ship type when it has sunk
-			</td></tr><tr><td height=50>
-				<h1>The first screen</h1>
-			</td></tr>
-			</td></tr><tr><td bgcolor=black>
-				Games written with the JDecker engine usually play on multiple screens. The game Decker for example has screens for the character, the deck, the menu while at home, contracts, the shop, and so on
-				<p>We will start making our game with the screen where the ships are placed. Let's call it place_ships_screen and define it in a file called <font color=#00ff00>place_ships_screen.txt</font>, so we'll find it again later. Scripts are simple text files and use the .txt extension, to help the engine recognize them. The whole game could be defined in a single script, but defining it in several script files with specific topics really helps find things again. When there are multiple scripts, they get executed in alphabetical order, with _ coming before A coming before 3 coming before a. This is important because <font color=yellow>you can only use things after they have been defined</font>. An example for this will come up soon : you can only set the initial screen for a ruleset after that screen has been defined
-				<p>So let's define our place_ships_screen. To keep things simple, we'll use a background image that already has the grids for the two maps. It also has some frills to make the game more appealing. The background image has a size of 500x370 pixels, same as the screen we're defining.
-				<p><table><tr><td><pre>
+   <tr height=50><td align=middle bgcolor=#000055><h1>How to create a new game</h1>
+   </td></tr>
+   <tr><td>
+      <table width=100% cellspacing=0 cellpadding=8>
+         <tr><td bgcolor=black>
+            JDecker isn't just the game Decker, it's a game engine. This guide will take you through the steps of making a game, using the game Battleships as an example. At the end of most sections you'll find a link to a .zip file that contains the new state the example game, to help you when you are stuck. Just extract it to the jdecker folder to move the game to the described state
+            <p><font color=red>The sections below with olive background are script code. To make them dispaly well in the browser, they use three spaces for block indentation. This is strongly discouraged for use in actual scripts and usually even switched off. Use the tabulator key for block indentation instead</font>
+            <p><font color=yellow>Every game has its own folder in the rulesets folder.</font> Go there and create a folder called <font color=#00ff00>battleships</font>. In that folder, create a second folder called <font color=#00ff00>artwork</font>. All the scripts that make this game will be in the battleships folder and all the artwork (images, sounds) will be in the artwork folder.
+            <p>You can launch JDecker with some game immediately running with the command line options. In the jdecker folder, make a batch file with the following line
+            <p><font color=#00ff00>java -classpath . decker.Decker initial_ruleset=battleships</font>
+            <p>If you're using Windows, do this by making a text file called <font color=#00ff00>battleships.bat</font> and putting that line in the file.
+            <p>Most games need some images. Fetch the <a href="create_a_new_game_data/battleships_0_artwork.zip">battleships_0_artwork.zip</a> and unzip it to the rulesets/battleships/artwork folder. Now we're all set to create the scripts for the game
+            <p><a href="create_a_new_game_data/battleships_1_initial_setup.zip">battleships_1_initial_setup.zip</a>
+         </td></tr><tr><td height=50>
+            <h1>The rules</h1>
+         </td></tr><tr><td bgcolor=black>
+            Our battelships version will be simple. It will play on two 10x10 tiles maps, one for each player. The ships cannot be placed diagonally. Ships may not touch, not even diagonally. Each player gets 1 ship with length 5 <img src="create_a_new_game_data/ship5small.gif">, 2 with length 4 <img src="create_a_new_game_data/ship4small.gif">, 3 with length 3 <img src="create_a_new_game_data/ship3small.gif">, and 1 with length 2 <img src="create_a_new_game_data/ship2small.gif">. All added up, the ships of each player have 24 segments. Each player gets 1 shot for every 5 segments still floating, rounded up. All the segments of a ship count as floating until all of them have been hit and the whole ship sinks. The attacking player gets an extra shot for each hit, for that round
+            <p>Each tile will be 20x20 pixels. We'll need markers for hit, miss, one each ship type while placing the ships, and one for each ship type when it has sunk
+         </td></tr><tr><td height=50>
+            <h1>The first screen</h1>
+         </td></tr><tr><td bgcolor=black>
+            Games written with the JDecker engine usually play on multiple screens. The game Decker for example has screens for the character, the deck, the menu while at home, contracts, the shop, and so on
+            <p>We will start making our game with the screen where the ships are placed. Let's call it place_ships_screen and define it in a file called <font color=#00ff00>place_ships_screen.txt</font>, so we'll find it again later. Scripts are simple text files and use the .txt extension, to help the engine recognize them. The whole game could be defined in a single script, but defining it in several script files with specific topics really helps find things again. When there are multiple scripts, they get executed in alphabetical order, with _ coming before A coming before 3 coming before a. This is important because <font color=yellow>you can only use things after they have been defined</font>. An example for this will come up soon : you can only set the initial screen for a ruleset after that screen has been defined
+            <p>So let's define our place_ships_screen. To keep things simple, we'll use a background image that already has the grids for the two maps. It also has some frills to make the game more appealing. The background image has a size of 500x370 pixels, same as the screen we're defining.
+            <p><table><tr><td><pre>
 RULESET.place_ships_screen = COMPONENT
    title = "Battleships"
    width = 500
-   height = 370
+   height = 430
    component = ARRAY
       IMAGE
          image = "game_background.gif"
 
 RULESET.initial_screen = place_ships_screen</pre></td></tr></table>
-				<p>That's enough to create a screen with a background image and make it display immediately when the game is started. Let's look at the code again, this time with comments. Don't worry if some things stay unclear. The comments are meant to explain enough to give you an idea of what's happening, not explain everything in detail
-				<p><table><tr><td><pre>
+            <p>That's enough to create a screen with a background image and make it display immediately when the game is started. Let's look at the code again, this time with comments. Don't worry if some things stay unclear. The comments are meant to explain enough to give you an idea of what's happening, not explain everything in detail
+            <p><table><tr><td><pre>
 <font color=#00aa00>// this line is a comment. the JDecker engine ignores the double slashes // and everything behind them
 
 // The RULESET defines the game and doesn't change while someone plays the game
@@ -63,70 +62,97 @@ RULESET.place_ships_screen = COMPONENT
    // the engine will interpret this as the title to be used for the window title bar</font>
    title = "Battleships"
    width = 500
-   height = 370
+   height = 430
    <font color=#00aa00>// pretty much every structure that can be displayed also has a variable called component
    // it contains a list with all the things we display on our screen
    // right now there is only the background image</font>
    component = ARRAY
       IMAGE
          image = "game_background.gif"
-
+<font color=#00aa00>
+// this final line tells the JDecker engine that the first screen to be displayed when starting
+// Battleships should be the place_ships_screen. This only works AFTER the place_ships_screen
+// has been defined. Which we did above</font>
 RULESET.initial_screen = place_ships_screen</pre></td></tr></table>
-				<p>Now let's tell the player to "Place your ships on the map" and display the available ships above the player's map grid
-				<p><table><tr><td><pre>
+            <p>Now let's tell the player to place the ships and display the available ships above the player's map grid
+            <p><table><tr><td><pre>
 RULESET.place_ships_screen = COMPONENT
    title = "Battleships"
    width = 500
-   height = 370
+   height = 430
    component = ARRAY
       IMAGE
          image = "game_background.gif"
+
+      <font color=#00aa00>// these are the three lines of text on the screen, one TEXT structure for each</font>
       TEXT
          text = "Place your ships on the map"
+         color = "#ffffff"
+         font = "Arial;13pt;bold"
+         x = CENTER
+         y = 10
+      TEXT
+         text = "Pick them up and place them with the left mouse button"
+         color = "#ffff00"
+         font = "Arial;13pt"
+         x = CENTER
+         y = 30
+      TEXT
+         text = "Turn them with the right mouse button"
+         color = "#ffff00"
+         font = "Arial;13pt"
+         x = CENTER
+         y = 50
+
+      <font color=#00aa00>// these are the seven ship images</font>
       IMAGE
          image = "ship5.gif"
-         x = 40
-         y = 40
-      IMAGE
-         image = "ship4.gif"
-         x = 40
-         y = 60
-      IMAGE
-         image = "ship4.gif"
-         x = 40
+         x = 53 + 24*0 -3    <font color=#00aa00>// we can put anything right of the = as long as as it can be evaluated</font>
          y = 80
       IMAGE
+         image = "ship4.gif"
+         x = 53 + 24*1 -1
+         y = 90
+      IMAGE
+         image = "ship4.gif"
+         x = 53 + 24*2
+         y = 90
+      IMAGE
          image = "ship3.gif"
-         x = 40
+         x = 53 + 24*3
          y = 100
       IMAGE
          image = "ship3.gif"
-         x = 40
-         y = 120
+         x = 53 + 24*4
+         y = 100
       IMAGE
          image = "ship3.gif"
-         x = 40
-         y = 140
+         x = 53 + 24*5
+         y = 100
       IMAGE
          image = "ship2.gif"
-         x = 40
-         y = 160
+         x = 53 + 24*6 - 3
+         y = 110
 
 RULESET.initial_screen = place_ships_screen</pre></td></tr></table>
-				<p><a href="create_a_new_game_data/battleships_2_first_screen.zip">battleships_2_first_screen.zip</a>
-			</td></tr><tr><td height=50>
-				&nbsp;
-			</td></tr>
-		</table>
-	</td><td align=middle valign=top bgcolor=#000055 style="padding:10px;">
+            <p><a href="create_a_new_game_data/battleships_2_first_screen.zip">battleships_2_first_screen.zip</a>
+         </td></tr><tr><td height=50>
+            <h1>Handle user input</h1>
+         </td></tr><tr><td bgcolor=black>
+         	&nbsp;
+         </td></tr><tr><td height=50>
+            &nbsp;
+         </td></tr>
+      </table>
+   </td><td align=middle valign=top bgcolor=#000055 style="padding:10px;">
 <a href=http://sourceforge.net/projects/decker/>Decker Project Page</a>
 <br>
 <br><a href=http://www.caro.net/dsi/decker/>Official Decker Site</a>
 <br>
 <br><a href=http://www.the-underdogs.info/game.php?name=Decker>A Decker Review</a>
 <br>
-		</td>
-	</tr>
+      </td>
+   </tr>
 </table>
 </body>
 </html>
