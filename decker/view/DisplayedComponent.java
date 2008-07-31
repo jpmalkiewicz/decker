@@ -357,6 +357,14 @@ System.out.print("(generic "+_component+") ");
 				return true;
 		}
 		// it's a mouse event
+		// find out which button has changed state, if any
+		final Value button_id = new Value();
+		final int b = ((MouseEvent)e).getButton();
+		switch (b) {
+			case MouseEvent.BUTTON1 : button_id.set(1); break;
+			case MouseEvent.BUTTON2 : button_id.set(2); break;
+			case MouseEvent.BUTTON3 : button_id.set(3); break;
+		}
 		// tell the components about it, if the mouse has left their area, and remove them from the mouseIsInside list
 		for (int i = mouseIsInsideCount; --i >= 0; ) {
 			final DisplayedComponent c = mouseIsInside[i];
@@ -419,7 +427,7 @@ System.out.println("mouse event inside "+c.getClass().getName());
 					if (( !c.hasHardcodedEventFunction[eventID] || c.eventUserInput(eventID, e, mouse_x, mouse_y, mouse_dx, mouse_dy) )&& c.scriptedEventFunction[eventID] != null) {
 System.out.println("mouse event : "+c.hashCode()+"  "+i+"    "+e);
 						if (eventID != ON_MOUSE_MOVED && eventID != ON_MOUSE_DRAGGED)
-							FunctionCall.executeFunctionCall(c.scriptedEventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(true) }, (c.component.type()==Value.STRUCTURE)?c.component.structure():null);
+							FunctionCall.executeFunctionCall(c.scriptedEventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), button_id, new Value().set(true) }, (c.component.type()==Value.STRUCTURE)?c.component.structure():null);
 						else
 							FunctionCall.executeFunctionCall(c.scriptedEventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(mouse_dx), new Value().set(mouse_dy), new Value().set(true) }, (c.component.type()==Value.STRUCTURE)?c.component.structure():null);
 					}
