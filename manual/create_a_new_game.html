@@ -135,12 +135,143 @@ RULESET.place_ships_screen = COMPONENT
          y = 110
 
 RULESET.initial_screen = place_ships_screen</pre></td></tr></table>
-            <p><a href="create_a_new_game_data/battleships_2_first_screen.zip">battleships_2_first_screen.zip</a>
-         </td></tr><tr><td height=50>
-            <h1>Handle user input</h1>
-         </td></tr><tr><td bgcolor=black>
-         	&nbsp;
-         </td></tr><tr><td height=50>
+         <p><a href="create_a_new_game_data/battleships_2_first_screen.zip">battleships_2_first_screen.zip</a>
+      </td></tr><tr><td height=50>
+         <h1>Handle user input</h1>
+      </td></tr><tr><td bgcolor=black>
+         Let's make our game look cool. As soon as the player releases the left mouse button above a ship, it is picked up and moved along with the mouse. When the player releases the left mouse button the next time the ship is dropped back into the harbour, if it happened outside the player's grid. Each press of the any other mouse button turns the picked up ship by 90 degrees (and each key press, for all those poor people who can't afford a second mouse button)
+         While the picked up ship is completely above the map grid it will "snap" into the grid coordinates. Blocked map cells will be marked red. If the ship can be placed where it is displayed, the cells beneath it will be marked green. Whenever all ships are placed, a "Done" button will appear
+         <p>From now on omitted script sections will be replaced with a triple dot <font color=#ffff00>...</font>
+         <p>We could turn the seven ship images into buttons now, but we will get a lot of other mouse events, so to keep things simple we'll use a different approach. All mouse events on the whole screen will be handled in one place. Let's start with the release mouse button event. It is handled by the FUNCTION stored in on_mouse_up, if there is one. Any structure that is displayed may have these functions which receive user input. Key presses are sent to all displayed structures which have an on_key_pressed function. Likewise with the on_mouse_up function, but only structures where the mouse is inside receive the event
+
+            <p><table><tr><td><pre>
+RULESET.place_ships_screen = COMPONENT
+   title = "Battleships"
+   width = 500
+   height = 430
+   component = ARRAY
+      <font color=#ffff00>...</font>
+
+   <font color=#00aa00>// this function gets called whenever the player releases a mouse button anywhere inside our screen</font>
+   on_mouse_up = FUNCTION (x, y, mouse_button)</pre></td></tr></table>
+         <p>We have a function but it doesn't do anything yet. First we have to determine where the mouse was when the mouse button was released. We could type in the coordinates of the ship images again and compare the mouse coordinates with them. But then we would have entered each ship coordinate twice, and it will appear at least two more times on the screen where the game is actually played. So instead we will define a new structure type for our ships, called SHIP, and store all the relevant data for each ship in it
+            <p><table><tr><td><pre>
+structure SHIP
+   x
+   y
+   size
+
+RULESET.place_ships_screen = COMPONENT
+   <font color=#ffff00>...</font></pre></td></tr></table>
+            <p>Now we have a new structure type SHIP and can use that to make a list of the ships the player has
+            <p><table><tr><td><pre>
+structure SHIP
+   x
+   y
+   size
+
+
+RULESET.SHIP_LIST = ARRAY
+   SHIP
+      x = 53 + 24*0 - 3
+      y = 80
+      size = 5
+   SHIP
+      x = 53 + 24*1 - 1
+      y = 90
+      size = 4
+   SHIP
+      x = 53 + 24*2
+      y = 90
+      size = 4
+   SHIP
+      x = 53 + 24*3
+      y = 100
+      size = 3
+   SHIP
+      x = 53 + 24*4
+      y = 100
+      size = 3
+   SHIP
+      x = 53 + 24*5
+      y = 100
+      size = 3
+   SHIP
+      x = 53 + 24*6 - 3
+      y = 110
+      size = 2
+
+
+RULESET.place_ships_screen = COMPONENT
+   <font color=#ffff00>...</font></pre></td></tr></table>
+			<p>Now we can use a very neat feature most programming languages have : the for loop. It repeats the block inside a number of times, while letting a counter go up or down. Instead of adding code for each ship image to add it to the screen, we let the loop add seven images, one for each ship from our SHIP_LIST
+            <p><table><tr><td><pre>
+<font color=#ffff00>...</font>
+
+RULESET.place_ships_screen = COMPONENT
+   title = "Battleships"
+   width = 500
+   height = 430
+   component = ARRAY
+      IMAGE
+         image = "game_background.gif"
+
+      <font color=#00aa00>// these are the three lines of text on the screen, one TEXT structure for each</font>
+      TEXT
+         text = "Place your ships on the map"
+         color = "#ffffff"
+         font = "Arial;13pt;bold"
+         x = CENTER
+         y = 10
+      TEXT
+         text = "Pick them up and place them with the left mouse button"
+         color = "#ffff00"
+         font = "Arial;13pt"
+         x = CENTER
+         y = 30
+      TEXT
+         text = "Turn them with the right mouse button"
+         color = "#ffff00"
+         font = "Arial;13pt"
+         x = CENTER
+         y = 50
+
+   <font color=#00aa00>// these are the seven ship images
+   // this for loop uses the variable i to count the loop repetitions.
+   // The first time the code inside the loop gets executed,
+   // i has the value 0, on the last time it has the value 6</font>
+   for i = 0 to 6
+      <font color=#00aa00>// component[] adds a new entry at the end of the list stored in the variable "component"</font>
+      component[] = IMAGE
+         <font color=#00aa00>// the code right of the</font> image = <font color=#00aa00>will assemble the texts "ship5.gif", "ship4.gif", ...
+         // SHIP_LIST[i] takes the list stored in SHIP_LIST and fetches the entry i
+         // i is a variable and contains a number, as explained in a comment about the for loop
+         // SHIP_LIST[i].x fetches the variable x from the structure stored in SHIP_LIST[i]</font>
+         image = "ship" + SHIP_LIST[i].size + ".gif"
+         x = SHIP_LIST[i].x
+         y = SHIP_LIST[i].y
+
+
+   on_mouse_up = FUNCTION (x, y, mouse_button)</pre></td></tr></table>
+		<p>Let's go back to our on_mouse_up FUNCTION and check whether the mouse button has been released above one of the ship images. For that we use the for loop again, and we'll go through our list of images and check or each whether it was clicked
+        <p><table><tr><td><pre>
+<font color=#ffff00>...</font>
+
+   on_mouse_up = FUNCTION (x, y, mouse_button)
+      <font color=#00aa00>// this creates a new variable called selected_ship. the "LOCAL." tells the engine
+      // that the variable will be discarded when our on_mouse_up function has been executed</font>
+      LOCAL.selected_ship
+      for i = 0 to 6
+         <font color=#00aa00>// the if clause is another feature most programming languages have. If the expression
+         // after the "if" has the logical value "true", the block inside the if clause gets executed</font>
+         if x >= SHIP_LIST[i].x && x < SHIP_LIST[i].x + 20 && y >= SHIP_LIST[i].y && y < SHIP_LIST[i].y+SHIP_LIST[i].size*20
+            selected_ship = i
+      <font color=#00aa00>// we will remove this in the next step but for now it is neat to have some feedback
+      // that tells us that our program works. debug() prints the value of the expression
+      // inside the brackets to the Java console</font>
+      debug("selected ship : "+selected_ship)</pre></td></tr></table>
+		<p>Now we can test whether our program reacts correctly when we release the left mouse button. If everything went well, the function gets called whenever any mouse button is pressed and a short text is printed in the Java console, telling us which ship has been selected
+      </td></tr><tr><td height=50>
             &nbsp;
          </td></tr>
       </table>

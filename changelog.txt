@@ -1,4 +1,7 @@
 85%
+2008-07-31
+	step three of the tutorial complete
+	button related mouse event handler functions now get told which button has changed its state
 2008-07-30
 	added the ability to turn images in 90 degree steps
 	continued work on battleships tutorial
