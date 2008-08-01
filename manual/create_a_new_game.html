@@ -19,7 +19,7 @@
       <table width=100% cellspacing=0 cellpadding=8>
          <tr><td bgcolor=black>
             JDecker isn't just the game Decker, it's a game engine. This guide will take you through the steps of making a game, using the game Battleships as an example. At the end of most sections you'll find a link to a .zip file that contains the new state the example game, to help you when you are stuck. Just extract it to the jdecker folder to move the game to the described state
-            <p><font color=red>The sections below with olive background are script code. To make them dispaly well in the browser, they use three spaces for block indentation. This is strongly discouraged for use in actual scripts and usually even switched off. Use the tabulator key for block indentation instead</font>
+            <p><font color=red>The sections below with olive background are script code. To make them dispaly well in the browser, they use three spaces for block indentation. This is discouraged for use in actual scripts and usually even switched off. Use the tabulator key for block indentation instead</font>
             <p><font color=yellow>Every game has its own folder in the rulesets folder.</font> Go there and create a folder called <font color=#00ff00>battleships</font>. In that folder, create a second folder called <font color=#00ff00>artwork</font>. All the scripts that make this game will be in the battleships folder and all the artwork (images, sounds) will be in the artwork folder.
             <p>You can launch JDecker with some game immediately running with the command line options. In the jdecker folder, make a batch file with the following line
             <p><font color=#00ff00>java -classpath . decker.Decker initial_ruleset=battleships</font>
@@ -253,28 +253,32 @@ RULESET.place_ships_screen = COMPONENT
 
 
    on_mouse_up = FUNCTION (x, y, mouse_button)</pre></td></tr></table>
-      <p>Let's go back to our on_mouse_up FUNCTION and check whether the mouse button has been released above one of the ship images. For that we use the for loop again, and we'll go through our list of images and check or each whether it was clicked
+      <p>Let's go back to our on_mouse_up FUNCTION and check whether the mouse button has been released above one of the ship images. For that we use the for loop again, and we'll go through our list of images and check or each whether it was clicked. Each mouse button has an id, first button's id is 1, second mouse button's id is 2 and so on
         <p><table><tr><td><pre>
 <font color=#ffff00>...</font>
 
    on_mouse_up = FUNCTION (x, y, mouse_button)
-      <font color=#00aa00>// this creates a new variable called pick_up_ship. the "LOCAL." tells the engine
-      // that the variable will be discarded when our on_mouse_up function has been executed</font>
-      LOCAL.pick_up_ship
-      for i = 0 to 6
-         <font color=#00aa00>// the if clause is another feature most programming languages have. If the expression
-         // after the "if" has the logical value "true", the block inside the if clause gets executed</font>
-         if x >= SHIP_LIST[i].x && x < SHIP_LIST[i].x + 20 && y >= SHIP_LIST[i].y && y < SHIP_LIST[i].y+SHIP_LIST[i].size*20
-            pick_up_ship = i
-      <font color=#00aa00>// we will remove this in the next step but for now it is neat to have some feedback
-      // that tells us that our program works. debug() prints the value of the expression
-      // inside the brackets to the Java console</font>
-      debug("pick up ship : "+pick_up_ship)</pre></td></tr></table>
-            <p>Now we can test whether our program reacts correctly when we release the left mouse button. If everything went well, the function gets called whenever any mouse button is pressed and a short text is printed in the Java console, telling us which ship has been selected
+      <font color=#00aa00>// the if clause is another feature most programming languages have. If the expression
+      // after the "if" has the logical value "true", the block of commands inside the if clause gets executed.
+      // There may also be a second block that gets executed if the expression does not have the value "true"
+      // We only want to pick up and drop ships with the first mouse button, so this makes sure it's the right one</font>
+      if mouse_button == 1
+         <font color=#00aa00>// this creates a new variable called selected_ship. the "LOCAL." tells the engine
+         // that the variable will be discarded when our on_mouse_up function has been executed</font>
+         LOCAL.selected_ship
+         for i = 0 to 6
+            if x >= SHIP_LIST[i].x && x < SHIP_LIST[i].x + 20 && y >= SHIP_LIST[i].y && y < SHIP_LIST[i].y+SHIP_LIST[i].size*20
+               selected_ship = i
+         <font color=#00aa00>// we will remove this in the next step but for now it is neat to have some feedback
+         // that tells us whether our program works. debug() prints the value of the expression
+         // inside the brackets to the Java console</font>
+         debug("pick up ship : "+selected_ship)</pre></td></tr></table>
+            <p>Now we can test whether our program reacts correctly when we release the left mouse button. If everything went well, the function gets called whenever any mouse button is pressed, and if it was the first mouse button, a short text is printed in the Java console, telling us which ship has been selected
+			<p><a href="create_a_new_game_data/battleships_3_select_ship.zip">battleships_3_select_ship.zip</a>
          </td></tr><tr><td height=50>
                <h1>Pick up a ship</h1>
-         </td></tr><tr><td bgcolor=black>
-               When a ship has been picked up, we will move the center of its image to the mouse tip and move it along whenever the mouse moves. To make this easier, we'll store the image of each ship along with its other data
+		</td></tr><tr><td bgcolor=black>
+			The structures in the "component" array are displayed first to last. Since we want our picked up ship to always be on top, we'll add an extra IMAGE for it at the end of the array. Whenever we pick up a ship, we will make that extra IMAGE display the picked up ship, centered on the mouse tip, and make the old image of the ship invisible. When the ship is put down we revert this. To make this easier, we'll store the image of each ship along with its other data
         <p><table><tr><td><pre>
 structure SHIP
    x
@@ -298,31 +302,40 @@ RULESET.place_ships_screen = COMPONENT
       <font color=#00aa00>// we still have to add it to the commponent array to make it visible</font>
       component[] = SHIP_LIST[i].image
 
+   <font color=#00aa00>// this is the image that will display the picked up ship</font>
+   mouse_ship = IMAGE
+   component[] = mouse_ship
 
+
+  <font color=#00aa00>// this function gets called whenever the player releases a mouse button anywhere inside our screen</font>
    on_mouse_up = FUNCTION (x, y, mouse_button)
-      LOCAL.pick_up_ship
-      LOCAL.s
-      for i = 0 to 6
-         if x >= SHIP_LIST[i].x && x < SHIP_LIST[i].x + 20 && y >= SHIP_LIST[i].y && y < SHIP_LIST[i].y+SHIP_LIST[i].size*20
-            pick_up_ship = i
-      <font color=#00aa00>// if we have already picked up a ship, put it back</font>
-      if place_ships_screen.selected_ship != UNDEFINED
-         LOCAL.s = SHIP_LIST[place_ships_screen.selected_ship]
-         s.image.x = s.x
-         s.image.y = s.y
-         s.image.angle = 0   <font color=#00aa00>// all the ships in the harbour are displayed at the default angle</font>
-      <font color=#00aa00>// don't pick up the ship we've just put back</font>
-      if pick_up_ship == place_ships_screen.selected_ship
-         pick_up_ship = UNDEFINED
-      <font color=#00aa00>// pick up the selected ship</font>
-      if pick_up_ship != UNDEFINED
-         <font color=#00aa00>// move the picked up ship to the mouse pointer</font>
-         LOCAL.s = SHIP_LIST[pick_up_ship]
-         s.image.x = x - 10
-         s.image.y = y - s.size*10
-      <font color=#00aa00>// remember which ship has been picked up</font>
-      place_ships_screen.selected_ship = pick_up_ship</pre></td></tr></table>
-            <p>Lets move the image along whenever the mouse moves
+      if mouse_button == 1
+         LOCAL.selected_ship
+         for i = 0 to 6
+            if x >= SHIP_LIST[i].x && x < SHIP_LIST[i].x + 20 && y >= SHIP_LIST[i].y && y < SHIP_LIST[i].y+20*SHIP_LIST[i].size
+               selected_ship = i
+         <font color=#00aa00>// if we have already picked up a ship, put it back</font>
+         if mouse_ship.id != UNDEFINED
+            LOCAL.s = SHIP_LIST[mouse_ship.id]
+            s.image.x = s.x
+            s.image.y = s.y
+            s.image.angle = 0   <font color=#00aa00>// all the ships in the harbour are displayed at the default angle</font>
+            s.image.image = mouse_ship.image
+            mouse_ship.image = UNDEFINED
+         <font color=#00aa00>// don't pick up a ship if we've just put one down</font>
+         if mouse_ship.id != UNDEFINED
+            selected_ship = UNDEFINED
+         <font color=#00aa00>// pick up the selected ship and center it on the mouse pointer</font>
+         if selected_ship != UNDEFINED
+            LOCAL.s = SHIP_LIST[selected_ship]
+            mouse_ship.x = x-10
+            mouse_ship.y = y - s.size*10
+            mouse_ship.angle = 0
+            mouse_ship.image = s.image.image
+            s.image.image = UNDEFINED
+         <font color=#00aa00>// remember which ship has been picked up, if any</font>
+         mouse_ship.id = selected_ship</pre></td></tr></table>
+            <p>Now let the image follow the mouse. Whenever the mouse moves inside the screen, the on_mouse_moved or the on_mouse_dragged function is called, so we'll use those
             <p><table><tr><td><pre>
 <font color=#ffff00>...</font>
 
@@ -332,17 +345,21 @@ RULESET.place_ships_screen = COMPONENT
 
    <font color=#00aa00>// this function will always get called when the mouse moves within the screen</font>
    on_mouse_moved = FUNCTION (x, y)
-      if place_ships_screen.selected_ship != UNDEFINED
-         LOCAL.s = SHIP_LIST[place_ships_screen.selected_ship]
-         <font color=#00aa00>// where the center of the ship sits in relation to the mouse
+      if mouse_ship.id != UNDEFINED
+         <font color=#00aa00>// where the center of the ship sits relative to the mouse pointer
          // depends on how it is currently turned</font>
-         if s.image.angle == 90 || s.image.angle == 270
-            s.image.x = x - s.size*10
-            s.image.y = y - 10
+         if mouse_ship.angle == 0 || mouse_ship.angle == 180
+            mouse_ship.x = x - 10
+            mouse_ship.y = y - SHIP_LIST[mouse_ship.id].size*10
          else
-            s.image.x = x - 10
-            s.image.y = y - s.size*10</pre></td></tr></table>
-			<p>There's two things left to do before we can start putting ships on the map : Ships cannot be turned yet, and when you pick up a ship and move it around it displays beneath all ships with a higher index. The display problem will be solved in the next tutorial step, which leaves the turn ship feature. For that we need to change the on_mouse_up function to pick up ships only when the left mouse button has been pressed, and turn it when any other mouse button has been pressed. The first mouse button has the id 1. The picked up ship should also be turned when some key is pressed
+            mouse_ship.x = x - SHIP_LIST[mouse_ship.id].size*10
+            mouse_ship.y = y - 10
+
+   <font color=#00aa00>// our program doesn't care whether a button was pressed, only whether the mouse has moved,
+   // so we can reuse the function we have defined for on_mouse_moved</font>
+   on_mouse_dragged = on_mouse_moved
+            </pre></td></tr></table>
+			<p>Only one thing left to do before we can start putting ships on the map : Ships cannot be turned yet. on_mouse_up must turn the picked up ship when any mouse button except the first has been released. The picked up ship should also be turned when some key is pressed
             <p><table><tr><td><pre>
 <font color=#ffff00>...</font>
 
@@ -358,42 +375,39 @@ RULESET.place_ships_screen = COMPONENT
       else
          <font color=#00aa00>// some mouse button has been pressed, but it was not the first mouse button
          // if a ship has been picked up before, turn it 90 degrees clockwise</font>
-         if place_ships_screen.selected_ship != UNDEFINED
-            LOCAL.s = SHIP_LIST[place_ships_screen.selected_ship]
-            <font color=#00aa00>// we have to check whether the angle has been defined yet</font>
-            if s.image.angle == UNDEFINED
-               s.image.angle = 90
+         if mouse_ship.id != UNDEFINED
+            mouse_ship.angle = ( mouse_ship.angle + 90 ) % 360
+            if mouse_ship.angle == 0 || mouse_ship.angle == 180
+               mouse_ship.x = x - 10
+               mouse_ship.y = y - SHIP_LIST[mouse_ship.id].size*10
             else
-               s.image.angle = ( s.image.angle + 90 ) % 360
-            if s.image.angle == 90 || s.image.angle == 270
-               s.image.x = x - s.size*10
-               s.image.y = y - 10
-            else
-               s.image.x = x - 10
-               s.image.y = y - s.size*10
+               mouse_ship.x = x - SHIP_LIST[mouse_ship.id].size*10
+               mouse_ship.y = y - 10
 
    <font color=#00aa00>// this function is new. it gets called whenever a key is pressed
    // on this screen it turns the picked up ship 90 dgrees clockwise every time a key is pressed</font>
    on_key_down = FUNCTION
-      if place_ships_screen.selected_ship != UNDEFINED
-         LOCAL.s = SHIP_LIST[place_ships_screen.selected_ship]
-         if s.image.angle == UNDEFINED
-            s.image.angle = 90
+      if mouse_ship.id != UNDEFINED
+         LOCAL.s = SHIP_LIST[mouse_ship.id]
+         mouse_ship.angle = ( mouse_ship.angle + 90 ) % 360
+         if mouse_ship.angle == 0 || mouse_ship.angle == 180
+            mouse_ship.x = mouse_ship.x - 10 + s.size*10
+            mouse_ship.y = mouse_ship.y - s.size*10 + 10
          else
-            s.image.angle = ( s.image.angle + 90 ) % 360
-         if s.image.angle == 90 || s.image.angle == 270
-            s.image.x = s.image.x + 10 - s.size*10
-            s.image.y = s.image.y + s.size*10 - 10
-         else
-            s.image.x = s.image.x - 10 + s.size*10
-            s.image.y = s.image.y - s.size*10 + 10</pre></td></tr></table>
+            mouse_ship.x = mouse_ship.x + 10 - s.size*10
+            mouse_ship.y = mouse_ship.y + s.size*10 - 10
+</pre></td></tr></table>
 			<p><a href="create_a_new_game_data/battleships_4_pick_up_ship.zip">battleships_4_pick_up_ship.zip</a>
-         </td></tr><tr><td height=50>
-               &nbsp;
-         </td></tr><tr><td bgcolor=black>
-               &nbsp;
-         </td></tr><tr><td height=50>
-               &nbsp;
+		</td></tr><tr><td height=50>
+			<h1>Place a ship on the map</h1>
+		</td></tr><tr><td bgcolor=black>
+			...
+		</td></tr><tr><td height=50>
+			&nbsp;
+		</td></tr><tr><td bgcolor=black>
+			&nbsp;
+		</td></tr><tr><td height=50>
+			&nbsp;
          </td></tr>
       </table>
    </td><td align=middle valign=top bgcolor=#000055 style="padding:10px;">

@@ -1,7 +1,7 @@
 85%
 2008-08-01
-	UIImage now reacts to angle changes
-	step three of the battleships tutorial complete
+	UIImage now reacts to angle changes and UIImage.<init> doesn't whine anymore if IMAGE.image is UNDEFINED
+	step four of the battleships tutorial complete
 2008-07-31
 	step three of the battleships tutorial complete
 	button related mouse event handler functions now get told which button has changed its state

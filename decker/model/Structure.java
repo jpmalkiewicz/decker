@@ -36,7 +36,7 @@ public final class Structure implements Comparable, ValueListener
 				}
 				// execute the STRUCTURE_TYPE's initializer function if there is one
 				if (initializer != null && initializer.type() == Value.FUNCTION)
-					FunctionCall.executeFunctionCall(initializer, null, this);
+					FunctionCall.executeFunctionCall(initializer, null, new Structure[]{ this });
 			}
 		}
 	}
