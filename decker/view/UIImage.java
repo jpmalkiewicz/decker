@@ -14,18 +14,20 @@ class UIImage extends DisplayedComponent
 		super(_component, _parent);
 		if (!_component.equalsConstant("UNDEFINED")) {
 			boolean load_normal_image = true;
-			String image_name;
+			String image_name = null;
 			int angle = 0;
 			if (_component.type()==Value.STRUCTURE && _component.get("structure_type").equals("IMAGE")) {
-				image_name = _component.get("image").toString();
-				// if the image has been turned, try to load the turned version
-				final Value v = _component.get("angle");
-				if (v != null) {
-					final int t = v.type();
-					if (t == Value.INTEGER || t == Value.REAL) {
-						angle = (t == Value.INTEGER) ? v.integer() : (int)v.real();
-						// set the angle to 0, 90, 180 or 270. -45 is rounded to -90, +45 is rounded to +90
-						angle = ( (((angle%360)+((angle<0)?404:45))%360) / 90 ) * 90;
+				if (!_component.get("image").equalsConstant("UNDEFINED")) {
+					image_name = _component.get("image").toString();
+					// if the image has been turned, try to load the turned version
+					final Value v = _component.get("angle");
+					if (v != null) {
+						final int t = v.type();
+						if (t == Value.INTEGER || t == Value.REAL) {
+							angle = (t == Value.INTEGER) ? v.integer() : (int)v.real();
+							// set the angle to 0, 90, 180 or 270. -45 is rounded to -90, +45 is rounded to +90
+							angle = ( (((angle%360)+((angle<0)?404:45))%360) / 90 ) * 90;
+						}
 					}
 				}
 			}
@@ -34,10 +36,11 @@ class UIImage extends DisplayedComponent
 			}
 
 			// fetch the image
-			if (load_normal_image) {
+			if (image_name != null && load_normal_image) {
 				image = (angle == 0) ? AbstractView.getImage(image_name) : AbstractView.getTurnedImage(image_name, angle);
 				if (image == null) {
-					System.out.println("UIImage : undefined image "+((_component.type()==Value.STRUCTURE&&_component.get("structure_type").equals("IMAGE")) ? _component.get("image").toString() : _component.toString()));
+					final Value image_value = (_component.type()==Value.STRUCTURE&&_component.get("structure_type").equals("IMAGE")) ? _component.get("image") : _component;
+					System.out.println("UIImage : undefined image "+image_value+" ("+image_value.typeName()+")");
 				}
 			}
 		}

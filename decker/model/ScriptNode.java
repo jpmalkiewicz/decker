@@ -14,7 +14,7 @@ public abstract class ScriptNode
 	final static Structure[] stack = new Structure[1000];
 	static int stack_size;
 	static int global_stack_size;
-	public final static Structure KEEP_STACK = new Structure("KEEP_STACK", null); // when this is used for the enclosing structure when calling functionCall(), the stack will not be emptied for the function call
+	public final static Structure[] KEEP_STACK = new Structure[0]; // when this is used for the enclosing structure when calling functionCall(), the stack will not be emptied for the function call
 	public final static Value BREAK_VALUE = new Value();
 
 

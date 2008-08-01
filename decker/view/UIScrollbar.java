@@ -209,7 +209,7 @@ class UIScrollbar extends DisplayedComponent
 						component.get("slider_position").set(logical_value);
 						Value v;
 						if ((v=component.get("effect")).type() == Value.FUNCTION)
-							FunctionCall.executeFunctionCall(v.function(), null, component.structure());
+							FunctionCall.executeFunctionCall(v.function(), null, new Structure[]{ Global.getDisplayedScreen().structure(), component.structure() });
 					}
 				}
 				slider.component.get("y").set(sp+m);
@@ -237,7 +237,7 @@ class UIScrollbar extends DisplayedComponent
 						component.get("slider_position").set(logical_value);
 						Value v;
 						if ((v=component.get("effect")).type() == Value.FUNCTION)
-							FunctionCall.executeFunctionCall(v.function(), null, component.structure());
+							FunctionCall.executeFunctionCall(v.function(), null, new Structure[]{ Global.getDisplayedScreen().structure(), component.structure() });
 					}
 				}
 				slider.component.get("x").set(sp+m);
@@ -404,6 +404,6 @@ class UIScrollbar extends DisplayedComponent
 		}
 		// if the slider position has changed and there is a function listening to it, call that function
 		if (slider_position != old_slider_position && (v=component.get("effect")).type() == Value.FUNCTION)
-			FunctionCall.executeFunctionCall(v.function(), null, component.structure());
+			FunctionCall.executeFunctionCall(v.function(), null, new Structure[]{ Global.getDisplayedScreen().structure(), component.structure() });
 	}
 }
