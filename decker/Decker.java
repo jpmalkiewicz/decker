@@ -80,6 +80,10 @@ public class Decker
 		// start drawing it
 		Global.getViewWrapper().repaint();
 		Global.getViewWrapper().requestFocus();
+if (Global.debug_level > 0) {
+System.out.println();
+System.out.println();
+}
 	}
 
 

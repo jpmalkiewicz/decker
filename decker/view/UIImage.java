@@ -26,7 +26,6 @@ class UIImage extends DisplayedComponent
 						angle = (t == Value.INTEGER) ? v.integer() : (int)v.real();
 						// set the angle to 0, 90, 180 or 270. -45 is rounded to -90, +45 is rounded to +90
 						angle = ( (((angle%360)+((angle<0)?404:45))%360) / 90 ) * 90;
-System.err.println("IMAGE ("+image_name+", "+angle+")");
 					}
 				}
 			}

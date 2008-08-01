@@ -17,6 +17,8 @@ public class SplashScreen extends Frame
 			setUndecorated(true);
 			setSize(splashscreen.getWidth(null), splashscreen.getHeight(null));
 		}
+		else
+			System.out.println("decker.view.SplashScreen.<init>: splashscreen image found");
 		setBounds((getToolkit().getScreenSize().width-getWidth())/2, (getToolkit().getScreenSize().height-getHeight())/2, getWidth(), getHeight());
 		setVisible(true);
 	}
@@ -53,8 +55,7 @@ public class SplashScreen extends Frame
 				return ret;
 			}
 		}
-System.out.println("return an \"image missing\" image instead of null");
-return null;
+		return null;
 	}
 
 
