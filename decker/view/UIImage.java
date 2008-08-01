@@ -79,12 +79,15 @@ class UIImage extends DisplayedComponent
 
 
 	public void eventValueChanged (final String variable_name, final Structure container, final Value old_value, final Value new_value) {
-		if (variable_name.equals("image")) {
+		if (variable_name.equals("image") || variable_name.equals("angle")) {
 			Value v;
 			int k;
 			final int old_width = w, old_height = h;
 			final boolean old_rtpw = relative_to_parent_width, old_rtph = relative_to_parent_height;
-			image = AbstractView.getImage(new_value.toString());
+			final Image old_image = image;
+			final String image_name = variable_name.equals("image") ? new_value.toString() : component.get("image").toString();
+			final int angle = (new_value.type() == Value.INTEGER || new_value.type() == Value.REAL) ? (int) new_value.real() : 0;
+			image = AbstractView.getTurnedImage(image_name, angle);
 			if ((v=component.get("width")) == null || v.equalsConstant("UNDEFINED")) {
 				w = (image != null) ? image.getWidth(null) : 0;
 				relative_to_parent_width = (v=component.get("x")) != null &&( v.equalsConstant("CENTER") || v.equalsConstant("RIGHT") ||( (k=getPercentageValue(v.toString())) != Integer.MIN_VALUE && k != 0 ));

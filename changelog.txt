@@ -1,6 +1,9 @@
 85%
+2008-08-01
+	UIImage now reacts to angle changes
+	step three of the battleships tutorial complete
 2008-07-31
-	step three of the tutorial complete
+	step three of the battleships tutorial complete
 	button related mouse event handler functions now get told which button has changed its state
 	fixed a bug in UIGenericComponent.eventValueChanged() that made it call DisplayedComponent.eventValueChanged() even if the changed varaible has nothing to do with displaying the generic component
 	cleaned up some code
