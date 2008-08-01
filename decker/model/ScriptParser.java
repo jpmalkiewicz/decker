@@ -779,7 +779,8 @@ final class ScriptParser extends ScriptReader
 	private Script parseScript ()  {
 		final Script ret = new Script(script_name);
 		// parse the script name
-System.out.println(script_name);
+if (Global.debug_level > 0)
+System.out.println("  "+script_name);
 		while(previewElement() != null)
 			parseLocalizedScript(ret);
 		if(ret.localizationCount() == 0)

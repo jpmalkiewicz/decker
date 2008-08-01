@@ -21,6 +21,7 @@ final class Script
 				ls = getLocalization("default");
 			if (ls != null) {
 				// we need a LOCAL object on the stack for the script execution
+if (Global.debug_level > 0)
 System.out.println("   running script from file : "+filename);
 				final Structure local = new Structure("LOCAL", null);
 				ScriptNode.addStackItem(local);

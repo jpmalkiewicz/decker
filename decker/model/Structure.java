@@ -121,7 +121,6 @@ public final class Structure implements Comparable, ValueListener
 		int ret = o.hashCode() - hashCode();
 		if (ret != 0 || o == this)
 			return ret;
-System.out.println("Structure : hash compare failed");
 		if (o instanceof Structure) {
 			ret = get("structure_type").string().compareTo(((Structure)o).get("structure_type").string());
 			if (ret != 0)
@@ -220,8 +219,8 @@ System.out.println("Structure : hash compare failed");
 
 
 	void putDirectlyIntoStringTreeMap (final String key, final Value v)  {
-if (v == null)
-throw new RuntimeException("who's putting null into a StringTreeMap ?!?");
+		if (v == null)
+			throw new RuntimeException("who's putting null into a StringTreeMap ?!?");
 		members.put(key, v);
 	}
 

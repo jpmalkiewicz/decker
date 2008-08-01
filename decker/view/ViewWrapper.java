@@ -160,7 +160,8 @@ public final class ViewWrapper extends Canvas implements ComponentListener
 			final Value scr = Global.getDisplayedScreen();
 			if (scr != null) {
 				if (oldDisplayedScreen == null || !scr.equals(oldDisplayedScreen)) {
-System.out.println("** switching screens **");
+if (Global.debug_level > 0)
+System.out.println("ViewWrapper: ** switching screens **");
 					oldDisplayedScreen.set(scr);
 					DisplayedComponent.setDisplayedScreen(scr);
 				}

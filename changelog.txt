@@ -2,6 +2,9 @@
 2008-07-31
 	step three of the tutorial complete
 	button related mouse event handler functions now get told which button has changed its state
+	fixed a bug in UIGenericComponent.eventValueChanged() that made it call DisplayedComponent.eventValueChanged() even if the changed varaible has nothing to do with displaying the generic component
+	cleaned up some code
+	removed all the standard messages during engine launch. set decker.model.Global.debug_level to something above 0 to make them reappear
 2008-07-30
 	added the ability to turn images in 90 degree steps
 	continued work on battleships tutorial

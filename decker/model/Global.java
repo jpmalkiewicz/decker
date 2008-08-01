@@ -25,6 +25,7 @@ public final class Global
 	final static int F_SIZE = 0, F_FILELIST = 1, F_SUBSTRING = 2, F_PIXELWIDTH = 3, F_PIXELHEIGHT = 4, F_EXIT_PROGRAM = 5, F_REPAINT = 6, F_INDEXOF = 7, F_IMAGE_EXISTS = 8, F_TO_LOWER_CASE = 9, F_TO_UPPER_CASE = 10, F_DATE_TEXT = 11, F_DEBUG = 12, F_INSERT = 13, F_RANDOM = 14, F_VALUE_TYPE = 15, F_DATE_DAY_OF_MONTH = 16, F_DATE_DAYS_IN_MONTH = 17, F_DELETE = 18, F_GET_STRUCTURE_STACK = 19, F_IS_EXPANDABLE = 20, F_HAS_VARIABLE = 21, F_SCRIPT_NAME = 22, F_COPY_ARRAY_SECTION = 23, F_CREATE_SIZED_ARRAY = 24, F_INTEGER_TO_TEXT = 25, F_GET_STRUCTURE_MEMBER = 26;
 	final static String[] FUNCTION_NAME = { "size", "filelist", "substring", "pixelwidth", "pixelheight", "exit_program", "repaint", "indexof", "image_exists", "toLowerCase", "toUpperCase", "date_text", "debug", "insert", "random", "value_type", "date_day_of_month", "date_days_in_month", "delete", "getStructureStack", "isExpandable", "hasVariable", "scriptName", "copyArraySection", "createSizedArray", "integerToText", "getStructureMember" };
 
+	public static int debug_level = 0;
 	public static Locale[] accepted_locales = { Locale.getDefault(), new Locale("en") };
 	public static Ruleset[] ruleset = new Ruleset[0];
 	private final static Ruleset engine = new Ruleset("");
@@ -79,14 +80,20 @@ public static Ruleset getCurrentRuleset ()  { return current_ruleset; }
 
 
 	public final static void initializeRulesets ()  {
-System.out.println(ruleset.length+" rulesets");
+if (Global.debug_level > 0) {
+System.out.println();
+System.out.println(ruleset.length+" rulesets found");
+System.out.println();
+}
 		final Ruleset r = current_ruleset;
 		// first run the global scripts
+if (Global.debug_level > 0)
 System.out.println("running global scripts");
 		setCurrentRuleset(engine);
 		current_ruleset.initialize(accepted_locales);
 		// then run the scripts of each ruleset
 		for (int i = 0; i < ruleset.length; i++)  {
+if (Global.debug_level > 0)
 System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").toString());
 			setCurrentRuleset(ruleset[i]);
 			current_ruleset.initialize(accepted_locales);
@@ -114,11 +121,6 @@ System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").t
 	 */
 	public static void loadRulesets ()  {
 		File rulesetsFolder = new File("rulesets");
-		File here = new File(".");
-		System.out.println(here.getAbsolutePath());
-		String[] files = here.list();
-		for (String str: files)
-			System.out.println(str);
 		if (!rulesetsFolder.exists() || !rulesetsFolder.isDirectory()) {
 			throw new RuntimeException("Can not find 'rulesets' directory");
 		}
@@ -126,7 +128,8 @@ System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").t
 			bubblesort(dir_list);
 			for (int d = 0; d < dir_list.length; d++) {
 				if (dir_list[d].isDirectory() && !dir_list[d].getName().toLowerCase().endsWith(".svn")) {
-					System.out.println("loading Ruleset "+dir_list[d].getName());
+if (Global.debug_level > 0)
+System.out.println("loading Ruleset "+dir_list[d].getName());
 					final Ruleset r = new Ruleset(dir_list[d].getName());
 					final File[] script_list = dir_list[d].listFiles();
 					bubblesort(script_list);
@@ -144,7 +147,8 @@ System.out.println("initializing ruleset "+ruleset[i].data.get("RULESET_NAME").t
 			}
 
 			// add the global scripts which sit directly in the rulesets folder to the engine ruleset
-			System.out.println("loading engine scripts");
+if (Global.debug_level > 0)
+System.out.println("loading engine scripts");
 			for (int i = 0; i < dir_list.length; i++)
 				if (dir_list[i].getName().toLowerCase().endsWith(".txt"))
 					engine.addScript(ScriptParser.parse(dir_list[i], engine));

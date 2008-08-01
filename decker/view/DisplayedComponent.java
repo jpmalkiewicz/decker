@@ -90,8 +90,6 @@ public class DisplayedComponent implements Comparable, ValueListener
 				ret = new UITextField(_component, _parent, current_clip_source);
 		}
 		if (ret == null) {
-if (_component == null || _component.type() != Value.STRUCTURE || !_component.get("structure_type").equals("COMPONENT"))
-System.out.print("(generic "+_component+") ");
 			ret = new UIGenericComponent(_component, _parent, current_clip_source);
 		}
 		if (ret.child_count == -1) {
@@ -415,17 +413,15 @@ System.out.print("(generic "+_component+") ");
 		if (listenerCount > 0) {
 			final DisplayedComponent[] el = new DisplayedComponent[listenerCount];
 			System.arraycopy(eventListener[eventID], 0, el, 0, listenerCount);
-System.out.println();
-System.out.println(listenerCount + " listeners          mouse at ("+mouse_x+" "+mouse_y+")");
+//System.out.println();
+//System.out.println(listenerCount + " listeners          mouse at ("+mouse_x+" "+mouse_y+")");
 			for (int i = listenerCount; --i >= 0; ) {
 				final DisplayedComponent c = el[i];
-System.out.println(i+" "+c.getClass().getName()+" ("+c.x+","+c.y+") ("+c.w+"x"+c.h+") "+c.hashCode());
+//System.out.println(i+" "+c.getClass().getName()+" ("+c.x+","+c.y+") ("+c.w+"x"+c.h+") "+c.hashCode());
 
 				if (mouse_x >= c.cx && mouse_x < c.cx+c.cw && mouse_y >= c.cy && mouse_y < c.cy+c.ch &&( c.shape == null || (c.shape.getRGB(mouse_x-c.x, mouse_y-c.y)&0xff000000) != 0 )) {
-System.out.println("mouse event inside "+c.getClass().getName());
 					// if there is no hardcoded function or the hardcoded function doesn't block the scripted one, call the scripted function
 					if (( !c.hasHardcodedEventFunction[eventID] || c.eventUserInput(eventID, e, mouse_x, mouse_y, mouse_dx, mouse_dy) )&& c.scriptedEventFunction[eventID] != null) {
-System.out.println("mouse event : "+c.hashCode()+"  "+i+"    "+e);
 						if (eventID != ON_MOUSE_MOVED && eventID != ON_MOUSE_DRAGGED)
 							FunctionCall.executeFunctionCall(c.scriptedEventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), button_id, new Value().set(true) }, (c.component.type()==Value.STRUCTURE)?c.component.structure():null);
 						else
@@ -434,8 +430,6 @@ System.out.println("mouse event : "+c.hashCode()+"  "+i+"    "+e);
 				}
 			}
 		}
-if (eventID == ON_MOUSE_UP)
-System.out.println("mouse up END");
 		// check whether it was a double click (mouse down + mouse up + mouse down within MOUSE_CLICK_RADIUS pixels of each other
 		if (eventID == ON_MOUSE_DOWN) {
 			final long time = System.currentTimeMillis();
