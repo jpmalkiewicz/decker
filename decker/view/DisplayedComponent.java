@@ -710,7 +710,7 @@ public class DisplayedComponent implements Comparable, ValueListener
 			// if the structure has an on_draw function, execute it
 			if ((v=d.get("on_draw")) != null && v.type() == Value.FUNCTION) {
 // gotta store the current draw coordinates, in case they get polled by the on_draw function
-				FunctionCall.executeFunctionCall(v.function(), null, ScriptNode.KEEP_STACK);
+				FunctionCall.executeFunctionCall(v.function(), null, new Structure[]{ Global.getDisplayedScreen().structure(), d });
 			}
 			// draw the structure
 			final String type = d.get("structure_type").toString();

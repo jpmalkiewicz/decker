@@ -1,0 +1,323 @@
+// this adds a new structure type to our Battleships game, the SHIP
+structure
+	SHIP
+		x		// position of the ship in the harbour. pixel coordinates
+		y
+		size
+		image
+
+
+
+// ***
+constant
+	BLOCKED
+
+
+// ***
+GLOBAL.player_map_grid = createSizedArray(10,10)
+GLOBAL.player_map_graphics = createSizedArray(10,10)
+RULESET.PLAYER_MAP_X = 30
+RULESET.PLAYER_MAP_Y = 200
+
+
+
+RULESET.SHIPS_PER_PLAYER = 7
+RULESET.SHIP_LIST = ARRAY
+	SHIP
+		x = 53 + 24*0 - 3
+		y = 80
+		size = 5
+	SHIP
+		x = 53 + 24*1 - 1
+		y = 90
+		size = 4
+	SHIP
+		x = 53 + 24*2
+		y = 90
+		size = 4
+	SHIP
+		x = 53 + 24*3
+		y = 100
+		size = 3
+	SHIP
+		x = 53 + 24*4
+		y = 100
+		size = 3
+	SHIP
+		x = 53 + 24*5
+		y = 100
+		size = 3
+	SHIP
+		x = 53 + 24*6 - 3
+		y = 110
+		size = 2
+
+
+
+RULESET.place_ships_screen = COMPONENT
+	title = "Battleships"
+	width = 500
+	height = 430
+	selected_ship
+	placed_ships = 0
+
+
+	component = ARRAY
+		IMAGE
+			image = "game_background.gif"
+
+		// these are the three lines of text on the screen, one TEXT structure for each
+		TEXT
+			text = "Place your ships on the map"
+			color = "#ffffff"
+			font = "Arial;13pt;bold"
+			x = CENTER
+			y = 10
+		TEXT
+			text = "Pick them up and place them with the left mouse button"
+			color = "#ffff00"
+			font = "Arial;13pt"
+			x = CENTER
+			y = 30
+		TEXT
+			text = "Turn them with the right mouse button"
+			color = "#ffff00"
+			font = "Arial;13pt"
+			x = CENTER
+			y = 50
+
+// ***
+	// these images will be used to mark blocked map cells as red
+	for i = 0 to 9
+		for j = 0 to 9
+			player_map_graphics[i][j] = IMAGE
+				x = PLAYER_MAP_X+i*20
+				y = PLAYER_MAP_Y+j*20
+			component[] = player_map_graphics[i][j]
+
+	// these are the seven ship images
+	for i = 0 to 6
+		SHIP_LIST[i].image = IMAGE
+			image = "ship"+SHIP_LIST[i].size+".gif"
+			x = SHIP_LIST[i].x
+			y = SHIP_LIST[i].y
+// ***
+			angle = 0
+		component[] = SHIP_LIST[i].image
+
+	mouse_ship = IMAGE
+	component[] = mouse_ship
+
+
+  // this function gets called whenever the player releases a mouse button anywhere inside our screen
+	on_mouse_up = FUNCTION (x, y, mouse_button)
+		if mouse_button != 1
+			// some mouse button has been pressed, but it was not the first mouse button
+			// if a ship has been picked up before, turn it 90 degrees clockwise
+			if mouse_ship.id != UNDEFINED
+				mouse_ship.angle = ( mouse_ship.angle + 90 ) % 360
+				if mouse_ship.angle == 0 || mouse_ship.angle == 180
+					mouse_ship.x = x - 10
+					mouse_ship.y = y - SHIP_LIST[mouse_ship.id].size*10
+				else
+					mouse_ship.x = x - SHIP_LIST[mouse_ship.id].size*10
+					mouse_ship.y = y - 10
+		// check whether the mouse button was released outside the player's map
+		else
+			LOCAL.old_mouse_ship_id = mouse_ship.id
+			if x < PLAYER_MAP_X || x >= PLAYER_MAP_X+200 || y < PLAYER_MAP_Y || y >= PLAYER_MAP_Y+200
+				LOCAL.selected_ship
+				for i = 0 to 6
+// ***
+					// check whether ship i is in the harbour and whether it has been clicked
+					if SHIP_LIST[i].x == SHIP_LIST[i].image.x && SHIP_LIST[i].y == SHIP_LIST[i].image.y && x >= SHIP_LIST[i].x && x < SHIP_LIST[i].x + 20 && y >= SHIP_LIST[i].y && y < SHIP_LIST[i].y+20*SHIP_LIST[i].size
+						selected_ship = i
+				// if we have already picked up a ship, put it back
+				if mouse_ship.id != UNDEFINED
+					LOCAL.s = SHIP_LIST[mouse_ship.id]
+					s.image.x = s.x
+					s.image.y = s.y
+					s.image.angle = 0   // all the ships in the harbour are displayed at the default angle
+					s.image.image = mouse_ship.image
+					mouse_ship.image = UNDEFINED
+				// don't pick up a ship if we've just put one down
+				if mouse_ship.id != UNDEFINED
+					selected_ship = UNDEFINED
+				// pick up the selected ship and center it on the mouse pointer
+				if selected_ship != UNDEFINED
+					LOCAL.s = SHIP_LIST[selected_ship]
+					mouse_ship.x = x-10
+					mouse_ship.y = y - s.size*10
+					mouse_ship.angle = 0
+					mouse_ship.image = s.image.image
+					s.image.image = UNDEFINED
+				// remember which ship has been picked up, if any
+				mouse_ship.id = selected_ship
+//***
+			// check whether the player is trying to put a ship on the map
+			else if mouse_ship.id != UNDEFINED
+				// calculate the map coordinates of the ship position
+				// the +20 and -1 are neccessary to avoid rounding errors at the top and left edges of the map
+				LOCAL.sx = (mouse_ship.x-PLAYER_MAP_X+10+20) / 20 - 1
+				LOCAL.sy = (mouse_ship.y-PLAYER_MAP_Y+10+20) / 20 - 1
+				LOCAL.size = SHIP_LIST[mouse_ship.id].size
+				// if the ship fits into the map, make sure it can be placed in its current position
+				if mouse_ship.angle == 0 || mouse_ship.angle == 180
+					if sx >= 0 && sx < 10 && sy >= 0 && sy+size <= 10
+						// check whether the map cells are blocked
+						LOCAL.can_be_placed = true
+						for j = sy to sy+size-1
+							if player_map_grid[sx][j] != UNDEFINED
+								can_be_placed = false
+						if can_be_placed
+							// mark the map tiles as blocked / occupied
+							for i = sx-1 to sx+1
+								for j = sy-1 to sy+size
+									if i >= 0 && i < 10 && j >= 0 && j < 10
+										player_map_grid[i][j] = BLOCKED
+							for j = sy to sy+size-1
+								player_map_grid[sx][j] = mouse_ship.id
+							// put the ship on the map
+							LOCAL.s = SHIP_LIST[mouse_ship.id].image
+							s.x = PLAYER_MAP_X + sx*20
+							s.y = PLAYER_MAP_Y + sy*20
+							s.angle = mouse_ship.angle
+							s.image = mouse_ship.image
+							mouse_ship.id = UNDEFINED
+							mouse_ship.image = UNDEFINED
+							placed_ships++
+				else // angle == 90 || angle == 270
+					if sx >= 0 && sx+size <= 10 && sy >= 0 && sy < 10
+						// check whether the map cells are blocked
+						LOCAL.can_be_placed = true
+						for i = sx to sx+size-1
+							if player_map_grid[i][sy] != UNDEFINED
+								can_be_placed = false
+						if can_be_placed
+							// mark the map tiles as blocked / occupied
+							for i = sx-1 to sx+size
+								for j = sy-1 to sy+1
+									if i >= 0 && i < 10 && j >= 0 && j < 10
+										player_map_grid[i][j] = BLOCKED
+							for i = sx to sx+size-1
+								player_map_grid[i][sy] = mouse_ship.id
+							// put the ship on the map
+							LOCAL.s = SHIP_LIST[mouse_ship.id].image
+							s.x = PLAYER_MAP_X + sx*20
+							s.y = PLAYER_MAP_Y + sy*20
+							s.angle = mouse_ship.angle
+							s.image = mouse_ship.image
+							mouse_ship.id = UNDEFINED
+							mouse_ship.image = UNDEFINED
+							placed_ships++
+				// display the "Done" button once all ships have been placed
+				if placed_ships == SHIPS_PER_PLAYER
+					component[] = BORDER_BUTTON
+						x = PLAYER_MAP_X+100
+						y = 120
+						v_align = CENTER
+						h_align = CENTER
+						idle = createTextBold("Done")
+						padding = 4
+						padding_left = 8
+						padding_right = 8
+						on_mouse_up = FUNCTION
+							displayScreen(game_screen)
+			// the player is trying to pick up a ship from the map
+			else
+				// calculate the map coordinates of the mouse position
+				// the +20 and -1 are neccessary to avoid rounding errors at the top and left edges of the map
+				LOCAL.sx = (x-PLAYER_MAP_X+20) / 20 - 1
+				LOCAL.sy = (y-PLAYER_MAP_Y+20) / 20 - 1
+				if sx >= 0 && sx < 10 && sy >= 0 && sy < 10 && player_map_grid[sx][sy] >= 0
+					// the player has clicked on a ship. find its upper left corner
+					LOCAL.id = player_map_grid[sx][sy]
+					sx = (SHIP_LIST[id].image.x - PLAYER_MAP_X) / 20
+					sy = (SHIP_LIST[id].image.y - PLAYER_MAP_Y) / 20
+					LOCAL.size = SHIP_LIST[id].size
+					if SHIP_LIST[id].image.angle == 0 || SHIP_LIST[id].image.angle == 180
+						// remove the marks for it from the map
+						for j = sy to sy+size-1
+							player_map_grid[sx][j] = UNDEFINED
+						for i = sx-1 to sx+1
+							for j = sy-1 to sy+size
+								if i >= 0 && i < 10 && j >= 0 && j < 10
+									LOCAL.blocked = false
+									for k = i-1 to i+1
+										for l = j-1 to j+1
+											if k >= 0 && k < 10 && l >= 0 && l < 10 && player_map_grid[k][l] >= 0
+												blocked = true
+									if !blocked
+										player_map_grid[i][j] = UNDEFINED
+					else
+						// remove the marks for it from the map
+						for i = sx to sx+size-1
+							player_map_grid[i][sy] = UNDEFINED
+						for i = sx-1 to sx+size
+							for j = sy-1 to sy+1
+								if i >= 0 && i < 10 && j >= 0 && j < 10
+									LOCAL.blocked = false
+									for k = i-1 to i+1
+										for l = j-1 to j+1
+											if k >= 0 && k < 10 && l >= 0 && l < 10 && player_map_grid[k][l] >= 0
+												blocked = true
+									if !blocked
+										player_map_grid[i][j] = UNDEFINED
+					// pick the ship up
+					LOCAL.s = SHIP_LIST[id]
+					mouse_ship.id = id
+					mouse_ship.angle = s.image.angle
+					if mouse_ship.angle == 0 || mouse_ship.angle == 180
+						mouse_ship.x = x - 10
+						mouse_ship.y = y - s.size*10
+					else
+						mouse_ship.x = x - s.size*10
+						mouse_ship.y = y - 10
+					mouse_ship.image = s.image.image
+					s.image.image = UNDEFINED
+					placed_ships--
+					// remove the "Done" button if neccesary
+					if placed_ships == SHIPS_PER_PLAYER-1
+						delete(component, component.size-1)
+
+			// mark / unmark the blocked map cells
+			if old_mouse_ship_id == UNDEFINED && mouse_ship.id != UNDEFINED
+				// a ship has been picked up. mark the blocked map cells
+				for i = 0 to 9
+					for j = 0 to 9
+						if player_map_grid[i][j] != UNDEFINED
+							player_map_graphics[i][j].image = "blocked.png"
+			else if old_mouse_ship_id != UNDEFINED && mouse_ship.id == UNDEFINED
+				// a ship has been put down. remove the blocked map cell markers
+				for i = 0 to 9
+					for j = 0 to 9
+						player_map_graphics[i][j].image = UNDEFINED
+
+
+	on_key_down = FUNCTION
+		if mouse_ship.id != UNDEFINED
+			LOCAL.s = SHIP_LIST[mouse_ship.id]
+			mouse_ship.angle = ( mouse_ship.angle + 90 ) % 360
+			if mouse_ship.angle == 0 || mouse_ship.angle == 180
+				mouse_ship.x = mouse_ship.x - 10 + s.size*10
+				mouse_ship.y = mouse_ship.y - s.size*10 + 10
+			else
+				mouse_ship.x = mouse_ship.x + 10 - s.size*10
+				mouse_ship.y = mouse_ship.y + s.size*10 - 10
+
+
+	on_mouse_moved = FUNCTION (x, y)
+		if mouse_ship.id != UNDEFINED
+			// where the center of the ship sits relative to the mouse pointer depends on how it is currently turned
+			if mouse_ship.angle == 0 || mouse_ship.angle == 180
+				mouse_ship.x = x - 10
+				mouse_ship.y = y - SHIP_LIST[mouse_ship.id].size*10
+			else
+				mouse_ship.x = x - SHIP_LIST[mouse_ship.id].size*10
+				mouse_ship.y = y - 10
+
+
+	on_mouse_dragged = on_mouse_moved
+
+
+RULESET.initial_screen = place_ships_screen

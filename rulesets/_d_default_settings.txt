@@ -1,0 +1,13 @@
+ENGINE.BORDER_COLOR1 = "#6666ff"
+ENGINE.BORDER_COLOR2 = "#000080"
+ENGINE.BACKGROUND_COLOR = "#0000ff"    // default color for the screen background
+ENGINE.BACKGROUND_COLOR2 = "#333399"   // set this to UNDEFINED to give screens only 1 border
+ENGINE.TABLE_BACKGROUND_COLOR = "#ffffff"
+ENGINE.TABLE_SELECTED_ROW_BACKGROUND = "#bbccff"
+ENGINE.TABLE_TEXT_COLOR = "#000033"
+ENGINE.TEXT_STYLE = TEXT
+	font = "Arial;13pt"
+	color = "#ffffff"
+ENGINE.TEXT_STYLE_BOLD = TEXT
+	font = "Arial;13pt;bold"
+	color = "#ffffff"

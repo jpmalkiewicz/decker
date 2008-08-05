@@ -1,7 +1,11 @@
 85%
+2008-08-04
+	FunctionCall : if the supplied structure list contains the same structure twice in a row, it gets added to the structure stack only once
+	delete(array,index) now calls the eventValueChanged() function
 2008-08-01
 	UIImage now reacts to angle changes and UIImage.<init> doesn't whine anymore if IMAGE.image is UNDEFINED
 	step four of the battleships tutorial complete
+	battleships place ships screen complete, final step without tutorial, because it would be too complicated
 2008-07-31
 	step three of the battleships tutorial complete
 	button related mouse event handler functions now get told which button has changed its state
