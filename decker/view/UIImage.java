@@ -89,7 +89,8 @@ class UIImage extends DisplayedComponent
 			final boolean old_rtpw = relative_to_parent_width, old_rtph = relative_to_parent_height;
 			final Image old_image = image;
 			final String image_name = variable_name.equals("image") ? new_value.toString() : component.get("image").toString();
-			final int angle = (new_value.type() == Value.INTEGER || new_value.type() == Value.REAL) ? (int) new_value.real() : 0;
+			final Value v_angle = component.get("angle");
+			final int angle = (v_angle != null &&( v_angle.type() == Value.INTEGER || v_angle.type() == Value.REAL )) ? (int) v_angle.real() : 0;
 			image = AbstractView.getTurnedImage(image_name, angle);
 			if ((v=component.get("width")) == null || v.equalsConstant("UNDEFINED")) {
 				w = (image != null) ? image.getWidth(null) : 0;

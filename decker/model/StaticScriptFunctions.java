@@ -209,6 +209,7 @@ final class StaticScriptFunctions extends ScriptNode
 				System.arraycopy(array.array, index+1, new_array, index, old_length-index-1);
 				final Value ret = array.array[index];
 				array.array = new_array;
+				array.eventValueChanged(index, array, ret, null);
 				return ret;
 			}
 		}

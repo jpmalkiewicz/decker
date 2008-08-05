@@ -1,0 +1,86 @@
+RULESET.game_screen = COMPONENT
+	title = "Battleships"
+	width = 500
+	height = 430
+	component = ARRAY
+		IMAGE
+			image = "game_background.gif"
+		TEXT
+			text = "Place your ships on the map"
+			color = "#ffffff"
+			font = "Arial;13pt;bold"
+			x = CENTER
+			y = 10
+		TEXT
+			text = "Pick them up and place them with the left mouse button"
+			color = "#ffff00"
+			font = "Arial;13pt"
+			x = CENTER
+			y = 30
+		TEXT
+			text = "Turn them with the right mouse button"
+			color = "#ffff00"
+			font = "Arial;13pt"
+			x = CENTER
+			y = 50
+
+		IMAGE
+			image = "ship5.gif"
+			x = 53 + 24*0 -3
+			y = 80
+		IMAGE
+			image = "ship4.gif"
+			x = 53 + 24*1 -1
+			y = 90
+		IMAGE
+			image = "ship4.gif"
+			x = 53 + 24*2
+			y = 90
+		IMAGE
+			image = "ship3.gif"
+			x = 53 + 24*3
+			y = 100
+		IMAGE
+			image = "ship3.gif"
+			x = 53 + 24*4
+			y = 100
+		IMAGE
+			image = "ship3.gif"
+			x = 53 + 24*5
+			y = 100
+		IMAGE
+			image = "ship2.gif"
+			x = 53 + 24*6 - 3
+			y = 110
+
+		IMAGE
+			image = "ship5.gif"
+			x = 481 - (53 + 24*0 -3)
+			y = 80
+		IMAGE
+			image = "ship4.gif"
+			x = 481 - (53 + 24*1 -1)
+			y = 90
+		IMAGE
+			image = "ship4.gif"
+			x = 481 - (53 + 24*2)
+			y = 90
+		IMAGE
+			image = "ship3.gif"
+			x = 481 - (53 + 24*3)
+			y = 100
+		IMAGE
+			image = "ship3.gif"
+			x = 481 - (53 + 24*4)
+			y = 100
+		IMAGE
+			image = "ship3.gif"
+			x = 481 - (53 + 24*5)
+			y = 100
+		IMAGE
+			image = "ship2.gif"
+			x = 481 - (53 + 24*6 - 3)
+			y = 110
+	on_mouse_moved = FUNCTION (x, y, dx, dy)
+
+RULESET.initial_screen = place_ships_screen

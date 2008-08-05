@@ -1,0 +1,1 @@
+@java -classpath . decker.Decker initial_ruleset=battleships

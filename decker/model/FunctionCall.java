@@ -29,7 +29,9 @@ public final class FunctionCall extends Expression
 				old_stack = removeLocalStackItems();
 				if (enclosing_structures != null) {
 					for (int i = 0; i < enclosing_structures.length; i++) {
-						addStackItem(enclosing_structures[i]);
+						// don't add the same structure to the stack twice. this would happen with user input event function, if the current screen has an event handler function
+						if (i == 0 || enclosing_structures[i] != enclosing_structures[i-1])
+							addStackItem(enclosing_structures[i]);
 					}
 				}
 			}

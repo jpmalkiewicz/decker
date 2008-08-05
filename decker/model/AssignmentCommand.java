@@ -33,13 +33,19 @@ final class AssignmentCommand extends ScriptNode
 		// it's just a variable name
 		if (voperator == Expression.VARIABLE) {
 			final String varname = e.toString();
+			// if the topmost structure on the stack has a variable of that name, use that
+			Value v;
+			if ((v=stack[stack_size-1].get(varname)) != null) {
+				return new Object[]{ stack[stack_size-1], varname, v, v };
+			}
+			// if there is a LOCAL variable of that name, use that
 			if (!its_a_type_definition) {
 				// if there exists a LOCAL variable of that name, use that
 				for (int i = stack_size; --i >= 0; ) {
 					if (stack[i].get("structure_type").equals("LOCAL")) {
 						final Value ret = stack[i].get(varname);
 						if (ret != null)
-							return new Object[]{ stack[i], varname, fetchStructureMember(stack[i], varname, ret, caller), ret };
+							return new Object[]{ stack[i], varname, ret, ret };
 						break;
 					}
 				}
@@ -60,7 +66,7 @@ final class AssignmentCommand extends ScriptNode
 				}
 			}
 			// unreachable code, because there's always an expandable structure on the stack
-			caller.throwException("failed to create variable. there is no structure that can hold custom variables on the stack atm");
+			caller.throwException("failed to create variable. there is no structure that can hold custom variables on the stack at the moment");
 		}
 		else if (voperator == Expression.MEMBER) {
 			// find the structure our variable is or will be a member of
@@ -134,6 +140,7 @@ final class AssignmentCommand extends ScriptNode
 	}
 
 
+	/** creates the structure member variable if it doesn't exist yet, and returns it */
 	private static Value fetchStructureMember (final Structure s, final String varname, final Value current_variable, final ScriptNode caller) {
 		// make sure the variable exists
 		if (current_variable == null) {
