@@ -82,9 +82,21 @@ public final class FunctionCall extends Expression
 
 	public Value execute ()  {
 		Function function = null;
+		Structure structure = null;
 		try {
 			// fetch the function we will execute
-			function = (Function) getFirstOperand().execute().function();
+			final Value v = getFirstOperand().execute();
+			function = v.function();
+			structure = v.getEnclosingStructure();
+			// make sure structure is not one of the global structures
+			if (structure != null) {
+				for (int i = global_stack_size; --i >= 0; ) {
+					if (structure == stack[i]) {
+						structure = null;
+						break;
+					}
+				}
+			}
 		} catch (RuntimeException ex) {
 			ex.printStackTrace();
 			throwException(ex.toString());
@@ -100,7 +112,7 @@ public final class FunctionCall extends Expression
 			}
 		// execute the function call and return the resulting Value
 //System.err.println(toString());
-		return executeFunctionCall(function, arguments, null);
+		return executeFunctionCall(function, arguments, (structure==null)?null:new Structure[]{structure});
 	}
 
 

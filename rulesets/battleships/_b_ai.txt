@@ -1,0 +1,69 @@
+// this function lets the AI place its ships
+// it places them completely randomly
+RULESET.aiPlaceShips = FUNCTION
+	LOCAL.ships_placed = 0
+	LOCAL.sx
+	LOCAL.sy
+	LOCAL.blocked
+	LOCAL.size
+	while ships_placed < SHIPS_PER_PLAYER
+		for i = 0 to SHIPS_PER_PLAYER-1
+			size = SHIP_LIST2[i].size
+			// try placing the ship 20 times
+			for j = 1 to 30
+				if random(0,1) == 1
+					// try to place the ship vertically
+					// pick a position
+					sx = random(0,9)
+					sy = random(0,9-size+1)
+					// make sure it's not blocked
+					blocked = false
+					for l = sy to sy+size-1
+						if ai_map_grid[sx][l] != UNDEFINED
+							blocked = true
+							break
+					// put the ship on the map if the position was free
+					if !blocked
+						for k = sx-1 to sx+1
+							for l = sy-1 to sy+size
+								if k >= 0 && k < 10 && l >= 0 && l < 10
+									ai_map_grid[k][l] = BLOCKED
+						for l = sy to sy+size-1
+							ai_map_grid[sx][l] = i
+						ships_placed++
+						SHIP_LIST2[i].image.x = sx*20+AI_MAP_X
+						SHIP_LIST2[i].image.y = sy*20+AI_MAP_Y
+						SHIP_LIST2[i].image.angle = random(0,1)*180
+						break
+				else
+					// try to place the ship horizontally
+					// pick a position
+					sx = random(0,9-size+1)
+					sy = random(0,9)
+					// make sure it's not blocked
+					blocked = false
+					for k = sx to sx+size-1
+						if ai_map_grid[k][sy] != UNDEFINED
+							blocked = true
+							break
+					// put the ship on the map if the position was free
+					if !blocked
+						for k = sx-1 to sx+size
+							for l = sy-1 to sy+1
+								if k >= 0 && k < 10 && l >= 0 && l < 10
+									ai_map_grid[k][l] = BLOCKED
+						for k = sx to sx+size-1
+							ai_map_grid[k][sy] = i
+						ships_placed++
+						SHIP_LIST2[i].image.x = sx*20+AI_MAP_X
+						SHIP_LIST2[i].image.y = sy*20+AI_MAP_Y
+						SHIP_LIST2[i].image.angle = 90+random(0,1)*180
+						break
+			// it was not possible to place ship i. restart
+			if blocked
+				debug("the ai is unable to place ship "+i+". starting over")
+				ships_placed = 0
+				for i = 0 to 9
+					for j = 0 to 9
+						ai_map_grid[i] = UNDEFINED
+				break

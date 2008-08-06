@@ -1,59 +1,3 @@
-// this adds a new structure type to our Battleships game, the SHIP
-structure
-	SHIP
-		x		// position of the ship in the harbour. pixel coordinates
-		y
-		size
-		image
-
-
-
-// ***
-constant
-	BLOCKED
-
-
-// ***
-GLOBAL.player_map_grid = createSizedArray(10,10)
-GLOBAL.player_map_graphics = createSizedArray(10,10)
-RULESET.PLAYER_MAP_X = 30
-RULESET.PLAYER_MAP_Y = 200
-
-
-
-RULESET.SHIPS_PER_PLAYER = 7
-RULESET.SHIP_LIST = ARRAY
-	SHIP
-		x = 53 + 24*0 - 3
-		y = 80
-		size = 5
-	SHIP
-		x = 53 + 24*1 - 1
-		y = 90
-		size = 4
-	SHIP
-		x = 53 + 24*2
-		y = 90
-		size = 4
-	SHIP
-		x = 53 + 24*3
-		y = 100
-		size = 3
-	SHIP
-		x = 53 + 24*4
-		y = 100
-		size = 3
-	SHIP
-		x = 53 + 24*5
-		y = 100
-		size = 3
-	SHIP
-		x = 53 + 24*6 - 3
-		y = 110
-		size = 2
-
-
-
 RULESET.place_ships_screen = COMPONENT
 	title = "Battleships"
 	width = 500
@@ -86,7 +30,6 @@ RULESET.place_ships_screen = COMPONENT
 			x = CENTER
 			y = 50
 
-// ***
 	// these images will be used to mark blocked map cells as red
 	for i = 0 to 9
 		for j = 0 to 9
@@ -96,17 +39,17 @@ RULESET.place_ships_screen = COMPONENT
 			component[] = player_map_graphics[i][j]
 
 	// these are the seven ship images
-	for i = 0 to 6
+	for i = 0 to SHIPS_PER_PLAYER-1
 		SHIP_LIST[i].image = IMAGE
 			image = "ship"+SHIP_LIST[i].size+".gif"
 			x = SHIP_LIST[i].x
 			y = SHIP_LIST[i].y
-// ***
 			angle = 0
 		component[] = SHIP_LIST[i].image
 
 	mouse_ship = IMAGE
 	component[] = mouse_ship
+
 
 
   // this function gets called whenever the player releases a mouse button anywhere inside our screen
@@ -127,8 +70,7 @@ RULESET.place_ships_screen = COMPONENT
 			LOCAL.old_mouse_ship_id = mouse_ship.id
 			if x < PLAYER_MAP_X || x >= PLAYER_MAP_X+200 || y < PLAYER_MAP_Y || y >= PLAYER_MAP_Y+200
 				LOCAL.selected_ship
-				for i = 0 to 6
-// ***
+				for i = 0 to SHIPS_PER_PLAYER-1
 					// check whether ship i is in the harbour and whether it has been clicked
 					if SHIP_LIST[i].x == SHIP_LIST[i].image.x && SHIP_LIST[i].y == SHIP_LIST[i].image.y && x >= SHIP_LIST[i].x && x < SHIP_LIST[i].x + 20 && y >= SHIP_LIST[i].y && y < SHIP_LIST[i].y+20*SHIP_LIST[i].size
 						selected_ship = i
@@ -153,7 +95,6 @@ RULESET.place_ships_screen = COMPONENT
 					s.image.image = UNDEFINED
 				// remember which ship has been picked up, if any
 				mouse_ship.id = selected_ship
-//***
 			// check whether the player is trying to put a ship on the map
 			else if mouse_ship.id != UNDEFINED
 				// calculate the map coordinates of the ship position
@@ -294,6 +235,7 @@ RULESET.place_ships_screen = COMPONENT
 						player_map_graphics[i][j].image = UNDEFINED
 
 
+
 	on_key_down = FUNCTION
 		if mouse_ship.id != UNDEFINED
 			LOCAL.s = SHIP_LIST[mouse_ship.id]
@@ -304,6 +246,7 @@ RULESET.place_ships_screen = COMPONENT
 			else
 				mouse_ship.x = mouse_ship.x + 10 - s.size*10
 				mouse_ship.y = mouse_ship.y + s.size*10 - 10
+
 
 
 	on_mouse_moved = FUNCTION (x, y)
@@ -317,7 +260,10 @@ RULESET.place_ships_screen = COMPONENT
 				mouse_ship.y = y - 10
 
 
+
 	on_mouse_dragged = on_mouse_moved
 
 
-RULESET.initial_screen = place_ships_screen
+
+// RULESET.initial_screen = place_ships_screen
+RULESET.initial_screen = game_screen

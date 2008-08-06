@@ -1,4 +1,6 @@
 85%
+2008-08-06
+	scripted function calls now put the structure the function is stored in on the stack for the function execution
 2008-08-04
 	FunctionCall : if the supplied structure list contains the same structure twice in a row, it gets added to the structure stack only once
 	delete(array,index) now calls the eventValueChanged() function
