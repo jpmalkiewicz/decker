@@ -145,7 +145,7 @@ final class AssignmentCommand extends ScriptNode
 		// make sure the variable exists
 		if (current_variable == null) {
 			caller.testVariableName(varname);
-			final Value ret = new Value();
+			final Value ret = new Value(s);
 			// using putDirectlyIntoStringTreeMap() here to avoid calling the ValueListeners twice
 			s.putDirectlyIntoStringTreeMap(varname, ret); // add a new variable
 			return ret;

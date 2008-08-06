@@ -33,6 +33,7 @@ final class StaticScriptFunctions extends ScriptNode
 			case Global.F_IS_EXPANDABLE : return execute_isExpandable(args);
 			case Global.F_PIXELHEIGHT : return execute_pixelheight(args);
 			case Global.F_PIXELWIDTH : return execute_pixelwidth(args);
+			case Global.F_PRINT_STACK : return execute_print_stack(args);
 			case Global.F_RANDOM : return execute_random(args);
 			case Global.F_REPAINT : if ((v=stack[ENGINE_STACK_SLOT].get("frames_per_second")) == null || v.type() != Value.INTEGER || v.integer() <= 0) try { Global.getDisplayedComponent().repaint(); } catch (Throwable t) {}; return new Value();
 			case Global.F_SIZE : return execute_size(args);
@@ -392,6 +393,12 @@ final class StaticScriptFunctions extends ScriptNode
 
 	private final static Value execute_pixelwidth (final Value[] args)  {
 		return new Value().set((args.length == 0 || args[0] == null) ? 0 : Global.getViewWrapper().getView().width(args[0], 0));
+	}
+
+
+	private final static Value execute_print_stack (final Value[] args) {
+		printStack(System.out, "");
+		return DUMMY_VALUE;
 	}
 
 
