@@ -1,0 +1,16 @@
+Engine:
+DisplayedComponent.eventValueChanged() creates new interface objects without removing the old ones from the data objects they listen to
+hardcode addTableRow, deleteTableRow, selectTableRow   => on_selection_changed
+does the real numbers parser work again? (in decker.model.ScriptReader)
+error message when image missing
+error message on faulty font description
+? popup border doesn't display ?
+AssignmentCommand.fetchStructureMember() is used even if the member variable definitely exists. that's pointless
+
+
+Engine wishlist:
+mousewheel support
+draggable popups
+color tags within text ( #error, #success )
+remove KEEP_STACK if it isn't used anywhere
+StaticScriptFunctions.execute_delete() should call a function that tells the listeners that the variable has been deleted, not that it has been changed
