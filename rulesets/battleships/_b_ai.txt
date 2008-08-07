@@ -1,6 +1,16 @@
-// this function lets the AI place its ships
-// it places them completely randomly
+// special AI data
+
+
+GLOBAL.aix  // will have a value whenever the AI has hit but not sunk something
+GLOBAL.aiy
+GLOBAL.ai_shots
+GLOBAL.ai_map = createSizedArray(10,10)
+
+
+
+// this function lets the AI place its ships and prepares the data for hunting the player
 RULESET.aiPlaceShips = FUNCTION
+	// place teh ships completely randomly
 	LOCAL.ships_placed = 0
 	LOCAL.sx
 	LOCAL.sy
@@ -31,9 +41,7 @@ RULESET.aiPlaceShips = FUNCTION
 						for l = sy to sy+size-1
 							ai_map_grid[sx][l] = i
 						ships_placed++
-						SHIP_LIST2[i].image.x = sx*20+AI_MAP_X
-						SHIP_LIST2[i].image.y = sy*20+AI_MAP_Y
-						SHIP_LIST2[i].image.angle = random(0,1)*180
+						SHIP_LIST2[i].ship_angle = random(0,1)*180
 						break
 				else
 					// try to place the ship horizontally
@@ -55,9 +63,7 @@ RULESET.aiPlaceShips = FUNCTION
 						for k = sx to sx+size-1
 							ai_map_grid[k][sy] = i
 						ships_placed++
-						SHIP_LIST2[i].image.x = sx*20+AI_MAP_X
-						SHIP_LIST2[i].image.y = sy*20+AI_MAP_Y
-						SHIP_LIST2[i].image.angle = 90+random(0,1)*180
+						SHIP_LIST2[i].ship_angle = random(0,1)*180 + 90
 						break
 			// it was not possible to place ship i. restart
 			if blocked
@@ -67,3 +73,118 @@ RULESET.aiPlaceShips = FUNCTION
 					for j = 0 to 9
 						ai_map_grid[i] = UNDEFINED
 				break
+	// prepare the grid where we hunt the player's ships
+	for i = 0 to 9
+		for j = 0 to 9
+			ai_map[i][j] = UNDEFINED
+
+
+
+RULESET.aiAttack = FUNCTION
+	debug("aiAttack "+ai_shots)
+	// check whether we still need to finish sinking something
+	if aix != UNDEFINED
+		aiSinkShip()
+	// find something to sink
+	LOCAL.x
+	LOCAL.y
+	LOCAL.id
+	while ai_shots > 0 && player_sections > 0
+		// shoot at a two step raster
+		x = random(0,9)
+		y = random(0,4)*2 + (x%2==0 ? 1 : 0)
+		if ai_map[x][y] == UNDEFINED
+			id = player_map_grid[x][y]
+			debug(x+","+y)
+			if id >= 0
+				player_map_graphics[x][y].image = "explosion.gif"
+				SHIP_LIST[id].health--
+				ai_map[x][y] = id
+				ai_score++
+				aix = x
+				aiy = y
+				aiSinkShip()
+			else
+				player_map_graphics[x][y].image = "splash.gif"
+				ai_map[x][y] = EMPTY
+				ai_shots--
+
+
+
+RULESET.aiSinkShip = FUNCTION
+	// do we already know the direction
+	LOCAL.id = ai_map[aix][aiy]
+	LOCAL.direction
+	LOCAL.x
+	LOCAL.y
+	LOCAL.delta
+	if ( aix > 0 && ai_map[aix-1][aiy] == id )||( aix < 9 && ai_map[aix+1][aiy] == id )
+		direction = HORIZONTAL
+	if ( aiy > 0 && ai_map[aix][aiy-1] == id )||( aiy < 9 && ai_map[aix][aiy+1] == id )
+		direction = VERTICAL
+	debug(aix+","+aiy+"  "+direction)
+	while ai_shots > 0 && SHIP_LIST[id].health > 0
+		delta = random(0,1)*2-1
+		if direction == HORIZONTAL ||( direction == UNDEFINED && random(0,1) == 0 )
+			x = aix
+			while ai_map[x][aiy] == id && x+delta >= 0 && x+delta <= 9
+				x = x + delta
+			if ai_map[x][aiy] == UNDEFINED
+				if player_map_grid[x][aiy] == id
+					ai_map[x][aiy] = id
+					ai_score++
+					SHIP_LIST[id].health--
+					direction = HORIZONTAL
+					player_map_graphics[x][aiy].image = "explosion.gif"
+				else
+					ai_map[x][aiy] = EMPTY
+					ai_shots--
+					player_map_graphics[x][aiy].image = "splash.gif"
+				debug(x+","+aiy)
+		else
+			y = aiy
+			while ai_map[aix][y] == id && y+delta >= 0 && y+delta <= 9
+				y = y + delta
+			if ai_map[aix][y] == UNDEFINED
+				if player_map_grid[aix][y] == id
+					ai_map[aix][y] = id
+					ai_score++
+					SHIP_LIST[id].health--
+					direction = VERTICAL
+					player_map_graphics[aix][y].image = "explosion.gif"
+				else
+					ai_map[aix][y] = EMPTY
+					ai_shots--
+					player_map_graphics[aix][y].image = "splash.gif"
+				debug(aix+","+y)
+	// sink the ship if it is dead
+	if SHIP_LIST[id].health == 0
+		if id == 3
+			debug(SHIP_LIST[id])
+		player_sections--
+		while aix > 0 && ai_map[aix-1][aiy] == id
+			aix--
+		while aiy > 0 && ai_map[aix][aiy-1] == id
+			aiy--
+		SHIP_LIST[id].image.x = aix*20 + PLAYER_MAP_X
+		SHIP_LIST[id].image.y = aiy*20 + PLAYER_MAP_Y
+		SHIP_LIST[id].image.angle = SHIP_LIST[id].ship_angle
+
+		// mark the area arond the ship as empty
+		if direction == HORIZONTAL
+			for i = aix-1 to aix+SHIP_LIST[id].size
+				for j = aiy-1 to aiy+1
+					if i >= 0 && i <= 9 && j >= 0 && j <= 9 && ai_map[i][j] == UNDEFINED
+						ai_map[i][j] = EMPTY
+			for i = aix to aix+SHIP_LIST[id].size-1
+				player_map_graphics[i][aiy].image = UNDEFINED
+		else
+			for i = aix-1 to aix+1
+				for j = aiy-1 to aiy+SHIP_LIST[id].size
+					if i >= 0 && i <= 9 && j >= 0 && j <= 9 && ai_map[i][j] == UNDEFINED
+						ai_map[i][j] = EMPTY
+			for j = aiy to aiy+SHIP_LIST[id].size-1
+				player_map_graphics[aix][j].image = UNDEFINED
+		aix = UNDEFINED
+		aiy = UNDEFINED
+

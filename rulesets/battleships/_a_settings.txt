@@ -4,25 +4,44 @@ structure
 		x		// position of the ship in the harbour. pixel coordinates
 		y
 		size
+		health
 		image
+		ship_angle
 
 
 
 constant
 	BLOCKED
 
+	// the constants below are used by the AI
+	HORIZONTAL
+	VERTICAL
+	EMPTY
 
+
+
+RULESET.PLAYER_MAP_X = 30
+RULESET.PLAYER_MAP_Y = 200
+RULESET.AI_MAP_X = 270
+RULESET.AI_MAP_Y = 200
+RULESET.SHIPS_PER_PLAYER = 6
 
 GLOBAL.player_map_grid = createSizedArray(10,10)
 GLOBAL.player_map_graphics = createSizedArray(10,10)
 GLOBAL.ai_map_grid = createSizedArray(10,10)
 GLOBAL.ai_map_graphics = createSizedArray(10,10)
-RULESET.PLAYER_MAP_X = 30
-RULESET.PLAYER_MAP_Y = 200
-RULESET.AI_MAP_X = 270
-RULESET.AI_MAP_Y = 200
-RULESET.SHIPS_PER_PLAYER = 7
+GLOBAL.ai_sections
+GLOBAL.player_sections   // ships still floating
+GLOBAL.ai_score
 
+for i = 0 to 9
+	for j = 0 to 9
+		player_map_graphics[i][j] = IMAGE
+			x = PLAYER_MAP_X + i*20
+			y = PLAYER_MAP_Y + j*20
+		ai_map_graphics[i][j] = IMAGE
+			x = AI_MAP_X + i*20
+			y = AI_MAP_Y + j*20
 
 
 
@@ -48,11 +67,7 @@ RULESET.SHIP_LIST = ARRAY
 		y = 100
 		size = 3
 	SHIP
-		x = 53 + 24*5
-		y = 100
-		size = 3
-	SHIP
-		x = 53 + 24*6 - 3
+		x = 53 + 24*5 - 3
 		y = 110
 		size = 2
 
@@ -79,10 +94,6 @@ RULESET.SHIP_LIST2 = ARRAY
 		y = 100
 		size = 3
 	SHIP
-		x = 481 - (53 + 24*5)
-		y = 100
-		size = 3
-	SHIP
-		x = 481 - (53 + 24*6 - 3)
+		x = 481 - (53 + 24*5 - 3)
 		y = 110
 		size = 2

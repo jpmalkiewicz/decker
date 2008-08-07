@@ -33,12 +33,10 @@ RULESET.place_ships_screen = COMPONENT
 	// these images will be used to mark blocked map cells as red
 	for i = 0 to 9
 		for j = 0 to 9
-			player_map_graphics[i][j] = IMAGE
-				x = PLAYER_MAP_X+i*20
-				y = PLAYER_MAP_Y+j*20
+			player_map_graphics[i][j].image = UNDEFINED
 			component[] = player_map_graphics[i][j]
 
-	// these are the seven ship images
+	// these are the six ship images
 	for i = 0 to SHIPS_PER_PLAYER-1
 		SHIP_LIST[i].image = IMAGE
 			image = "ship"+SHIP_LIST[i].size+".gif"
@@ -265,5 +263,4 @@ RULESET.place_ships_screen = COMPONENT
 
 
 
-// RULESET.initial_screen = place_ships_screen
-RULESET.initial_screen = game_screen
+RULESET.initial_screen = place_ships_screen
