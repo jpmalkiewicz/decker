@@ -205,7 +205,9 @@ public final static int ABSOLUTE_MIN_VALUE = Integer.MIN_VALUE+6; // coordinate 
 	}
 
 
-	public final static Image getTurnedImage (final String name, final int angle) {
+	public final static Image getTurnedImage (final String name, int angle) {
+// set the angle to 0, 90, 180 or 270. -45 is rounded to -90, +45 is rounded to +90
+angle = ( (((angle%360)+((angle<0)?404:45))%360) / 90 ) * 90;
 		// if the image isn't turned, return the normal image
 		if (angle == 0 ||( angle != 90 && angle != 180 && angle != 270 )) {
 			return getImage(name, false, 0);

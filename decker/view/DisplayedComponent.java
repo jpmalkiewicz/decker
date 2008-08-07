@@ -316,12 +316,17 @@ public class DisplayedComponent implements Comparable, ValueListener
 			args[i] = (Value) q.remove();
 		}
 		// send the key event to all key listeners
-		final Structure[] stack = new Structure[]{ Global.getDisplayedScreen().structure(), null };
+		final Structure displayed_screen = Global.getDisplayedScreen().structure();
+		final Structure[] stack = new Structure[]{ displayed_screen, null };
 		for (int i = eventListenerCount[ON_KEY_DOWN]; --i >= 0; ) {
 			final DisplayedComponent k = eventListener[ON_KEY_DOWN][i];
 			if (( !k.hasHardcodedEventFunction[ON_KEY_DOWN] || k.eventUserInput(ON_KEY_DOWN, e, -1, -1, -1, -1) )&& k.scriptedEventFunction[ON_KEY_DOWN] != null) {
 				stack[1] = k.component.structure();
 				FunctionCall.executeFunctionCall(k.scriptedEventFunction[ON_KEY_DOWN], args, stack);
+				// discard the event if the displayed screen has changed
+				if (Global.getDisplayedScreen().structure() != displayed_screen) {
+					return;
+				}
 			}
 		}
 	}
@@ -365,7 +370,8 @@ public class DisplayedComponent implements Comparable, ValueListener
 			case MouseEvent.BUTTON2 : button_id.set(2); break;
 			case MouseEvent.BUTTON3 : button_id.set(3); break;
 		}
-		final Structure[] stack = new Structure[] { Global.getDisplayedScreen().structure(), null };
+		final Structure displayed_screen = Global.getDisplayedScreen().structure();
+		final Structure[] stack = new Structure[] { displayed_screen, null };
 		// tell the components about it, if the mouse has left their area, and remove them from the mouseIsInside list
 		for (int i = mouseIsInsideCount; --i >= 0; ) {
 			final DisplayedComponent c = mouseIsInside[i];
@@ -377,6 +383,10 @@ public class DisplayedComponent implements Comparable, ValueListener
 				}
 				mouseIsInside[i] = mouseIsInside[--mouseIsInsideCount];
 				mouseIsInside[mouseIsInsideCount] = null;
+				// discard the event if the displayed screen has changed
+				if (Global.getDisplayedScreen().structure() != displayed_screen) {
+					return false;
+				}
 			}
 		}
 		// find the components where the mouse is inside now, and tell them about it
@@ -395,6 +405,10 @@ public class DisplayedComponent implements Comparable, ValueListener
 				if (( !c.hasHardcodedEventFunction[ON_MOUSE_ENTERED] || c.eventUserInput(ON_MOUSE_ENTERED, e, mouse_x, mouse_y, mouse_dx, mouse_dy) )&& c.scriptedEventFunction[ON_MOUSE_ENTERED] != null) {
 					stack[1] = c.component.structure();
 					FunctionCall.executeFunctionCall(c.scriptedEventFunction[ON_MOUSE_ENTERED], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(true) }, stack);
+				}
+				// discard the event if the displayed screen has changed
+				if (Global.getDisplayedScreen().structure() != displayed_screen) {
+					return false;
 				}
 			}
 		}
@@ -418,12 +432,8 @@ public class DisplayedComponent implements Comparable, ValueListener
 		if (listenerCount > 0) {
 			final DisplayedComponent[] el = new DisplayedComponent[listenerCount];
 			System.arraycopy(eventListener[eventID], 0, el, 0, listenerCount);
-//System.out.println();
-//System.out.println(listenerCount + " listeners          mouse at ("+mouse_x+" "+mouse_y+")");
 			for (int i = listenerCount; --i >= 0; ) {
 				final DisplayedComponent c = el[i];
-//System.out.println(i+" "+c.getClass().getName()+" ("+c.x+","+c.y+") ("+c.w+"x"+c.h+") "+c.hashCode());
-
 				if (mouse_x >= c.cx && mouse_x < c.cx+c.cw && mouse_y >= c.cy && mouse_y < c.cy+c.ch &&( c.shape == null || (c.shape.getRGB(mouse_x-c.x, mouse_y-c.y)&0xff000000) != 0 )) {
 					// if there is no hardcoded function or the hardcoded function doesn't block the scripted one, call the scripted function
 					if (( !c.hasHardcodedEventFunction[eventID] || c.eventUserInput(eventID, e, mouse_x, mouse_y, mouse_dx, mouse_dy) )&& c.scriptedEventFunction[eventID] != null) {
@@ -432,6 +442,10 @@ public class DisplayedComponent implements Comparable, ValueListener
 							FunctionCall.executeFunctionCall(c.scriptedEventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), button_id, new Value().set(true) }, stack);
 						else
 							FunctionCall.executeFunctionCall(c.scriptedEventFunction[eventID], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(mouse_dx), new Value().set(mouse_dy), new Value().set(true) }, stack);
+					}
+					// discard the event if the displayed screen has changed
+					if (Global.getDisplayedScreen().structure() != displayed_screen) {
+						return false;
 					}
 				}
 			}
@@ -447,13 +461,16 @@ public class DisplayedComponent implements Comparable, ValueListener
 					System.arraycopy(eventListener[ON_DOUBLE_CLICK], 0, el, 0, listenerCountDD);
 					for (int i = listenerCountDD; --i >= 0; ) {
 						final DisplayedComponent c = el[i];
-
 						if (mouse_x >= c.cx && mouse_x < c.cx+c.cw && mouse_y >= c.cy && mouse_y < c.cy+c.ch &&( c.shape == null || (c.shape.getRGB(mouse_x-c.x, mouse_y-c.y)&0xff000000) != 0 )) {
 							// if there is no hardcoded function or the hardcoded function doesn't block the scripted one, call the scripted function
 							if (( !c.hasHardcodedEventFunction[ON_DOUBLE_CLICK] || c.eventUserInput(ON_DOUBLE_CLICK, e, mouse_x, mouse_y, mouse_dx, mouse_dy) )&& c.scriptedEventFunction[ON_DOUBLE_CLICK] != null) {
 								stack[1] = (c.component.type()==Value.STRUCTURE)?c.component.structure():null;
 								FunctionCall.executeFunctionCall(c.scriptedEventFunction[ON_DOUBLE_CLICK], new Value[]{ new Value().set(mouse_x-c.x), new Value().set(mouse_y-c.y), new Value().set(true) }, stack);
 							}
+						}
+						// discard the event if the displayed screen has changed
+						if (Global.getDisplayedScreen().structure() != displayed_screen) {
+							return false;
 						}
 					}
 				}

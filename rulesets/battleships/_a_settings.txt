@@ -6,7 +6,7 @@ structure
 		size
 		health
 		image
-		ship_angle
+		ship_angle = 0
 
 
 
@@ -97,3 +97,15 @@ RULESET.SHIP_LIST2 = ARRAY
 		x = 481 - (53 + 24*5 - 3)
 		y = 110
 		size = 2
+
+for i = 0 to SHIPS_PER_PLAYER-1
+	SHIP_LIST[i].image = IMAGE
+		image = "ship"+SHIP_LIST[i].size+".gif"
+		x = SHIP_LIST[i].x
+		y = SHIP_LIST[i].y
+		angle = SHIP_LIST[i].ship_angle
+	SHIP_LIST2[i].image = IMAGE
+		image = "ship"+SHIP_LIST2[i].size+".gif"
+		x = SHIP_LIST2[i].x
+		y = SHIP_LIST2[i].y
+		angle = SHIP_LIST2[i].ship_angle
