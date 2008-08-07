@@ -2,25 +2,35 @@ RULESET.game_screen = COMPONENT
 	title = "Battleships"
 	width = 500
 	height = 430
+	player_shots
 
 
 	instruction_text = TEXT
-		text = "lalala"
 		color = "#ffffff"
 		font = "Arial;13pt;bold"
 		x = CENTER
 		y = 10
 	shots_text = TEXT
-		text = "You have 6 shots left"
 		color = "#ffff00"
 		font = "Arial;13pt"
 		x = CENTER
 		y = 30
 	score_text = TEXT
-		text = "0 - 0"
+		text = "-"
 		color = "#ffff00"
 		font = "Arial;13pt"
 		x = CENTER
+		y = 50
+	player_score_text = TEXT
+		color = "#ffff00"
+		font = "Arial;13pt"
+		x = COMPONENT.width/2 - 10
+		y = 50
+		h_align = LEFT
+	ai_score_text = TEXT
+		color = "#ffff00"
+		font = "Arial;13pt"
+		x = COMPONENT.width/2 + 10
 		y = 50
 
 
@@ -30,7 +40,9 @@ RULESET.game_screen = COMPONENT
 		instruction_text
 		shots_text
 		score_text
-
+		player_score_text
+		ai_score_text
+	// add the ships to the AI harbour
 	for i = 0 to SHIPS_PER_PLAYER-1
 		SHIP_LIST2[i].image = IMAGE
 			image = "ship"+SHIP_LIST2[i].size+".gif"
@@ -38,11 +50,101 @@ RULESET.game_screen = COMPONENT
 			y = SHIP_LIST2[i].y
 			angle = 0
 		component[] = SHIP_LIST2[i].image
+	// add the images for the hit/miss markers
+	for i = 0 to 9
+		for j = 0 to 9
+			ai_map_graphics[i][j].image = UNDEFINED
+			component[] = ai_map_graphics[i][j]
+			player_map_graphics[i][j].image = UNDEFINED
+			component[] = player_map_graphics[i][j]
+
+
+
+	on_mouse_up = FUNCTION (x,y)
+		if player_shots > 0 && ai_sections > 0
+			LOCAL.sx = (x-AI_MAP_X+20) / 20 - 1
+			LOCAL.sy = (y-AI_MAP_Y+20) / 20 - 1
+			if sx >= 0 && sx < 10 && sy >= 0 && sy < 10 && ai_map_graphics[sx][sy].image == UNDEFINED
+				if ai_map_grid[sx][sy] >= 0
+					player_score_text.text = player_score_text.text+1
+					LOCAL.id = ai_map_grid[sx][sy]
+					LOCAL.s = SHIP_LIST2[id]
+					s.health--
+					if s.health > 0
+						ai_map_graphics[sx][sy].image = "explosion.gif"
+					else
+						ai_sections--
+						// show the ship
+						while sx > 0 && ai_map_grid[sx-1][sy] == id
+							sx--
+						while sy > 0 && ai_map_grid[sx][sy-1] == id
+							sy--
+						s.image.x = AI_MAP_X + sx*20
+						s.image.y = AI_MAP_Y + sy*20
+						s.image.angle = s.ship_angle
+						if sy < 9 && ai_map_grid[sx][sy+1] == id
+							while sy <= 9 && ai_map_grid[sx][sy] == id
+								ai_map_graphics[sx][sy].image =  UNDEFINED
+								sy++
+						else
+							s.image.angle = random(0,1)*180 + 90
+							while sx <= 9 && ai_map_grid[sx][sy] == id
+								ai_map_graphics[sx][sy].image =  UNDEFINED
+								sx++
+						// check whether the player has won
+						if ai_sections == 0
+							instruction_text.text = "You have won"
+							player_score_text.text = player_score_text.text + player_shots + player_sections
+							shots_text.text = ""
+				else
+					ai_map_graphics[sx][sy].image = "splash.gif"
+					player_shots--
+					shots_text.text = "You have "+player_shots+" shot"+(player_shots==1?"":"s")+" left"
+				if player_shots == 0
+					aiAttack()
+					if player_sections > 0
+						newRound()
+					else
+						instruction_text.text = "The AI wins"
+						shots_text.text = ""
+						ai_score_text.text = ai_score + ai_shots + ai_sections
+
+
+
+
+	newRound = FUNCTION
+		player_shots = (player_sections+1) / 2
+		ai_shots = (ai_sections+1) / 2
+		shots_text.text = "You have "+player_shots+" shot"+(player_shots==1?"":"s")+" left"
+		ai_score_text.text = ai_score
+
 
 
 
 	setup = FUNCTION
-		// re-add the player's ships from the place ships screen
+		// initialize the images
 		for i = 0 to SHIPS_PER_PLAYER-1
 			component[] = SHIP_LIST[i].image
+			SHIP_LIST[i].ship_angle = SHIP_LIST[i].image.angle
+			SHIP_LIST[i].image.angle = 0
+			SHIP_LIST[i].image.x = SHIP_LIST[i].x
+			SHIP_LIST[i].image.y = SHIP_LIST[i].y
+		for i = 0 to 9
+			for j = 0 to 9
+				ai_map_graphics[i][j].image = UNDEFINED
+				player_map_graphics[i][j].image = UNDEFINED
+		// initialize the data
+		for i = 0 to SHIPS_PER_PLAYER-1
+			SHIP_LIST[i].health = SHIP_LIST[i].size
+			SHIP_LIST2[i].health = SHIP_LIST2[i].size
+		player_sections = SHIPS_PER_PLAYER
+		ai_sections = SHIPS_PER_PLAYER
 		aiPlaceShips()
+		player_score_text.text = 0
+		ai_score = 0
+		instruction_text.text = ""
+		newRound()
+		debug(SHIP_LIST[3])
+
+
+RULESET.initial_screen = game_screen
