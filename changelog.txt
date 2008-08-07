@@ -1,4 +1,7 @@
 85%
+2008-08-07
+	processing a user input event is now stopped when the displayed screen changes
+	UIImage overhauled
 2008-08-06
 	scripted function calls now put the structure the function is stored in on the stack for the function execution
 	you can play a complete game of battleships

@@ -42,20 +42,13 @@ RULESET.game_screen = COMPONENT
 		score_text
 		player_score_text
 		ai_score_text
-	// add the ships to the AI harbour
+	// add the ships and the hit/miss markers
 	for i = 0 to SHIPS_PER_PLAYER-1
-		SHIP_LIST2[i].image = IMAGE
-			image = "ship"+SHIP_LIST2[i].size+".gif"
-			x = SHIP_LIST2[i].x
-			y = SHIP_LIST2[i].y
-			angle = 0
+		component[] = SHIP_LIST[i].image
 		component[] = SHIP_LIST2[i].image
-	// add the images for the hit/miss markers
 	for i = 0 to 9
 		for j = 0 to 9
-			ai_map_graphics[i][j].image = UNDEFINED
 			component[] = ai_map_graphics[i][j]
-			player_map_graphics[i][j].image = UNDEFINED
 			component[] = player_map_graphics[i][j]
 
 
@@ -124,11 +117,16 @@ RULESET.game_screen = COMPONENT
 	setup = FUNCTION
 		// initialize the images
 		for i = 0 to SHIPS_PER_PLAYER-1
-			component[] = SHIP_LIST[i].image
 			SHIP_LIST[i].ship_angle = SHIP_LIST[i].image.angle
+			SHIP_LIST[i].image.image = UNDEFINED
+			SHIP_LIST[i].image.image = "ship"+SHIP_LIST[i].size+".gif"
 			SHIP_LIST[i].image.angle = 0
 			SHIP_LIST[i].image.x = SHIP_LIST[i].x
 			SHIP_LIST[i].image.y = SHIP_LIST[i].y
+			// SHIP_LIST2[i].ship_angle will be set by aiPlaceShips()
+			SHIP_LIST2[i].image.angle = 0
+			SHIP_LIST2[i].image.x = SHIP_LIST2[i].x
+			SHIP_LIST2[i].image.y = SHIP_LIST2[i].y
 		for i = 0 to 9
 			for j = 0 to 9
 				ai_map_graphics[i][j].image = UNDEFINED
@@ -139,12 +137,8 @@ RULESET.game_screen = COMPONENT
 			SHIP_LIST2[i].health = SHIP_LIST2[i].size
 		player_sections = SHIPS_PER_PLAYER
 		ai_sections = SHIPS_PER_PLAYER
-		aiPlaceShips()
 		player_score_text.text = 0
 		ai_score = 0
 		instruction_text.text = ""
+		aiPlaceShips()
 		newRound()
-		debug(SHIP_LIST[3])
-
-
-RULESET.initial_screen = game_screen

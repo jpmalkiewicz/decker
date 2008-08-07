@@ -6,6 +6,7 @@ error message when image missing
 error message on faulty font description
 ? popup border doesn't display ?
 AssignmentCommand.fetchStructureMember() is used even if the member variable definitely exists. that's pointless
+COMPONENT.draw()  could change the displayed_screen. this would not stop the drawing of the current screen
 
 
 Engine wishlist:

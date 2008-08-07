@@ -38,11 +38,6 @@ RULESET.place_ships_screen = COMPONENT
 
 	// these are the six ship images
 	for i = 0 to SHIPS_PER_PLAYER-1
-		SHIP_LIST[i].image = IMAGE
-			image = "ship"+SHIP_LIST[i].size+".gif"
-			x = SHIP_LIST[i].x
-			y = SHIP_LIST[i].y
-			angle = 0
 		component[] = SHIP_LIST[i].image
 
 	mouse_ship = IMAGE
@@ -260,6 +255,14 @@ RULESET.place_ships_screen = COMPONENT
 
 
 	on_mouse_dragged = on_mouse_moved
+
+
+
+	setup = FUNCTION
+		for i = 0 to SHIPS_PER_PLAYER-1
+			SHIP_LIST[i].image.angle = 0
+			SHIP_LIST[i].image.x = SHIP_LIST[i].x
+			SHIP_LIST[i].image.y = SHIP_LIST[i].y
 
 
 

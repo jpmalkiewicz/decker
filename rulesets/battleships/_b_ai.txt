@@ -81,7 +81,6 @@ RULESET.aiPlaceShips = FUNCTION
 
 
 RULESET.aiAttack = FUNCTION
-	debug("aiAttack "+ai_shots)
 	// check whether we still need to finish sinking something
 	if aix != UNDEFINED
 		aiSinkShip()
@@ -95,7 +94,6 @@ RULESET.aiAttack = FUNCTION
 		y = random(0,4)*2 + (x%2==0 ? 1 : 0)
 		if ai_map[x][y] == UNDEFINED
 			id = player_map_grid[x][y]
-			debug(x+","+y)
 			if id >= 0
 				player_map_graphics[x][y].image = "explosion.gif"
 				SHIP_LIST[id].health--
@@ -122,7 +120,6 @@ RULESET.aiSinkShip = FUNCTION
 		direction = HORIZONTAL
 	if ( aiy > 0 && ai_map[aix][aiy-1] == id )||( aiy < 9 && ai_map[aix][aiy+1] == id )
 		direction = VERTICAL
-	debug(aix+","+aiy+"  "+direction)
 	while ai_shots > 0 && SHIP_LIST[id].health > 0
 		delta = random(0,1)*2-1
 		if direction == HORIZONTAL ||( direction == UNDEFINED && random(0,1) == 0 )
@@ -140,7 +137,6 @@ RULESET.aiSinkShip = FUNCTION
 					ai_map[x][aiy] = EMPTY
 					ai_shots--
 					player_map_graphics[x][aiy].image = "splash.gif"
-				debug(x+","+aiy)
 		else
 			y = aiy
 			while ai_map[aix][y] == id && y+delta >= 0 && y+delta <= 9
@@ -156,11 +152,8 @@ RULESET.aiSinkShip = FUNCTION
 					ai_map[aix][y] = EMPTY
 					ai_shots--
 					player_map_graphics[aix][y].image = "splash.gif"
-				debug(aix+","+y)
 	// sink the ship if it is dead
 	if SHIP_LIST[id].health == 0
-		if id == 3
-			debug(SHIP_LIST[id])
 		player_sections--
 		while aix > 0 && ai_map[aix-1][aiy] == id
 			aix--
