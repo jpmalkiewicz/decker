@@ -1,6 +1,11 @@
 localization english
 
 	constant
+		SECONDS          // used when calling getTime()
+		MILLISECONDS
+		NANOSECONDS
+
+
 		IDLE             // button states
 		PRESSED
 		DISABLED

@@ -4,3 +4,5 @@ localization english
 	ENGINE.displayed_screen                     // the currently displayed screen
 
 	ENGINE.previous_displayed_screen = ARRAY    // this is the array of previously displayed screens. it is maintained by the different screen setter / getter functions
+
+	ENGINE.FRAMES_PER_SECOND = UNDEFINED

@@ -1,4 +1,8 @@
 85%
+2008-08-17
+	minesweeper : added Fox_hound's graphics, updated the initial screen and first step of the tutorial
+	hardcoded script function added : getTime()
+	hardcoded script function renamed : getStructureStack() is now called getStack()
 2008-08-07
 	processing a user input event is now stopped when the displayed screen changes
 	UIImage overhauled
