@@ -23,8 +23,9 @@ final class StaticScriptFunctions extends ScriptNode
 			case Global.F_DELETE : return execute_delete(args);
 			case Global.F_EXIT_PROGRAM : System.exit(0); return null;
 			case Global.F_FILELIST : return execute_filelist(args);
+			case Global.F_GET_STACK : return execute_get_stack(args);
 			case Global.F_GET_STRUCTURE_MEMBER : return execute_get_structure_member(args);
-			case Global.F_GET_STRUCTURE_STACK : return execute_get_structure_stack(args);
+			case Global.F_GET_TIME : return execute_getTime(args);
 			case Global.F_HAS_VARIABLE : return execute_hasVariable(args);
 			case Global.F_IMAGE_EXISTS : return execute_image_exists(args);
 			case Global.F_INDEXOF : return execute_indexof(args);
@@ -33,7 +34,6 @@ final class StaticScriptFunctions extends ScriptNode
 			case Global.F_IS_EXPANDABLE : return execute_isExpandable(args);
 			case Global.F_PIXELHEIGHT : return execute_pixelheight(args);
 			case Global.F_PIXELWIDTH : return execute_pixelwidth(args);
-			case Global.F_PRINT_STACK : return execute_print_stack(args);
 			case Global.F_RANDOM : return execute_random(args);
 			case Global.F_REPAINT : if ((v=stack[ENGINE_STACK_SLOT].get("frames_per_second")) == null || v.type() != Value.INTEGER || v.integer() <= 0) try { Global.getDisplayedComponent().repaint(); } catch (Throwable t) {}; return new Value();
 			case Global.F_SIZE : return execute_size(args);
@@ -258,6 +258,15 @@ final class StaticScriptFunctions extends ScriptNode
 	}
 
 
+	/** returns the stack, as an array */
+	private final static Value execute_get_stack (final Value[] args) {
+		final Value[] s = new Value[stack_size];
+		for (int i = s.length; --i >= 0; )
+			s[i] = new Value().set(stack[i]);
+		return new Value().set(new ArrayWrapper(s));
+	}
+
+
 	/** executes the hard coded script function getStructureStack(year,month,day) */
 	private final static Value execute_get_structure_member (final Value[] args)  {
 		Value ret;
@@ -268,11 +277,15 @@ final class StaticScriptFunctions extends ScriptNode
 
 
 	/** executes the hard coded script function getStructureStack(year,month,day) */
-	private final static Value execute_get_structure_stack (final Value[] args)  {
-		final Value[] a = new Value[stack_size];
-		for (int i = a.length; --i >= 0; )
-			a[i] = new Value().set(stack[i].get("structure_type"));
-		return new Value().set(new ArrayWrapper(a));
+	private final static Value execute_getTime (final Value[] args)  {
+		Value ret = new Value();
+		if (args.length > 1 && args[0] != null && args[1] != null && args[0].type() == Value.STRUCTURE && (ret=args[0].structure().get(args[1].toString())) != null)
+			return ret;
+		if (args.length > 0 && args[0] != null && !args[0].equalsConstant("SECONDS") && !args[0].equalsConstant("MILLISECONDS") && !args[0].equalsConstant("NANOSECONDS")) {
+			System.out.println("getTime() called with an invalid parameter : "+args[0]+" ("+args[0].typeName()+")");
+			System.err.println("getTime() called with an invalid parameter");
+		}
+		return new Value().set((int) (( (args.length==0||args[0]==null||(!args[0].equalsConstant("SECONDS") && !args[0].equalsConstant("NANOSECONDS"))) ? (System.nanoTime()/1000000) : (args[0].equalsConstant("SECONDS")?(System.nanoTime()/1000000000):System.nanoTime()) ) & 0x7fffffff));
 	}
 
 
@@ -393,12 +406,6 @@ final class StaticScriptFunctions extends ScriptNode
 
 	private final static Value execute_pixelwidth (final Value[] args)  {
 		return new Value().set((args.length == 0 || args[0] == null) ? 0 : Global.getViewWrapper().getView().width(args[0], 0));
-	}
-
-
-	private final static Value execute_print_stack (final Value[] args) {
-		printStack(System.out, "");
-		return DUMMY_VALUE;
 	}
 
 
