@@ -119,7 +119,7 @@ structure
 		attributes
 		name
 		image
-		min_rating     // many ice types only have ice from a certain rating upwards
+		min_rating     // many ice types only exist from a certain rating upwards
 		probability = 100   // probability of this ice type being picked from a list. actual probability is (probability/sum of probabilities of listed ice types)
 		description
 		action         // the variables below hold functions for each action. action(ice) is the function that gets called when the ice is supposed to take its turn

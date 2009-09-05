@@ -374,7 +374,8 @@ RULESET.system_screen = COMPONENT
 			t.on_double_click = FUNCTION (x, y)
 				// test
 				with system_screen
-					loaded_programs[selected_row].type.effect(player, loaded_programs[selected_row], player.current_target)
+					if value_type(loaded_programs[selected_row].type.effect) == "FUNCTION"
+						loaded_programs[selected_row].type.effect(player, loaded_programs[selected_row], player.current_target)
 					if displayed_screen == system_screen
 						updateDisplay()
 

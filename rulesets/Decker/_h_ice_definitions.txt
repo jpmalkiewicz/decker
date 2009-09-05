@@ -422,7 +422,7 @@ RULESET.ICE_TYPES = ARRAY
 
 for i = ICE_TYPES.size-1 downto 0
 	if ICE_TYPES[i].min_rating == UNDEFINED
-		ICE_TYPES[i].min_rating = ICE_TYPES[i].name.size>20 ? 1 : 21 - ICE_TYPES[i].name.size
+		ICE_TYPES[i].min_rating = ICE_TYPES[i].name.size>=20 ? 1 : 21 - ICE_TYPES[i].name.size
 	if ICE_TYPES[i].action == UNDEFINED
 		ICE_TYPES[i].action = iceAction
 	if ICE_TYPES[i].actionQUERYING == UNDEFINED
@@ -433,3 +433,5 @@ for i = ICE_TYPES.size-1 downto 0
 		ICE_TYPES[i].actionGUARDING = ICE_TYPES[i].type != ATTACK ? iceAction_GUARDING : iceAction_GUARDING_ATTACK
 	if ICE_TYPES[i].actionSEARCHING == UNDEFINED
 		ICE_TYPES[i].actionSEARCHING = iceAction_SEARCHING
+	if ICE_TYPES[i].actionWAITING == UNDEFINED
+		ICE_TYPES[i].actionWAITING = iceAction_WAITING

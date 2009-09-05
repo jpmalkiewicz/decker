@@ -4,10 +4,18 @@ RULESET.iceAct = FUNCTION (ice)
 	if value_type(a) == "FUNCTION"
 		a(ice)
 	else if ice.current_action == ATTACKING
+		// the ice is hostile but doesn't have an attack function. sound an alarm instead
 		iceSoundAlarm(ice)
 	else
 		debug("ice "+getName(ice)+" has no function for its current action "+ice.current_action)
 		iceChooseAction(ice)
+
+
+
+
+// normal GUARDING ice doesn't do anything
+RULESET.iceAction_GOING_HOME = FUNCTION (ice)
+// **********************************************
 
 
 
@@ -33,22 +41,35 @@ RULESET.iceAction_INACTIVE = FUNCTION (ice)
 
 
 RULESET.iceAction_QUERYING = FUNCTION (ice)
-	player.query_counter++
-	// querying a player who has decoys automatically results in an alarm
-	if player.deck.decoys.size > 0
-		iceSoundAlarm(ice,RED)
-	else if player.query_counter > 3
-		iceSoundAlarm(ice,YELLOW)
-		if ice.current_action == QUERYING
-			player.query_counter = 1
-	debug("iceAction_QUERYING("+getName(ice)+") = "+player.query_counter)
-// ********************* check whether the player is still there ?
+	if player.node != ice.node
+		iceChooseAction(ice)
+	else
+		player.query_counter++
+		// querying a player who has decoys automatically results in an alarm
+		if player.deck.decoys.size > 0
+			iceSoundAlarm(ice,RED)
+		else if player.query_counter > 3
+			iceSoundAlarm(ice,YELLOW)
+			if ice.current_action == QUERYING
+				player.query_counter = 1
+		debug("iceAction_QUERYING("+getName(ice)+") = "+player.query_counter)
 
 
 
 
 RULESET.iceAction_RESPONDING = FUNCTION (ice)
-// *********************
+	// have we arrived at the alarm node?
+	if ice.node == ice.node.area.response_ice_target
+		ice.current_action = SEARCHING
+		iceAct(ice)
+	else
+		// let the ice look for the player on its way to the node where the alarm was sounded
+		if ice.node != player.node || ice.rating <= player.highest_deceived_ice || !iceNoticesPlayer(ice) || !iceQueryPlayer(ice)
+			// if this node has a path to the node where the alarm was sounded, follow it. otherwise just wander around
+			if ice.node.response_direction != UNDEFINED
+				moveObject(ice, ice.node.response_direction)
+			else
+				iceWander(ice)
 
 
 
@@ -57,7 +78,6 @@ RULESET.iceAction_SEARCHING = FUNCTION (ice)
 	if ice.node != player.node || ice.rating <= player.highest_deceived_ice || !iceNoticesPlayer(ice) || !iceQueryPlayer(ice)
 		// response ice has a 50% chance of moving towards the node where an alarm has last been sounded
 		if ice.response_ice && ice.node.area.system.alert_level == RED && ice.node.response_direction != UNDEFINED && random(0,1) == 0
-// need to define response_direction
 			moveObject(ice, ice.node.response_direction)
 		else
 			iceWander(ice)
@@ -88,6 +108,7 @@ RULESET.iceChooseAction = FUNCTION (ice, act = true)
 			if ice.current_action == QUERYING
 				iceSoundAlarm(ice, YELLOW)
 			// try to follow the player. attacking ice will always check out a neighbouring node in hopes of finding the player. querying ice only follows if the node is not smoked
+			// player.query_counter: there's no need to reset it. that counter is related to player.querying_ice, which becomes UNDEFINED as soon as the player moves. the counter gets initialized when querying_ice variable is set again
 			if ice.type.attributes.follows &&( ice.current_action == ATTACKING || !(ice.node.smoked > 0) )
 				LOCAL.a = -1
 				if !(ice.node.smoked > 0)
@@ -200,8 +221,6 @@ RULESET.iceSetResponseTargetNode = FUNCTION (node)
 					node_count++
 	// dummy value to make the algorithm work
 	node.response_direction = 0
-	while node.response_direction == UNDEFINED
-		node.response_direction = node.connection[random(0,node.connection.size-1)]
 	// now find the shortest path for each node
 	LOCAL.node_count_old = 0
 	// while node_count > 0 && node_count_old != node_count

@@ -1,6 +1,10 @@
 85%
+2009-09-05
+	ice action functions complete, except for GOING_HOME
+2009-03-16
+	double clicking a passive program in the system view no longer causes an error
 2008-08-17
-	minesweeper : added Fox_hound's graphics, updated the initial screen and first step of the tutorial
+	minesweeper : added foxhound's graphics, updated the initial screen and first step of the tutorial
 	hardcoded script function added : getTime()
 	hardcoded script function renamed : getStructureStack() is now called getStack()
 2008-08-07

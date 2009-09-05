@@ -89,12 +89,12 @@ class UIImage extends DisplayedComponent
 		}
 		// adjust the component bounds
 		int k;
-		if ((v=component.get("width")) == null || v.equalsConstant("UNDEFINED")) {
-			w = (image != null) ? image.getWidth(null) : 0;
+		w = (image != null) ? image.getWidth(null) : 0;
+		if (component.type() == Value.STRUCTURE &&( (v=component.get("width")) == null || v.equalsConstant("UNDEFINED") )) {
 			relative_to_parent_width = (v=component.get("x")) != null &&( v.equalsConstant("CENTER") || v.equalsConstant("RIGHT") ||( (k=getPercentageValue(v.toString())) != Integer.MIN_VALUE && k != 0 ));
 		}
-		if ((v=component.get("height")) == null || v.equalsConstant("UNDEFINED")) {
-			h = (image != null) ? image.getHeight(null) : 0;
+		h = (image != null) ? image.getHeight(null) : 0;
+		if (component.type() == Value.STRUCTURE &&( (v=component.get("height")) == null || v.equalsConstant("UNDEFINED") )) {
 			relative_to_parent_height = (v=component.get("y")) != null &&( v.equalsConstant("CENTER") || v.equalsConstant("BOTTOM") ||( (k=getPercentageValue(v.toString())) != Integer.MIN_VALUE && k != 0 ));
 		}
 	}
