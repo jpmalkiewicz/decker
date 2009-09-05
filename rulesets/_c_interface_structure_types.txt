@@ -199,7 +199,7 @@ localization english
 			h_align
 			width            // if you set the width of the TEXTFIELD, the text input will be constrained so the text + cursor will always fit into the field
 			height
-			text
+			text = ""
 			font
 			color
 			cursor = "_"

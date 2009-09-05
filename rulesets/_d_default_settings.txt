@@ -11,3 +11,7 @@ ENGINE.TEXT_STYLE = TEXT
 ENGINE.TEXT_STYLE_BOLD = TEXT
 	font = "Arial;13pt;bold"
 	color = "#ffffff"
+ENGINE.TEXTFIELD_STYLE = TEXTFIELD
+	font = "Arial;13pt;bold"
+	color = "#ffffff"
+	cursor = "_"

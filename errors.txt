@@ -7,6 +7,12 @@ error message on faulty font description
 ? popup border doesn't display ?
 AssignmentCommand.fetchStructureMember() is used even if the member variable definitely exists. that's pointless
 COMPONENT.draw()  could change the displayed_screen. this would not stop the drawing of the current screen
+function stack overflows caused by infinite recursion should give a useful error message
+program needs a function call stack for useful debugging and to avoid function stack overflow errors
+
+
+Tutorial:
+need to mention tabs and monospaced fonts
 
 
 Engine wishlist:
@@ -15,3 +21,13 @@ draggable popups
 color tags within text ( #error, #success )
 remove KEEP_STACK if it isn't used anywhere
 StaticScriptFunctions.execute_delete() should call a function that tells the listeners that the variable has been deleted, not that it has been changed
+
+
+Decker:
+does confused inactive ice act?
+confustion has no effect
+slow has no effect?
+
+what happens when the plaayer switches off the alarm?
+_g_ advanceSystemTime() : ice respawn fehlt
+iceAct() freezes when the ice's action has no defined function

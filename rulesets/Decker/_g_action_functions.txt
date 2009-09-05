@@ -116,13 +116,16 @@ RULESET.adjustPlayerMapSize = FUNCTION (area, x, y, info_level, display_connecti
 
 RULESET.advanceSystemTime = FUNCTION
 	LOCAL.area = player.node.area
+	debug("advanceSystemTime: "+(area != UNDEFINED))
 	if area != UNDEFINED
 		LOCAL.a = area.active_ice
+		debug("advanceSystemTime: active ice = "+a.size+" inactive ice "+area.inactive_ice)
 		for i = a.size-1 downto 0
 			debug("ice action : " + a[i].type.type + " " + getName(a[i]) + " " +a[i].current_action + "  ("+a[i].node.x+","+a[i].node.y+")    ("+player.node.x+","+player.node.y+")", true)
 			iceAct(a[i])
 // ******************
 // respawn ice and set    ice.respawned = true
+	debug("_g_ advanceSystemTime: need to respawn dead ice")
 	// update the display
 	if displayed_screen == system_screen
 		system_screen.updateDisplay()
@@ -301,6 +304,7 @@ RULESET.movePlayer = FUNCTION (target)
 				n.area.player_map = m
 			if !(n.info_level >= 2)
 				adjustPlayerMapSize(n.area, n.x, n.y, 2)
+		advanceSystemTime()
 
 
 
@@ -309,6 +313,10 @@ RULESET.placeObject = FUNCTION (object, node, from_direction)
 	LOCAL.x
 	LOCAL.y
 	LOCAL.node_map = getStructureMember(BLOCKED_NODE_REGIONS, toLowerCase(getNodeTypeCategory(node.type)))
+// debug code **********************************
+	if node_map == UNDEFINED
+		debug("_g_ placeObject: "+node.type+" "+toLowerCase(getNodeTypeCategory(node.type))+" "+(node_map != UNDEFINED))
+// debug code END **********************************
 	if object.structure_type == "ICE" && node == object.home_node && object.type.type == GUARD
 		if value_type(object.guarded_object) == "INTEGER"
 			x = 4 + DELTA_X[object.guarded_object] * 4
